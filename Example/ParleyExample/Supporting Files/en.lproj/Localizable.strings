@@ -1,0 +1,12 @@
+"identifier_title" = "Hello!";
+"identifier_body" = "Enter your identification code to start a chat session.";
+"identifier_placeholder" = "Identification code";
+"identifier_start" = "Start chat";
+
+"identifier_error_title" = "Incorrect identification code";
+"identifier_error_body" = "You have entered an incorrect identification code. Try again.";
+
+"general_ok" = "Ok";
+
+"chat_title" = "Chat";
+"documentation_title" = "Documentation";

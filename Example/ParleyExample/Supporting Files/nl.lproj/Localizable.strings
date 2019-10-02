@@ -1,0 +1,12 @@
+"identifier_title" = "Hallo!";
+"identifier_body" = "Voer je identificatie code in om een chatsessie te starten.";
+"identifier_placeholder" = "Identificatie code";
+"identifier_start" = "Chat starten";
+
+"identifier_error_title" = "Foutieve identificatie code";
+"identifier_error_body" = "Je hebt een foutieve identificatie code ingevoerd. Probeer opnieuw.";
+
+"general_ok" = "Oke";
+
+"chat_title" = "Chat";
+"documentation_title" = "Documentatie";
