@@ -1,0 +1,2 @@
+let kUserDefaultIdentificationCode = "user_defaults_identification_code"
+let kUserDefaultIdentificationCodeDefault = "0W4qcE5aXoKq9OzvHxj2"

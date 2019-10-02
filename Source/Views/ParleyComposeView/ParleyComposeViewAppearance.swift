@@ -1,0 +1,24 @@
+public class ParleyComposeViewAppearance {
+        
+    public var backgroundColor = UIColor(white:0.92, alpha:1.0)
+    
+    public var inputBackgroundColor = UIColor.white
+    public var inputBorderColor = UIColor(white:0.87, alpha:1.0)
+    
+    public var cameraIcon: UIImage
+    public var cameraTintColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
+    
+    public var sendIcon: UIImage
+    public var sendBackgroundColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
+    public var sendTintColor: UIColor? = UIColor.white
+    
+    public var textColor = UIColor.black
+    public var tintColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
+    public var placeholderColor = UIColor(red:0.64, green:0.67, blue:0.68, alpha:1.0)
+    public var font = UIFont.systemFont(ofSize: 17, weight: .regular)
+    
+    init() {
+        self.cameraIcon = UIImage(named: "ic_camera", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        self.sendIcon = UIImage(named: "ic_send", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+    }
+}

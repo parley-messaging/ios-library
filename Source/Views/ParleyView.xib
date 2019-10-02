@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ParleyView" customModule="Parley" customModuleProvider="target">
+            <connections>
+                <outlet property="activityIndicatorView" destination="ia4-aN-GDT" id="6wW-et-sC0"/>
+                <outlet property="composeView" destination="LwN-Tu-1Cr" id="l3b-wL-jl1"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="OEN-6p-26p"/>
+                <outlet property="messagesTableView" destination="lAj-6r-J3s" id="ci0-On-tPl"/>
+                <outlet property="offlineNotificationView" destination="JuJ-45-jqA" id="cxP-bo-Tx0"/>
+                <outlet property="pushDisabledNotificationView" destination="hey-oA-c9S" id="7PQ-ro-Ut4"/>
+                <outlet property="stackView" destination="OE5-rN-JE3" id="5fk-Jr-zmr"/>
+                <outlet property="statusLabel" destination="cvD-Dt-1VK" id="fYD-ks-nwh"/>
+                <outlet property="stickyView" destination="ddE-q7-khO" id="Eiu-Pt-rg9"/>
+                <outlet property="tapGestureRecognizer" destination="ab4-TF-tKw" id="Udz-5r-zAP"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="ReversedTableView" customModule="Parley" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="44" width="414" height="764"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                </tableView>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3">
+                    <rect key="frame" x="0.0" y="44" width="414" height="88"/>
+                    <subviews>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hey-oA-c9S" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="28"/>
+                            <color key="backgroundColor" red="0.80784313725490198" green="0.81176470588235294" blue="0.79607843137254897" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="28" placeholder="YES" id="wdt-9t-Gyg"/>
+                            </constraints>
+                        </view>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JuJ-45-jqA" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="28" width="414" height="28"/>
+                            <color key="backgroundColor" red="0.80784313730000001" green="0.81176470590000005" blue="0.79607843140000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="28" placeholder="YES" id="K5z-Wj-xOY"/>
+                            </constraints>
+                        </view>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ddE-q7-khO" customClass="ParleyStickyView" customModule="Parley" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="56" width="414" height="32"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="32" placeholder="YES" id="sRY-Fj-2Rg"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="ddE-q7-khO" firstAttribute="leading" secondItem="OE5-rN-JE3" secondAttribute="leadingMargin" id="BnX-dk-8gD"/>
+                        <constraint firstAttribute="trailing" secondItem="hey-oA-c9S" secondAttribute="trailing" id="SBc-Rl-WJO"/>
+                        <constraint firstItem="JuJ-45-jqA" firstAttribute="top" secondItem="hey-oA-c9S" secondAttribute="bottom" id="Tlx-lZ-9VA"/>
+                        <constraint firstAttribute="trailing" secondItem="ddE-q7-khO" secondAttribute="trailing" id="Xhm-Zj-77f"/>
+                        <constraint firstItem="ddE-q7-khO" firstAttribute="bottom" secondItem="OE5-rN-JE3" secondAttribute="bottomMargin" id="Y4x-nQ-wmF"/>
+                        <constraint firstAttribute="trailing" secondItem="JuJ-45-jqA" secondAttribute="trailing" id="bbh-2k-bDh"/>
+                        <constraint firstItem="hey-oA-c9S" firstAttribute="top" secondItem="OE5-rN-JE3" secondAttribute="topMargin" id="jKk-5A-jqf"/>
+                        <constraint firstItem="hey-oA-c9S" firstAttribute="leading" secondItem="OE5-rN-JE3" secondAttribute="leadingMargin" id="mri-SF-IyK"/>
+                        <constraint firstItem="ddE-q7-khO" firstAttribute="top" secondItem="JuJ-45-jqA" secondAttribute="bottom" id="qTs-8f-Xg5"/>
+                        <constraint firstItem="JuJ-45-jqA" firstAttribute="leading" secondItem="OE5-rN-JE3" secondAttribute="leadingMargin" id="vJt-9G-LE8"/>
+                    </constraints>
+                </stackView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="808" width="414" height="88"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="88" placeholder="YES" id="Pfc-xK-Uf9"/>
+                    </constraints>
+                </view>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="ia4-aN-GDT">
+                    <rect key="frame" x="197" y="443" width="20" height="20"/>
+                </activityIndicatorView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="parley_failed_to_configure" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cvD-Dt-1VK">
+                    <rect key="frame" x="109" y="443" width="196.5" height="20.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" red="0.68235294117647061" green="0.68235294117647061" blue="0.68235294117647061" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstItem="OE5-rN-JE3" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="1Qk-fR-oeV"/>
+                <constraint firstItem="OE5-rN-JE3" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="1sk-LL-Khl"/>
+                <constraint firstItem="LwN-Tu-1Cr" firstAttribute="top" secondItem="lAj-6r-J3s" secondAttribute="bottom" id="2zZ-hj-5D4"/>
+                <constraint firstAttribute="trailing" secondItem="OE5-rN-JE3" secondAttribute="trailing" id="B8e-2k-lBS"/>
+                <constraint firstAttribute="bottom" secondItem="LwN-Tu-1Cr" secondAttribute="bottom" id="Cbi-PT-rdi"/>
+                <constraint firstAttribute="trailing" secondItem="LwN-Tu-1Cr" secondAttribute="trailing" id="ClF-t3-PYN"/>
+                <constraint firstItem="lAj-6r-J3s" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="HbP-0j-hsA"/>
+                <constraint firstItem="ia4-aN-GDT" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hjg-4r-I43"/>
+                <constraint firstItem="cvD-Dt-1VK" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="O6w-Zn-4GC"/>
+                <constraint firstItem="lAj-6r-J3s" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UUp-qI-W7y"/>
+                <constraint firstItem="ia4-aN-GDT" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="b9L-1N-0Sl"/>
+                <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="cVA-uV-nmT"/>
+                <constraint firstItem="lAj-6r-J3s" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="fE4-lU-Lfq"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cvD-Dt-1VK" secondAttribute="trailing" constant="16" id="fYn-7i-q2p"/>
+                <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="kjD-7A-EaA"/>
+                <constraint firstItem="LwN-Tu-1Cr" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="nnX-P8-5qI"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="137.68115942028987" y="152.67857142857142"/>
+        </view>
+        <tapGestureRecognizer delaysTouchesEnded="NO" id="ab4-TF-tKw">
+            <connections>
+                <action selector="hideKeyboard:" destination="-1" id="UsI-Ko-tyQ"/>
+            </connections>
+        </tapGestureRecognizer>
+    </objects>
+</document>

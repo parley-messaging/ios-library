@@ -1,0 +1,13 @@
+platform :ios, '11.0'
+
+target 'ParleyExample' do
+  use_frameworks!
+
+  pod 'Parley', :path => '../'
+  
+  pod 'Fabric'
+  pod 'Crashlytics'
+  
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+end
