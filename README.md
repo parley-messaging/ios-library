@@ -132,8 +132,8 @@ The network configuration can be set by setting a `ParleyNetwork` to the `Parley
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.2/",
-    pin1: "mFb9BCOL58AEAe10PkhCGldOhjSY+M0l0sziLWar13c=",
-    pin2: "S0mHTmqv2QhJEfy5vyPVERSnyMEliJzdC8RXduOjhAs="
+    pin1: "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI=",
+    pin2: "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY="
 )
 
 Parley.setNetwork(network)
@@ -155,8 +155,8 @@ let headers: [String: String] = [
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.2/",
-    pin1: "mFb9BCOL58AEAe10PkhCGldOhjSY+M0l0sziLWar13c=",
-    pin2: "S0mHTmqv2QhJEfy5vyPVERSnyMEliJzdC8RXduOjhAs=",
+    pin1: "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI=",
+    pin2: "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY=",
     headers: headers
 )
 

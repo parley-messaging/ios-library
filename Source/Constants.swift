@@ -4,8 +4,8 @@ let kParleyMessageMaxCount = 5000
 
 let kParleyNetworkUrl = "https://api.parley.nu/"
 let kParleyNetworkPath = "clientApi/v1.2/"
-let kParleyNetworkPin1 = "mFb9BCOL58AEAe10PkhCGldOhjSY+M0l0sziLWar13c="
-let kParleyNetworkPin2 = "S0mHTmqv2QhJEfy5vyPVERSnyMEliJzdC8RXduOjhAs="
+let kParleyNetworkPin1 = "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI="
+let kParleyNetworkPin2 = "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY="
 
 let kParleyTypeMessage = "message"
 let kParleyTypeEvent = "event"
