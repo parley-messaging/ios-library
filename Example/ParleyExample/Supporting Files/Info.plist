@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIUserInterfaceStyle</key>
-	<string>Light</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -19,36 +17,19 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0.1</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>0d5cdf4f972e14302f6d1f6b1850513f87212e50</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We hebben toegang tot de camera nodig om foto&apos;s te kunnen maken.</string>
+	<string>We hebben toegang tot de camera nodig om foto's te kunnen maken.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We hebben toegang tot de foto bibliotheek nodig om foto&apos;s te kunnen selecteren.</string>
+	<string>We hebben toegang tot de foto bibliotheek nodig om foto's te kunnen selecteren.</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>PTSans-Regular.ttf</string>
-		<string>PTSans-Italic.ttf</string>
-		<string>PTSans-Bold.ttf</string>
 		<string>Montserrat-Bold.ttf</string>
 		<string>Montserrat-BoldItalic.ttf</string>
 		<string>Montserrat-Medium.ttf</string>
@@ -74,6 +55,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

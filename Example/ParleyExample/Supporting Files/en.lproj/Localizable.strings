@@ -1,6 +1,7 @@
 "identifier_title" = "Hello!";
 "identifier_body" = "Enter your identification code to start a chat session.";
 "identifier_placeholder" = "Identification code";
+"identifier_customer_identification_placeholder" = "Customer identification (optional)";
 "identifier_start" = "Start chat";
 
 "identifier_error_title" = "Incorrect identification code";

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MessageCollectionViewCell" id="R8h-HO-hgE" customClass="MessageCollectionViewCell" customModule="Parley" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="250" height="350"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="3Ck-FA-RAx">
+                <rect key="frame" x="0.0" y="0.0" width="250" height="350"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gr2-Pm-ysq" customClass="ParleyMessageView" customModule="Parley" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="350"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="250" id="7Ot-Xg-ppt"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Gr2-Pm-ysq" secondAttribute="bottom" id="8ci-tu-gy8"/>
+                    <constraint firstAttribute="bottom" secondItem="Gr2-Pm-ysq" secondAttribute="bottom" placeholder="YES" id="Cgh-Lf-qS7"/>
+                    <constraint firstAttribute="trailing" secondItem="Gr2-Pm-ysq" secondAttribute="trailing" id="MFD-5Y-Ff0"/>
+                    <constraint firstItem="Gr2-Pm-ysq" firstAttribute="leading" secondItem="3Ck-FA-RAx" secondAttribute="leading" id="Q0U-Wh-6OM"/>
+                    <constraint firstItem="Gr2-Pm-ysq" firstAttribute="top" secondItem="3Ck-FA-RAx" secondAttribute="top" id="adq-zz-IuD"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="310" height="542"/>
+            <connections>
+                <outlet property="parleyMessageView" destination="Gr2-Pm-ysq" id="lC5-dS-yHN"/>
+                <outlet property="widthLayoutConstraint" destination="7Ot-Xg-ppt" id="lWq-Nv-CJX"/>
+            </connections>
+            <point key="canvasLocation" x="7.2463768115942031" y="12.053571428571429"/>
+        </collectionViewCell>
+    </objects>
+</document>

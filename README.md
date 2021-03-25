@@ -7,7 +7,7 @@ Easily setup a secure chat with the Parley Messaging iOS library. The Parley SDK
 ## Requirements
 
 - iOS 11.0+
-- Xcode 11+
+- Xcode 12+
 - Swift 5+
 
 **Firebase**
@@ -25,8 +25,14 @@ Empty | Conversation
 [CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Parley into your Xcode project, specify it in your `Podfile`:
 
 ```ruby
-pod 'Parley', '~> 3.0.1'
+pod 'Parley', '~> 3.1.0'
 ```
+
+### Upgrading from 3.0.x to 3.1.0
+
+3.1.0 contains a breaking change related to Public Key Pinning. Parley is not depending on TrustKit anymore.
+
+Check out step 5 of the configuration to apply the new configuration.
 
 ## Getting started
 
@@ -78,7 +84,7 @@ Parley.configure("appSecret")
 
 ### Step 3: Configure Firebase
 
-Parley needs the FCM token to successfully handle remote notification.
+Parley needs the FCM token to successfully handle remote notifications.
 
 **FCM Token**
 
@@ -120,26 +126,32 @@ Add a camera and photo library usage description to the `Info.plist` file.
 <string>We need access to the photo library to select photos.</string>
 ```
 
+### Step 5: Add the certificate of the chat API
+
+By default, Parley applies Public Key Pinning on every request executed to the chat api. In order to do you need to add the certificate to your project.
+
+You can use the certificate in this repository when using the default base url (`/Example/ParleyExample/Supported Files/*.parley.nu.cer`).
+
+*More information about Public Key Pinning can be found on the website of [OWASP](https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning).*
+
 ## Advanced
 
 Parley allows the usage of advanced configurations, such as specifying the network, specifying the user information or enabling offline messaging. In all use cases it is recommended to apply the advanced configurations before configuring the chat with `Parley.configure(_ secret: String)`.
 
 ### Network
 
-The network configuration can be set by setting a `ParleyNetwork` to the `Parley.setNetwork(_ network: ParleyNetwork)` method.
+The network configuration can be set by setting a `ParleyNetwork` with the `Parley.setNetwork(_ network: ParleyNetwork)` method.
 
 ```swift
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.2/",
-    pin1: "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI=",
-    pin2: "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY="
 )
 
 Parley.setNetwork(network)
 ```
 
-*More information about Public Key Pinning can be found on the website of [OWASP](https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning).*
+*Don't forget to add the right certificate to the project.*
 
 **Custom headers**
 
@@ -155,8 +167,6 @@ let headers: [String: String] = [
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.2/",
-    pin1: "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI=",
-    pin2: "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY=",
     headers: headers
 )
 
@@ -175,7 +185,7 @@ Parley.setUserInformation(authorization)
 
 **Additional information**
 
-Additionally, you can set additional information of the user by using the `additionalInformation` parameters in `Parley.setUserInformation()` method. The parameter accept a `[String: String]` Dictionary.
+Additionally, you can set additional information of the user by using the `additionalInformation` parameter in `Parley.setUserInformation()` method. The parameter accepts a `[String: String]` Dictionary.
 
 ```swift
 let authorization = "ZGFhbnw5ZTA5ZjQ2NWMyMGNjYThiYjMxNzZiYjBhOTZmZDNhNWY0YzVlZjYzMGVhNGZmMWUwMjFjZmE0NTEyYjlmMDQwYTJkMTJmNTQwYTE1YmUwYWU2YTZjNTc4NjNjN2IxMmRjODNhNmU1ODNhODhkMmQwNzY2MGYxZTEzZDVhNDk1Mnw1ZDcwZjM5ZTFlZWE5MTM2YmM3MmIwMzk4ZDcyZjEwNDJkNzUwOTBmZmJjNDM3OTg5ZWU1MzE5MzdlZDlkYmFmNTU1YTcyNTUyZWEyNjllYmI5Yzg5ZDgyZGQ3MDYwYTRjZGYxMzE3NWJkNTUwOGRhZDRmMDA1MTEzNjlkYjkxNQ"
@@ -197,7 +207,7 @@ Parley.clearUserInformation()
 
 ### Offline messaging
 
-Offline messaging can be enabled with the `Parley.enableOfflineMessage(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which used AES128 encryption.
+Offline messaging can be enabled with the `Parley.enableOfflineMessaging(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES128 encryption.
 
 ```swift
 if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="eqZ-7O-pFe">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="eqZ-7O-pFe">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -51,13 +51,13 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="identifier_title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQ7-He-1vc">
                                 <rect key="frame" x="32" y="232" width="350" height="28"/>
                                 <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat SemiBold" pointSize="24"/>
-                                <color key="textColor" name="Primary"/>
+                                <color key="textColor" name="primaryColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="identifier_body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zyc-ly-Nn0">
                                 <rect key="frame" x="32" y="276" width="350" height="20"/>
                                 <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat SemiBold" pointSize="17"/>
-                                <color key="textColor" name="Primary"/>
+                                <color key="textColor" name="primaryColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="K55-XD-ud8">
@@ -65,7 +65,7 @@
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="identifier_placeholder" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="17Y-dy-2jA">
                                         <rect key="frame" x="8" y="8" width="342" height="34"/>
-                                        <color key="textColor" name="Primary"/>
+                                        <color key="textColor" name="primaryColor"/>
                                         <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="17"/>
                                         <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                     </textField>
@@ -79,8 +79,27 @@
                                     <constraint firstItem="17Y-dy-2jA" firstAttribute="top" secondItem="K55-XD-ud8" secondAttribute="top" constant="8" id="VRz-Mo-ckY"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="836-54-gZW">
+                                <rect key="frame" x="32" y="370" width="350" height="50"/>
+                                <subviews>
+                                    <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="identifier_customer_identification_placeholder" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Rks-Ip-bLV">
+                                        <rect key="frame" x="8" y="8" width="342" height="34"/>
+                                        <color key="textColor" name="primaryColor"/>
+                                        <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="17"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                                    </textField>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="31M-FL-EbX"/>
+                                    <constraint firstAttribute="trailing" secondItem="Rks-Ip-bLV" secondAttribute="trailing" id="N43-Fh-Fjw"/>
+                                    <constraint firstAttribute="bottom" secondItem="Rks-Ip-bLV" secondAttribute="bottom" constant="8" id="QRD-do-8je"/>
+                                    <constraint firstItem="Rks-Ip-bLV" firstAttribute="top" secondItem="836-54-gZW" secondAttribute="top" constant="8" id="klG-kl-LDG"/>
+                                    <constraint firstItem="Rks-Ip-bLV" firstAttribute="leading" secondItem="836-54-gZW" secondAttribute="leading" constant="8" id="qN0-tf-Cs7"/>
+                                </constraints>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7T9-o4-Qc4">
-                                <rect key="frame" x="32" y="378" width="350" height="50"/>
+                                <rect key="frame" x="32" y="428" width="350" height="50"/>
                                 <color key="backgroundColor" name="primaryColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="Q3p-nM-rYh"/>
@@ -95,6 +114,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
                         <constraints>
+                            <constraint firstItem="836-54-gZW" firstAttribute="leading" secondItem="DHZ-rr-q0C" secondAttribute="leading" constant="32" id="17g-rI-Mpr"/>
                             <constraint firstItem="K55-XD-ud8" firstAttribute="top" secondItem="Zyc-ly-Nn0" secondAttribute="bottom" constant="16" id="1KJ-h6-i0z"/>
                             <constraint firstItem="DHZ-rr-q0C" firstAttribute="trailing" secondItem="K55-XD-ud8" secondAttribute="trailing" constant="32" id="3SZ-Ry-f8C"/>
                             <constraint firstItem="Dth-jc-M6I" firstAttribute="top" secondItem="DHZ-rr-q0C" secondAttribute="top" id="9LD-78-Wa3"/>
@@ -108,12 +128,14 @@
                             <constraint firstItem="Dth-jc-M6I" firstAttribute="bottom" secondItem="sb3-Zd-vnj" secondAttribute="bottom" id="SnL-Ba-KvA"/>
                             <constraint firstAttribute="trailing" secondItem="sb3-Zd-vnj" secondAttribute="trailing" id="a6g-mL-Pa5"/>
                             <constraint firstItem="Dth-jc-M6I" firstAttribute="leading" secondItem="sb3-Zd-vnj" secondAttribute="leading" id="g3U-lV-6CR"/>
-                            <constraint firstItem="7T9-o4-Qc4" firstAttribute="top" secondItem="K55-XD-ud8" secondAttribute="bottom" constant="16" id="hvv-yV-CeS"/>
                             <constraint firstItem="DHZ-rr-q0C" firstAttribute="trailing" secondItem="7T9-o4-Qc4" secondAttribute="trailing" constant="32" id="iQt-DM-4Fc"/>
                             <constraint firstItem="K55-XD-ud8" firstAttribute="leading" secondItem="DHZ-rr-q0C" secondAttribute="leading" constant="32" id="jGr-zM-oNu"/>
                             <constraint firstItem="7T9-o4-Qc4" firstAttribute="leading" secondItem="DHZ-rr-q0C" secondAttribute="leading" constant="32" id="lC8-22-RaA"/>
                             <constraint firstItem="sb3-Zd-vnj" firstAttribute="leading" secondItem="q9F-jn-bhd" secondAttribute="leading" id="mlR-ed-bbG"/>
+                            <constraint firstItem="836-54-gZW" firstAttribute="top" secondItem="K55-XD-ud8" secondAttribute="bottom" constant="8" id="sEp-a5-frs"/>
                             <constraint firstItem="Zyc-ly-Nn0" firstAttribute="top" secondItem="dQ7-He-1vc" secondAttribute="bottom" constant="16" id="sRv-ph-gAd"/>
+                            <constraint firstItem="7T9-o4-Qc4" firstAttribute="top" secondItem="836-54-gZW" secondAttribute="bottom" constant="8" id="vJu-gr-Cjz"/>
+                            <constraint firstItem="DHZ-rr-q0C" firstAttribute="trailing" secondItem="836-54-gZW" secondAttribute="trailing" constant="32" id="yN7-xs-F5x"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="DHZ-rr-q0C"/>
                         <connections>
@@ -123,6 +145,8 @@
                     <navigationItem key="navigationItem" id="g5h-E5-oXz"/>
                     <connections>
                         <outlet property="bodyLabel" destination="Zyc-ly-Nn0" id="dQr-zg-HlG"/>
+                        <outlet property="customerIdentificationBackgroundView" destination="836-54-gZW" id="6ak-TQ-f99"/>
+                        <outlet property="customerIdentificationTextView" destination="Rks-Ip-bLV" id="Abw-m2-bsI"/>
                         <outlet property="identifierBackgroundView" destination="K55-XD-ud8" id="N0w-o3-tOl"/>
                         <outlet property="identifierTextView" destination="17Y-dy-2jA" id="Bm8-kq-bdv"/>
                         <outlet property="startButton" destination="7T9-o4-Qc4" id="bUQ-Ig-m1j"/>
@@ -250,7 +274,7 @@
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
                             </wkWebView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="gmy-kE-He6">
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="gmy-kE-He6">
                                 <rect key="frame" x="197" y="352.5" width="20" height="20"/>
                             </activityIndicatorView>
                         </subviews>
@@ -283,9 +307,6 @@
         <image name="TabChatInactive" width="32" height="32"/>
         <image name="TabDocumentationActive" width="32" height="32"/>
         <image name="TabDocumentationInactive" width="32" height="32"/>
-        <namedColor name="Primary">
-            <color red="0.29019607843137257" green="0.36862745098039218" blue="0.51372549019607838" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <namedColor name="primaryColor">
             <color red="0.29019607843137257" green="0.36862745098039218" blue="0.51372549019607838" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

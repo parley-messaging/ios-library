@@ -1,6 +1,7 @@
 "identifier_title" = "Hallo!";
 "identifier_body" = "Voer je identificatie code in om een chatsessie te starten.";
 "identifier_placeholder" = "Identificatie code";
+"identifier_user_authorization_placeholder" = "Klant identificatie (optioneel)";
 "identifier_start" = "Chat starten";
 
 "identifier_error_title" = "Foutieve identificatie code";

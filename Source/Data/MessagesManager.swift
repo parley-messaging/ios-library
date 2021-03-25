@@ -71,7 +71,6 @@ class MessagesManager {
             break
         }
         
-        Parley.shared.dataSource?.clear();
         Parley.shared.dataSource?.save(self.originalMessages)
         
         self.stickyMessage = messageCollection.stickyMessage
@@ -98,7 +97,6 @@ class MessagesManager {
         if self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(self.messages[index].time, inSameDayAs: message.time))) {
             let dateMessage = Message()
             dateMessage.time = message.time
-            dateMessage.message = message.time.asDate()
             dateMessage.type = .date
             
             indexPaths.append(IndexPath(row: index + 1, section: 0))

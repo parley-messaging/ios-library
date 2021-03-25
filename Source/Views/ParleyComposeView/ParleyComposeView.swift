@@ -42,7 +42,7 @@ public class ParleyComposeView: UIView {
     
     var appearance: ParleyComposeViewAppearance = ParleyComposeViewAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     var delegate: ParleyComposeViewDelegate?
@@ -59,7 +59,7 @@ public class ParleyComposeView: UIView {
             self.sendButton.isEnabled = self.isEnabled && !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
-    var maxCount: Int = Int(INT_MAX)
+    var maxCount: Int = 2000
     
     var allowPhotos = true {
         didSet {
@@ -83,7 +83,7 @@ public class ParleyComposeView: UIView {
     private func setup() {
         self.loadXib()
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     private func loadXib() {
@@ -125,7 +125,7 @@ public class ParleyComposeView: UIView {
     }
     
     @IBAction func send(_ sender: UIButton) {
-        if let message = self.textView.text {
+        if let message = self.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
             self.delegate?.send(message)
         }
         
@@ -279,23 +279,23 @@ extension ParleyComposeView: KeyboardAccessoryViewDelegate {
 extension ParleyComposeView: UIImagePickerControllerDelegate {
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-//        if let imageURL = info[.imageURL] as? URL, let phAsset = info[.phAsset] as? PHAsset {
-//            PHImageManager.default().requestImageData(for: phAsset, options: nil) { (data, uti, _, _) in
-//                if uti?.contains(".gif") == true, let data = data, let image = UIImage.gif(data: data) {
-//                    self.delegate?.send(imageURL, image, data)
-//                    
-//                    picker.dismiss(animated: true, completion: nil)
-//                } else if let data = data, let image = UIImage(data: data) {
-//                    self.delegate?.send(imageURL, image, data)
-//                    
-//                    picker.dismiss(animated: true, completion: nil)
-//                } else {
-//                    self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
-//                }
-//            }
-//        } else  {
+        if let imageURL = info[.imageURL] as? URL, let phAsset = info[.phAsset] as? PHAsset {
+            PHImageManager.default().requestImageData(for: phAsset, options: nil) { (data, uti, _, _) in
+                if uti?.contains(".gif") == true, let data = data, let image = UIImage.gif(data: data) {
+                    self.delegate?.send(imageURL, image, data)
+                    
+                    picker.dismiss(animated: true, completion: nil)
+                } else if let data = data, let image = UIImage(data: data) {
+                    self.delegate?.send(imageURL, image, data)
+                    
+                    picker.dismiss(animated: true, completion: nil)
+                } else {
+                    self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
+                }
+            }
+        } else  {
             self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
-//        }
+        }
     }
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaLegacyWithInfo info: [UIImagePickerController.InfoKey : Any]) {

@@ -31,6 +31,21 @@ class IdentifierViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var customerIdentificationBackgroundView: UIView! {
+        didSet {
+            self.customerIdentificationBackgroundView.layer.cornerRadius = 5
+            self.customerIdentificationBackgroundView.layer.borderWidth = 1
+            self.customerIdentificationBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
+        }
+    }
+    
+    @IBOutlet weak var customerIdentificationTextView: UITextField! {
+        didSet {
+            self.customerIdentificationTextView.placeholder = NSLocalizedString("identifier_customer_identification_placeholder", comment: "")
+            self.customerIdentificationTextView.text = UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification)
+        }
+    }
+    
     @IBOutlet weak var startButton: UIButton! {
         didSet {
             self.startButton.layer.cornerRadius = 5
@@ -48,7 +63,6 @@ class IdentifierViewController: UIViewController {
         super.viewDidLoad()
         
         self.setParleyNetworkConfiguration()
-        self.setUserInformation()
         self.setOfflineMessagingEnabled()
         
         self.setNeedsStatusBarAppearanceUpdate()
@@ -63,8 +77,6 @@ class IdentifierViewController: UIViewController {
         let network = ParleyNetwork(
             url: "https://api.parley.nu/",
             path: "clientApi/v1.2/",
-            pin1: "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI=",
-            pin2: "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY=",
             headers: headers
         )
 
@@ -95,20 +107,10 @@ class IdentifierViewController: UIViewController {
     }
     
     @IBAction func startChat(_ sender: Any) {
-        if let secret = self.identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty, secret.count == 20 {
-            self.startButton.setLoading(true)
-            
-            Parley.configure(secret, onSuccess: {
-                self.startButton.setLoading(false)
-                
-                UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
-                
-                self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            }) { _, _ in
-                self.startButton.setLoading(false)
-                
-                self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            }
+        if let customerIdentification = self.customerIdentificationTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !customerIdentification.isEmpty {
+            self.startChat(customerIdentification: customerIdentification)
+        } else if let secret = self.identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty, secret.count == 20 {
+            self.startChat(secret: secret)
         } else {
             let alertController = UIAlertController(
                 title: NSLocalizedString("identifier_error_title", comment: ""),
@@ -122,6 +124,53 @@ class IdentifierViewController: UIViewController {
             ))
             
             self.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    private func startChat(customerIdentification: String) {
+        self.startButton.setLoading(true)
+        
+        let authorization = ParleyCustomerAuthorization.generate(
+            identification: customerIdentification,
+            secret: kParleyUserAuthorizationSecret,
+            sharedSecret: kParleyUserAuthorizationSharedSecret
+        )
+        Parley.setUserInformation(authorization)
+        
+        Parley.configure(kParleySecret, onSuccess: {
+            self.startButton.setLoading(false)
+            
+            self.identifierTextView.text = kParleySecret
+            
+            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
+            UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
+            
+            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        }) { _, _ in
+            self.startButton.setLoading(false)
+            
+            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        }
+    }
+    
+    private func startChat(secret: String) {
+        self.startButton.setLoading(true)
+        
+        if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
+            Parley.clearUserInformation()
+        }
+        
+        Parley.configure(secret, onSuccess: {
+            self.startButton.setLoading(false)
+            
+            UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
+            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
+            
+            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        }) { _, _ in
+            self.startButton.setLoading(false)
+            
+            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
         }
     }
 }

@@ -11,14 +11,14 @@ internal class LoadingTableViewCell: UITableViewCell {
     
     internal var appearance = LoadingTableViewCellAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     internal func startAnimating() {
@@ -27,10 +27,9 @@ internal class LoadingTableViewCell: UITableViewCell {
     
     internal func stopAnimating() {
         self.activityIndicatorView.stopAnimating()
-        
     }
     
-    internal func apply(_ appearance: LoadingTableViewCellAppearance) {
+    private func apply(_ appearance: LoadingTableViewCellAppearance) {
         self.activityIndicatorView.color = appearance.loaderTintColor
         
         self.topLayoutConstraint.constant = appearance.contentInset?.top ?? 0

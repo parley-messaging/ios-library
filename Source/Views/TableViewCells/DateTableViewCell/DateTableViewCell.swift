@@ -12,21 +12,21 @@ internal class DateTableViewCell: UITableViewCell {
     
     internal var appearance = DateTableViewCellAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     
     override public func awakeFromNib() {
         super.awakeFromNib()
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     internal func render(_ message: Message) {
-        self.timeLabel.text = message.message.uppercased()
+        self.timeLabel.text = message.time.asDate()
     }
     
-    func apply(_ appearance: DateTableViewCellAppearance) {
+    private func apply(_ appearance: DateTableViewCellAppearance) {
         self.timeView.backgroundColor = appearance.backgroundColor
         self.timeView.layer.cornerRadius = CGFloat(appearance.cornerRadius)
         

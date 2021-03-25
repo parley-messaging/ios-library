@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,6 +19,7 @@
                 <outlet property="stackView" destination="OE5-rN-JE3" id="5fk-Jr-zmr"/>
                 <outlet property="statusLabel" destination="cvD-Dt-1VK" id="fYD-ks-nwh"/>
                 <outlet property="stickyView" destination="ddE-q7-khO" id="Eiu-Pt-rg9"/>
+                <outlet property="suggestionsView" destination="Xdd-0k-xz0" id="lqu-ti-zvq"/>
                 <outlet property="tapGestureRecognizer" destination="ab4-TF-tKw" id="Udz-5r-zAP"/>
             </connections>
         </placeholder>
@@ -70,12 +71,13 @@
                         <constraint firstItem="JuJ-45-jqA" firstAttribute="leading" secondItem="OE5-rN-JE3" secondAttribute="leadingMargin" id="vJt-9G-LE8"/>
                     </constraints>
                 </stackView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley" customModuleProvider="target">
+                <view hidden="YES" contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="45" translatesAutoresizingMaskIntoConstraints="NO" id="Xdd-0k-xz0" customClass="ParleySuggestionsView" customModule="Parley" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="763" width="414" height="45"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </view>
+                <view contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="88" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="808" width="414" height="88"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="88" placeholder="YES" id="Pfc-xK-Uf9"/>
-                    </constraints>
                 </view>
                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="ia4-aN-GDT">
                     <rect key="frame" x="197" y="443" width="20" height="20"/>
@@ -93,15 +95,18 @@
                 <constraint firstItem="OE5-rN-JE3" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="1Qk-fR-oeV"/>
                 <constraint firstItem="OE5-rN-JE3" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="1sk-LL-Khl"/>
                 <constraint firstItem="LwN-Tu-1Cr" firstAttribute="top" secondItem="lAj-6r-J3s" secondAttribute="bottom" id="2zZ-hj-5D4"/>
+                <constraint firstItem="LwN-Tu-1Cr" firstAttribute="top" secondItem="Xdd-0k-xz0" secondAttribute="bottom" id="8LL-Vq-Bf7"/>
                 <constraint firstAttribute="trailing" secondItem="OE5-rN-JE3" secondAttribute="trailing" id="B8e-2k-lBS"/>
                 <constraint firstAttribute="bottom" secondItem="LwN-Tu-1Cr" secondAttribute="bottom" id="Cbi-PT-rdi"/>
                 <constraint firstAttribute="trailing" secondItem="LwN-Tu-1Cr" secondAttribute="trailing" id="ClF-t3-PYN"/>
                 <constraint firstItem="lAj-6r-J3s" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="HbP-0j-hsA"/>
                 <constraint firstItem="ia4-aN-GDT" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hjg-4r-I43"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="O6w-Zn-4GC"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Xdd-0k-xz0" secondAttribute="trailing" id="ObI-b7-GOz"/>
                 <constraint firstItem="lAj-6r-J3s" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UUp-qI-W7y"/>
                 <constraint firstItem="ia4-aN-GDT" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="b9L-1N-0Sl"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="cVA-uV-nmT"/>
+                <constraint firstItem="Xdd-0k-xz0" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="dWj-EI-3Ps"/>
                 <constraint firstItem="lAj-6r-J3s" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="fE4-lU-Lfq"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cvD-Dt-1VK" secondAttribute="trailing" constant="16" id="fYn-7i-q2p"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="kjD-7A-EaA"/>

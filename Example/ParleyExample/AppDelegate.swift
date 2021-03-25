@@ -1,8 +1,6 @@
 import UIKit
 import Firebase
 import Parley
-import Fabric
-import Crashlytics
 import UserNotifications
 
 @UIApplicationMain
@@ -11,15 +9,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        Fabric.with([Crashlytics.self])
-        
-        debugPrint("AppDelegate.didFinishLaunchingWithOptions:: UUID: \(UIDevice.current.identifierForVendor!.uuidString)")
-        
         // Start: Configuring Firebase Cloud Messaging
         FirebaseApp.configure()
-
+        
         Messaging.messaging().delegate = self
-        Messaging.messaging().shouldEstablishDirectChannel = true
 
         UNUserNotificationCenter.current().delegate = self
         
@@ -60,7 +53,9 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
 
 extension AppDelegate: MessagingDelegate {
     
-    func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
-        _ = Parley.handle(remoteMessage.appData)
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        guard let fcmToken = fcmToken else { return }
+        
+        Parley.setFcmToken(fcmToken)
     }
 }

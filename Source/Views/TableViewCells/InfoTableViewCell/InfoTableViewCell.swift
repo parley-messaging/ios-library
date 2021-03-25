@@ -15,14 +15,14 @@ internal class InfoTableViewCell: UITableViewCell {
     
     internal var appearance = InfoTableViewCellAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     
     override public func awakeFromNib() {
         super.awakeFromNib()
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     internal func render(_ message: Message) {
@@ -31,7 +31,7 @@ internal class InfoTableViewCell: UITableViewCell {
         self.infoTextView.markdownText = message.message
     }
     
-    func apply(_ appearance: InfoTableViewCellAppearance) {
+    private func apply(_ appearance: InfoTableViewCellAppearance) {
         self.infoTextView.textColor = appearance.textColor
         
         self.infoTextView.regularFont = appearance.regularFont

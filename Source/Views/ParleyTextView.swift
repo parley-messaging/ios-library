@@ -18,6 +18,8 @@ class ParleyTextView: UITextView {
                 attributedText.addAttribute(.paragraphStyle, value: self.paragraphStyle, range: NSRange(location: 0, length: attributedText.length))
                 
                 self.attributedText = attributedText
+            } else {
+                self.attributedText = nil
             }
         }
     }

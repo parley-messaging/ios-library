@@ -95,7 +95,7 @@ public class Parley {
 
     // MARK: Reachability
     private func setupReachability() {
-        self.reachability = Reachability()
+        self.reachability = try? Reachability()
         self.reachability?.whenReachable = { _ in
             self.reachable = true
         }
@@ -148,6 +148,9 @@ public class Parley {
         self.isLoading = true
 
         if self.isCachingEnabled() {
+            self.dataSource?.set(self.secret, forKey: kParleyCacheKeySecret)
+            self.dataSource?.set(self.userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
+            
             if self.state == .unconfigured {
                 self.messagesManager.loadCachedData()
 
@@ -210,7 +213,32 @@ public class Parley {
     private func isOfflineErrorCode(_ code: Int) -> Bool {
         return code == -1009
     }
-
+    
+    private func clearCacheWhenNeeded(secret: String) {
+        if let cachedSecret = self.dataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
+            return
+        } else if let currentSecret = self.secret, currentSecret == secret {
+            return
+        }
+        
+        self.clear()
+    }
+    
+    private func clearCacheWhenNeeded(userAuthorization: String?) {
+        if let cachedUserAuthorization = self.dataSource?.string(forKey: kParleyCacheKeyUserAuthorization), cachedUserAuthorization == userAuthorization {
+            return
+        } else if let currentUserAuthorization = self.userAuthorization, currentUserAuthorization == userAuthorization {
+            return
+        }
+        
+        self.clear()
+    }
+    
+    private func clear() {
+        self.messagesManager.clear()
+        self.dataSource?.clear()
+    }
+    
     // MARK: Devices
     private func registerDevice(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
         if self.state == .configuring || self.state == .configured {
@@ -463,7 +491,7 @@ extension Parley {
 
      - Note: The `clear()` method will be called on the current instance to prevent unused data on the device.
      */
-    public static func disableOffflineMessaging() {
+    public static func disableOfflineMessaging() {
         if let dataSource = shared.dataSource {
             dataSource.clear()
         }
@@ -514,6 +542,8 @@ extension Parley {
      - Parameter onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func setUserInformation(_ authorization: String, additionalInformation: [String:String]?=nil, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        shared.clearCacheWhenNeeded(userAuthorization: authorization)
+        
         shared.userAuthorization = authorization
         shared.userAdditionalInformation = additionalInformation
 
@@ -527,6 +557,8 @@ extension Parley {
      - Parameter onFailure: Execution block when user information is can not be cleared (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func clearUserInformation(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        shared.clearCacheWhenNeeded(userAuthorization: nil)
+        
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
 
@@ -543,6 +575,8 @@ extension Parley {
      - Parameter message: Description what went wrong.
      */
     public static func configure(_ secret: String, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        shared.clearCacheWhenNeeded(secret: secret)
+        
         shared.configure(secret, onSuccess: onSuccess, onFailure: onFailure)
     }
 }

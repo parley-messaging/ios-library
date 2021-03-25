@@ -11,7 +11,7 @@ public class ParleyStickyView: UIView {
     
     var appearance: ParleyStickyViewAppearance = ParleyStickyViewAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     
@@ -36,7 +36,7 @@ public class ParleyStickyView: UIView {
     private func setup() {
         self.loadXib()
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     private func loadXib() {

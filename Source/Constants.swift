@@ -1,11 +1,9 @@
-let kParleyVersion = "3.0.1"
+let kParleyVersion = "3.1.0"
 
 let kParleyMessageMaxCount = 5000
 
 let kParleyNetworkUrl = "https://api.parley.nu/"
 let kParleyNetworkPath = "clientApi/v1.2/"
-let kParleyNetworkPin1 = "/Ukz3F1LSE8d9rpOQ29KhCO/TwsUXcjbOI09tO+D2dI="
-let kParleyNetworkPin2 = "RkhWTcfJAQN/YxOR12VkPo+PhmIoSfWd/JVkg44einY="
 
 let kParleyTypeMessage = "message"
 let kParleyTypeEvent = "event"
@@ -20,6 +18,9 @@ let kParleyCacheDirectory = "parley"
 let kParleyCacheKeyMessageInfo = "info_message"
 let kParleyCacheKeyPaging = "paging"
 let kParleyCacheKeyMessages = "messages"
+
+let kParleyCacheKeySecret = "secret"
+let kParleyCacheKeyUserAuthorization = "user_authorization"
 
 let kParleyDevicePushTypePushEnabled = 6
 

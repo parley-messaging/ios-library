@@ -11,9 +11,9 @@ public class ParleyNotificationView: UIView {
     
     var appearance: ParleyNotificationViewAppearance? {
         didSet {
-            if let appearance = self.appearance {
-                self.apply(appearance)
-            }
+            guard let appearance = self.appearance else { return }
+            
+            self.apply(appearance)
         }
     }
     

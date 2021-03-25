@@ -1,47 +1,28 @@
 import Alamofire
 import AlamofireImage
-import AlamofireObjectMapper
 import ObjectMapper
-import TrustKit
 import SwiftGifOrigin
 
 internal class ParleyRemote {
     
-    internal static let sessionManager: Alamofire.SessionManager = {
-        let configuration = URLSessionConfiguration.default
-        
-        return Alamofire.SessionManager(configuration: configuration)
-    }()
+    internal static var sessionManager: Alamofire.Session!
     
     internal static func refresh(_ network: ParleyNetwork) {
         guard let domain = URL(string: network.url)?.host else {
             fatalError("ParleyRemote: Invalid url")
         }
         
-        let configuration = [
-            kTSKPinnedDomains: [
-                domain: [
-                    kTSKPublicKeyHashes: [
-                        network.pin1,
-                        network.pin2
-                    ],
-                    kTSKEnforcePinning: true,
-                    kTSKReportUris: []
-                ]
-            ]
+        let evaluators: [String: ServerTrustEvaluating] = [
+            domain: PublicKeysTrustEvaluator()
         ]
         
-        let trustKit = TrustKit(configuration: configuration)
-        
-        sessionManager.delegate.taskDidReceiveChallengeWithCompletion = { session, task, challenge, completionHandler in
-            let pinningValidator = trustKit.pinningValidator
-            if !pinningValidator.handle(challenge, completionHandler: completionHandler) {
-                completionHandler(.performDefaultHandling, nil)
-            }
-        }
+        sessionManager = Session(
+            configuration: URLSessionConfiguration.af.default,
+            serverTrustManager: ServerTrustManager(evaluators: evaluators)
+        )
     }
     
-    private static func getHeaders() -> [String: String] {
+    private static func getHeaders() -> HTTPHeaders {
         var headers = Parley.shared.network.headers
         guard let secret = Parley.shared.secret, let uuid = UIDevice.current.identifierForVendor?.uuidString else {
             fatalError("ParleyRemote: Secret or device uuid not set")
@@ -52,7 +33,7 @@ internal class ParleyRemote {
             headers["Authorization"] = userAuthorization
         }
         
-        return headers
+        return HTTPHeaders(headers)
     }
     
     private static func getUrl(_ path: String) -> String {
@@ -64,7 +45,7 @@ internal class ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: DataResponse<[T]>) in
+        request.validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: AFDataResponse<[T]>) in
             switch response.result {
             case .success(let items):
                 onSuccess(items)
@@ -80,7 +61,7 @@ internal class ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: DataResponse<T>) in
+        request.validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
             switch response.result {
             case .success(let item):
                 onSuccess(item)
@@ -111,21 +92,16 @@ internal class ParleyRemote {
     internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String?="data", onSuccess: @escaping (_ item: T)->(), onFailure: @escaping (_ error: Error)->()) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         
-        sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders()) { encodingResult in
-            switch encodingResult {
-            case .success(let upload, _, _):
-                upload.validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: DataResponse<T>) in
-                    switch response.result {
-                    case .success(let item):
-                        onSuccess(item)
-                    case .failure(let error):
-                        onFailure(error)
-                    }
+        sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
+            .validate(statusCode: 200...299)
+            .responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
+                switch response.result {
+                case .success(let item):
+                    onSuccess(item)
+                case .failure(let error):
+                    onFailure(error)
                 }
-            case .failure(let error):
-                onFailure(error)
             }
-        }
     }
     
     // MARK: Image

@@ -5,9 +5,6 @@ target 'ParleyExample' do
 
   pod 'Parley', :path => '../'
   
-  pod 'Fabric'
-  pod 'Crashlytics'
-  
-  pod 'Firebase/Core'
-  pod 'Firebase/Messaging'
+  pod 'Firebase/Analytics', '~> 7.9.0'
+  pod 'Firebase/Messaging', '~> 7.9.0'
 end

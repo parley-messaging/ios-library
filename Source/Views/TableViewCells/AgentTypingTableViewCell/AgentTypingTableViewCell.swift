@@ -17,7 +17,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
     
     internal var appearance = AgentTypingTableViewCellAppearance() {
         didSet {
-            self.apply(appearance)
+            self.apply(self.appearance)
         }
     }
     private var animating = false
@@ -29,7 +29,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
         self.dot2View.layer.cornerRadius = self.dot2View.bounds.width / 2
         self.dot3View.layer.cornerRadius = self.dot3View.bounds.width / 2
         
-        self.apply(appearance)
+        self.apply(self.appearance)
     }
     
     override func prepareForReuse() {
@@ -113,7 +113,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
         }
     }
     
-    internal func apply(_ appearance: AgentTypingTableViewCellAppearance) {
+    private func apply(_ appearance: AgentTypingTableViewCellAppearance) {
         if let backgroundTintColor = appearance.backgroundTintColor {
             self.backgroundImageView.image = appearance.backgroundImage?.withRenderingMode(.alwaysTemplate)
             self.backgroundImageView.tintColor = backgroundTintColor
