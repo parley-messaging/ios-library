@@ -14,9 +14,7 @@ public class Parley {
 
     internal var state: State = .unconfigured {
         didSet {
-            if oldValue != self.state {
-                self.delegate?.didChangeState(self.state)
-            }
+            self.delegate?.didChangeState(self.state)
         }
     }
     private var isLoading = false
@@ -211,7 +209,7 @@ public class Parley {
     }
 
     private func isOfflineErrorCode(_ code: Int) -> Bool {
-        return code == -1009
+        return code == 13
     }
     
     private func clearCacheWhenNeeded(secret: String) {

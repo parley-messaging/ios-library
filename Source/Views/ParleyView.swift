@@ -319,8 +319,10 @@ extension ParleyView: ParleyDelegate {
             self.activityIndicatorView.isHidden = true
             self.activityIndicatorView.stopAnimating()
 
-            self.stickyView.text = self.getMessagesManager().stickyMessage
-            self.stickyView.isHidden = self.getMessagesManager().stickyMessage == nil
+            self.syncStackView {
+                self.stickyView.text = self.getMessagesManager().stickyMessage
+                self.stickyView.isHidden = self.getMessagesManager().stickyMessage == nil
+            }
 
             self.messagesTableView.reloadData()
             
