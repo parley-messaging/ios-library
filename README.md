@@ -25,7 +25,7 @@ Empty | Conversation
 [CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Parley into your Xcode project, specify it in your `Podfile`:
 
 ```ruby
-pod 'Parley', '~> 3.1.0'
+pod 'Parley', '~> 3.1.1'
 ```
 
 ### Upgrading from 3.0.x to 3.1.0
