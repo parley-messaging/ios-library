@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -34,28 +34,19 @@
                     <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                 </tableView>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3">
-                    <rect key="frame" x="0.0" y="44" width="414" height="88"/>
+                    <rect key="frame" x="0.0" y="44" width="414" height="0.0"/>
                     <subviews>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hey-oA-c9S" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="28"/>
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" red="0.80784313725490198" green="0.81176470588235294" blue="0.79607843137254897" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="28" placeholder="YES" id="wdt-9t-Gyg"/>
-                            </constraints>
                         </view>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JuJ-45-jqA" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="28" width="414" height="28"/>
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" red="0.80784313730000001" green="0.81176470590000005" blue="0.79607843140000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="28" placeholder="YES" id="K5z-Wj-xOY"/>
-                            </constraints>
                         </view>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ddE-q7-khO" customClass="ParleyStickyView" customModule="Parley" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="56" width="414" height="32"/>
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="32" placeholder="YES" id="sRY-Fj-2Rg"/>
-                            </constraints>
                         </view>
                     </subviews>
                     <constraints>
@@ -83,12 +74,13 @@
                     <rect key="frame" x="197" y="443" width="20" height="20"/>
                 </activityIndicatorView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="parley_failed_to_configure" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cvD-Dt-1VK">
-                    <rect key="frame" x="109" y="443" width="196.5" height="20.5"/>
+                    <rect key="frame" x="106" y="443" width="202" height="20.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.68235294117647061" green="0.68235294117647061" blue="0.68235294117647061" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     <nil key="highlightedColor"/>
                 </label>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <gestureRecognizers/>
             <constraints>
@@ -112,7 +104,6 @@
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="kjD-7A-EaA"/>
                 <constraint firstItem="LwN-Tu-1Cr" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="nnX-P8-5qI"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="137.68115942028987" y="152.67857142857142"/>
         </view>
         <tapGestureRecognizer delaysTouchesEnded="NO" id="ab4-TF-tKw">

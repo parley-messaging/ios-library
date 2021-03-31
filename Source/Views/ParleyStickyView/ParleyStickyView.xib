@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -36,20 +34,21 @@
                     <dataDetectorType key="dataDetectorTypes" link="YES"/>
                 </textView>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <gestureRecognizers/>
             <constraints>
-                <constraint firstItem="ILH-U4-o4m" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="086-nq-yF7"/>
+                <constraint firstItem="ILH-U4-o4m" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" priority="999" constant="8" id="086-nq-yF7"/>
                 <constraint firstItem="ILH-U4-o4m" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="6Wx-V9-SzH"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ILH-U4-o4m" secondAttribute="bottom" constant="8" id="7lS-Jn-61j"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ILH-U4-o4m" secondAttribute="bottom" priority="999" constant="8" id="7lS-Jn-61j"/>
                 <constraint firstItem="5Jw-O4-UKa" firstAttribute="leading" secondItem="ILH-U4-o4m" secondAttribute="trailing" constant="16" id="Dnx-CR-uwX"/>
                 <constraint firstItem="5Jw-O4-UKa" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="ea4-a7-Z7T"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="5Jw-O4-UKa" secondAttribute="bottom" constant="8" id="gpo-RU-FFi"/>
-                <constraint firstItem="5Jw-O4-UKa" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="gre-8r-zZZ"/>
+                <constraint firstItem="ILH-U4-o4m" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="gNg-ip-dfc"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="5Jw-O4-UKa" secondAttribute="bottom" priority="999" constant="8" id="gpo-RU-FFi"/>
+                <constraint firstItem="5Jw-O4-UKa" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" priority="999" constant="8" id="gre-8r-zZZ"/>
                 <constraint firstItem="ILH-U4-o4m" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="rzs-Hd-guv"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="5Jw-O4-UKa" secondAttribute="trailing" constant="16" id="vGT-5b-wKr"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="137.68115942028987" y="152.67857142857142"/>
         </view>
     </objects>

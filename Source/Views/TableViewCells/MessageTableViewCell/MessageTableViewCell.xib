@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -25,23 +25,24 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ftC-BO-4yd" customClass="ParleyMessageView" customModule="Parley" customModuleProvider="target">
                                         <rect key="frame" x="8" y="4" width="527" height="481"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="j81-6W-1j5"/>
-                                        </constraints>
                                     </view>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="ftC-BO-4yd" secondAttribute="trailing" constant="8" id="12V-nP-hDZ"/>
-                                    <constraint firstItem="ftC-BO-4yd" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="HX1-AG-QUb" secondAttribute="leading" constant="50" id="Q9H-Ba-5kk"/>
-                                    <constraint firstItem="ftC-BO-4yd" firstAttribute="leading" secondItem="HX1-AG-QUb" secondAttribute="leading" constant="8" id="Rrw-El-vKB"/>
-                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ftC-BO-4yd" secondAttribute="trailing" constant="50" id="VEy-oU-WIN"/>
+                                    <constraint firstAttribute="trailing" secondItem="ftC-BO-4yd" secondAttribute="trailing" constant="8" identifier="aa" id="12V-nP-hDZ"/>
+                                    <constraint firstItem="ftC-BO-4yd" firstAttribute="leading" secondItem="HX1-AG-QUb" secondAttribute="leading" constant="8" placeholder="YES" id="EXH-7Y-ejC"/>
+                                    <constraint firstItem="ftC-BO-4yd" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="HX1-AG-QUb" secondAttribute="leading" constant="50" identifier="bb" id="Q9H-Ba-5kk"/>
+                                    <constraint firstItem="ftC-BO-4yd" firstAttribute="leading" secondItem="HX1-AG-QUb" secondAttribute="leading" constant="8" identifier="cc" id="Rrw-El-vKB"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ftC-BO-4yd" secondAttribute="trailing" constant="50" identifier="dd" id="VEy-oU-WIN"/>
                                     <constraint firstAttribute="bottom" secondItem="ftC-BO-4yd" secondAttribute="bottom" constant="4" id="cfc-ZH-pPf"/>
                                     <constraint firstItem="ftC-BO-4yd" firstAttribute="top" secondItem="HX1-AG-QUb" secondAttribute="top" constant="4" id="niI-OV-vAV"/>
+                                    <constraint firstAttribute="trailing" secondItem="ftC-BO-4yd" secondAttribute="trailing" constant="8" placeholder="YES" id="uxe-cw-5BS"/>
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
+                                        <exclude reference="12V-nP-hDZ"/>
                                         <exclude reference="Q9H-Ba-5kk"/>
+                                        <exclude reference="Rrw-El-vKB"/>
                                         <exclude reference="VEy-oU-WIN"/>
                                     </mask>
                                 </variation>
@@ -50,7 +51,7 @@
                                 <rect key="frame" x="0.0" y="489" width="543" height="140"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="140" id="6Rq-IS-QVJ"/>
+                                    <constraint firstAttribute="height" priority="999" constant="140" id="6Rq-IS-QVJ"/>
                                 </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ehq-zA-f8p">
                                     <size key="itemSize" width="1" height="1"/>
