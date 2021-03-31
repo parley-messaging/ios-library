@@ -1,3 +1,5 @@
+import UIKit
+
 public class ParleyViewAppearance {
     
     public var backgroundColor: UIColor? = UIColor(white:0.92, alpha:1.0)
@@ -20,10 +22,10 @@ public class ParleyViewAppearance {
     public var info = InfoTableViewCellAppearance()
     
     public init(fontRegularName: String?=nil, fontItalicName: String?=nil, fontBoldName: String?=nil) {
-        let offlineIcon = UIImage(named: "ic_error_no_connection", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let offlineIcon = UIImage(named: "ic_error_no_connection", in: Bundle.current, compatibleWith: nil)!
         self.offlineNotification = ParleyNotificationViewAppearance(icon: offlineIcon)
         
-        let pushDisabledIcon = UIImage(named: "ic_notification_important", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let pushDisabledIcon = UIImage(named: "ic_notification_important", in: Bundle.current, compatibleWith: nil)!
         self.pushDisabledNotification = ParleyNotificationViewAppearance(icon: pushDisabledIcon)
         
         if let fontRegularName = fontRegularName {

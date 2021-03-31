@@ -1,4 +1,5 @@
 import ObjectMapper
+import Foundation
 
 class TimeIntervalSince1970DateTransform: TransformType {
     

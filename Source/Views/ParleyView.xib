@@ -28,7 +28,7 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="ReversedTableView" customModule="Parley" customModuleProvider="target">
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="ReversedTableView" customModule="Parley">
                     <rect key="frame" x="0.0" y="44" width="414" height="764"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -36,15 +36,15 @@
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3">
                     <rect key="frame" x="0.0" y="44" width="414" height="0.0"/>
                     <subviews>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hey-oA-c9S" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hey-oA-c9S" customClass="ParleyNotificationView" customModule="Parley">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" red="0.80784313725490198" green="0.81176470588235294" blue="0.79607843137254897" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         </view>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JuJ-45-jqA" customClass="ParleyNotificationView" customModule="Parley" customModuleProvider="target">
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JuJ-45-jqA" customClass="ParleyNotificationView" customModule="Parley">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" red="0.80784313730000001" green="0.81176470590000005" blue="0.79607843140000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         </view>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ddE-q7-khO" customClass="ParleyStickyView" customModule="Parley" customModuleProvider="target">
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ddE-q7-khO" customClass="ParleyStickyView" customModule="Parley">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
@@ -62,11 +62,11 @@
                         <constraint firstItem="JuJ-45-jqA" firstAttribute="leading" secondItem="OE5-rN-JE3" secondAttribute="leadingMargin" id="vJt-9G-LE8"/>
                     </constraints>
                 </stackView>
-                <view hidden="YES" contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="45" translatesAutoresizingMaskIntoConstraints="NO" id="Xdd-0k-xz0" customClass="ParleySuggestionsView" customModule="Parley" customModuleProvider="target">
+                <view hidden="YES" contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="45" translatesAutoresizingMaskIntoConstraints="NO" id="Xdd-0k-xz0" customClass="ParleySuggestionsView" customModule="Parley">
                     <rect key="frame" x="0.0" y="763" width="414" height="45"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
-                <view contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="88" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley" customModuleProvider="target">
+                <view contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="88" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley">
                     <rect key="frame" x="0.0" y="808" width="414" height="88"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>

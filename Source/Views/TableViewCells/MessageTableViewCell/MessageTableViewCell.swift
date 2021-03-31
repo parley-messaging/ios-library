@@ -1,4 +1,5 @@
 import Alamofire
+import UIKit
 
 internal class MessageTableViewCell: UITableViewCell {
     
@@ -7,7 +8,7 @@ internal class MessageTableViewCell: UITableViewCell {
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: Bundle(for: type(of: self)))
+            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: Bundle.current)
             self.collectionView.register(messageCollectionViewCell, forCellWithReuseIdentifier: "MessageCollectionViewCell")
             
             self.collectionView.dataSource = self

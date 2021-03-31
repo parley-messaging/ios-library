@@ -1,3 +1,5 @@
+import Foundation
+
 internal protocol ParleyDelegate {
     
     func didChangeState(_ state: Parley.State)

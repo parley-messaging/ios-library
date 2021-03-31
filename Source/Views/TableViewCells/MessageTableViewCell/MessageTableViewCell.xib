@@ -9,7 +9,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="MessageTableViewCell" rowHeight="629" id="5fX-nl-hzT" customClass="MessageTableViewCell" customModule="Parley" customModuleProvider="target">
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="MessageTableViewCell" rowHeight="629" id="5fX-nl-hzT" customClass="MessageTableViewCell" customModule="Parley">
             <rect key="frame" x="0.0" y="0.0" width="543" height="629"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="5fX-nl-hzT" id="zv8-5e-hCt">
@@ -22,7 +22,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HX1-AG-QUb">
                                 <rect key="frame" x="0.0" y="0.0" width="543" height="489"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ftC-BO-4yd" customClass="ParleyMessageView" customModule="Parley" customModuleProvider="target">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ftC-BO-4yd" customClass="ParleyMessageView" customModule="Parley">
                                         <rect key="frame" x="8" y="4" width="527" height="481"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>

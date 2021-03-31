@@ -1,4 +1,5 @@
 import MarkdownKit
+import UIKit
 
 class ParleyTextView: UITextView {
     

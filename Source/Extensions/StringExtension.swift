@@ -1,3 +1,7 @@
+import UIKit
+import CoreGraphics
+import Foundation
+
 extension String {
     
     func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {

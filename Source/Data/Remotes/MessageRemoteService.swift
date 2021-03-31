@@ -1,5 +1,5 @@
 import Alamofire
-import SwiftGifOrigin
+import UIKit
 
 internal class MessageRemoteService {
     

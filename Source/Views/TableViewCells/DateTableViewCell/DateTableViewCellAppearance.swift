@@ -1,3 +1,5 @@
+import UIKit
+
 public class DateTableViewCellAppearance {
     
     public var backgroundColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:0.5)

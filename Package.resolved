@@ -1,0 +1,52 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Alamofire",
+        "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
+        "state": {
+          "branch": null,
+          "revision": "eaf6e622dd41b07b251d8f01752eab31bc811493",
+          "version": "5.4.1"
+        }
+      },
+      {
+        "package": "AlamofireImage",
+        "repositoryURL": "https://github.com/Alamofire/AlamofireImage.git",
+        "state": {
+          "branch": null,
+          "revision": "3e8edbeb75227f8542aa87f90240cf0424d6362f",
+          "version": "4.1.0"
+        }
+      },
+      {
+        "package": "MarkdownKit",
+        "repositoryURL": "https://github.com/bmoliveira/MarkdownKit.git",
+        "state": {
+          "branch": null,
+          "revision": "828e99602285c9547ceb01a014bf2d0bd7bc545e",
+          "version": "1.7.0"
+        }
+      },
+      {
+        "package": "ObjectMapper",
+        "repositoryURL": "https://github.com/tristanhimmelman/ObjectMapper.git",
+        "state": {
+          "branch": null,
+          "revision": "0b96a734de3ea1c87374ae677064f86adb0716ec",
+          "version": "4.2.0"
+        }
+      },
+      {
+        "package": "Reachability",
+        "repositoryURL": "https://github.com/ashleymills/Reachability.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "c01bbdf2d633cf049ae1ed1a68a2020a8bda32e2",
+          "version": "5.1.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

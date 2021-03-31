@@ -1,7 +1,8 @@
 import Alamofire
 import AlamofireImage
 import ObjectMapper
-import SwiftGifOrigin
+import UIKit
+import Foundation
 
 internal class ParleyRemote {
     

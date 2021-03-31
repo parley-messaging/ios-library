@@ -1,3 +1,5 @@
+import UIKit
+
 public class SuggestionCollectionViewCellAppearance {
     
     // Balloon
@@ -16,6 +18,6 @@ public class SuggestionCollectionViewCellAppearance {
     init() {
         let edgeInsets = UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14)
         
-        self.balloonImage = UIImage(named: "suggestion", in: Bundle(for: type(of: self)), compatibleWith: nil)?.resizableImage(withCapInsets: edgeInsets)
+        self.balloonImage = UIImage(named: "suggestion", in: Bundle.current, compatibleWith: nil)?.resizableImage(withCapInsets: edgeInsets)
     }
 }

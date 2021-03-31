@@ -27,7 +27,7 @@
                         <constraint firstAttribute="height" constant="20" id="DUb-z2-fuJ"/>
                     </constraints>
                 </imageView>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="sticky_message" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Jw-O4-UKa" customClass="ParleyTextView" customModule="Parley" customModuleProvider="target">
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="sticky_message" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Jw-O4-UKa" customClass="ParleyTextView" customModule="Parley">
                     <rect key="frame" x="52" y="436.5" width="346" height="33"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>

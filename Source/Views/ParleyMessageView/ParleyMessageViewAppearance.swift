@@ -1,3 +1,5 @@
+import UIKit
+
 public class ParleyMessageViewAppearance {
     
     // Balloon
@@ -59,6 +61,6 @@ public class ParleyMessageViewAppearance {
     public var buttonColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
     
     init() {
-        self.imagePlaceholder = UIImage(named: "placeholder", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        self.imagePlaceholder = UIImage(named: "placeholder", in: Bundle.current, compatibleWith: nil)!
     }
 }

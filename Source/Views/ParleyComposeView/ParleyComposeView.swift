@@ -1,4 +1,5 @@
 import Photos
+import UIKit
 
 public class ParleyComposeView: UIView {
     
@@ -87,7 +88,7 @@ public class ParleyComposeView: UIView {
     }
     
     private func loadXib() {
-        Bundle(for: type(of: self)).loadNibNamed("ParleyComposeView", owner: self, options: nil)
+        Bundle.current.loadNibNamed("ParleyComposeView", owner: self, options: nil)
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)
@@ -159,23 +160,23 @@ public class ParleyComposeView: UIView {
         }
         
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        alertController.title = NSLocalizedString("parley_photo", bundle: Bundle(for: type(of: self)), comment: "")
+        alertController.title = NSLocalizedString("parley_photo", bundle: Bundle.current, comment: "")
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_select_photo", bundle: Bundle(for: type(of: self)), comment: ""),
+            title: NSLocalizedString("parley_select_photo", bundle: Bundle.current, comment: ""),
             style: .default,
             handler: { (action) in
                 self.showImagePickerController(.photoLibrary)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_take_photo", bundle: Bundle(for: type(of: self)), comment: ""),
+            title: NSLocalizedString("parley_take_photo", bundle: Bundle.current, comment: ""),
             style: .default,
             handler: { (action) in
                 self.showImagePickerController(.camera)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_cancel", bundle: Bundle(for: type(of: self)), comment: ""),
+            title: NSLocalizedString("parley_cancel", bundle: Bundle.current, comment: ""),
             style: .cancel,
             handler: nil
         ))
@@ -193,13 +194,13 @@ public class ParleyComposeView: UIView {
     
     private func showPhotoAccessDeniedAlertController() {
         let alertController = UIAlertController(
-            title: NSLocalizedString("parley_photo_access_denied_title", bundle: Bundle(for: type(of: self)), comment: ""),
-            message: NSLocalizedString("parley_photo_access_denied_body", bundle: Bundle(for: type(of: self)), comment: ""),
+            title: NSLocalizedString("parley_photo_access_denied_title", bundle: Bundle.current, comment: ""),
+            message: NSLocalizedString("parley_photo_access_denied_body", bundle: Bundle.current, comment: ""),
             preferredStyle: .alert
         )
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_ok", bundle: Bundle(for: type(of: self)), comment: ""),
+            title: NSLocalizedString("parley_ok", bundle: Bundle.current, comment: ""),
             style: .cancel,
             handler: nil
         ))

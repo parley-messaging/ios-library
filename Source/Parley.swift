@@ -1,4 +1,6 @@
 import Reachability
+import Foundation
+import UIKit
 
 public class Parley {
 

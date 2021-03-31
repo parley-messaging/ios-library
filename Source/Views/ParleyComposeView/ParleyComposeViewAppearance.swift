@@ -1,3 +1,5 @@
+import UIKit
+
 public class ParleyComposeViewAppearance {
         
     public var backgroundColor = UIColor(white:0.92, alpha:1.0)
@@ -18,7 +20,7 @@ public class ParleyComposeViewAppearance {
     public var font = UIFont.systemFont(ofSize: 17, weight: .regular)
     
     init() {
-        self.cameraIcon = UIImage(named: "ic_camera", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        self.sendIcon = UIImage(named: "ic_send", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        self.cameraIcon = UIImage(named: "ic_camera", in: Bundle.current, compatibleWith: nil)!
+        self.sendIcon = UIImage(named: "ic_send", in: Bundle.current, compatibleWith: nil)!
     }
 }

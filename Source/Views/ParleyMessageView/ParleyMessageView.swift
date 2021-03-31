@@ -232,18 +232,18 @@ class ParleyMessageView: UIView {
             
             switch self.message.status {
             case .failed:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_close", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 
                 break
             case .pending:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_clock", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 
                 break
             case .success:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_tick", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                self.statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 
                 break
             }
@@ -492,7 +492,7 @@ class ParleyMessageView: UIView {
     }
     
     private func loadXib() {
-        Bundle(for: type(of: self)).loadNibNamed("ParleyMessageView", owner: self, options: nil)
+        Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
 
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)

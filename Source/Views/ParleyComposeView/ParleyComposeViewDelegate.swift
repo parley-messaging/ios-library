@@ -1,3 +1,5 @@
+import UIKit
+
 protocol ParleyComposeViewDelegate {
     
     func didChange()

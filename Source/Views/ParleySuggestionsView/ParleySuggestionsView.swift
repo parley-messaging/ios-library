@@ -1,3 +1,5 @@
+import UIKit
+
 internal class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var contentView: UIView! {
@@ -8,7 +10,7 @@ internal class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let suggestionCollectionViewCell = UINib(nibName: "SuggestionCollectionViewCell", bundle: Bundle(for: type(of: self)))
+            let suggestionCollectionViewCell = UINib(nibName: "SuggestionCollectionViewCell", bundle: Bundle.current)
             self.collectionView.register(suggestionCollectionViewCell, forCellWithReuseIdentifier: "SuggestionCollectionViewCell")
             
             self.collectionView.dataSource = self
@@ -81,7 +83,7 @@ internal class ParleySuggestionsView: UIView {
     }
     
     private func loadXib() {
-        Bundle(for: type(of: self)).loadNibNamed("ParleySuggestionsView", owner: self, options: nil)
+        Bundle.current.loadNibNamed("ParleySuggestionsView", owner: self, options: nil)
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)

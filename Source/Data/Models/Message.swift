@@ -1,4 +1,6 @@
 import ObjectMapper
+import Foundation
+import UIKit
 
 public class Message: Mappable, Equatable {
     

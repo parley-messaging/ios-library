@@ -1,4 +1,5 @@
 import Reachability
+import UIKit
 
 public class ParleyView: UIView {
 
@@ -19,12 +20,12 @@ public class ParleyView: UIView {
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            self.pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle(for: type(of: self)), comment: "")
+            self.pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
         }
     }
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            self.offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle(for: type(of: self)), comment: "")
+            self.offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle.current, comment: "")
         }
     }
     @IBOutlet weak var stickyView: ParleyStickyView!
@@ -39,7 +40,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet{
-            self.composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle(for: type(of: self)), comment: "")
+            self.composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
             self.composeView.maxCount = kParleyMessageMaxCount
 
             self.composeView.delegate = self
@@ -94,7 +95,7 @@ public class ParleyView: UIView {
     }
 
     private func loadXib() {
-        Bundle(for: type(of: self)).loadNibNamed("ParleyView", owner: self, options: nil)
+        Bundle.current.loadNibNamed("ParleyView", owner: self, options: nil)
 
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)
@@ -129,7 +130,7 @@ public class ParleyView: UIView {
     }
 
     private func registerNibCell(_ nibName: String) {
-        let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle(for: type(of: self)))
+        let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
         self.messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
 
@@ -276,7 +277,7 @@ extension ParleyView: ParleyDelegate {
             self.composeView.isHidden = true
             self.suggestionsView.isHidden = true
 
-            self.statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle(for: type(of: self)), comment: "")
+            self.statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle.current, comment: "")
             self.statusLabel.isHidden = false
 
             self.activityIndicatorView.isHidden = true
@@ -302,7 +303,7 @@ extension ParleyView: ParleyDelegate {
             self.composeView.isHidden = true
             self.suggestionsView.isHidden = true
 
-            self.statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle(for: type(of: self)), comment: "")
+            self.statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle.current, comment: "")
             self.statusLabel.isHidden = false
 
             self.activityIndicatorView.isHidden = true

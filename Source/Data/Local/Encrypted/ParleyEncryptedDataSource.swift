@@ -1,3 +1,6 @@
+import Foundation
+import UIKit
+
 public class ParleyEncryptedDataSource: ParleyDataSource {
     
     private let crypter: ParleyCrypter

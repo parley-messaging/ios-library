@@ -1,4 +1,5 @@
 import Alamofire
+import UIKit
 
 internal class MessageRepository {
     

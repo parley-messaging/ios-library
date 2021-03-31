@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Parley'
-  s.version          = '3.1.2'
+  s.version          = '3.1.3'
   s.summary          = 'Easily create a secure chat within three steps with the Parley Messaging iOS library.'
   s.homepage         = 'https://github.com/parley-messaging/ios-library'
   s.author           = { 'Webuildapps' => 'hello@webuildapps.com' }
@@ -21,8 +21,6 @@ Pod::Spec.new do |s|
   s.dependency 'AlamofireImage', '~> 4.1.0'
 
   s.dependency 'ObjectMapper', '~> 4.2.0'
-
-  s.dependency 'SwiftGifOrigin', '~> 1.7.0'
 
   s.dependency 'ReachabilitySwift', '~> 5.0.0'
 

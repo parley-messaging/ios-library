@@ -1,3 +1,5 @@
+import Foundation
+
 public protocol ParleyKeyValueDataSource {
     
     func string(forKey key: String) -> String?

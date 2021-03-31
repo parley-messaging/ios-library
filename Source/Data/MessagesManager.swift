@@ -1,3 +1,5 @@
+import Foundation
+
 class MessagesManager {
     
     enum HandleType {

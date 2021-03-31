@@ -1,3 +1,5 @@
+import UIKit
+
 public class ParleyStickyViewAppearance {
     
     public var backgroundColor = UIColor(red:1, green:1, blue:1, alpha:0.9)
@@ -13,6 +15,6 @@ public class ParleyStickyViewAppearance {
     public var boldFont = UIFont.boldSystemFont(ofSize: 13)
     
     init() {
-        self.icon = UIImage(named: "ic_error_outline", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        self.icon = UIImage(named: "ic_error_outline", in: Bundle.current, compatibleWith: nil)!
     }
 }

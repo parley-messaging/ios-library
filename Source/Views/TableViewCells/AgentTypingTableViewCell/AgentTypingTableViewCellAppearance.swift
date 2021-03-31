@@ -1,3 +1,5 @@
+import UIKit
+
 public class AgentTypingTableViewCellAppearance {
     
     public var backgroundImage: UIImage?
@@ -9,6 +11,6 @@ public class AgentTypingTableViewCellAppearance {
     
     init() {
         let edgdeInsets = UIEdgeInsets(top: 21, left: 23, bottom: 21, right: 21)
-        self.backgroundImage = UIImage(named: "agent_balloon", in: Bundle(for: type(of: self)), compatibleWith: nil)?.resizableImage(withCapInsets: edgdeInsets)
+        self.backgroundImage = UIImage(named: "agent_balloon", in: Bundle.current, compatibleWith: nil)?.resizableImage(withCapInsets: edgdeInsets)
     }
 }

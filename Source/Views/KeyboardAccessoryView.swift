@@ -1,3 +1,6 @@
+import Foundation
+import UIKit
+
 protocol KeyboardAccessoryViewDelegate{
     
     func keyboardDidShow(_ frame: CGRect)

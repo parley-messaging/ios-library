@@ -1,4 +1,6 @@
 import CommonCrypto
+import Foundation
+import Security
 
 internal class ParleyCrypter {
     

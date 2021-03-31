@@ -1,3 +1,5 @@
+import UIKit
+
 public class ParleyImageView: UIImageView {
     
     public var corners: UIRectCorner = [.allCorners] {
