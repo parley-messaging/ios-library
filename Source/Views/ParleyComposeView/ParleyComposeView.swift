@@ -238,7 +238,6 @@ extension ParleyComposeView: UITextViewDelegate {
                 self.textViewHeightConstraint.constant = height
                 
                 self.layoutIfNeeded()
-                self.superview?.layoutIfNeeded()
             }
         }
     }
@@ -264,7 +263,6 @@ extension ParleyComposeView: KeyboardAccessoryViewDelegate {
             self.bottomLayoutConstraint.constant = bottom > 0 ? bottom : 0
             
             self.layoutIfNeeded()
-            self.superview?.layoutIfNeeded()
         }
     }
     
