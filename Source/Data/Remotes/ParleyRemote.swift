@@ -25,16 +25,31 @@ internal class ParleyRemote {
     
     private static func getHeaders() -> HTTPHeaders {
         var headers = Parley.shared.network.headers
-        guard let secret = Parley.shared.secret, let uuid = UIDevice.current.identifierForVendor?.uuidString else {
-            fatalError("ParleyRemote: Secret or device uuid not set")
+        guard let secret = Parley.shared.secret else {
+            fatalError("ParleyRemote: Secret is not set")
         }
-        headers["x-iris-identification"] = "\(secret):\(uuid)"
+        headers["x-iris-identification"] = "\(secret):\(getDeviceUUID())"
         
         if let userAuthorization = Parley.shared.userAuthorization {
             headers["Authorization"] = userAuthorization
         }
         
         return HTTPHeaders(headers)
+    }
+    
+    private static func getDeviceUUID() -> String {
+        if let uuid = UserDefaults.standard.string(forKey: kParleyUserDefaultDeviceUUID) {
+            return uuid
+        }
+        
+        if let uuid = UIDevice.current.identifierForVendor?.uuidString {
+            return uuid
+        } else {
+            let uuid = UUID().uuidString
+            UserDefaults.standard.set(uuid, forKey: kParleyUserDefaultDeviceUUID)
+            
+            return uuid
+        }
     }
     
     private static func getUrl(_ path: String) -> String {

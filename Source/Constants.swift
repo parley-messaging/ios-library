@@ -5,6 +5,8 @@ let kParleyMessageMaxCount = 5000
 let kParleyNetworkUrl = "https://api.parley.nu/"
 let kParleyNetworkPath = "clientApi/v1.2/"
 
+let kParleyUserDefaultDeviceUUID = "parley.device_uuid"
+
 let kParleyTypeMessage = "message"
 let kParleyTypeEvent = "event"
 
