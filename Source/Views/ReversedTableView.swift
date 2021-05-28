@@ -56,15 +56,19 @@ internal class ReversedTableView: UITableView {
         case .top:
             let section = self.numberOfSections - 1
             let row = self.numberOfRows(inSection: section) - 1
-            let indexPath = IndexPath(row: row, section: section)
+            if section >= 0 && row >= 0 {
+                let indexPath = IndexPath(row: row, section: section)
             
-            self.scrollToRow(at: indexPath, at: .bottom, animated: animated)
+                self.scrollToRow(at: indexPath, at: .bottom, animated: animated)
+            }
             
             break
         case .bottom:
-            let indexPath = IndexPath(row: 0, section: 0)
-            
-            self.scrollToRow(at: indexPath, at: .top, animated: animated)
+            if self.numberOfRows(inSection: 0) > 0 {
+                let indexPath = IndexPath(row: 0, section: 0)
+        
+                self.scrollToRow(at: indexPath, at: .top, animated: animated)
+            }
             
             break
         }
