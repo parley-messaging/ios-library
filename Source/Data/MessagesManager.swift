@@ -116,10 +116,10 @@ class MessagesManager {
 
     internal func update(_ message: Message) {
         guard let originalMessagesIndex = originalMessages.firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }) else {
-            fatalError("Given non-existing message to update! (Not found in original messages)")
+            return
         }
         guard let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid }) else {
-            fatalError("Given non-existing message to update! (Not found in current messages)")
+            return
         }
 
         self.originalMessages[originalMessagesIndex] = message
