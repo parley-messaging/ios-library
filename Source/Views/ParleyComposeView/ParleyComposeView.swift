@@ -20,6 +20,7 @@ public class ParleyComposeView: UIView {
         didSet {
             self.textView.textContainerInset = .zero
             self.textView.textContainer.lineFragmentPadding = 0
+            self.textView.autocorrectionType = .default
             
             self.textView.delegate = self
             
