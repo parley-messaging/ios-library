@@ -53,9 +53,9 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
 
 extension AppDelegate: MessagingDelegate {
     
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken = fcmToken else { return }
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken pushToken: String?) {
+        guard let pushToken = pushToken else { return }
         
-        Parley.setFcmToken(fcmToken)
+        Parley.setPushToken(pushToken)
     }
 }

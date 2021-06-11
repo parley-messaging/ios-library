@@ -7,14 +7,11 @@ internal class DeviceRepository {
     internal func register(_ onSuccess: @escaping (_ device: Device)->(), _ onFailure: @escaping (_ error: Error)->()) {
         let device = Device()
         
-        if let pushToken = Parley.shared.pushToken {
-            device.pushToken = pushToken
-            device.pushEnabled = Parley.shared.pushEnabled
-        }
+        device.pushToken = Parley.shared.pushToken
+        device.pushType = Parley.shared.pushType
+        device.pushEnabled = Parley.shared.pushEnabled
         
-        if let userAdditionalInformation = Parley.shared.userAdditionalInformation {
-            device.userAdditionalInformation = userAdditionalInformation
-        }
+        device.userAdditionalInformation = Parley.shared.userAdditionalInformation
         
         self.store(device, onSuccess: onSuccess, onFailure: onFailure)
     }

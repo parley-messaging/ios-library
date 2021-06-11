@@ -51,7 +51,8 @@ public class Parley {
         }
     }
 
-    internal var pushToken: String?
+    internal var pushToken: String? = nil
+    internal var pushType: Device.DevicePushType? = nil
     internal var pushEnabled: Bool = false
 
     internal var userAuthorization: String?
@@ -505,13 +506,30 @@ extension Parley {
      - Note: Method must be called before `Parley.configure(_ secret: String)`.
 
      - Parameter fcmToken: The Firebase Cloud Messaging token
+     - Parameter pushType: The push type (default `fcm`)
      - Parameter onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
      - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
     */
-    public static func setFcmToken(_ fcmToken: String, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        if shared.pushToken == fcmToken { return }
+    @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
+    public static func setFcmToken(_ fcmToken: String, pushType: Device.DevicePushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
+    }
+    
+    /**
+     Set the push token of the user.
 
-        shared.pushToken = fcmToken
+     - Note: Method must be called before `Parley.configure(_ secret: String)`.
+
+     - Parameter pushToken: The push token
+     - Parameter pushType: The push type (default `fcm`)
+     - Parameter onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
+     - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+    */
+    public static func setPushToken(_ pushToken: String, pushType: Device.DevicePushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        if shared.pushToken == pushToken { return }
+
+        shared.pushToken = pushToken
+        shared.pushType = pushType
 
         Parley.shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
     }

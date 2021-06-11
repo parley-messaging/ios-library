@@ -42,6 +42,10 @@ dependencies: [
 ]
 ```
 
+### Upgrading from 3.1.x to 3.2.0
+
+1. `setFcmToken(_:)` is renamed to `setPushToken(_:)`
+
 ### Upgrading from 3.0.x to 3.1.0
 
 3.1.0 contains a breaking change related to Public Key Pinning. Parley is not depending on TrustKit anymore.
@@ -102,10 +106,18 @@ Parley needs the FCM token to successfully handle remote notifications.
 
 **FCM Token**
 
-After retrieving an FCM token via your Firebase instance, pass it to the Parley instance in order to support remote notifications. This is can be done by using `Parley.setFcmToken(_ fcmToken: String)`.
+After retrieving an FCM token via your Firebase instance, pass it to the Parley instance in order to support remote notifications. This is can be done by using `Parley.setPushToken(_:)`.
 
 ```swift
-Parley.setFcmToken("fcmToken")
+Parley.setPushToken("pushToken")
+```
+
+**Other push types**
+
+```swift
+Parley.setPushToken("pushToken", pushType: .customWebhook)
+Parley.setPushToken("pushToken", pushType: .customWebhookBehindOAuth)
+Parley.setPushToken("pushToken", pushType: .fcm) // Default
 ```
 
 **Handle remote notifications**
