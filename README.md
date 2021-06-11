@@ -22,10 +22,24 @@ Empty | Conversation
 
 ## Installation
 
+### Cocoapods
+
 [CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Parley into your Xcode project, specify it in your `Podfile`:
 
 ```ruby
-pod 'Parley', '~> 3.1.2'
+pod 'Parley', '~> 3.1.x'
+```
+
+### Swift Package Manager
+
+The Swift Package Manager is a tool for automating the distribution of Swift code and is integrated into the swift compiler.
+
+Once you have your Swift package set up, adding Parley as a dependency is as easy as adding it to the dependencies value of your Package.swift.
+
+```
+dependencies: [
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.1.x"))
+]
 ```
 
 ### Upgrading from 3.0.x to 3.1.0
@@ -219,6 +233,22 @@ if let key = "1234567890123456".data(using: .utf8), let dataSource = try? Parley
 
 ```swift
 Parley.disableOfflineMessaging()
+```
+
+### Send a (silent) message
+
+In some cases it may be handy to send a message for the user. You can easily do this by calling;
+
+```swift
+Parley.send("Lorem ipsum dolar sit amet")
+```
+
+**Silent**
+
+It is also possible to send silent messages. Those messages are not visible in the chat.
+
+```swift
+Parley.send("User opened chat", silent: true)
 ```
 
 ## Customize

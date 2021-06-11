@@ -276,10 +276,10 @@ public class Parley {
         }
     }
 
-    internal func send(_ text: String) {
+    internal func send(_ text: String, silent: Bool = false) {
         let message = Message()
         message.message = text
-        message.type = .user
+        message.type = silent ? .silentUser : .user
         message.status = .pending
 
         self.send(message, isNewMessage: true)
@@ -578,5 +578,15 @@ extension Parley {
         shared.clearCacheWhenNeeded(secret: secret)
         
         shared.configure(secret, onSuccess: onSuccess, onFailure: onFailure)
+    }
+    
+    /**
+     Send a message to Parley.
+     
+     - Parameter message: The message to sent
+     - Parameter silent: Indicates if the message needs to be sent silently. The message will not be shown when `silent=true`.
+     */
+    public static func send(_ message: String, silent: Bool = false) {
+        shared.send(message, silent: silent)
     }
 }
