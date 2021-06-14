@@ -15,9 +15,8 @@ public class Message: Mappable, Equatable {
         case auto = 3
         case systemMessageUser = 4
         case systemMessageAgent = 5
-        case silentUser = 6
         
-        static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent, .silentUser]
+        static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
     }
     
     enum MessageStatus: Int {

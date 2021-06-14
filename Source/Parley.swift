@@ -280,7 +280,7 @@ public class Parley {
     internal func send(_ text: String, silent: Bool = false) {
         let message = Message()
         message.message = text
-        message.type = silent ? .silentUser : .user
+        message.type = silent ? .systemMessageUser : .user
         message.status = .pending
 
         self.send(message, isNewMessage: true)
