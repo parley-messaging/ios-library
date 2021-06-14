@@ -50,6 +50,8 @@ public class Message: Mappable, Equatable {
     
     var agent: Agent?
     
+    var referrer: String?
+    
     public init() {
         self.uuid = NSUUID().uuidString
         
@@ -91,6 +93,8 @@ public class Message: Mappable, Equatable {
         self.status         <- (map["status"], EnumTransform<MessageStatus>())
         
         self.agent          <- map["agent"]
+        
+        self.referrer <- map["referrer"]
     }
     
     public func ignore() -> Bool {

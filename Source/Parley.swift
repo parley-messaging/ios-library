@@ -54,6 +54,8 @@ public class Parley {
     internal var pushToken: String? = nil
     internal var pushType: Device.DevicePushType? = nil
     internal var pushEnabled: Bool = false
+    
+    internal var referrer: String? = nil
 
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
@@ -298,6 +300,8 @@ public class Parley {
     }
 
     internal func send(_ message: Message, isNewMessage: Bool, onNext: (()->())? = nil) {
+        message.referrer = self.referrer
+        
         if isNewMessage {
             let indexPaths = self.messagesManager.add(message)
             self.delegate?.willSend(indexPaths)
@@ -601,10 +605,21 @@ extension Parley {
     /**
      Send a message to Parley.
      
+     - Note: Call after chat is configured.
+     
      - Parameter message: The message to sent
      - Parameter silent: Indicates if the message needs to be sent silently. The message will not be shown when `silent=true`.
      */
     public static func send(_ message: String, silent: Bool = false) {
         shared.send(message, silent: silent)
+    }
+    
+    /*
+     Set referrer.
+     
+     - Parameter referrer: The referrer
+     */
+    public static func setReferrer(_ referrer: String) {
+        shared.referrer = referrer
     }
 }

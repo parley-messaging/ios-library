@@ -263,6 +263,12 @@ It is also possible to send silent messages. Those messages are not visible in t
 Parley.send("User opened chat", silent: true)
 ```
 
+### Referrer
+
+```swift
+Parley.setReferrer("https://parley.nu/")
+```
+
 ## Customize
 
 ### Callbacks

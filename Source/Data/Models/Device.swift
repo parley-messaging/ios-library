@@ -15,6 +15,7 @@ public class Device: Mappable {
     var userAdditionalInformation: [String: String]?
     var type: Int = 2 // iOS
     var version: String = kParleyVersion
+    var referrer: String?
     
     init() {
         //
@@ -31,5 +32,6 @@ public class Device: Mappable {
         userAdditionalInformation <- map["userAdditionalInformation"]
         type <- map["type"]
         version <- map["version"]
+        referrer <- map["referrer"]
     }
 }

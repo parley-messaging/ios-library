@@ -13,6 +13,8 @@ internal class DeviceRepository {
         
         device.userAdditionalInformation = Parley.shared.userAdditionalInformation
         
+        device.referrer = Parley.shared.referrer
+        
         self.store(device, onSuccess: onSuccess, onFailure: onFailure)
     }
     
