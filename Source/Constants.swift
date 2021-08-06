@@ -24,8 +24,6 @@ let kParleyCacheKeyMessages = "messages"
 let kParleyCacheKeySecret = "secret"
 let kParleyCacheKeyUserAuthorization = "user_authorization"
 
-let kParleyDevicePushTypePushEnabled = 6
-
 public let kParleyAdditionalValueName = "name"
 public let kParleyAdditionalValueEmail = "email"
 public let kParleyAdditionalValueAddress = "address"

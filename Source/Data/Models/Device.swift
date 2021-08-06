@@ -2,7 +2,7 @@ import ObjectMapper
 
 public class Device: Mappable {
     
-    public enum DevicePushType: Int {
+    public enum PushType: Int {
         
         case customWebhook = 4
         case customWebhookBehindOAuth = 5
@@ -10,7 +10,7 @@ public class Device: Mappable {
     }
     
     var pushToken: String?
-    var pushType: DevicePushType?
+    var pushType: PushType?
     var pushEnabled: Bool?
     var userAdditionalInformation: [String: String]?
     var type: Int = 2 // iOS
@@ -27,7 +27,7 @@ public class Device: Mappable {
     
     public func mapping(map: Map) {
         pushToken <- map["pushToken"]
-        pushType <- (map["pushType"], EnumTransform<DevicePushType>())
+        pushType <- (map["pushType"], EnumTransform<PushType>())
         pushEnabled <- map["pushEnabled"]
         userAdditionalInformation <- map["userAdditionalInformation"]
         type <- map["type"]

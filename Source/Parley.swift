@@ -52,7 +52,7 @@ public class Parley {
     }
 
     internal var pushToken: String? = nil
-    internal var pushType: Device.DevicePushType? = nil
+    internal var pushType: Device.PushType? = nil
     internal var pushEnabled: Bool = false
     
     internal var referrer: String? = nil
@@ -515,7 +515,7 @@ extension Parley {
      - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
     */
     @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
-    public static func setFcmToken(_ fcmToken: String, pushType: Device.DevicePushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func setFcmToken(_ fcmToken: String, pushType: Device.PushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
         setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
     }
     
@@ -529,7 +529,7 @@ extension Parley {
      - Parameter onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
      - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
     */
-    public static func setPushToken(_ pushToken: String, pushType: Device.DevicePushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func setPushToken(_ pushToken: String, pushType: Device.PushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
         if shared.pushToken == pushToken { return }
 
         shared.pushToken = pushToken
