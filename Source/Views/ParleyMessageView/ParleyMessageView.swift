@@ -268,7 +268,7 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMessage() {
-        if let message = self.message.message {
+        if let message = self.message.getFormattedMessage() {
             if self.displayName == .message || self.displayTitle == .message {
                 self.messageTopLayoutConstraint.constant = self.appearance?.messageInsets?.top ?? 0
             } else {
