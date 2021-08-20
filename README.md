@@ -27,7 +27,7 @@ Empty | Conversation
 [CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Parley into your Xcode project, specify it in your `Podfile`:
 
 ```ruby
-pod 'Parley', '~> 3.1.x'
+pod 'Parley', '~> 3.2.x'
 ```
 
 ### Swift Package Manager
@@ -38,7 +38,7 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.1.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.2.x"))
 ]
 ```
 
