@@ -156,7 +156,7 @@ Add a camera and photo library usage description to the `Info.plist` file.
 
 By default, Parley applies Public Key Pinning on every request executed to the chat api. In order to do you need to add the certificate to your project.
 
-You can use the certificate in this repository when using the default base url (`/Example/ParleyExample/Supported Files/*.parley.nu.cer`).
+You can use the certificate in this repository when using the default base url (`/Example/ParleyExample/Supported Files/*.parley.nu_21-Aug-2022.cer`).
 
 *More information about Public Key Pinning can be found on the website of [OWASP](https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning).*
 

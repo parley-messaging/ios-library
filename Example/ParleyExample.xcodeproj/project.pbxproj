@@ -10,7 +10,6 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ChatViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
-		AA25E4C1260C978D00CDAC9D /* *.parley.nu.cer in Resources */ = {isa = PBXBuildFile; fileRef = AA25E4C0260C978D00CDAC9D /* *.parley.nu.cer */; };
 		F844F57122DCBB3B00E705AE /* IdentifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */; };
 		F844F57B22DCC10D00E705AE /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F844F57A22DCC10D00E705AE /* Colors.xcassets */; };
 		F844F58422DCC2E500E705AE /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F844F57C22DCC2E400E705AE /* Montserrat-SemiBold.ttf */; };
@@ -32,6 +31,7 @@
 		F8F61B3E22BA5E3700F9A51E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3D22BA5E3700F9A51E /* LaunchScreen.storyboard */; };
 		F8F61B4022BA600000F9A51E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3F22BA600000F9A51E /* Main.storyboard */; };
 		F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */; };
+		FAA5060626D62FF400ECB73E /* *.parley.nu_21-Aug-2022.cer in Resources */ = {isa = PBXBuildFile; fileRef = FAA5060526D62FF400ECB73E /* *.parley.nu_21-Aug-2022.cer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,7 +43,6 @@
 		607FACD71AFB9204008FA782 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		94C71995F3065F708BFF3A3D /* Pods_ParleyExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ParleyExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA25E4C0260C978D00CDAC9D /* *.parley.nu.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "*.parley.nu.cer"; sourceTree = "<group>"; };
 		B2A63C7456C84126BFA0B5AD /* Pods-ParleyExample.alpha.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.alpha.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.alpha.xcconfig"; sourceTree = "<group>"; };
 		E3A771064F0F8583682341CC /* Pods-Parley.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Parley.debug.xcconfig"; path = "Target Support Files/Pods-Parley/Pods-Parley.debug.xcconfig"; sourceTree = "<group>"; };
 		F1B281D995BDC1338F40C7F3 /* Pods-ParleyExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.debug.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -70,6 +69,7 @@
 		F8F61B3D22BA5E3700F9A51E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F8F61B3F22BA600000F9A51E /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParleyCustomerAuthorization.swift; sourceTree = "<group>"; };
+		FAA5060526D62FF400ECB73E /* *.parley.nu_21-Aug-2022.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "*.parley.nu_21-Aug-2022.cer"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,7 +146,7 @@
 				F844F58C22DCCAF900E705AE /* en.lproj */,
 				F844F58F22DCCAF900E705AE /* nl.lproj */,
 				F832646A22D34BCB0047041D /* Fonts */,
-				AA25E4C0260C978D00CDAC9D /* *.parley.nu.cer */,
+				FAA5060526D62FF400ECB73E /* *.parley.nu_21-Aug-2022.cer */,
 				F8E9A41122BCD3F8004341BB /* GoogleService-Info.plist */,
 				607FACD41AFB9204008FA782 /* Info.plist */,
 				F85B841B22BBBB9B00A256A8 /* ParleyExample.entitlements */,
@@ -293,13 +293,13 @@
 				F844F58522DCC2E500E705AE /* Montserrat-BoldItalic.ttf in Resources */,
 				F8F61B3E22BA5E3700F9A51E /* LaunchScreen.storyboard in Resources */,
 				F8E9A41222BCD3F8004341BB /* GoogleService-Info.plist in Resources */,
+				FAA5060626D62FF400ECB73E /* *.parley.nu_21-Aug-2022.cer in Resources */,
 				F844F58B22DCC2E500E705AE /* Montserrat-Regular.ttf in Resources */,
 				F844F58A22DCC2E500E705AE /* Montserrat-SemiBoldItalic.ttf in Resources */,
 				F844F58622DCC2E500E705AE /* Montserrat-Bold.ttf in Resources */,
 				F844F59322DCCAF900E705AE /* Localizable.strings in Resources */,
 				F844F57B22DCC10D00E705AE /* Colors.xcassets in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
-				AA25E4C1260C978D00CDAC9D /* *.parley.nu.cer in Resources */,
 				F844F58922DCC2E500E705AE /* Montserrat-Medium.ttf in Resources */,
 				F8F61B4022BA600000F9A51E /* Main.storyboard in Resources */,
 			);
