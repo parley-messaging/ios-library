@@ -22,7 +22,7 @@ internal class MessageTableViewCell: UITableViewCell {
     
     @IBOutlet weak var collectionViewHeightLayoutConstraint: NSLayoutConstraint!
     
-    internal var delegate: MessageTableViewCellDelegate? {
+    internal weak var delegate: MessageTableViewCellDelegate? {
         didSet {
             self.parleyMessageView.delegate = self.delegate
         }

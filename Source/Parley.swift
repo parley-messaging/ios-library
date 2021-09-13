@@ -60,7 +60,7 @@ public class Parley {
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
 
-    internal var delegate: ParleyDelegate? {
+    internal weak var delegate: ParleyDelegate? {
         didSet {
             if self.delegate == nil { return }
 
@@ -179,9 +179,10 @@ public class Parley {
             }
         }
 
-        DeviceRepository().register({ _ in
+        DeviceRepository().register({ [weak self, messagesManager, delegate] _ in
+            guard let self = self else { return }
             let onSecondSuccess: () -> () = {
-                self.delegate?.didReceiveMessages()
+                delegate?.didReceiveMessages()
 
                 let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
                 self.send(pendingMessages)
@@ -194,14 +195,14 @@ public class Parley {
             }
 
             if let lastMessage = self.messagesManager.lastMessage, let id = lastMessage.id {
-                MessageRepository().findAfter(id, onSuccess: { messageCollection in
-                    self.messagesManager.handle(messageCollection, .after)
+                MessageRepository().findAfter(id, onSuccess: { [messagesManager] messageCollection in
+                    messagesManager.handle(messageCollection, .after)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
             } else {
-                MessageRepository().findAll(onSuccess: { messageCollection in
-                    self.messagesManager.handle(messageCollection, .all)
+                MessageRepository().findAll(onSuccess: { [messagesManager] messageCollection in
+                    messagesManager.handle(messageCollection, .all)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
@@ -456,12 +457,8 @@ extension Parley {
         switch messageType {
         case kParleyTypeMessage:
             shared.handleMessage(object)
-
-            break
         case kParleyTypeEvent:
             shared.handleEvent(object["name"] as? String)
-
-            break
         default:
             break
         }

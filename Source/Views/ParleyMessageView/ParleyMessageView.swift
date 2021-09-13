@@ -4,13 +4,12 @@ import Alamofire
 class ParleyMessageView: UIView {
     
     enum Display {
-        
         case hidden
         case image
         case message
     }
 
-    // MARK: IB Outlets
+    // MARK: - IBOutlets
     
     @IBOutlet weak var contentView: UIView!
     
@@ -111,7 +110,7 @@ class ParleyMessageView: UIView {
     // Delegate
     internal var delegate: ParleyMessageViewDelegate?
     
-    // MARK: Appearance
+    // MARK: - Appearance
     internal var appearance: ParleyMessageViewAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
@@ -138,8 +137,9 @@ class ParleyMessageView: UIView {
         self.renderButtons()
     }
     
-    // MARK: Render
+    // MARK: - Render
     private func renderImage() {
+        print("displayTitle: \(displayTitle)")
         if self.displayTitle == .message || self.message.message != nil {
             self.imageImageView.corners = [.topLeft, .topRight]
         } else {
@@ -219,7 +219,7 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMetaTime() {
-        let time = self.message.time.asTime()
+        let time = self.message.time?.asTime()
         
         self.imageMetaTimeLabel.text = time
         self.timeLabel.text = time
@@ -234,22 +234,16 @@ class ParleyMessageView: UIView {
             case .failed:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             case .pending:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             case .success:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             }
         } else {
-            self.imageMetaStatusImageView.isHidden = true
-            self.statusImageView.isHidden = true
+            imageMetaStatusImageView.isHidden = true
+            statusImageView.isHidden = true
         }
     }
     
@@ -287,7 +281,8 @@ class ParleyMessageView: UIView {
     
     // Gradient
     private func renderGradients() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
             if self.displayName == .image {
@@ -371,7 +366,7 @@ class ParleyMessageView: UIView {
         }
     }
     
-    // MARK: Appearance
+    // MARK: - Appearance
     private func apply(_ appearance: ParleyMessageViewAppearance) {
         // Balloon
         if let backgroundTintColor = appearance.balloonTintColor {
@@ -463,7 +458,7 @@ class ParleyMessageView: UIView {
         self.buttonsBottomLayoutConstraint.constant = appearance.buttonInsets?.bottom ?? 0
     }
     
-    // MARK: Actions
+    // MARK: - Actions
     @IBAction func imageAction(sender: AnyObject) {
         self.delegate?.didSelectImage(from: self.message)
     }
@@ -471,10 +466,18 @@ class ParleyMessageView: UIView {
     @objc private func buttonAction(sender: UIButton) {
         guard let messageButton = self.message.buttons?[sender.tag] else { return }
         
-        self.delegate?.didSelect(messageButton)
+        switch messageButton.type {
+        case .phoneNumber:
+            guard let url = URL(string: "tel://\(messageButton.payload ?? "")") else { return }
+            self.delegate?.didSelectButton(open: url)
+        case .none, .reply, .webUrl:
+            guard let url = URL(string: messageButton.payload) else { return }
+            self.delegate?.didSelectButton(open: url)
+        }
+       
     }
     
-    // MARK: View
+    // MARK: - View
     override init(frame: CGRect) {
         super.init(frame: frame)
 

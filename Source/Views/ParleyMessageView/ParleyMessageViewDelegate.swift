@@ -1,5 +1,5 @@
-internal protocol ParleyMessageViewDelegate {
+internal protocol ParleyMessageViewDelegate: AnyObject {
     
     func didSelectImage(from message: Message)
-    func didSelect(_ messageButton: MessageButton)
+    func didSelectButton(open url: URL)
 }
