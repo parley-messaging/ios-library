@@ -20,9 +20,3 @@ public class MessageButton: Mappable {
         self.type       <- map["type"]
     }
 }
-
-enum MessageButtonType: String {
-    case reply
-    case phoneNumber
-    case webUrl
-}
