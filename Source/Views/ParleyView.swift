@@ -99,11 +99,13 @@ public class ParleyView: UIView {
 
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)
-
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
+        ])
     }
 
     private func getMessagesManager() -> MessagesManager {
@@ -284,8 +286,6 @@ extension ParleyView: ParleyDelegate {
             self.activityIndicatorView.stopAnimating()
 
             self.stickyView.isHidden = true
-
-            break
         case .configuring:
             self.messagesTableView.isHidden = true
             self.composeView.isHidden = true
@@ -296,8 +296,6 @@ extension ParleyView: ParleyDelegate {
             self.activityIndicatorView.startAnimating()
 
             self.stickyView.isHidden = true
-
-            break
         case .failed:
             self.messagesTableView.isHidden = true
             self.composeView.isHidden = true
@@ -310,8 +308,6 @@ extension ParleyView: ParleyDelegate {
             self.activityIndicatorView.stopAnimating()
 
             self.stickyView.isHidden = true
-
-            break
         case .configured:
             self.messagesTableView.isHidden = false
             self.composeView.isHidden = false
@@ -375,36 +371,36 @@ extension ParleyView: UITableViewDataSource {
         let message = getMessagesManager().messages[indexPath.row]
 
         switch message.type {
-        case .agent?:
+        case .agent:
             let messageTableViewCell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell") as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.agentMessage
             messageTableViewCell.render(message)
 
             return messageTableViewCell
-        case .date?:
+        case .date:
             let dateTableViewCell = tableView.dequeueReusableCell(withIdentifier: "DateTableViewCell") as! DateTableViewCell
             dateTableViewCell.appearance = appearance.date
             dateTableViewCell.render(message)
 
             return dateTableViewCell
-        case .info?:
+        case .info:
             let infoTableViewCell = tableView.dequeueReusableCell(withIdentifier: "InfoTableViewCell") as! InfoTableViewCell
             infoTableViewCell.appearance = appearance.info
             infoTableViewCell.render(message)
 
             return infoTableViewCell
-        case .loading?:
+        case .loading:
             let loadingTableViewCell = tableView.dequeueReusableCell(withIdentifier: "LoadingTableViewCell") as! LoadingTableViewCell
             loadingTableViewCell.appearance = appearance.loading
 
             return loadingTableViewCell
-        case .agentTyping?:
+        case .agentTyping:
             let agentTypingTableViewCell = tableView.dequeueReusableCell(withIdentifier: "AgentTypingTableViewCell") as! AgentTypingTableViewCell
             agentTypingTableViewCell.appearance = appearance.typingBalloon
 
             return agentTypingTableViewCell
-        case .user?:
+        case .user:
             let messageTableViewCell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell") as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.userMessage

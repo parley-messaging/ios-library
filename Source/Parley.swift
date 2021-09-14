@@ -179,7 +179,7 @@ public class Parley {
             }
         }
 
-        DeviceRepository().register({ _ in
+        DeviceRepository().register ({ _ in
             let onSecondSuccess: () -> () = {
                 self.delegate?.didReceiveMessages()
 

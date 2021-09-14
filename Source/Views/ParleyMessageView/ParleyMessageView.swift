@@ -120,15 +120,16 @@ class ParleyMessageView: UIView {
         }
     }
     
-    internal var message: Message! {
-        didSet {
-            self.render()
-        }
+    private var message: Message!
+    
+    internal func set(message: Message, time: Date? = nil) {
+        self.message = message
+        render(forcedTime: time)
     }
     
-    private func render() {
+    func render(forcedTime: Date? = nil) {
         self.renderName()
-        self.renderMeta()
+        self.renderMeta(with: forcedTime)
         
         self.renderTitle()
         self.renderMessage()
@@ -204,7 +205,7 @@ class ParleyMessageView: UIView {
         self.nameView.isHidden = self.displayName != .message
     }
     
-    private func renderMeta() {
+    private func renderMeta(with time: Date? = nil) {
         if self.message.message != nil || self.message.title != nil || (self.message.image == nil && self.message.imageURL == nil) {
             self.displayMeta = .message
         } else {
@@ -214,12 +215,12 @@ class ParleyMessageView: UIView {
         self.imageMetaStackView.isHidden = self.displayMeta != .image
         self.metaView.isHidden = self.displayMeta != .message
         
-        self.renderMetaTime()
+        self.renderMetaTime(with: time)
         self.renderMetaStatus()
     }
     
-    private func renderMetaTime() {
-        let time = self.message.time.asTime()
+    private func renderMetaTime(with forcedTime: Date? = nil) {
+        let time = (forcedTime ?? self.message.time)?.asTime() ?? "NO TIME"
         
         self.imageMetaTimeLabel.text = time
         self.timeLabel.text = time
