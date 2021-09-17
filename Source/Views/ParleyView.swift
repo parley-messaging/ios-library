@@ -147,8 +147,8 @@ public class ParleyView: UIView {
     }
     
     private func syncMessageTableViewContentInsets() {
-        let top = self.stackView.isHidden ? 0 : self.stackView.frame.height
-        let bottom = self.suggestionsView.isHidden ? 0 : self.suggestionsView.frame.height
+        let top = stackView.isHidden ? 0 : stackView.frame.height
+        let bottom = suggestionsView.isHidden ? 0 : suggestionsView.heightLayoutConstraint.constant
         
         self.messagesTableView.contentInset = UIEdgeInsets(
             top: top,
