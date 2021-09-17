@@ -139,7 +139,6 @@ class ParleyMessageView: UIView {
     
     // MARK: - Render
     private func renderImage() {
-        print("displayTitle: \(displayTitle)")
         if self.displayTitle == .message || self.message.message != nil {
             self.imageImageView.corners = [.topLeft, .topRight]
         } else {
