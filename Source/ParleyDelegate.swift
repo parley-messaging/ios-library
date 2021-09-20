@@ -1,6 +1,6 @@
 import Foundation
 
-internal protocol ParleyDelegate {
+internal protocol ParleyDelegate: AnyObject {
     
     func didChangeState(_ state: Parley.State)
     func didChangePushEnabled(_ pushEnabled: Bool)

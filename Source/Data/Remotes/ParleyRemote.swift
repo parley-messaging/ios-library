@@ -73,7 +73,7 @@ internal class ParleyRemote {
         return request
     }
     
-    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, keyPath: String?="data", onSuccess: @escaping (_ item: T)->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
+    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, keyPath: String? = "data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, headers: getHeaders())
@@ -105,7 +105,7 @@ internal class ParleyRemote {
         return request
     }
     
-    internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String?="data", onSuccess: @escaping (_ item: T)->(), onFailure: @escaping (_ error: Error)->()) {
+    internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String?="data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error)->()) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
