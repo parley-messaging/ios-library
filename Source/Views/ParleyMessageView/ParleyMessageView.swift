@@ -464,16 +464,7 @@ class ParleyMessageView: UIView {
     
     @objc private func buttonAction(sender: UIButton) {
         guard let messageButton = self.message.buttons?[sender.tag] else { return }
-        
-        switch messageButton.type {
-        case .phoneNumber:
-            guard let url = URL(string: "tel://\(messageButton.payload ?? "")") else { return }
-            self.delegate?.didSelectButton(open: url)
-        case .none, .reply, .webUrl:
-            guard let url = URL(string: messageButton.payload) else { return }
-            self.delegate?.didSelectButton(open: url)
-        }
-       
+        delegate?.didSelect(messageButton)
     }
     
     // MARK: - View

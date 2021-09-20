@@ -512,8 +512,20 @@ extension ParleyView: MessageTableViewCellDelegate {
         self.present(imageViewController, animated: true, completion: nil)
     }
     
-    func didSelectButton(open url: URL) {
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    func didSelect(_ button: MessageButton) {
+        guard let payload = button.payload else { return }
+        switch button.type {
+        case .phoneNumber:
+            guard let url = URL(string: "tel://\(payload)") else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        case .webUrl:
+            guard let url = URL(string: payload) else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        case .reply:
+            Parley.send(payload)
+        case .none:
+            break
+        }
     }
 }
 
