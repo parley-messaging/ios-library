@@ -76,7 +76,7 @@ class IdentifierViewController: UIViewController {
 
         let network = ParleyNetwork(
             url: "https://api.parley.nu/",
-            path: "clientApi/v1.6/",
+            path: "clientApi/v1.2/",
             headers: headers
         )
 
