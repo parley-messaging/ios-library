@@ -22,14 +22,6 @@ Empty | Conversation
 
 ## Installation
 
-### Cocoapods
-
-[CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Parley into your Xcode project, specify it in your `Podfile`:
-
-```ruby
-pod 'Parley', '~> 3.2.x'
-```
-
 ### Swift Package Manager
 
 The Swift Package Manager is a tool for automating the distribution of Swift code and is integrated into the swift compiler.
@@ -42,15 +34,9 @@ dependencies: [
 ]
 ```
 
-### Upgrading from 3.1.x to 3.2.0
+### Upgrading
 
-1. `setFcmToken(_:)` is renamed to `setPushToken(_:)`
-
-### Upgrading from 3.0.x to 3.1.0
-
-3.1.0 contains a breaking change related to Public Key Pinning. Parley is not depending on TrustKit anymore.
-
-Check out step 5 of the configuration to apply the new configuration.
+Checkout [CHANGELOG.md](CHANGELOG.md) for the latest changes and upgrade notes.
 
 ## Getting started
 
@@ -157,6 +143,8 @@ Add a camera and photo library usage description to the `Info.plist` file.
 By default, Parley applies Public Key Pinning on every request executed to the chat api. In order to do you need to add the certificate to your project.
 
 You can use the certificate in this repository when using the default base url (`/Example/ParleyExample/Supported Files/*.parley.nu_21-Aug-2022.cer`).
+
+When a certificate is going to expire you can safely transition by adding the new `.cer` to the project. It is important to leave the old `.cer` in the app until after the new one is valid. In the next release the old certificate can be removed.
 
 *More information about Public Key Pinning can be found on the website of [OWASP](https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning).*
 

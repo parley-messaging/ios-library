@@ -2,9 +2,9 @@ import UIKit
 
 public class ParleyViewAppearance {
     
-    public var backgroundColor: UIColor? = UIColor(white:0.92, alpha:1.0)
+    public var backgroundColor: UIColor? = UIColor(white: 0.92, alpha: 1.0)
     
-    public var textColor: UIColor = UIColor(white:0.62, alpha:1.0)
+    public var textColor: UIColor = UIColor(white: 0.62, alpha: 1.0)
     
     public var offlineNotification: ParleyNotificationViewAppearance
     public var pushDisabledNotification: ParleyNotificationViewAppearance

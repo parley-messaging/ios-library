@@ -59,8 +59,6 @@ class MessagesManager {
         switch handleType {
         case .before:
             self.originalMessages.append(contentsOf: messageCollection.messages)
-            
-            break
         case .all, .after:
             let pendingMessages = self.pendingMessages
             self.originalMessages.removeAll { message -> Bool in
@@ -69,8 +67,6 @@ class MessagesManager {
             
             self.originalMessages.insert(contentsOf: messageCollection.messages, at: 0)
             self.originalMessages.insert(contentsOf: pendingMessages, at: 0)
-            
-            break
         }
         
         Parley.shared.dataSource?.save(self.originalMessages)
@@ -96,7 +92,9 @@ class MessagesManager {
         var indexPaths: [IndexPath] = []
         
         let index = self.messages.first?.type == .agentTyping ? 1 : 0
-        if self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(self.messages[index].time, inSameDayAs: message.time))) {
+        if let globalMessageTime = messages[index].time,
+           let messageTime = message.time,
+           self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(globalMessageTime, inSameDayAs: messageTime))) {
             let dateMessage = Message()
             dateMessage.time = message.time
             dateMessage.type = .date
@@ -152,7 +150,7 @@ class MessagesManager {
     
         var lastDate = (originalMessages.first?.time ?? Date()).asDate()
         for (index, message) in originalMessages.enumerated() {
-            if message.time.asDate() != lastDate {
+            if message.time?.asDate() != lastDate {
                 let dateMessage = Message()
                 dateMessage.time = message.time
                 dateMessage.message = lastDate
@@ -160,7 +158,7 @@ class MessagesManager {
                 
                 formattedMessages.append(dateMessage)
                 
-                lastDate = message.time.asDate()
+                lastDate = message.time?.asDate() ?? ""
             }
             
             formattedMessages.append(message)
@@ -200,11 +198,11 @@ class MessagesManager {
     }
 
     internal func clear() {
-        self.originalMessages.removeAll()
-        self.messages.removeAll()
-        self.welcomeMessage = nil
-        self.stickyMessage = nil
-        self.paging = nil
+        originalMessages.removeAll()
+        messages.removeAll()
+        welcomeMessage = nil
+        stickyMessage = nil
+        paging = nil
         loadCachedData()
     }
 }

@@ -5,7 +5,7 @@ public class ParleyView: UIView {
 
     @IBOutlet var contentView: UIView! {
         didSet {
-            self.contentView.backgroundColor = UIColor.clear
+            contentView.backgroundColor = UIColor.clear
         }
     }
 
@@ -13,37 +13,37 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var messagesTableView: ReversedTableView! {
         didSet {
-            self.messagesTableView.separatorStyle = .none
+            messagesTableView.separatorStyle = .none
         }
     }
 
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            self.pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
+            pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
         }
     }
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            self.offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle.current, comment: "")
+            offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle.current, comment: "")
         }
     }
     @IBOutlet weak var stickyView: ParleyStickyView!
     
     @IBOutlet weak var suggestionsView: ParleySuggestionsView! {
         didSet {
-            self.suggestionsView.delegate = self
+            suggestionsView.delegate = self
             
-            self.syncMessageTableViewContentInsets()
+            syncMessageTableViewContentInsets()
         }
     }
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet{
-            self.composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
-            self.composeView.maxCount = kParleyMessageMaxCount
+            composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
+            composeView.maxCount = kParleyMessageMaxCount
 
-            self.composeView.delegate = self
+            composeView.delegate = self
         }
     }
 
@@ -52,13 +52,13 @@ public class ParleyView: UIView {
 
     public var appearance = ParleyViewAppearance() {
         didSet {
-            self.apply(self.appearance)
+            apply(appearance)
         }
     }
 
     public var imagesEnabled = true {
         didSet {
-            self.composeView.allowPhotos = self.imagesEnabled
+            composeView.allowPhotos = imagesEnabled
         }
     }
 
@@ -67,29 +67,29 @@ public class ParleyView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     deinit {
-        self.removeObservers()
+        removeObservers()
 
         Parley.shared.delegate = nil
     }
 
     private func setup() {
-        self.loadXib()
+        loadXib()
 
-        self.apply(self.appearance)
+        apply(appearance)
 
-        self.setupMessagesTableView()
+        setupMessagesTableView()
 
-        self.addObservers()
+        addObservers()
 
         Parley.shared.delegate = self
     }
@@ -97,13 +97,13 @@ public class ParleyView: UIView {
     private func loadXib() {
         Bundle.current.loadNibNamed("ParleyView", owner: self, options: nil)
 
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
 
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
     }
 
     private func getMessagesManager() -> MessagesManager {
@@ -125,18 +125,21 @@ public class ParleyView: UIView {
             registerNibCell(cellIdentifier)
         }
 
-        self.messagesTableView.dataSource = self
-        self.messagesTableView.delegate = self
+        messagesTableView.dataSource = self
+        messagesTableView.delegate = self
     }
 
     private func registerNibCell(_ nibName: String) {
         let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
-        self.messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
+        messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
 
     private func syncStackView(_ changes: @escaping () -> Void) {
-        UIView.animate(withDuration: 0, animations: changes) { finished in
-            if !finished { return }
+        UIView.animate(withDuration: 0, animations: changes) { [weak self] finished in
+            guard
+                finished,
+                let self = self
+            else { return }
 
             self.stackView.isHidden = !self.stackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
             
@@ -145,10 +148,10 @@ public class ParleyView: UIView {
     }
     
     private func syncMessageTableViewContentInsets() {
-        let top = self.stackView.isHidden ? 0 : self.stackView.frame.height
-        let bottom = self.suggestionsView.isHidden ? 0 : self.suggestionsView.frame.height
+        let top = stackView.isHidden ? 0 : stackView.frame.height
+        let bottom: CGFloat = suggestionsView.isHidden ? 0 : 45
         
-        self.messagesTableView.contentInset = UIEdgeInsets(
+        messagesTableView.contentInset = UIEdgeInsets(
             top: top,
             left: 0,
             bottom: bottom,
@@ -157,26 +160,26 @@ public class ParleyView: UIView {
     }
     
     private func syncSuggestionsView() {
-        if let message = getMessagesManager().messages.first, let quickReplies = message.quickReplies, quickReplies.count > 0 {
-            self.suggestionsView.render(quickReplies)
+        if let message = getMessagesManager().messages.first, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+            suggestionsView.isHidden = false
             
-            self.suggestionsView.isHidden = false
+            suggestionsView.render(quickReplies)
             
-            self.syncMessageTableViewContentInsets()
+            syncMessageTableViewContentInsets()
         } else {
-            self.suggestionsView.render([])
+            suggestionsView.render([])
             
-            self.suggestionsView.isHidden = true
+            suggestionsView.isHidden = true
             
-            self.syncMessageTableViewContentInsets()
+            syncMessageTableViewContentInsets()
         }
     }
 
     // MARK: Observers
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
 
     private func removeObservers() {
@@ -187,36 +190,36 @@ public class ParleyView: UIView {
 
     // MARK: Keyboard
     @objc private func keyboardDidShow(notification: NSNotification) {
-        self.messagesTableView.addGestureRecognizer(self.tapGestureRecognizer)
+        messagesTableView.addGestureRecognizer(tapGestureRecognizer)
     }
 
     @objc private func keyboardDidHide(notification: NSNotification) {
-        self.messagesTableView.removeGestureRecognizer(self.tapGestureRecognizer)
+        messagesTableView.removeGestureRecognizer(tapGestureRecognizer)
     }
 
     @IBAction func hideKeyboard(_ sender: Any) {
-        self.endEditing(true)
+        endEditing(true)
     }
     
     // MARK: Orientation
     @objc private func orientationDidChange() {
-        self.messagesTableView.reloadData()
+        messagesTableView.reloadData()
     }
 
     // MARK: Appearance
     private func apply(_ appearance: ParleyViewAppearance) {
-        self.backgroundColor = appearance.backgroundColor
+        backgroundColor = appearance.backgroundColor
 
-        self.statusLabel.textColor = appearance.textColor
+        statusLabel.textColor = appearance.textColor
 
-        self.pushDisabledNotificationView.appearance = appearance.pushDisabledNotification
-        self.offlineNotificationView.appearance = appearance.offlineNotification
-        self.stickyView.appearance = appearance.sticky
-        self.composeView.appearance = appearance.compose
+        pushDisabledNotificationView.appearance = appearance.pushDisabledNotification
+        offlineNotificationView.appearance = appearance.offlineNotification
+        stickyView.appearance = appearance.sticky
+        composeView.appearance = appearance.compose
         
-        self.suggestionsView.appearance = appearance.suggestions
+        suggestionsView.appearance = appearance.suggestions
 
-        self.messagesTableView.reloadData()
+        messagesTableView.reloadData()
     }
 }
 
@@ -224,47 +227,47 @@ public class ParleyView: UIView {
 extension ParleyView: ParleyDelegate {
 
     func willSend(_ indexPaths: [IndexPath]) {
-        self.syncSuggestionsView()
+        syncSuggestionsView()
         
-        self.messagesTableView.insertRows(at: indexPaths, with: .none)
-        self.messagesTableView.scroll(to: .bottom, animated: false)
+        messagesTableView.insertRows(at: indexPaths, with: .none)
+        messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didUpdate(_ message: Message) {
         if let index = getMessagesManager().messages.firstIndex(of: message) {
-            self.messagesTableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+            messagesTableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
         }
     }
 
     func didSent(_ message: Message) {
-        self.delegate?.didSentMessage()
+        delegate?.didSentMessage()
     }
 
     func didReceiveMessage(_ indexPath: [IndexPath]) {
-        self.syncSuggestionsView()
+        syncSuggestionsView()
         
-        self.messagesTableView.insertRows(at: indexPath, with: .none)
-        self.messagesTableView.scroll(to: .bottom, animated: false)
+        messagesTableView.insertRows(at: indexPath, with: .none)
+        messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didReceiveMessages() {
-        self.syncSuggestionsView()
+        syncSuggestionsView()
         
-        self.messagesTableView.reloadData()
+        messagesTableView.reloadData()
     }
 
     func didStartTyping() {
-        let indexPaths = self.getMessagesManager().addTypingMessage()
-        self.messagesTableView.insertRows(at: indexPaths, with: .none)
+        let indexPaths = getMessagesManager().addTypingMessage()
+        messagesTableView.insertRows(at: indexPaths, with: .none)
 
-        self.messagesTableView.scroll(to: .bottom, animated: false)
+        messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didStopTyping() {
-        if let indexPaths = self.getMessagesManager().removeTypingMessage() {
-            self.messagesTableView.deleteRows(at: indexPaths, with: .none)
+        if let indexPaths = getMessagesManager().removeTypingMessage() {
+            messagesTableView.deleteRows(at: indexPaths, with: .none)
 
-            self.messagesTableView.scroll(to: .bottom, animated: false)
+            messagesTableView.scroll(to: .bottom, animated: false)
         }
     }
 
@@ -273,94 +276,89 @@ extension ParleyView: ParleyDelegate {
 
         switch state {
         case .unconfigured:
-            self.messagesTableView.isHidden = true
-            self.composeView.isHidden = true
-            self.suggestionsView.isHidden = true
+            messagesTableView.isHidden = true
+            composeView.isHidden = true
+            suggestionsView.isHidden = true
 
-            self.statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle.current, comment: "")
-            self.statusLabel.isHidden = false
+            statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle.current, comment: "")
+            statusLabel.isHidden = false
 
-            self.activityIndicatorView.isHidden = true
-            self.activityIndicatorView.stopAnimating()
+            activityIndicatorView.isHidden = true
+            activityIndicatorView.stopAnimating()
 
-            self.stickyView.isHidden = true
-
-            break
+            stickyView.isHidden = true
         case .configuring:
-            self.messagesTableView.isHidden = true
-            self.composeView.isHidden = true
-            self.statusLabel.isHidden = true
-            self.suggestionsView.isHidden = true
+            messagesTableView.isHidden = true
+            composeView.isHidden = true
+            statusLabel.isHidden = true
+            suggestionsView.isHidden = true
 
-            self.activityIndicatorView.isHidden = false
-            self.activityIndicatorView.startAnimating()
+            activityIndicatorView.isHidden = false
+            activityIndicatorView.startAnimating()
 
-            self.stickyView.isHidden = true
-
-            break
+            stickyView.isHidden = true
         case .failed:
-            self.messagesTableView.isHidden = true
-            self.composeView.isHidden = true
-            self.suggestionsView.isHidden = true
+            messagesTableView.isHidden = true
+            composeView.isHidden = true
+            suggestionsView.isHidden = true
 
-            self.statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle.current, comment: "")
-            self.statusLabel.isHidden = false
+            statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle.current, comment: "")
+            statusLabel.isHidden = false
 
-            self.activityIndicatorView.isHidden = true
-            self.activityIndicatorView.stopAnimating()
+            activityIndicatorView.isHidden = true
+            activityIndicatorView.stopAnimating()
 
-            self.stickyView.isHidden = true
-
-            break
+            stickyView.isHidden = true
         case .configured:
-            self.messagesTableView.isHidden = false
-            self.composeView.isHidden = false
-            self.statusLabel.isHidden = true
+            messagesTableView.isHidden = false
+            composeView.isHidden = false
+            statusLabel.isHidden = true
 
-            self.activityIndicatorView.isHidden = true
-            self.activityIndicatorView.stopAnimating()
-
-            self.syncStackView {
+            activityIndicatorView.isHidden = true
+            activityIndicatorView.stopAnimating()
+            
+            syncStackView { [weak self] in
+                guard let self = self else { return }
                 self.stickyView.text = self.getMessagesManager().stickyMessage
                 self.stickyView.isHidden = self.getMessagesManager().stickyMessage == nil
             }
 
-            self.messagesTableView.reloadData()
+            messagesTableView.reloadData()
             
-            self.syncSuggestionsView()
+            syncSuggestionsView()
             
-            self.messagesTableView.scroll(to: .bottom, animated: false)
+            messagesTableView.scroll(to: .bottom, animated: false)
         }
     }
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
-        DispatchQueue.main.async {
-            if self.offlineNotificationView.isHidden == false { return }
+        DispatchQueue.main.async { [weak self] in
+            if self?.offlineNotificationView.isHidden == false { return }
 
-            self.syncStackView {
-                self.pushDisabledNotificationView.isHidden = pushEnabled
+            self?.syncStackView { [weak self] in
+                self?.pushDisabledNotificationView.isHidden = pushEnabled
             }
         }
     }
 
     func reachable() {
-        self.syncStackView {
-            self.pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
-            self.offlineNotificationView.isHidden = true
+        syncStackView { [weak self] in
+            self?.pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
+            self?.offlineNotificationView.isHidden = true
         }
 
-        self.composeView.isEnabled = true
-        self.suggestionsView.isEnabled = true
+        composeView.isEnabled = true
+        suggestionsView.isEnabled = true
     }
 
     func unreachable() {
-        self.syncStackView {
-            self.pushDisabledNotificationView.isHidden = true
-            self.offlineNotificationView.isHidden = false
+        syncStackView { [weak self] in
+            self?.pushDisabledNotificationView.isHidden = true
+            self?.offlineNotificationView.isHidden = false
         }
 
-        self.composeView.isEnabled = Parley.shared.isCachingEnabled()
-        self.suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
+        composeView.isEnabled = Parley.shared.isCachingEnabled()
+        suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
     }
 }
 
@@ -464,16 +462,16 @@ extension ParleyView: UITableViewDelegate {
         }
         
         if scrollY > 0 {
-            self.suggestionsView.alpha = 0
+            suggestionsView.alpha = 0
         } else if scrollY < 0 {
-            let alpha = abs(scrollY) / self.suggestionsView.frame.height
+            let alpha = abs(scrollY) / suggestionsView.frame.height
             
-            self.suggestionsView.alpha = alpha > 1 ? 1 : alpha
+            suggestionsView.alpha = alpha > 1 ? 1 : alpha
         }
     }
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.messagesTableView.deselectRow(at: indexPath, animated: false)
+        messagesTableView.deselectRow(at: indexPath, animated: false)
 
         let message = getMessagesManager().messages[indexPath.row]
         if message.status == .failed && message.type == .user {
@@ -486,7 +484,7 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
 
     func didChange() {
-        if !self.composeView.textView.text.isEmpty {
+        if !composeView.textView.text.isEmpty {
             Parley.shared.userStartTyping()
         }
     }
@@ -509,7 +507,7 @@ extension ParleyView: MessageTableViewCellDelegate {
         imageViewController.modalTransitionStyle = .crossDissolve
         imageViewController.message = message
 
-        self.present(imageViewController, animated: true, completion: nil)
+        present(imageViewController, animated: true, completion: nil)
     }
     
     func didSelect(_ button: MessageButton) {

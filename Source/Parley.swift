@@ -99,15 +99,15 @@ public class Parley {
     // MARK: Reachability
     private func setupReachability() {
         self.reachability = try? Reachability()
-        self.reachability?.whenReachable = { _ in
-            self.reachable = true
+        self.reachability?.whenReachable = { [weak self] _ in
+            self?.reachable = true
         }
 
-        self.reachability?.whenUnreachable = { _ in
-            self.reachable = false
+        self.reachability?.whenUnreachable = { [weak self] _ in
+            self?.reachable = false
         }
 
-        try? self.reachability?.startNotifier()
+        try? reachability?.startNotifier()
     }
 
     // MARK: Observers

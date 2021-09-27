@@ -20,8 +20,8 @@ class MessageCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    internal func render(_ message: Message) {
-        self.parleyMessageView.message = message
+    internal func render(_ message: Message, time: Date?) {
+        parleyMessageView.set(message: message, time: time)
     }
     
     private func apply(_ appearance: MessageCollectionViewCellAppearance) {
@@ -75,7 +75,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
             height += appearance.metaInsets?.left ?? 0
             height += appearance.metaInsets?.bottom ?? 0
 
-            height += message.time.asTime().height(withConstrainedWidth: width, font: appearance.nameFont)
+            height += (message.time?.asTime() ?? "").height(withConstrainedWidth: width, font: appearance.nameFont)
         }
 
         if let messageButtons = message.buttons, messageButtons.count > 0 {

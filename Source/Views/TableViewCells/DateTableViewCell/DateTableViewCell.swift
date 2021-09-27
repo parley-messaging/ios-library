@@ -23,7 +23,7 @@ internal class DateTableViewCell: UITableViewCell {
     }
     
     internal func render(_ message: Message) {
-        self.timeLabel.text = message.time.asDate()
+        self.timeLabel.text = message.time?.asDate()
     }
     
     private func apply(_ appearance: DateTableViewCellAppearance) {

@@ -36,37 +36,35 @@ internal class MessageTableViewCell: UITableViewCell {
         }
     }
     
-    private var messages: [Message] = []
+    private var messages: (messages: [Message], time: Date?)?
     
     internal func render(_ message: Message) {
         if message.image != nil || message.imageURL != nil || message.title != nil || message.message != nil || message.buttons?.count ?? 0 > 0 {
             self.messageView.isHidden = false
 
-            self.parleyMessageView.message = message
+            self.parleyMessageView.set(message: message)
         } else {
             self.messageView.isHidden = true
         }
 
         if let messages = message.carousel, messages.count > 0 {
-            self.messages = messages
+            self.messages = (messages, message.time)
             
-            self.collectionView.isHidden = false
-
-            var maxSize = CGSize(width: 0, height: 0)
-            messages.forEach { message in
-                let size = MessageCollectionViewCell.calculateSize(self.appearance!.carousel!, message)
-                if size.height > maxSize.height {
-                    maxSize = size
-                }
+            collectionView.isHidden = false
+            
+            let maxSize = messages.map { message -> CGSize in
+                MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
             }
+            .sorted(by: {$0.height > $1.height})
+            .first ?? .zero
 
-            if let flowLayout = self.collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
+            if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
                 flowLayout.estimatedItemSize = maxSize
             }
 
-            self.collectionViewHeightLayoutConstraint.constant = maxSize.height + 4
+            collectionViewHeightLayoutConstraint.constant = maxSize.height + 4
         } else {
-            self.messages = []
+            self.messages = nil
             
             self.collectionView.isHidden = true
         }
@@ -90,15 +88,11 @@ internal class MessageTableViewCell: UITableViewCell {
                 self.leftLayoutConstraint,
                 self.rightAlignLayoutConstraint
             ])
-            
-            break
         case .right:
             self.contentView.addConstraints([
                 self.leftAlignLayoutConstraint,
                 self.rightLayoutConstraint
             ])
-            
-            break
         default:
             self.contentView.addConstraints([
                 self.leftLayoutConstraint,
@@ -111,7 +105,7 @@ internal class MessageTableViewCell: UITableViewCell {
 extension MessageTableViewCell: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.messages.count
+        messages?.messages.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -119,7 +113,9 @@ extension MessageTableViewCell: UICollectionViewDataSource {
 
         messageCollectionViewCell.delegate = self.delegate
         messageCollectionViewCell.appearance = self.appearance?.carousel
-        messageCollectionViewCell.render(self.messages[indexPath.row])
+        if let messages = self.messages {
+            messageCollectionViewCell.render(messages.messages[indexPath.row], time: messages.time)
+        }
         
         return messageCollectionViewCell
     }

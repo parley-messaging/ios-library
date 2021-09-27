@@ -29,7 +29,7 @@ internal class ParleySuggestionsView: UIView {
             self.apply(self.appearance)
         }
     }
-    var delegate: ParleySuggestionsViewDelegate?
+    weak var delegate: ParleySuggestionsViewDelegate?
     
     var isEnabled = true {
         didSet {
