@@ -113,8 +113,9 @@ extension MessageTableViewCell: UICollectionViewDataSource {
 
         messageCollectionViewCell.delegate = self.delegate
         messageCollectionViewCell.appearance = self.appearance?.carousel
-//        let message = messages[indexPath.row]
-        messageCollectionViewCell.render(messages!.messages[indexPath.row], time: messages!.time)
+        if let messages = self.messages {
+            messageCollectionViewCell.render(messages.messages[indexPath.row], time: messages.time)
+        }
         
         return messageCollectionViewCell
     }

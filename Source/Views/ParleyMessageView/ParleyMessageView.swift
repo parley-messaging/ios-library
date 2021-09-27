@@ -217,7 +217,6 @@ class ParleyMessageView: UIView {
         self.metaView.isHidden = self.displayMeta != .message
         
         self.renderMetaTime(forcedTime: forcedTime)
-//        self.renderMeta(with: forcedTime)
     }
     
     private func renderMetaTime(forcedTime: Date?) {
