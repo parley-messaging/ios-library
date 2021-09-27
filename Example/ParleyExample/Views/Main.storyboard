@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="eqZ-7O-pFe">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="eqZ-7O-pFe">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -111,6 +112,7 @@
                                 </connections>
                             </button>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="DHZ-rr-q0C"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
                         <constraints>
@@ -137,7 +139,6 @@
                             <constraint firstItem="7T9-o4-Qc4" firstAttribute="top" secondItem="836-54-gZW" secondAttribute="bottom" constant="8" id="vJu-gr-Cjz"/>
                             <constraint firstItem="DHZ-rr-q0C" firstAttribute="trailing" secondItem="836-54-gZW" secondAttribute="trailing" constant="32" id="yN7-xs-F5x"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="DHZ-rr-q0C"/>
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="PUd-ku-crg" appends="YES" id="da6-e3-djs"/>
                         </connections>
@@ -207,7 +208,7 @@
             <objects>
                 <viewController id="hKr-Sc-Pdd" customClass="ChatViewController" customModule="ParleyExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Uuf-Ts-rrF">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="koi-Qa-nFc" customClass="ParleyView" customModule="Parley">
@@ -215,6 +216,7 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="KLv-gB-6ge"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="koi-Qa-nFc" firstAttribute="top" secondItem="Uuf-Ts-rrF" secondAttribute="top" id="5tD-hR-uZD"/>
@@ -222,7 +224,6 @@
                             <constraint firstItem="koi-Qa-nFc" firstAttribute="bottom" secondItem="Uuf-Ts-rrF" secondAttribute="bottom" id="i12-UV-dqH"/>
                             <constraint firstItem="koi-Qa-nFc" firstAttribute="leading" secondItem="Uuf-Ts-rrF" secondAttribute="leading" id="wpD-DB-0zO"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="KLv-gB-6ge"/>
                     </view>
                     <navigationItem key="navigationItem" title="chat_title" id="Q26-RX-uTU">
                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="LdN-E8-4nf">
@@ -263,7 +264,7 @@
             <objects>
                 <viewController id="eca-Tz-znd" customClass="DocumentationViewController" customModule="ParleyExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="i3a-c0-aoe">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2g-PN-xnS">
@@ -278,7 +279,8 @@
                                 <rect key="frame" x="197" y="352.5" width="20" height="20"/>
                             </activityIndicatorView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="o2d-uR-hTx"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="gmy-kE-He6" firstAttribute="centerX" secondItem="o2d-uR-hTx" secondAttribute="centerX" id="7OV-Nk-unr"/>
                             <constraint firstItem="gmy-kE-He6" firstAttribute="centerY" secondItem="o2d-uR-hTx" secondAttribute="centerY" id="9uR-69-hZA"/>
@@ -287,7 +289,6 @@
                             <constraint firstItem="q2g-PN-xnS" firstAttribute="bottom" secondItem="o2d-uR-hTx" secondAttribute="bottom" id="fvq-wh-Onz"/>
                             <constraint firstItem="q2g-PN-xnS" firstAttribute="top" secondItem="o2d-uR-hTx" secondAttribute="top" id="l1h-ng-7mZ"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="o2d-uR-hTx"/>
                     </view>
                     <navigationItem key="navigationItem" title="documentation_title" id="Rsq-HK-vrO"/>
                     <connections>
@@ -300,6 +301,9 @@
             <point key="canvasLocation" x="474" y="208"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="7D9-nW-WGx"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="Header" width="375" height="165"/>
         <image name="LogoInverse" width="203" height="82"/>
@@ -310,8 +314,8 @@
         <namedColor name="primaryColor">
             <color red="0.29019607843137257" green="0.36862745098039218" blue="0.51372549019607838" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="7D9-nW-WGx"/>
-    </inferredMetricsTieBreakers>
 </document>

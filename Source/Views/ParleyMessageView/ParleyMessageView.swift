@@ -4,13 +4,12 @@ import Alamofire
 class ParleyMessageView: UIView {
     
     enum Display {
-        
         case hidden
         case image
         case message
     }
 
-    // MARK: IB Outlets
+    // MARK: - IBOutlets
     
     @IBOutlet weak var contentView: UIView!
     
@@ -111,7 +110,7 @@ class ParleyMessageView: UIView {
     // Delegate
     internal var delegate: ParleyMessageViewDelegate?
     
-    // MARK: Appearance
+    // MARK: - Appearance
     internal var appearance: ParleyMessageViewAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
@@ -120,16 +119,15 @@ class ParleyMessageView: UIView {
         }
     }
     
-    private var message: Message!
-    
-    internal func set(message: Message, time: Date? = nil) {
-        self.message = message
-        render(forcedTime: time)
+    internal var message: Message! {
+        didSet {
+            self.render()
+        }
     }
     
-    func render(forcedTime: Date? = nil) {
+    private func render() {
         self.renderName()
-        self.renderMeta(with: forcedTime)
+        self.renderMeta()
         
         self.renderTitle()
         self.renderMessage()
@@ -139,7 +137,7 @@ class ParleyMessageView: UIView {
         self.renderButtons()
     }
     
-    // MARK: Render
+    // MARK: - Render
     private func renderImage() {
         if self.displayTitle == .message || self.message.message != nil {
             self.imageImageView.corners = [.topLeft, .topRight]
@@ -205,7 +203,7 @@ class ParleyMessageView: UIView {
         self.nameView.isHidden = self.displayName != .message
     }
     
-    private func renderMeta(with time: Date? = nil) {
+    private func renderMeta() {
         if self.message.message != nil || self.message.title != nil || (self.message.image == nil && self.message.imageURL == nil) {
             self.displayMeta = .message
         } else {
@@ -215,12 +213,12 @@ class ParleyMessageView: UIView {
         self.imageMetaStackView.isHidden = self.displayMeta != .image
         self.metaView.isHidden = self.displayMeta != .message
         
-        self.renderMetaTime(with: time)
+        self.renderMetaTime()
         self.renderMetaStatus()
     }
     
-    private func renderMetaTime(with forcedTime: Date? = nil) {
-        let time = (forcedTime ?? self.message.time)?.asTime() ?? "NO TIME"
+    private func renderMetaTime() {
+        let time = self.message.time?.asTime()
         
         self.imageMetaTimeLabel.text = time
         self.timeLabel.text = time
@@ -235,22 +233,16 @@ class ParleyMessageView: UIView {
             case .failed:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             case .pending:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             case .success:
                 self.imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 self.statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                
-                break
             }
         } else {
-            self.imageMetaStatusImageView.isHidden = true
-            self.statusImageView.isHidden = true
+            imageMetaStatusImageView.isHidden = true
+            statusImageView.isHidden = true
         }
     }
     
@@ -288,7 +280,8 @@ class ParleyMessageView: UIView {
     
     // Gradient
     private func renderGradients() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
             if self.displayName == .image {
@@ -372,7 +365,7 @@ class ParleyMessageView: UIView {
         }
     }
     
-    // MARK: Appearance
+    // MARK: - Appearance
     private func apply(_ appearance: ParleyMessageViewAppearance) {
         // Balloon
         if let backgroundTintColor = appearance.balloonTintColor {
@@ -464,18 +457,17 @@ class ParleyMessageView: UIView {
         self.buttonsBottomLayoutConstraint.constant = appearance.buttonInsets?.bottom ?? 0
     }
     
-    // MARK: Actions
+    // MARK: - Actions
     @IBAction func imageAction(sender: AnyObject) {
         self.delegate?.didSelectImage(from: self.message)
     }
     
     @objc private func buttonAction(sender: UIButton) {
         guard let messageButton = self.message.buttons?[sender.tag] else { return }
-        
-        self.delegate?.didSelect(messageButton)
+        delegate?.didSelect(messageButton)
     }
     
-    // MARK: View
+    // MARK: - View
     override init(frame: CGRect) {
         super.init(frame: frame)
 

@@ -5,6 +5,7 @@ import UIKit
 public class Parley {
 
     enum State {
+
         case unconfigured
         case configuring
         case configured
@@ -15,7 +16,7 @@ public class Parley {
 
     internal var state: State = .unconfigured {
         didSet {
-            delegate?.didChangeState(self.state)
+            self.delegate?.didChangeState(self.state)
         }
     }
     private var isLoading = false
@@ -59,7 +60,7 @@ public class Parley {
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
 
-    internal var delegate: ParleyDelegate? {
+    internal weak var delegate: ParleyDelegate? {
         didSet {
             if self.delegate == nil { return }
 
@@ -178,9 +179,10 @@ public class Parley {
             }
         }
 
-        DeviceRepository().register ({ _ in
+        DeviceRepository().register({ [weak self, messagesManager, delegate] _ in
+            guard let self = self else { return }
             let onSecondSuccess: () -> () = {
-                self.delegate?.didReceiveMessages()
+                delegate?.didReceiveMessages()
 
                 let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
                 self.send(pendingMessages)
@@ -193,14 +195,14 @@ public class Parley {
             }
 
             if let lastMessage = self.messagesManager.lastMessage, let id = lastMessage.id {
-                MessageRepository().findAfter(id, onSuccess: { messageCollection in
-                    self.messagesManager.handle(messageCollection, .after)
+                MessageRepository().findAfter(id, onSuccess: { [messagesManager] messageCollection in
+                    messagesManager.handle(messageCollection, .after)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
             } else {
-                MessageRepository().findAll(onSuccess: { messageCollection in
-                    self.messagesManager.handle(messageCollection, .all)
+                MessageRepository().findAll(onSuccess: { [messagesManager] messageCollection in
+                    messagesManager.handle(messageCollection, .all)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
@@ -333,11 +335,9 @@ public class Parley {
 
     // MARK: Remote messages
     internal func handleMessage(_ userInfo: [String: Any]) {
-        guard
-            let id = userInfo["id"] as? Int,
-            let typeId = userInfo["typeId"] as? Int,
-            let body = userInfo["body"] as? String
-        else { return }
+        guard let id = userInfo["id"] as? Int else { return }
+        guard let typeId = userInfo["typeId"] as? Int else { return }
+        guard let body = userInfo["body"] as? String else { return }
 
         let message = Message()
         message.id = id
@@ -371,8 +371,12 @@ public class Parley {
         switch event {
         case kParleyEventStartTyping?:
             self.agentStartTyping()
+
+            break
         case kParleyEventStopTyping?:
             self.agentStopTyping()
+
+            break
         default:
             break
         }
@@ -453,12 +457,8 @@ extension Parley {
         switch messageType {
         case kParleyTypeMessage:
             shared.handleMessage(object)
-
-            break
         case kParleyTypeEvent:
             shared.handleEvent(object["name"] as? String)
-
-            break
         default:
             break
         }
