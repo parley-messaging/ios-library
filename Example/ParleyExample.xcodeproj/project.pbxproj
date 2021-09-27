@@ -530,6 +530,7 @@
 			baseConfigurationReference = F1B281D995BDC1338F40C7F3 /* Pods-ParleyExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 82S7Z25Z57;
@@ -551,6 +552,7 @@
 			baseConfigurationReference = 2B8756F201C032FE0925A4A9 /* Pods-ParleyExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
@@ -630,6 +632,7 @@
 			baseConfigurationReference = B2A63C7456C84126BFA0B5AD /* Pods-ParleyExample.alpha.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;

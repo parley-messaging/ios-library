@@ -59,6 +59,7 @@ public class Parley {
 
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
+    let notificationService = NotificationService()
 
     internal weak var delegate: ParleyDelegate? {
         didSet {
@@ -81,19 +82,21 @@ public class Parley {
 
     private var userStartTypingDate: Date?
     private var userStopTypingTimer: Timer?
+    private var refreshMessagesTimer: Timer?
 
     init() {
         ParleyRemote.refresh(self.network)
-
-        self.addObservers()
-
-        self.setupReachability()
+        addObservers()
+        setupRefreshTimer()
+        setupReachability()
     }
+    
+    
 
     deinit {
-        self.removeObservers()
-
-        self.reachability?.stopNotifier()
+        removeObservers()
+        refreshMessagesTimer?.invalidate()
+        reachability?.stopNotifier()
     }
 
     // MARK: Reachability
@@ -114,6 +117,21 @@ public class Parley {
     private func addObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+    }
+    
+    func setupRefreshTimer() {
+        notificationService.notificationsEnabled() { [weak self] isEnabled in
+            guard !isEnabled else { return }
+            DispatchQueue.main.async {
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    self?.refreshFeed()
+                }
+            }
+        }
+    }
+    
+    @objc func refreshFeed() {
+        print("refresh feed")
     }
 
     private func removeObservers() {
