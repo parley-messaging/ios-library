@@ -10,11 +10,7 @@ class MessagesManager {
     }
     
     private(set) var originalMessages: [Message] = []
-    private(set) var messages: [Message] = [] {
-        didSet {
-            print(messages)
-        }
-    }
+    private(set) var messages: [Message] = []
 
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
