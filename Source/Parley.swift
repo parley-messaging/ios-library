@@ -5,7 +5,6 @@ import UIKit
 public class Parley {
 
     enum State {
-
         case unconfigured
         case configuring
         case configured
@@ -16,7 +15,7 @@ public class Parley {
 
     internal var state: State = .unconfigured {
         didSet {
-            self.delegate?.didChangeState(self.state)
+            delegate?.didChangeState(self.state)
         }
     }
     private var isLoading = false
@@ -334,9 +333,11 @@ public class Parley {
 
     // MARK: Remote messages
     internal func handleMessage(_ userInfo: [String: Any]) {
-        guard let id = userInfo["id"] as? Int else { return }
-        guard let typeId = userInfo["typeId"] as? Int else { return }
-        guard let body = userInfo["body"] as? String else { return }
+        guard
+            let id = userInfo["id"] as? Int,
+            let typeId = userInfo["typeId"] as? Int,
+            let body = userInfo["body"] as? String
+        else { return }
 
         let message = Message()
         message.id = id
@@ -370,12 +371,8 @@ public class Parley {
         switch event {
         case kParleyEventStartTyping?:
             self.agentStartTyping()
-
-            break
         case kParleyEventStopTyping?:
             self.agentStopTyping()
-
-            break
         default:
             break
         }
