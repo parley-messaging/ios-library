@@ -50,19 +50,19 @@ internal class MessageTableViewCell: UITableViewCell {
         if let messages = message.carousel, messages.count > 0 {
             self.messages = (messages, message.time)
             
-            self.collectionView.isHidden = false
-
-            let maxSize: CGSize = messages.reduce(.zero) { result, message in
-                let size = MessageCollectionViewCell.calculateSize(self.appearance!.carousel!, message)
-                guard size.height > .zero else { return .zero }
-                return size
+            collectionView.isHidden = false
+            
+            let maxSize = messages.map { message -> CGSize in
+                MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
             }
+            .sorted(by: {$0.height > $1.height})
+            .first ?? .zero
 
-            if let flowLayout = self.collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
+            if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
                 flowLayout.estimatedItemSize = maxSize
             }
 
-            self.collectionViewHeightLayoutConstraint.constant = maxSize.height + 4
+            collectionViewHeightLayoutConstraint.constant = maxSize.height + 4
         } else {
             self.messages = nil
             
