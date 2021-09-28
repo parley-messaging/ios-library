@@ -1,11 +1,9 @@
 import Foundation
 
-class NotificationService: NSObject {
+class NotificationService {
     
-    let current = UNUserNotificationCenter.current()
-    
-    func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
-        
+    static func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
+        let current = UNUserNotificationCenter.current()
 
         current.getNotificationSettings(completionHandler: { settings in
             

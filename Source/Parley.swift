@@ -130,8 +130,8 @@ public class Parley {
         }
     }
     
-    @objc func refreshFeed() {
-        print("refresh feed")
+    @objc private func refreshFeed() {
+        messagesManager.
     }
 
     private func removeObservers() {
@@ -185,7 +185,7 @@ public class Parley {
             }
         }
 
-        let onFailure: (_ error: Error)->() = { error in
+        let onFailure: (_ error: Error) -> () = { error in
             self.isLoading = false
 
             if self.isOfflineError(error) && self.isCachingEnabled() {
@@ -196,13 +196,15 @@ public class Parley {
                 onFailure?((error as NSError).code, (error as NSError).localizedDescription)
             }
         }
+        
+        
 
-        DeviceRepository().register({ [weak self, messagesManager, delegate] _ in
+        DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
             guard let self = self else { return }
             let onSecondSuccess: () -> () = {
                 delegate?.didReceiveMessages()
 
-                let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
+                let pendingMessages = Array(messagesManager.pendingMessages.reversed())
                 self.send(pendingMessages)
 
                 self.isLoading = false
@@ -213,14 +215,14 @@ public class Parley {
             }
 
             if let lastMessage = self.messagesManager.lastMessage, let id = lastMessage.id {
-                MessageRepository().findAfter(id, onSuccess: { [messagesManager] messageCollection in
-                    messagesManager.handle(messageCollection, .after)
+                MessageRepository().findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
+                    messagesManager?.handle(messageCollection, .after)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
             } else {
-                MessageRepository().findAll(onSuccess: { [messagesManager] messageCollection in
-                    messagesManager.handle(messageCollection, .all)
+                MessageRepository().findAll(onSuccess: { [weak messagesManager] messageCollection in
+                    messagesManager?.handle(messageCollection, .all)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)

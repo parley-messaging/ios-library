@@ -49,6 +49,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
+    var timer: Timer? { didSet { timer?.fire() } }
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -92,6 +93,16 @@ public class ParleyView: UIView {
         addObservers()
 
         Parley.shared.delegate = self
+        
+        NotificationService.notificationsEnabled() { [weak self] isEnabled in
+            guard let self = self, !isEnabled else { return }
+            self?.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.refreshFeed), userInfo: nil, repeats: true)
+//            self?.timer.fire()
+        }
+    }
+    
+    @objc func refreshFeed() {
+        print("refresh feed")
     }
 
     private func loadXib() {
