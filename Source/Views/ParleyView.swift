@@ -2,6 +2,8 @@ import Reachability
 import UIKit
 
 public class ParleyView: UIView {
+    
+   
 
     @IBOutlet var contentView: UIView! {
         didSet {
@@ -49,7 +51,8 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
-    var timer: Timer? { didSet { timer?.fire() } }
+    let notificationService = NotificationService()
+    var pollingService: PollingServiceProtocol = PollingService()
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -94,15 +97,15 @@ public class ParleyView: UIView {
 
         Parley.shared.delegate = self
         
-        NotificationService.notificationsEnabled() { [weak self] isEnabled in
-            guard let self = self, !isEnabled else { return }
-            self?.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.refreshFeed), userInfo: nil, repeats: true)
-//            self?.timer.fire()
-        }
+        setupPollingIfNecessary()
     }
     
-    @objc func refreshFeed() {
-        print("refresh feed")
+    func setupPollingIfNecessary() {
+        pollingService.delegate = self
+        notificationService.notificationsEnabled() { [pollingService] isEnabled in
+            guard !isEnabled else { return }
+            pollingService.startRefreshing()
+        }
     }
 
     private func loadXib() {
@@ -147,10 +150,7 @@ public class ParleyView: UIView {
 
     private func syncStackView(_ changes: @escaping () -> Void) {
         UIView.animate(withDuration: 0, animations: changes) { [weak self] finished in
-            guard
-                finished,
-                let self = self
-            else { return }
+            guard finished, let self = self else { return }
 
             self.stackView.isHidden = !self.stackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
             
@@ -328,10 +328,9 @@ extension ParleyView: ParleyDelegate {
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
             
-            syncStackView { [weak self] in
-                guard let self = self else { return }
-                self.stickyView.text = self.getMessagesManager().stickyMessage
-                self.stickyView.isHidden = self.getMessagesManager().stickyMessage == nil
+            syncStackView { [weak self, messagesManager = getMessagesManager()] in
+                self?.stickyView.text = messagesManager.stickyMessage
+                self?.stickyView.isHidden = messagesManager.stickyMessage == nil
             }
 
             messagesTableView.reloadData()

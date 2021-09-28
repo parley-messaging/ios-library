@@ -2,7 +2,7 @@ import Foundation
 
 class NotificationService {
     
-    static func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
+    func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
         let current = UNUserNotificationCenter.current()
 
         current.getNotificationSettings(completionHandler: { settings in

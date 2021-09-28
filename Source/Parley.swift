@@ -43,11 +43,7 @@ public class Parley {
     internal var network: ParleyNetwork = ParleyNetwork()
     internal var dataSource: ParleyDataSource? {
         didSet {
-            if self.reachable {
-                self.delegate?.reachable()
-            } else {
-                self.delegate?.unreachable()
-            }
+            reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
 
@@ -59,7 +55,7 @@ public class Parley {
 
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
-    let notificationService = NotificationService()
+    private let notificationService = NotificationService()
 
     internal weak var delegate: ParleyDelegate? {
         didSet {
@@ -87,11 +83,8 @@ public class Parley {
     init() {
         ParleyRemote.refresh(self.network)
         addObservers()
-        setupRefreshTimer()
         setupReachability()
     }
-    
-    
 
     deinit {
         removeObservers()
@@ -119,20 +112,7 @@ public class Parley {
         NotificationCenter.default.addObserver(self, selector: #selector(self.didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
-    func setupRefreshTimer() {
-        notificationService.notificationsEnabled() { [weak self] isEnabled in
-            guard !isEnabled else { return }
-            DispatchQueue.main.async {
-                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                    self?.refreshFeed()
-                }
-            }
-        }
-    }
-    
-    @objc private func refreshFeed() {
-        messagesManager.
-    }
+   
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIApplication.willEnterForegroundNotification)
@@ -196,7 +176,6 @@ public class Parley {
                 onFailure?((error as NSError).code, (error as NSError).localizedDescription)
             }
         }
-        
         
 
         DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
@@ -368,16 +347,16 @@ public class Parley {
         if self.isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
-            MessageRepository().find(id, onSuccess: { (message) in
-                self.delegate?.didStopTyping()
+            MessageRepository().find(id, onSuccess: { [weak delegate, messagesManager] message in
+                delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
-                self.delegate?.didReceiveMessage(indexPaths)
-            }) { (error) in
-                self.delegate?.didStopTyping()
+                let indexPaths = messagesManager.add(message)
+                delegate?.didReceiveMessage(indexPaths)
+            }) { [weak delegate, messagesManager] error in
+                delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
-                self.delegate?.didReceiveMessage(indexPaths)
+                let indexPaths = messagesManager.add(message)
+                delegate?.didReceiveMessage(indexPaths)
             }
         } else {
             self.delegate?.didStopTyping()
