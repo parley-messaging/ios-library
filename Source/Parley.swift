@@ -78,7 +78,6 @@ public class Parley {
 
     private var userStartTypingDate: Date?
     private var userStopTypingTimer: Timer?
-    private var refreshMessagesTimer: Timer?
 
     init() {
         ParleyRemote.refresh(self.network)
@@ -88,7 +87,6 @@ public class Parley {
 
     deinit {
         removeObservers()
-        refreshMessagesTimer?.invalidate()
         reachability?.stopNotifier()
     }
 
