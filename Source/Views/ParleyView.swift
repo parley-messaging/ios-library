@@ -342,9 +342,10 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self, pollingService] in
             if self?.offlineNotificationView.isHidden == false { return }
-
+            pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
+            
             self?.syncStackView { [weak self] in
                 self?.pushDisabledNotificationView.isHidden = pushEnabled
             }
@@ -359,6 +360,7 @@ extension ParleyView: ParleyDelegate {
 
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
+        pollingService.stopRefreshing()
     }
 
     func unreachable() {
@@ -369,6 +371,7 @@ extension ParleyView: ParleyDelegate {
 
         composeView.isEnabled = Parley.shared.isCachingEnabled()
         suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
+        pollingService.startRefreshing()
     }
 }
 

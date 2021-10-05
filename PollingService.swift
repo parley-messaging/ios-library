@@ -2,6 +2,7 @@ import Foundation
 
 protocol PollingServiceProtocol {
     func startRefreshing()
+    func stopRefreshing()
     var delegate: ParleyDelegate? { get set }
 }
 
@@ -31,22 +32,29 @@ class PollingService: PollingServiceProtocol {
                     timerInterval = .thirtySeconds
                 default: break
                 }
+                setTimer(interval: timerInterval)
                 loopRepeated = 0
             }
         }
     }
     private var timerInterval: TimerInterval = .twoSeconds {
-        didSet {
-            timer?.invalidate()
-            setTimer(interval: timerInterval)
-        }
+        didSet { timer?.invalidate() }
     }
     
     func startRefreshing() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.setTimer(interval: .twoSeconds)
+            self.addObservers()
         }
+    }
+    
+    func stopRefreshing() {
+        timer?.invalidate()
+        loopRepeated = 0
+        timerInterval = .twoSeconds
+        timer = nil
+        removeObservers()
     }
     
     private func setTimer(interval: TimerInterval) {
@@ -56,7 +64,7 @@ class PollingService: PollingServiceProtocol {
     }
     
     private func refreshFeed() {
-        guard let id = messagesManager.lastMessage?.id else { return }
+        guard let id = messagesManager.lastMessage?.id, timer?.isValid == true else { return }
         messageRepository.findAfter(id, onSuccess: { [weak self, weak delegate, weak messagesManager] messageCollection in
             guard !messageCollection.messages.isEmpty else {
                 self?.loopRepeated += 1
@@ -69,5 +77,33 @@ class PollingService: PollingServiceProtocol {
         }, onFailure: { error in
             print("Polling failed")
         })
+    }
+}
+
+extension PollingService {
+    
+    // MARK: Observers
+    private func addObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+    }
+   
+    private func removeObservers() {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func willEnterForeground() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.timer?.invalidate()
+            self.timer = nil
+            self.setTimer(interval: self.timerInterval)
+        }
+    }
+    
+    @objc private func didEnterBackground() {
+        DispatchQueue.main.async { [weak self] in
+            self?.timer?.invalidate()
+        }
     }
 }
