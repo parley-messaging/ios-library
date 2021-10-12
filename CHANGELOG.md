@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.3 - Upcoming
+## 3.2.3 - Released 12 Oct 2021
 
 - Added polling when notifications are disabled
 - Updated default base url to latest version: v1.5
