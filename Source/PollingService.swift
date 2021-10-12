@@ -1,12 +1,12 @@
 import Foundation
 
-protocol PollingServiceProtocol {
+internal protocol PollingServiceProtocol {
     func startRefreshing()
     func stopRefreshing()
     var delegate: ParleyDelegate? { get set }
 }
 
-class PollingService: PollingServiceProtocol {
+internal class PollingService: PollingServiceProtocol {
     
     private enum TimerInterval: TimeInterval {
         case twoSeconds = 2
@@ -41,7 +41,7 @@ class PollingService: PollingServiceProtocol {
         didSet { timer?.invalidate() }
     }
     
-    func startRefreshing() {
+    internal func startRefreshing() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.setTimer(interval: .twoSeconds)
@@ -49,7 +49,7 @@ class PollingService: PollingServiceProtocol {
         }
     }
     
-    func stopRefreshing() {
+    internal func stopRefreshing() {
         timer?.invalidate()
         loopRepeated = 0
         timerInterval = .twoSeconds

@@ -1,8 +1,8 @@
 import Foundation
 
-class NotificationService {
+internal class NotificationService {
     
-    func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
+    internal func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
         let current = UNUserNotificationCenter.current()
 
         current.getNotificationSettings(completionHandler: { settings in
