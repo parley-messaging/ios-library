@@ -22,7 +22,7 @@ internal class PollingService: PollingServiceProtocol {
     
     private var loopRepeated: Int = 0 {
         didSet {
-            if loopRepeated == 5 {
+            if loopRepeated >= 5 {
                 switch timerInterval {
                 case .twoSeconds:
                     timerInterval = .fiveSeconds
@@ -72,6 +72,7 @@ internal class PollingService: PollingServiceProtocol {
             }
             self?.loopRepeated = 0
             self?.timerInterval = .twoSeconds
+            self?.setTimer(interval: .twoSeconds)
             messagesManager?.handle(messageCollection, .all)
             delegate?.didReceiveMessages()
         }, onFailure: { error in
