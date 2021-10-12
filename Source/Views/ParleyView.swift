@@ -3,8 +3,6 @@ import UIKit
 
 public class ParleyView: UIView {
     
-   
-
     @IBOutlet var contentView: UIView! {
         didSet {
             contentView.backgroundColor = UIColor.clear

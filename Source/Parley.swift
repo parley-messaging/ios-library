@@ -109,8 +109,6 @@ public class Parley {
         NotificationCenter.default.addObserver(self, selector: #selector(self.willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
-    
-   
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIApplication.willEnterForegroundNotification)
@@ -174,7 +172,6 @@ public class Parley {
                 onFailure?((error as NSError).code, (error as NSError).localizedDescription)
             }
         }
-        
 
         DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
             guard let self = self else { return }
