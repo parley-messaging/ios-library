@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.3 - Upcoming
+
+- Updated default base url to latest version: v1.5
+- Fixed crash on iPad when presenting `.actionSheet`
+
 ## 3.2.2 - Released 27 Sep 2021
 
 - Added support for buttons with types `webUrl`, `phoneNumber` and `reply`
