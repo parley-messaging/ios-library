@@ -2,7 +2,7 @@ import Reachability
 import UIKit
 
 public class ParleyView: UIView {
-    
+
     @IBOutlet var contentView: UIView! {
         didSet {
             contentView.backgroundColor = UIColor.clear
@@ -98,7 +98,7 @@ public class ParleyView: UIView {
         setupPollingIfNecessary()
     }
     
-    func setupPollingIfNecessary() {
+    private func setupPollingIfNecessary() {
         pollingService.delegate = self
         notificationService.notificationsEnabled() { [pollingService] isEnabled in
             guard !isEnabled else { return }
@@ -358,7 +358,6 @@ extension ParleyView: ParleyDelegate {
 
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
-        pollingService.stopRefreshing()
     }
 
     func unreachable() {
@@ -369,7 +368,6 @@ extension ParleyView: ParleyDelegate {
 
         composeView.isEnabled = Parley.shared.isCachingEnabled()
         suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
-        pollingService.startRefreshing()
     }
 }
 
