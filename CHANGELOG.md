@@ -2,8 +2,10 @@
 
 ## 3.2.3 - Upcoming
 
+- Added polling when notifications are disabled
 - Updated default base url to latest version: v1.5
 - Fixed crash on iPad when presenting `.actionSheet`
+- Fixed demo app appearance on iOS 15 when using xCode 13
 
 ## 3.2.2 - Released 27 Sep 2021
 

@@ -76,7 +76,7 @@ internal class PollingService: PollingServiceProtocol {
             messagesManager?.handle(messageCollection, .all)
             delegate?.didReceiveMessages()
         }, onFailure: { error in
-            print("Polling failed")
+            print("Polling failed to retrieve latest messages")
         })
     }
 }

@@ -49,8 +49,8 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
-    let notificationService = NotificationService()
-    var pollingService: PollingServiceProtocol = PollingService()
+    private let notificationService = NotificationService()
+    private var pollingService: PollingServiceProtocol = PollingService()
 
     public var appearance = ParleyViewAppearance() {
         didSet {
