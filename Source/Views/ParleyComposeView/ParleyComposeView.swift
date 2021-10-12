@@ -136,7 +136,7 @@ public class ParleyComposeView: UIView {
     }
     
     // MARK: Image picker
-    @IBAction func presentImageActionSheet(_ sender: Any) {
+    @IBAction func presentImageActionSheet(_ sender: UIButton) {
         switch PHPhotoLibrary.authorizationStatus() {
         case .authorized:
             break
@@ -156,11 +156,17 @@ public class ParleyComposeView: UIView {
         
         if !UIImagePickerController.isSourceTypeAvailable(.camera) {
             self.showImagePickerController(.photoLibrary)
-            
+
             return
         }
         
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = sender
+            popoverController.sourceRect = sender.bounds
+            popoverController.permittedArrowDirections = [.left, .down]
+        }
+        
         alertController.title = NSLocalizedString("parley_photo", bundle: Bundle.current, comment: "")
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_select_photo", bundle: Bundle.current, comment: ""),
