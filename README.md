@@ -159,7 +159,7 @@ The network configuration can be set by setting a `ParleyNetwork` with the `Parl
 ```swift
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
-    path: "clientApi/v1.2/",
+    path: "clientApi/v1.5/",
 )
 
 Parley.setNetwork(network)
@@ -180,7 +180,7 @@ let headers: [String: String] = [
 
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
-    path: "clientApi/v1.2/",
+    path: "clientApi/v1.5/",
     headers: headers
 )
 
