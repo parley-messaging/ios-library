@@ -43,11 +43,7 @@ public class Parley {
     internal var network: ParleyNetwork = ParleyNetwork()
     internal var dataSource: ParleyDataSource? {
         didSet {
-            if self.reachable {
-                self.delegate?.reachable()
-            } else {
-                self.delegate?.unreachable()
-            }
+            reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
 
@@ -59,6 +55,7 @@ public class Parley {
 
     internal var userAuthorization: String?
     internal var userAdditionalInformation: [String:String]?
+    private let notificationService = NotificationService()
 
     internal weak var delegate: ParleyDelegate? {
         didSet {
@@ -84,16 +81,13 @@ public class Parley {
 
     init() {
         ParleyRemote.refresh(self.network)
-
-        self.addObservers()
-
-        self.setupReachability()
+        addObservers()
+        setupReachability()
     }
 
     deinit {
-        self.removeObservers()
-
-        self.reachability?.stopNotifier()
+        removeObservers()
+        reachability?.stopNotifier()
     }
 
     // MARK: Reachability
@@ -167,7 +161,7 @@ public class Parley {
             }
         }
 
-        let onFailure: (_ error: Error)->() = { error in
+        let onFailure: (_ error: Error) -> () = { error in
             self.isLoading = false
 
             if self.isOfflineError(error) && self.isCachingEnabled() {
@@ -179,12 +173,12 @@ public class Parley {
             }
         }
 
-        DeviceRepository().register({ [weak self, messagesManager, delegate] _ in
+        DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
             guard let self = self else { return }
             let onSecondSuccess: () -> () = {
                 delegate?.didReceiveMessages()
 
-                let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
+                let pendingMessages = Array(messagesManager.pendingMessages.reversed())
                 self.send(pendingMessages)
 
                 self.isLoading = false
@@ -195,14 +189,14 @@ public class Parley {
             }
 
             if let lastMessage = self.messagesManager.lastMessage, let id = lastMessage.id {
-                MessageRepository().findAfter(id, onSuccess: { [messagesManager] messageCollection in
-                    messagesManager.handle(messageCollection, .after)
+                MessageRepository().findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
+                    messagesManager?.handle(messageCollection, .after)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
             } else {
-                MessageRepository().findAll(onSuccess: { [messagesManager] messageCollection in
-                    messagesManager.handle(messageCollection, .all)
+                MessageRepository().findAll(onSuccess: { [weak messagesManager] messageCollection in
+                    messagesManager?.handle(messageCollection, .all)
 
                     onSecondSuccess()
                 }, onFailure: onFailure)
@@ -348,16 +342,16 @@ public class Parley {
         if self.isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
-            MessageRepository().find(id, onSuccess: { (message) in
-                self.delegate?.didStopTyping()
+            MessageRepository().find(id, onSuccess: { [weak delegate, messagesManager] message in
+                delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
-                self.delegate?.didReceiveMessage(indexPaths)
-            }) { (error) in
-                self.delegate?.didStopTyping()
+                let indexPaths = messagesManager.add(message)
+                delegate?.didReceiveMessage(indexPaths)
+            }) { [weak delegate, messagesManager] error in
+                delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
-                self.delegate?.didReceiveMessage(indexPaths)
+                let indexPaths = messagesManager.add(message)
+                delegate?.didReceiveMessage(indexPaths)
             }
         } else {
             self.delegate?.didStopTyping()

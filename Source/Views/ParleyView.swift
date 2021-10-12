@@ -49,6 +49,8 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
+    private let notificationService = NotificationService()
+    private var pollingService: PollingServiceProtocol = PollingService()
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -92,6 +94,16 @@ public class ParleyView: UIView {
         addObservers()
 
         Parley.shared.delegate = self
+        
+        setupPollingIfNecessary()
+    }
+    
+    private func setupPollingIfNecessary() {
+        pollingService.delegate = self
+        notificationService.notificationsEnabled() { [pollingService] isEnabled in
+            guard !isEnabled else { return }
+            pollingService.startRefreshing()
+        }
     }
 
     private func loadXib() {
@@ -136,10 +148,7 @@ public class ParleyView: UIView {
 
     private func syncStackView(_ changes: @escaping () -> Void) {
         UIView.animate(withDuration: 0, animations: changes) { [weak self] finished in
-            guard
-                finished,
-                let self = self
-            else { return }
+            guard finished, let self = self else { return }
 
             self.stackView.isHidden = !self.stackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
             
@@ -317,10 +326,9 @@ extension ParleyView: ParleyDelegate {
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
             
-            syncStackView { [weak self] in
-                guard let self = self else { return }
-                self.stickyView.text = self.getMessagesManager().stickyMessage
-                self.stickyView.isHidden = self.getMessagesManager().stickyMessage == nil
+            syncStackView { [weak self, messagesManager = getMessagesManager()] in
+                self?.stickyView.text = messagesManager.stickyMessage
+                self?.stickyView.isHidden = messagesManager.stickyMessage == nil
             }
 
             messagesTableView.reloadData()
@@ -332,9 +340,10 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self, pollingService] in
             if self?.offlineNotificationView.isHidden == false { return }
-
+            pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
+            
             self?.syncStackView { [weak self] in
                 self?.pushDisabledNotificationView.isHidden = pushEnabled
             }
