@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.4 - Released 12 Oct 2021
+## 3.2.4 - Released 13 Oct 2021
 
 - Fixed an issue with imports when using SPM
 
