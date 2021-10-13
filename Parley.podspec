@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Parley'
-  s.version          = '3.2.3'
+  s.version          = '3.2.4'
   s.summary          = 'Easily create a secure chat within three steps with the Parley Messaging iOS library.'
   s.homepage         = 'https://github.com/parley-messaging/ios-library'
   s.author           = { 'Webuildapps' => 'hello@webuildapps.com' }

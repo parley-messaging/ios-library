@@ -1,6 +1,14 @@
 # Changelog
 
+## 3.2.4 - Released 12 Oct 2021
+
+- Fixed an issue with imports when using SPM
+
 ## 3.2.3 - Released 12 Oct 2021
+
+**NOTE**: This release does not work in combination with SPM, use the next version 3.2.4 instead.
+
+### Changes:
 
 - Added polling when notifications are disabled
 - Updated default base url to latest version: v1.5
