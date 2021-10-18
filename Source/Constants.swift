@@ -3,7 +3,7 @@ let kParleyVersion = "3.1.3"
 let kParleyMessageMaxCount = 5000
 
 let kParleyNetworkUrl = "https://api.parley.nu/"
-let kParleyNetworkPath = "clientApi/v1.5/"
+let kParleyNetworkPath = "clientApi/v1.6/"
 
 let kParleyUserDefaultDeviceUUID = "parley.device_uuid"
 

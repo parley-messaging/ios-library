@@ -113,9 +113,9 @@ class ParleyMessageView: UIView {
     // MARK: - Appearance
     internal var appearance: ParleyMessageViewAppearance? {
         didSet {
-            guard let appearance = self.appearance else { return }
+            guard let appearance = appearance else { return }
             
-            self.apply(appearance)
+            apply(appearance)
         }
     }
     
@@ -142,81 +142,81 @@ class ParleyMessageView: UIView {
     
     // MARK: - Render
     private func renderImage() {
-        if self.displayTitle == .message || self.message.message != nil {
-            self.imageImageView.corners = [.topLeft, .topRight]
+        if displayTitle == .message || message.message != nil {
+            imageImageView.corners = [.topLeft, .topRight]
         } else {
-            self.imageImageView.corners = [.allCorners]
+            imageImageView.corners = [.allCorners]
         }
         
         if let image = message.image {
-            self.imageHolderView.isHidden = false
+            imageHolderView.isHidden = false
             
-            self.imageImageView.image = image
+            imageImageView.image = image
             
-            self.imageActivityIndicatorView.isHidden = true
-            self.imageActivityIndicatorView.stopAnimating()
+            imageActivityIndicatorView.isHidden = true
+            imageActivityIndicatorView.stopAnimating()
             
-            self.renderGradients()
-        } else if let id = self.message.id, message.imageURL != nil {
-            self.imageHolderView.isHidden = false
+            renderGradients()
+        } else if let id = message.id, message.imageURL != nil {
+            imageHolderView.isHidden = false
             
-            self.findImageRequest?.cancel()
+            findImageRequest?.cancel()
             
-            self.imageActivityIndicatorView.isHidden = false
-            self.imageActivityIndicatorView.startAnimating()
+            imageActivityIndicatorView.isHidden = false
+            imageActivityIndicatorView.startAnimating()
             
-            self.imageImageView.image = appearance?.imagePlaceholder
+            imageImageView.image = appearance?.imagePlaceholder
             
-            self.findImageRequest = MessageRepository().findImage(id, onSuccess: { (image) in
-                self.imageActivityIndicatorView.isHidden = true
-                self.imageActivityIndicatorView.stopAnimating()
+            findImageRequest = MessageRepository().findImage(id, onSuccess: { [weak self] image in
+                self?.imageActivityIndicatorView.isHidden = true
+                self?.imageActivityIndicatorView.stopAnimating()
                 
-                self.imageImageView.image = image
+                self?.imageImageView.image = image
                 
-                self.renderGradients()
-            }) { (error) in
-                self.imageActivityIndicatorView.isHidden = true
-                self.imageActivityIndicatorView.stopAnimating()
+                self?.renderGradients()
+            }) { [weak self] error in
+                self?.imageActivityIndicatorView.isHidden = true
+                self?.imageActivityIndicatorView.stopAnimating()
                 
-                self.renderGradients()
+                self?.renderGradients()
             }
         } else {
-            self.imageHolderView.isHidden = true
+            imageHolderView.isHidden = true
             
-            self.imageImageView.image = nil
+            imageImageView.image = nil
             
-            self.imageActivityIndicatorView.isHidden = true
-            self.imageActivityIndicatorView.stopAnimating()
+            imageActivityIndicatorView.isHidden = true
+            imageActivityIndicatorView.stopAnimating()
         }
     }
     
     private func renderName() {
-        if self.message.agent?.name == nil || !(self.appearance?.name == true) {
-            self.displayName = .hidden
-        } else if self.message.image != nil || self.message.imageURL != nil {
-            self.displayName = .image
+        if message.agent?.name == nil || !(appearance?.name == true) {
+            displayName = .hidden
+        } else if message.image != nil || message.imageURL != nil {
+            displayName = .image
         } else {
-            self.displayName = .message
+            displayName = .message
         }
         
-        self.imageNameLabel.text = self.message.agent?.name
-        self.nameLabel.text = self.message.agent?.name
+        imageNameLabel.text = message.agent?.name
+        nameLabel.text = message.agent?.name
         
-        self.imageNameLabel.isHidden = self.displayName != .image
-        self.nameView.isHidden = self.displayName != .message
+        imageNameLabel.isHidden = displayName != .image
+        nameView.isHidden = displayName != .message
     }
     
     private func renderMeta(forcedTime: Date? = nil) {
-        if self.message.message != nil || self.message.title != nil || (self.message.image == nil && self.message.imageURL == nil) {
-            self.displayMeta = .message
+        if message.message != nil || message.title != nil || (message.image == nil && message.imageURL == nil) {
+            displayMeta = .message
         } else {
-            self.displayMeta = .image
+            displayMeta = .image
         }
         
-        self.imageMetaStackView.isHidden = self.displayMeta != .image
-        self.metaView.isHidden = self.displayMeta != .message
+        imageMetaStackView.isHidden = displayMeta != .image
+        metaView.isHidden = displayMeta != .message
         
-        self.renderMetaTime(forcedTime: forcedTime)
+        renderMetaTime(forcedTime: forcedTime)
     }
     
     private func renderMetaTime(forcedTime: Date?) {
@@ -227,20 +227,20 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMetaStatus() {
-        if self.message.type == .user {
-            self.imageMetaStatusImageView.isHidden = false
-            self.statusImageView.isHidden = false
+        if message.type == .user {
+            imageMetaStatusImageView.isHidden = false
+            statusImageView.isHidden = false
             
-            switch self.message.status {
+            switch message.status {
             case .failed:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .pending:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .success:
-                self.imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                self.statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             }
         } else {
             imageMetaStatusImageView.isHidden = true
@@ -249,49 +249,50 @@ class ParleyMessageView: UIView {
     }
     
     private func renderTitle() {
-        self.displayTitle = self.message.title == nil ? .hidden : .message
+        if message.title == nil {
+            displayTitle = .hidden
+            titleView.isHidden = true
+        }
+        titleLabel.text = message.title
         
-        self.titleView.isHidden = self.message.title == nil
-        
-        self.titleLabel.text = self.message.title
-        
-        if self.displayName == .message {
-            self.titleTopLayoutConstraint.constant = self.appearance?.titleInsets?.top ?? 0
+        if displayName == .message {
+            titleTopLayoutConstraint.constant = appearance?.titleInsets?.top ?? 0
         } else {
-            self.titleTopLayoutConstraint.constant = (self.appearance?.balloonContentTextInsets?.top ?? 0) + (self.appearance?.titleInsets?.top ?? 0)
+            titleTopLayoutConstraint.constant = (appearance?.balloonContentTextInsets?.top ?? 0) + (appearance?.titleInsets?.top ?? 0)
         }
     }
     
     private func renderMessage() {
-        if let message = self.message.getFormattedMessage() {
-            if self.displayName == .message || self.displayTitle == .message {
-                self.messageTopLayoutConstraint.constant = self.appearance?.messageInsets?.top ?? 0
-            } else {
-                self.messageTopLayoutConstraint.constant = (self.appearance?.balloonContentTextInsets?.top ?? 0) + (self.appearance?.messageInsets?.top ?? 0)
+        if let message = message.getFormattedMessage() {
+            switch (displayName, displayTitle) {
+            case (.message, .message):
+                messageTopLayoutConstraint.constant = appearance?.messageInsets?.top ?? 0
+            default:
+                messageTopLayoutConstraint.constant = (appearance?.balloonContentTextInsets?.top ?? 0) + (appearance?.messageInsets?.top ?? 0)
             }
             
-            self.messageView.isHidden = false
+            messageView.isHidden = false
             
-            self.messageTextView.markdownText = message
+            messageTextView.markdownText = message
         } else {
-            self.messageView.isHidden = true
+            messageView.isHidden = true
             
-            self.messageTextView.markdownText = nil
+            
+            messageTextView.markdownText = nil
         }
     }
     
     // Gradient
     private func renderGradients() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+            self?.imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
-            if self.displayName == .image {
-                self.addImageNameGradient()
+            if self?.displayName == .image {
+                self?.addImageNameGradient()
             }
             
-            if self.displayMeta == .image {
-                 self.addImageMetaGradient()
+            if self?.displayMeta == .image {
+                self?.addImageMetaGradient()
             }
         }
     }
@@ -302,16 +303,16 @@ class ParleyMessageView: UIView {
         gradient.endPoint = CGPoint(x: 1, y: 0.55)
         gradient.type = .radial
         gradient.colors = [
-            self.appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor,
-            self.appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor
+            appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor,
+            appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor
         ]
         gradient.frame = CGRect(
             x: 0, y: 0,
-            width: self.imageNameLabel.frame.width + (self.appearance?.nameInsets?.left ?? 0) + 50,
-            height: self.imageNameLabel.frame.height + (self.appearance?.nameInsets?.top ?? 0) + 40
+            width: imageNameLabel.frame.width + (appearance?.nameInsets?.left ?? 0) + 50,
+            height: imageNameLabel.frame.height + (appearance?.nameInsets?.top ?? 0) + 40
         )
         
-        self.imageImageView.layer.insertSublayer(gradient, at: 0)
+        imageImageView.layer.insertSublayer(gradient, at: 0)
     }
     
     private func addImageMetaGradient() {
@@ -320,152 +321,176 @@ class ParleyMessageView: UIView {
         gradient.endPoint = CGPoint(x: 0, y: 0.45)
         gradient.type = .radial
         gradient.colors = [
-            self.appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor,
-            self.appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor
+            appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor,
+            appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor
         ]
         
-        let width = self.imageMetaStackView.frame.width + self.metaRightLayoutConstraint.constant + 50
-        let height = self.imageMetaStackView.frame.height + self.metaBottomLayoutConstraint.constant + 40
+        let width = imageMetaStackView.frame.width + metaRightLayoutConstraint.constant + 50
+        let height = imageMetaStackView.frame.height + metaBottomLayoutConstraint.constant + 40
         gradient.frame = CGRect(
-            x: self.imageImageView.frame.width - width,
-            y: self.imageImageView.frame.height - height,
+            x: imageImageView.frame.width - width,
+            y: imageImageView.frame.height - height,
             width: width,
             height: height
         )
         
-        self.imageImageView.layer.insertSublayer(gradient, at: 0)
+        imageImageView.layer.insertSublayer(gradient, at: 0)
     }
     
     private func renderButtons() {
-        self.buttonsStackView.arrangedSubviews.forEach {
-            self.buttonsStackView.removeArrangedSubview($0)
+        buttonsStackView.arrangedSubviews.forEach {
+            buttonsStackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
         
-        if let messageButtons = self.message.buttons, messageButtons.count > 0 {
-            self.buttonsView.isHidden = false
-            
+        if let messageButtons = message.buttons, messageButtons.count > 0 {
+            buttonsView.isHidden = false
+            if message.message != nil || message.title != nil {
+                buttonsStackView.addArrangedSubview(createButtonSeparator())
+            }
             for (tag, messageButton) in messageButtons.enumerated() {
-                let seperator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
-                seperator.backgroundColor = self.appearance?.buttonSeperatorColor ?? UIColor(white:0.91, alpha:1.0)
-                seperator.heightAnchor.constraint(equalToConstant: 1).isActive = true
+                let button = createButton(from: messageButton, tag: tag)
+                buttonsStackView.addArrangedSubview(button)
+                NSLayoutConstraint.activate([
+                    button.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 10),
+                    button.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: -10)
+                ])
+                buttonsStackView.addArrangedSubview(createButtonSeparator())
+            }
+            
+            if let messageTimeStackView: UIStackView = metaStackView.copyView() {
+                timeLabel.isHidden = true
+                messageTimeStackView.heightAnchor.constraint(equalToConstant: appearance?.buttonHeight ?? 40).isActive = true
+                (messageTimeStackView.arrangedSubviews.first(where: {$0 is UILabel }) as? UILabel)?.textAlignment = .right
+                buttonsStackView.addArrangedSubview(messageTimeStackView)
                 
-                self.buttonsStackView.addArrangedSubview(seperator)
-                
-                let button = UIButton()
-                button.tag = tag
-                button.addTarget(self, action: #selector(self.buttonAction), for: .touchUpInside)
-                button.setTitle(messageButton.title, for: .normal)
-                button.setTitleColor(self.appearance?.buttonColor ?? UIColor.black, for: .normal)
-                button.titleLabel?.font = self.appearance?.buttonFont
-                button.heightAnchor.constraint(equalToConstant: self.appearance?.buttonHeight ?? 40).isActive = true
-                
-                self.buttonsStackView.addArrangedSubview(button)
+                NSLayoutConstraint.activate([
+                    messageTimeStackView.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 10),
+                    messageTimeStackView.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: -10)
+                ])
             }
         } else {
-            self.buttonsView.isHidden = true
+            buttonsView.isHidden = true
         }
+    }
+    
+    private func createButtonSeparator() -> UIView {
+        let seperator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
+        seperator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white:0.91, alpha:1.0)
+        seperator.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        return seperator
+    }
+    
+    private func createButton(from messageButton: MessageButton, tag: Int) -> UIButton {
+        let button = UIButton()
+        button.tag = tag
+        button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+        button.setTitle(messageButton.title, for: .normal)
+        button.setTitleColor(appearance?.buttonColor ?? UIColor.black, for: .normal)
+        button.titleLabel?.font = appearance?.buttonFont
+        button.heightAnchor.constraint(equalToConstant: appearance?.buttonHeight ?? 40).isActive = true
+        return button
     }
     
     // MARK: - Appearance
     private func apply(_ appearance: ParleyMessageViewAppearance) {
         // Balloon
         if let backgroundTintColor = appearance.balloonTintColor {
-            self.balloonImageView.image = appearance.balloonImage?.withRenderingMode(.alwaysTemplate)
-            self.balloonImageView.tintColor = backgroundTintColor
+            balloonImageView.image = appearance.balloonImage?.withRenderingMode(.alwaysTemplate)
+            balloonImageView.tintColor = backgroundTintColor
         } else {
-            self.balloonImageView.image = appearance.balloonImage?.withRenderingMode(.alwaysOriginal)
-            self.balloonImageView.tintColor = nil
+            balloonImageView.image = appearance.balloonImage?.withRenderingMode(.alwaysOriginal)
+            balloonImageView.tintColor = nil
         }
         
         // Balloon content
-        self.balloonContentTopLayoutConstraint.constant = appearance.balloonContentInsets?.top ?? 0
-        self.balloonContentLeftLayoutConstraint.constant = appearance.balloonContentInsets?.left ?? 0
-        self.balloonContentRightLayoutConstraint.constant = 0 - (appearance.balloonContentInsets?.right ?? 0)
-        self.balloonContentBottomLayoutConstraint.constant = 0 - (appearance.balloonContentInsets?.bottom ?? 0)
+        balloonContentTopLayoutConstraint.constant = appearance.balloonContentInsets?.top ?? 0
+        balloonContentLeftLayoutConstraint.constant = appearance.balloonContentInsets?.left ?? 0
+        balloonContentRightLayoutConstraint.constant = 0 - (appearance.balloonContentInsets?.right ?? 0)
+        balloonContentBottomLayoutConstraint.constant = 0 - (appearance.balloonContentInsets?.bottom ?? 0)
         
         // Image
-        self.imageTopLayoutConstraint.constant = appearance.imageInsets?.top ?? 0
-        self.imageLeftLayoutConstraint.constant = appearance.imageInsets?.left ?? 0
-        self.imageRightLayoutConstraint.constant = appearance.imageInsets?.right ?? 0
-        self.imageBottomLayoutConstraint.constant = appearance.imageInsets?.bottom ?? 0
+        imageTopLayoutConstraint.constant = appearance.imageInsets?.top ?? 0
+        imageLeftLayoutConstraint.constant = appearance.imageInsets?.left ?? 0
+        imageRightLayoutConstraint.constant = appearance.imageInsets?.right ?? 0
+        imageBottomLayoutConstraint.constant = appearance.imageInsets?.bottom ?? 0
         
-        self.imageImageView.cornerRadius = CGFloat(appearance.imageCornerRadius)
-        self.imageImageView.corners = [.allCorners]
+        imageImageView.cornerRadius = CGFloat(appearance.imageCornerRadius)
+        imageImageView.corners = [.allCorners]
         
-        self.imageActivityIndicatorView.color = appearance.imageLoaderTintColor
+        imageActivityIndicatorView.color = appearance.imageLoaderTintColor
         
-        self.imageNameLabel.textColor = appearance.imageInnerColor
-        self.imageNameLabel.font = appearance.nameFont
+        imageNameLabel.textColor = appearance.imageInnerColor
+        imageNameLabel.font = appearance.nameFont
         
-        self.imageNameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
-        self.imageNameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
-        self.imageNameLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
+        imageNameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
+        imageNameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
+        imageNameLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
         
-        self.imageMetaTimeLabel.textColor = appearance.imageInnerColor
-        self.imageMetaTimeLabel.font = appearance.timeFont
+        imageMetaTimeLabel.textColor = appearance.imageInnerColor
+        imageMetaTimeLabel.font = appearance.timeFont
         
-        self.imageMetaStatusImageView.tintColor = appearance.imageInnerColor
+        imageMetaStatusImageView.tintColor = appearance.imageInnerColor
         
-        self.imageMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
-        self.imageMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
-        self.imageMetaBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
+        imageMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
+        imageMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
+        imageMetaBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
         
         // Name
-        self.nameLabel.textColor = appearance.nameColor
-        self.nameLabel.font = appearance.nameFont
+        nameLabel.textColor = appearance.nameColor
+        nameLabel.font = appearance.nameFont
         
-        self.nameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
-        self.nameLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
-        self.nameRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
-        self.nameBottomLayoutCostraint.constant = appearance.nameInsets?.bottom ?? 0
+        nameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
+        nameLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
+        nameRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
+        nameBottomLayoutCostraint.constant = appearance.nameInsets?.bottom ?? 0
         
         // Title
-        self.titleLabel.textColor = appearance.titleColor
-        self.titleLabel.font = appearance.titleFont
+        titleLabel.textColor = appearance.titleColor
+        titleLabel.font = appearance.titleFont
         
-        self.titleLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
-        self.titleRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
-        self.titleBottomLayoutCostraint.constant = appearance.titleInsets?.bottom ?? 0
+        titleLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
+        titleRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
+        titleBottomLayoutCostraint.constant = appearance.titleInsets?.bottom ?? 0
         
         // Message
-        self.messageTextView.textColor = appearance.messageColor
-        self.messageTextView.tintColor = appearance.messageTintColor
+        messageTextView.textColor = appearance.messageColor
+        messageTextView.tintColor = appearance.messageTintColor
         
-        self.messageTextView.regularFont = appearance.messageRegularFont
-        self.messageTextView.italicFont = appearance.messageItalicFont
-        self.messageTextView.boldFont = appearance.messageBoldFont
+        messageTextView.regularFont = appearance.messageRegularFont
+        messageTextView.italicFont = appearance.messageItalicFont
+        messageTextView.boldFont = appearance.messageBoldFont
         
-        self.messageTopLayoutConstraint.constant = appearance.messageInsets?.top ?? 0
-        self.messageLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.messageInsets?.left ?? 0)
-        self.messageBottomLayoutConstraint.constant = appearance.messageInsets?.bottom ?? 0
-        self.messageRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.messageInsets?.right ?? 0)
+        messageTopLayoutConstraint.constant = appearance.messageInsets?.top ?? 0
+        messageLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.messageInsets?.left ?? 0)
+        messageBottomLayoutConstraint.constant = appearance.messageInsets?.bottom ?? 0
+        messageRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.messageInsets?.right ?? 0)
         
         // Meta
-        self.timeLabel.textColor = appearance.timeColor
-        self.timeLabel.font = appearance.timeFont
+        timeLabel.textColor = appearance.timeColor
+        timeLabel.font = appearance.timeFont
         
-        self.statusImageView.tintColor = appearance.statusTintColor
+        statusImageView.tintColor = appearance.statusTintColor
         
-        self.metaTopLayoutConstraint.constant = appearance.metaInsets?.top ?? 0
-        self.metaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
-        self.metaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
-        self.metaBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
+        metaTopLayoutConstraint.constant = appearance.metaInsets?.top ?? 0
+        metaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
+        metaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
+        metaBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
         
         // Buttons
-        self.buttonsTopLayoutConstraint.constant = appearance.buttonInsets?.top ?? 0
-        self.buttonsLeftLayoutConstraint.constant = appearance.buttonInsets?.left ?? 0
-        self.buttonsRightLayoutConstraint.constant = appearance.buttonInsets?.right ?? 0
-        self.buttonsBottomLayoutConstraint.constant = appearance.buttonInsets?.bottom ?? 0
+        buttonsTopLayoutConstraint.constant = appearance.buttonInsets?.top ?? 0
+        buttonsLeftLayoutConstraint.constant = appearance.buttonInsets?.left ?? 0
+        buttonsRightLayoutConstraint.constant = appearance.buttonInsets?.right ?? 0
+        buttonsBottomLayoutConstraint.constant = appearance.buttonInsets?.bottom ?? 0
     }
     
     // MARK: - Actions
     @IBAction func imageAction(sender: AnyObject) {
-        self.delegate?.didSelectImage(from: self.message)
+        delegate?.didSelectImage(from: message)
     }
     
     @objc private func buttonAction(sender: UIButton) {
-        guard let messageButton = self.message.buttons?[sender.tag] else { return }
+        guard let messageButton = message.buttons?[sender.tag] else { return }
         delegate?.didSelect(messageButton)
     }
     
@@ -473,28 +498,28 @@ class ParleyMessageView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
     
     private func setup() {
-        self.loadXib()
+        loadXib()
     }
     
     private func loadXib() {
         Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
 
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
 
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
     }
 }
