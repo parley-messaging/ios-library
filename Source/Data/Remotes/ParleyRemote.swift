@@ -194,42 +194,16 @@ internal extension ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
             .validate(statusCode: 200...299)
-            .responseData(completionHandler: { responseData in
-                switch responseData.result {
-                case .success(let data):
-                    do {
-                        let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
-                        result(.success(decodedData.data))
-                    } catch {
-                        result(.failure(error))
-                    }
-                case .failure(let error):
-                    result(.failure(error))
-                }
-            })
-    }
-    
-    static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String? = "data", result: @escaping ((Result<T, Error>) -> ())) {
-        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        
-        sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
-            .validate(statusCode: 200...299)
             .responseData(completionHandler: { response in
                 decodeData(response: response, result: result)
             })
-//            .responseData(completionHandler: { responseData in
-//                switch responseData.result {
-//                case .success(let data):
-//                    do {
-//                        let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
-//                        result(.success(decodedData.data))
-//                    } catch {
-//                        result(.failure(error))
-//                    }
-//                case .failure(let error):
-//                    result(.failure(error))
-//                }
-//            })
+    }
+    
+    static func execute<T: Codable>(method: HTTPMethod, path: String, result: @escaping ((Result<T, Error>) -> ())) {
+        sessionManager.request(getUrl(path), method: method, parameters: nil, headers: getHeaders())
+            .responseData(completionHandler: { response in
+                decodeData(response: response, result: result)
+            })
     }
     
     static func decodeData<T: Codable>(response: AFDataResponse<Data>, result: @escaping ((Result<T, Error>) -> ())) {
@@ -244,9 +218,5 @@ internal extension ParleyRemote {
         case .failure(let error):
             result(.failure(error))
         }
-    }
-    
-    static func execute<T: Codable>(method: HTTPMethod, parameters: Encodable?, result: @escaping ((Result<T, Error>) -> ())) {
-        sessionManager.
     }
 }

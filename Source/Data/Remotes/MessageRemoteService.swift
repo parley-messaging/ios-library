@@ -46,7 +46,6 @@ internal class MessageRemoteService {
     }
     
     internal func store(_ message: MediaMessage, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
-        ParleyRemote
     }
     
     internal func upload(imageData: Data, imageType: ImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
