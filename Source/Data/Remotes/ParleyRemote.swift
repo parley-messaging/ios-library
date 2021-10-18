@@ -52,12 +52,12 @@ internal class ParleyRemote {
         }
     }
     
-    private static func getUrl(_ path: String) -> String {
-        return Parley.shared.network.url + Parley.shared.network.path + path
+    private static func getUrl(_ path: String) -> URL {
+        Parley.shared.network.absoluteURL.appendingPathComponent(path)
     }
     
     // MARK: Execute request
-    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, keyPath: String?="data", onSuccess: @escaping (_ items: [T])->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
+    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, keyPath: String? = "data", onSuccess: @escaping (_ items: [T])->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, headers: getHeaders())
@@ -128,7 +128,7 @@ internal class ParleyRemote {
     @discardableResult internal static func execute(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, onSuccess: @escaping (_ image: UIImage)->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest? {
         let url = getUrl(path)
         
-        if let image = getImage(url) {
+        if let image = getImage(url.absoluteString) {
             onSuccess(image)
             
             return nil
@@ -176,9 +176,9 @@ internal class ParleyRemote {
         return nil
     }
     
-    private static func setImage(_ url: String, image: UIImage, data: Data, isGif: Bool = false) {
+    private static func setImage(_ url: URL, image: UIImage, data: Data, isGif: Bool = false) {
         let suffix = isGif ? ".gif" : ""
-        guard let key = "\(url)\(suffix)".data(using: .utf8)?.base64EncodedString() else { return }
+        guard let key = "\(url.absoluteString)\(suffix)".data(using: .utf8)?.base64EncodedString() else { return }
         
         imageCache.setObject(image, forKey: key as NSString)
         

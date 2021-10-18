@@ -73,7 +73,7 @@ class IdentifierViewController: UIViewController {
         let headers: [String: String] = [
             "Custom-Header": "Custom header value"
         ]
-
+        
         let network = ParleyNetwork(
             url: "https://api.parley.nu/",
             path: "clientApi/v1.5/",
