@@ -55,33 +55,44 @@ internal class MessageImageViewController: UIViewController {
     }
     
     private func setupImageView() {
-        self.scrollView.addSubview(self.imageView)
+        scrollView.addSubview(imageView)
         
         if let image = self.message?.image {
-            self.imageView.image = image
+            imageView.image = image
             
-            self.imageView.sizeToFit()
-            self.adjustContentInset()
+            imageView.sizeToFit()
+            adjustContentInset()
             
-            self.activityIndicatorView.isHidden = true
-            self.activityIndicatorView.stopAnimating()
+            activityIndicatorView.isHidden = true
+            activityIndicatorView.stopAnimating()
         } else if let id = self.message?.id {
-            self.activityIndicatorView.isHidden = false
-            self.activityIndicatorView.startAnimating()
+            activityIndicatorView.isHidden = false
+            activityIndicatorView.startAnimating()
             
-            MessageRepository().findImage(id, onSuccess: { image in
-                self.imageView.image = image
+            func onFindImageSuccess(image: UIImage) {
+                imageView.image = image
                 
-                self.imageView.sizeToFit()
-                self.adjustContentInset()
+                imageView.sizeToFit()
+                adjustContentInset()
                 
-                self.activityIndicatorView.isHidden = true
-                self.activityIndicatorView.stopAnimating()
-            }) { error in
-                self.dismiss(animated: true, completion: nil)
+                activityIndicatorView.isHidden = true
+                activityIndicatorView.stopAnimating()
+            }
+            
+            func onFindImageError(error: Error) {
+                dismiss(animated: true, completion: nil)
+            }
+            
+            switch Parley.shared.network.apiVersion {
+            case .v1_6:
+                MessageRepository()
+                    .findMedia(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
+            default:
+                MessageRepository()
+                    .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
             }
         } else {
-            self.dismiss(animated: true, completion: nil)
+            dismiss(animated: true, completion: nil)
         }
     }
     

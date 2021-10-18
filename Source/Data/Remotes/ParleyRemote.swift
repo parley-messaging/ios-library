@@ -105,7 +105,7 @@ internal class ParleyRemote {
         return request
     }
     
-    internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String?="data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error)->()) {
+    internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String? = "data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error)->()) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
@@ -120,10 +120,10 @@ internal class ParleyRemote {
             }
     }
     
+   
+    
     // MARK: Image
-    internal static let imageCache: NSCache<NSString, UIImage> = {
-        return NSCache()
-    }()
+    internal static let imageCache = NSCache<NSString, UIImage>()
     
     @discardableResult internal static func execute(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, onSuccess: @escaping (_ image: UIImage)->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest? {
         let url = getUrl(path)
@@ -183,5 +183,70 @@ internal class ParleyRemote {
         imageCache.setObject(image, forKey: key as NSString)
         
         Parley.shared.dataSource?.set(data, forKey: key)
+    }
+}
+
+// MARK: - Codable implentation
+
+internal extension ParleyRemote {
+    
+    static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: MultipartFormData, keyPath: String? = "data", result: @escaping ((Result<T, Error>) -> ())) {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
+            .validate(statusCode: 200...299)
+            .responseData(completionHandler: { responseData in
+                switch responseData.result {
+                case .success(let data):
+                    do {
+                        let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
+                        result(.success(decodedData.data))
+                    } catch {
+                        result(.failure(error))
+                    }
+                case .failure(let error):
+                    result(.failure(error))
+                }
+            })
+    }
+    
+    static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String? = "data", result: @escaping ((Result<T, Error>) -> ())) {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        
+        sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
+            .validate(statusCode: 200...299)
+            .responseData(completionHandler: { response in
+                decodeData(response: response, result: result)
+            })
+//            .responseData(completionHandler: { responseData in
+//                switch responseData.result {
+//                case .success(let data):
+//                    do {
+//                        let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
+//                        result(.success(decodedData.data))
+//                    } catch {
+//                        result(.failure(error))
+//                    }
+//                case .failure(let error):
+//                    result(.failure(error))
+//                }
+//            })
+    }
+    
+    static func decodeData<T: Codable>(response: AFDataResponse<Data>, result: @escaping ((Result<T, Error>) -> ())) {
+        switch response.result {
+        case .success(let data):
+            do {
+                let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
+                result(.success(decodedData.data))
+            } catch {
+                result(.failure(error))
+            }
+        case .failure(let error):
+            result(.failure(error))
+        }
+    }
+    
+    static func execute<T: Codable>(method: HTTPMethod, parameters: Encodable?, result: @escaping ((Result<T, Error>) -> ())) {
+        sessionManager.
     }
 }

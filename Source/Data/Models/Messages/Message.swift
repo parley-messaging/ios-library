@@ -4,21 +4,6 @@ import UIKit
 
 public class Message: Mappable, Equatable {
     
-    enum MessageType: Int {
-        
-        case loading = -3
-        case agentTyping = -2
-        case date = -1
-        case info = 0
-        case user = 1
-        case agent = 2
-        case auto = 3
-        case systemMessageUser = 4
-        case systemMessageAgent = 5
-        
-        static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
-    }
-    
     enum MessageStatus: Int {
         
         case failed = 0
@@ -36,6 +21,7 @@ public class Message: Mappable, Equatable {
     var message: String?
     
     var imageURL: URL?
+//    var mediaId: String
     var image: UIImage?
     var imageData: Data?
     
@@ -82,6 +68,7 @@ public class Message: Mappable, Equatable {
         }
         
         self.imageURL       <- (map["image"], StringToURLTransform())
+//        self.mediaId        <- map["mediaId"]
         
         self.buttons        <- map["buttons"]
         
@@ -101,7 +88,7 @@ public class Message: Mappable, Equatable {
         return (self.title == nil && self.message == nil &&
             self.imageURL == nil && self.image == nil &&
             self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0)
-            || Message.MessageType.ignored.contains(self.type)
+            || MessageType.ignored.contains(self.type)
     }
 
     public static func == (lhs: Message, rhs: Message) -> Bool {

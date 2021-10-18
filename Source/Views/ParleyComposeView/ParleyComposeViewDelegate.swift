@@ -1,9 +1,9 @@
 import UIKit
 
-protocol ParleyComposeViewDelegate {
+protocol ParleyComposeViewDelegate: AnyObject {
     
     func didChange()
     
     func send(_ message: String)
-    func send(_ url: URL, _ image: UIImage, _ data: Data?)
+    func send(image: UIImage, with data: Data, url: URL, fileName: String)
 }

@@ -501,9 +501,18 @@ extension ParleyView: ParleyComposeViewDelegate {
     func send(_ message: String) {
         Parley.shared.send(message)
     }
-
-    func send(_ url: URL, _ image: UIImage, _ data: Data?=nil) {
-        Parley.shared.send(url, image, data)
+    
+    func send(image: UIImage, with data: Data, url: URL, fileName: String) {
+        switch Parley.shared.network.apiVersion {
+        case .v1_6:
+            guard let type = ImageType.map(from: url) else { return }
+            Parley.shared.upload(imageData: data, imageType: type, fileName: fileName) { result in
+                
+            }
+        default:
+            Parley.shared.send(url, image, data)
+        }
+        
     }
 }
 

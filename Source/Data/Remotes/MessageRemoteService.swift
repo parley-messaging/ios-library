@@ -1,6 +1,7 @@
 import Alamofire
 import UIKit
 
+
 internal class MessageRemoteService {
     
     internal func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error)->()) {
@@ -23,11 +24,11 @@ internal class MessageRemoteService {
         if let imageURL = message.imageURL, let imageData = message.imageData {
             ParleyRemote.execute(path: "messages", multipartFormData: { multipartFormData in
                 if imageURL.pathExtension == "png" {
-                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: "image/png")
+                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: ImageType.png.mimeType)
                 } else if imageURL.pathExtension == "gif" {
-                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: "image/gif")
+                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: ImageType.gif.mimeType)
                 } else {
-                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: "image/jpg")
+                    multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: ImageType.jpg.mimeType)
                 }
             }, onSuccess: { (savedMessage: Message) in
                 message.id = savedMessage.id
@@ -44,7 +45,22 @@ internal class MessageRemoteService {
         }
     }
     
+    internal func store(_ message: MediaMessage, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
+        ParleyRemote
+    }
+    
+    internal func upload(imageData: Data, imageType: ImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
+        let multipartFormData = MultipartFormData()
+        multipartFormData.append(imageData, withName: "media", fileName: fileName, mimeType: imageType.mimeType)
+        ParleyRemote.execute(path: "media", multipartFormData: multipartFormData, result: completion)
+    }
+    
+    @available(*, deprecated)
     @discardableResult internal func findImage(_ id: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest? {
         return ParleyRemote.execute(.get, "images/\(id)", onSuccess: onSuccess, onFailure: onFailure)
+    }
+    
+    @discardableResult internal func findMedia(_ id: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest? {
+        return ParleyRemote.execute(.get, "media/\(id)", onSuccess: onSuccess, onFailure: onFailure)
     }
 }

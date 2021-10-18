@@ -282,8 +282,11 @@ public class Parley {
 
         self.send(message, isNewMessage: true)
     }
-
-    internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data?=nil) {
+    
+   
+    
+    @available(*, deprecated)
+    internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
         let message = Message()
         message.type = .user
         message.imageURL = imageUrl
@@ -292,6 +295,16 @@ public class Parley {
         message.status = .pending
 
         self.send(message, isNewMessage: true)
+    }
+    
+    internal func send(mediaId: String) {
+        let message = MediaMessage(media: MediaObject(id: mediaId, description: nil), typeId: MessageType.user.rawValue, referer: nil)
+
+        self.send(message, isNewMessage: true)
+    }
+    
+    internal func upload(imageData: Data, imageType: ImageType, fileName: String, result: @escaping ((Result<MediaResponse, Error>) -> ())) {
+        MessageRepository().upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: result)
     }
 
     internal func send(_ message: Message, isNewMessage: Bool, onNext: (()->())? = nil) {
@@ -336,7 +349,7 @@ public class Parley {
         let message = Message()
         message.id = id
         message.message = body
-        message.type = Message.MessageType(rawValue: typeId)
+        message.type = MessageType(rawValue: typeId)
         message.time = Date()
 
         if self.isLoading { return } // Ignore remote messages when configuring chat.
