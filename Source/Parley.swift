@@ -54,7 +54,7 @@ public class Parley {
     internal var referrer: String? = nil
 
     internal var userAuthorization: String?
-    internal var userAdditionalInformation: [String:String]?
+    internal var userAdditionalInformation: [String: String]?
     private let notificationService = NotificationService()
 
     internal weak var delegate: ParleyDelegate? {
@@ -71,7 +71,7 @@ public class Parley {
         }
     }
 
-    internal var messagesManager = MessagesManager()
+    internal let messagesManager = MessagesManager()
 
     internal var agentIsTyping = false
     private var agentStopTypingTimer: Timer?
@@ -268,7 +268,7 @@ public class Parley {
 
     private func send(_ messages: [Message]) {
         if let message = messages.first {
-            self.send(message, isNewMessage: false, onNext: {
+            send(message, isNewMessage: false, onNext: {
                 self.send(Array(messages.dropFirst()))
             })
         }
@@ -305,8 +305,32 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func upload(imageData: Data, imageType: ParleyImageType, fileName: String, result: @escaping ((Result<MediaResponse, Error>) -> ())) {
-        MessageRepository().upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: result)
+    internal func upload(media: MediaModel) {
+        let message = media.createMessage(status: .pending)
+        message.uuid = UUID().uuidString
+        let indexPaths = messagesManager.add(message)
+        delegate?.willSend(indexPaths)
+        
+        MessageRepository().upload(
+            imageData: media.data,
+            imageType: media.type,
+            fileName: media.filename,
+            completion: { [weak self, parley = Parley.shared, messagesManager, delegate] result in
+                switch result {
+                case .success(let response):
+                    messagesManager.update(message)
+                    delegate?.didUpdate(message)
+                    parley.send(MediaObject(id: response.media, description: nil), media.image)
+                   
+                case .failure(let error):
+                    if let self = self, (!self.isCachingEnabled() || !self.isOfflineError(error)) {
+                        message.status = .failed
+
+                        self.messagesManager.update(message)
+                        self.delegate?.didUpdate(message)
+                    }
+                }
+            })
     }
 
     internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
@@ -320,6 +344,12 @@ public class Parley {
         }
 
         if !self.reachable { return }
+        
+        if let cachedMedia = message.cachedMedia {
+            upload(media: cachedMedia)
+            onNext?()
+            return
+        }
 
         MessageRepository().store(message, onSuccess: { message in
             message.status = .success
@@ -330,7 +360,7 @@ public class Parley {
             self.delegate?.didSent(message)
 
             onNext?()
-        }) { (error) in
+        }) { error in
             if !self.isCachingEnabled() || !self.isOfflineError(error) {
                 message.status = .failed
 
@@ -369,23 +399,19 @@ public class Parley {
                 delegate?.didReceiveMessage(indexPaths)
             }
         } else {
-            self.delegate?.didStopTyping()
+            delegate?.didStopTyping()
 
-            let indexPaths = self.messagesManager.add(message)
-            self.delegate?.didReceiveMessage(indexPaths)
+            let indexPaths = messagesManager.add(message)
+            delegate?.didReceiveMessage(indexPaths)
         }
     }
 
     internal func handleEvent(_ event: String?) {
         switch event {
         case kParleyEventStartTyping?:
-            self.agentStartTyping()
-
-            break
+            agentStartTyping()
         case kParleyEventStopTyping?:
-            self.agentStopTyping()
-
-            break
+            agentStopTyping()
         default:
             break
         }

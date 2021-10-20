@@ -157,7 +157,7 @@ class ParleyMessageView: UIView {
             self.imageActivityIndicatorView.stopAnimating()
             
             self.renderGradients()
-        } else if let id = self.message.id, message.imageURL != nil {
+        } else if let id = self.message.id, message.imageURL != nil, message.cachedMedia != nil {
             imageHolderView.isHidden = false
             
             findImageRequest?.cancel()

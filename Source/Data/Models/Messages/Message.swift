@@ -5,14 +5,12 @@ import UIKit
 public class Message: Mappable, Equatable {
     
     enum MessageStatus: Int {
-        
         case failed = 0
         case pending = 1
         case success = 2
     }
     
     enum MessageType: Int, Codable {
-        
         case loading = -3
         case agentTyping = -2
         case date = -1
@@ -25,7 +23,6 @@ public class Message: Mappable, Equatable {
         
         static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
     }
-
     
     var id: Int?
     
@@ -37,7 +34,9 @@ public class Message: Mappable, Equatable {
     var message: String?
     
     var imageURL: URL?
+  
     var media: MediaObject?
+    var cachedMedia: MediaModel?
     
     @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
     var image: UIImage?

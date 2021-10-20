@@ -32,6 +32,7 @@ public class ParleyEncryptedDataSource: ParleyDataSource {
 extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
     
     public func string(forKey key: String) -> String? {
+        
         if let data = self.data(forKey: key) {
             return String(decoding: data, as: UTF8.self)
         }
@@ -109,7 +110,7 @@ extension ParleyEncryptedDataSource: ParleyMessageDataSource {
                     }
                 }
             }
-            
+
             return messages
         }
         
