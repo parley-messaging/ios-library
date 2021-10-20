@@ -295,8 +295,7 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func send(_ media: MediaObject, mediaResponse: MediaResponse, _ image: UIImage) {
-        
+    internal func send(_ media: MediaObject, _ image: UIImage) {
         let message = Message()
         message.type = .user
         message.imageURL = URL(string: media.id)

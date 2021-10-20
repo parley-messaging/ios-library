@@ -186,7 +186,7 @@ internal class ParleyRemote {
     }
 }
 
-// MARK: - Codable implentation
+// MARK: - Codable implementation
 
 internal extension ParleyRemote {
     
@@ -194,13 +194,6 @@ internal extension ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
             .validate(statusCode: 200...299)
-            .responseData(completionHandler: { response in
-                decodeData(response: response, result: result)
-            })
-    }
-    
-    static func execute<T: Codable>(method: HTTPMethod, path: String, result: @escaping ((Result<T, Error>) -> ())) {
-        sessionManager.request(getUrl(path), method: method, parameters: nil, headers: getHeaders())
             .responseData(completionHandler: { response in
                 decodeData(response: response, result: result)
             })

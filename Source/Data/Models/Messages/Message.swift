@@ -89,7 +89,8 @@ public class Message: Mappable, Equatable {
     public func ignore() -> Bool {
         return (self.title == nil && self.message == nil &&
             self.imageURL == nil && self.image == nil &&
-            self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0)
+            self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0
+            && media == nil)
             || MessageType.ignored.contains(self.type)
     }
 

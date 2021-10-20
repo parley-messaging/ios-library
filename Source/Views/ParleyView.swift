@@ -509,11 +509,7 @@ extension ParleyView: ParleyComposeViewDelegate {
             Parley.shared.upload(imageData: data, imageType: type, fileName: fileName) { result in
                 switch result {
                 case .success(let response):
-                    /// this code retreives the UUID from the string by taking only the last part and removing the extension.
-//                    guard let imageName = URL(string: response.media) else { return }
-//                    let type = ParleyImageType.map(from: imageName)
-//                    let uuid = imageName.lastPathComponent.replacingOccurrences(of: type.fileExtension, with: "")
-                    Parley.shared.send(MediaObject(id: response.media, description: nil), mediaResponse: response, image)
+                    Parley.shared.send(MediaObject(id: response.media, description: nil), image)
                 case .failure(let error):
                     print(error)
                 }
@@ -521,7 +517,6 @@ extension ParleyView: ParleyComposeViewDelegate {
         default:
             Parley.shared.send(url, image, data)
         }
-        
     }
 }
 
