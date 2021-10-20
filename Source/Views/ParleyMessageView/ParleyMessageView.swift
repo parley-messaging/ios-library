@@ -158,14 +158,14 @@ class ParleyMessageView: UIView {
             
             self.renderGradients()
         } else if let id = self.message.id, message.imageURL != nil {
-            self.imageHolderView.isHidden = false
+            imageHolderView.isHidden = false
             
-            self.findImageRequest?.cancel()
+            findImageRequest?.cancel()
             
-            self.imageActivityIndicatorView.isHidden = false
-            self.imageActivityIndicatorView.startAnimating()
+            imageActivityIndicatorView.isHidden = false
+            imageActivityIndicatorView.startAnimating()
             
-            self.imageImageView.image = appearance?.imagePlaceholder
+            imageImageView.image = appearance?.imagePlaceholder
             
             func onFindSuccess(image: UIImage) {
                 imageActivityIndicatorView.isHidden = true
@@ -176,51 +176,19 @@ class ParleyMessageView: UIView {
                 renderGradients()
             }
             
-            
-            let result: Result<UIImage, Error> = .success(UIImage())
-            
-            switch result {
-            case .success(let image):
-                print(image)
-            case .failure(let error):
-                print(error)
-            }
-            
             func onFindError(error: Error) {
+                imageActivityIndicatorView.isHidden = true
+                imageActivityIndicatorView.stopAnimating()
                 
+                renderGradients()
             }
             
             switch Parley.shared.network.apiVersion {
             case .v1_6:
                 guard let url = message?.imageURL?.pathComponents.dropFirst().dropFirst().joined(separator: "/") else { return }
-                MessageRepository().find(media: url) { image in
-                    self.imageActivityIndicatorView.isHidden = true
-                    self.imageActivityIndicatorView.stopAnimating()
-                    
-                    self.imageImageView.image = image
-                    
-                    self.renderGradients()
-                } onFailure: { error in
-                    self.imageActivityIndicatorView.isHidden = true
-                    self.imageActivityIndicatorView.stopAnimating()
-                    
-                    self.renderGradients()
-                }
+                findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
             default:
-                self.findImageRequest = MessageRepository().findImage(id, onSuccess: { (image) in
-                    self.imageActivityIndicatorView.isHidden = true
-                    self.imageActivityIndicatorView.stopAnimating()
-                    
-                    self.imageImageView.image = image
-                    
-                    self.renderGradients()
-                }) { (error) in
-                    self.imageActivityIndicatorView.isHidden = true
-                    self.imageActivityIndicatorView.stopAnimating()
-                    
-                    self.renderGradients()
-                }
-                
+                findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
             }
         } else {
             self.imageHolderView.isHidden = true

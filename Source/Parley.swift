@@ -351,7 +351,7 @@ public class Parley {
         let message = Message()
         message.id = id
         message.message = body
-        message.type = MessageType(rawValue: typeId)
+        message.type = Message.MessageType(rawValue: typeId)
         message.time = Date()
 
         if self.isLoading { return } // Ignore remote messages when configuring chat.
