@@ -21,11 +21,11 @@ internal class MessageRepository {
         messageRemoteService.findAfter(id, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func store(_ message: Message, onSuccess: @escaping (_ message: Message)->(), onFailure: @escaping (_ error: Error)->()) {
+    internal func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.store(message, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func upload(imageData: Data, imageType: ImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
+    internal func upload(imageData: Data, imageType: ParleyImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
         messageRemoteService.upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: completion)
     }
     
@@ -34,7 +34,7 @@ internal class MessageRepository {
         messageRemoteService.findImage(messageId, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    @discardableResult internal func findMedia(_ messageId: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest? {
-        messageRemoteService.findMedia(messageId, onSuccess: onSuccess, onFailure: onFailure)
+    @discardableResult internal func find(media: String, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest? {
+        messageRemoteService.findMedia(media, onSuccess: onSuccess, onFailure: onFailure)
     }
 }

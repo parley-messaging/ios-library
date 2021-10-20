@@ -283,8 +283,6 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-   
-    
     @available(*, deprecated)
     internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
         let message = Message()
@@ -297,17 +295,22 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func send(mediaId: String) {
-        let message = MediaMessage(media: MediaObject(id: mediaId, description: nil), typeId: MessageType.user.rawValue, referer: nil)
+    internal func send(_ media: MediaObject, mediaResponse: MediaResponse, _ image: UIImage) {
+        
+        let message = Message()
+        message.type = .user
+        message.imageURL = URL(string: media.id)
+        message.media = media
+        message.status = .pending
 
         self.send(message, isNewMessage: true)
     }
     
-    internal func upload(imageData: Data, imageType: ImageType, fileName: String, result: @escaping ((Result<MediaResponse, Error>) -> ())) {
+    internal func upload(imageData: Data, imageType: ParleyImageType, fileName: String, result: @escaping ((Result<MediaResponse, Error>) -> ())) {
         MessageRepository().upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: result)
     }
 
-    internal func send(_ message: Message, isNewMessage: Bool, onNext: (()->())? = nil) {
+    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
         message.referrer = self.referrer
         
         if isNewMessage {

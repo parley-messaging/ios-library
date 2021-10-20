@@ -1,11 +1,13 @@
 import Foundation
 import UIKit
 
-internal enum ImageType: String, CaseIterable {
+internal enum ParleyImageType: String, CaseIterable {
     case png
     case gif
     case jpg
     
+    /// Returns a mime type
+    /// for example: "image/png"
     var mimeType: String {
         switch self {
         case .png:
@@ -23,8 +25,13 @@ internal enum ImageType: String, CaseIterable {
         return ".\(self.rawValue)"
     }
     
-    static func map(from url: URL) -> ImageType? {
+    
+    /// Returns a ParleyImageType from a given URL
+    /// Defaults to .jpg.
+    /// - Parameter url: Local URL of the image
+    /// - Returns: ParleyImageType
+    static func map(from url: URL) -> ParleyImageType {
         let imageName = url.lastPathComponent
-        return ImageType.allCases.first { imageName.contains($0.fileExtension) }
+        return ParleyImageType.allCases.first { imageName.contains($0.fileExtension) } ?? .jpg
     }
 }

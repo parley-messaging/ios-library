@@ -101,9 +101,10 @@ extension ParleyEncryptedDataSource: ParleyMessageDataSource {
                 if message.type == .user, message.status == .pending, let uuid = message.uuid, let imageData = self.data(forKey: uuid), let imageUrl = message.imageURL {
                     message.imageData = imageData
                     
-                    if imageUrl.pathExtension == "gif" {
+                    switch ParleyImageType.map(from: imageUrl) {
+                    case .gif:
                         message.image = UIImage.gif(data: imageData)
-                    } else {
+                    default:
                         message.image = UIImage(data: imageData)
                     }
                 }

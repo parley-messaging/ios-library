@@ -192,7 +192,8 @@ class ParleyMessageView: UIView {
             
             switch Parley.shared.network.apiVersion {
             case .v1_6:
-                MessageRepository().findMedia(id) { image in
+                guard let url = message?.imageURL?.pathComponents.dropFirst().dropFirst().joined(separator: "/") else { return }
+                MessageRepository().find(media: url) { image in
                     self.imageActivityIndicatorView.isHidden = true
                     self.imageActivityIndicatorView.stopAnimating()
                     
@@ -219,7 +220,7 @@ class ParleyMessageView: UIView {
                     
                     self.renderGradients()
                 }
-
+                
             }
         } else {
             self.imageHolderView.isHidden = true

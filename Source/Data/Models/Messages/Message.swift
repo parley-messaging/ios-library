@@ -21,7 +21,9 @@ public class Message: Mappable, Equatable {
     var message: String?
     
     var imageURL: URL?
-//    var mediaId: String
+    var media: MediaObject?
+    
+    @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
     var image: UIImage?
     var imageData: Data?
     
@@ -68,7 +70,7 @@ public class Message: Mappable, Equatable {
         }
         
         self.imageURL       <- (map["image"], StringToURLTransform())
-//        self.mediaId        <- map["mediaId"]
+        self.media          <- (map["media"], CodableTransform<MediaObject>())
         
         self.buttons        <- map["buttons"]
         

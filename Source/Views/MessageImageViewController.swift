@@ -85,8 +85,9 @@ internal class MessageImageViewController: UIViewController {
             
             switch Parley.shared.network.apiVersion {
             case .v1_6:
+                guard let url = message?.imageURL?.pathComponents.dropFirst().dropFirst().joined(separator: "/") else { return }
                 MessageRepository()
-                    .findMedia(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
+                    .find(media: url, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
             default:
                 MessageRepository()
                     .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
