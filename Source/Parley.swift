@@ -295,42 +295,12 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func send(_ media: MediaObject, _ image: UIImage) {
-        let message = Message()
-        message.type = .user
-        message.imageURL = URL(string: media.id)
-        message.media = media
-        message.status = .pending
-
-        self.send(message, isNewMessage: true)
-    }
-    
     internal func upload(media: MediaModel) {
         let message = media.createMessage(status: .pending)
         message.uuid = UUID().uuidString
         let indexPaths = messagesManager.add(message)
         delegate?.willSend(indexPaths)
-        
-        MessageRepository().upload(
-            imageData: media.data,
-            imageType: media.type,
-            fileName: media.filename,
-            completion: { [weak self, parley = Parley.shared, messagesManager, delegate] result in
-                switch result {
-                case .success(let response):
-                    messagesManager.update(message)
-                    delegate?.didUpdate(message)
-                    parley.send(MediaObject(id: response.media, description: nil), media.image)
-                   
-                case .failure(let error):
-                    if let self = self, (!self.isCachingEnabled() || !self.isOfflineError(error)) {
-                        message.status = .failed
-
-                        self.messagesManager.update(message)
-                        self.delegate?.didUpdate(message)
-                    }
-                }
-            })
+        send(message, isNewMessage: true, onNext: nil)
     }
 
     internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
@@ -345,30 +315,46 @@ public class Parley {
 
         if !self.reachable { return }
         
-        if let cachedMedia = message.cachedMedia {
-            upload(media: cachedMedia)
-            onNext?()
-            return
-        }
-
-        MessageRepository().store(message, onSuccess: { message in
+        func onSuccess(message: Message) {
             message.status = .success
 
-            self.messagesManager.update(message)
-            self.delegate?.didUpdate(message)
+            messagesManager.update(message)
+            delegate?.didUpdate(message)
 
-            self.delegate?.didSent(message)
+            delegate?.didSent(message)
 
             onNext?()
-        }) { error in
-            if !self.isCachingEnabled() || !self.isOfflineError(error) {
+        }
+        
+        func onError(error: Error) {
+            if !isCachingEnabled() || !isOfflineError(error) {
                 message.status = .failed
 
-                self.messagesManager.update(message)
-                self.delegate?.didUpdate(message)
+                messagesManager.update(message)
+                delegate?.didUpdate(message)
             }
 
             onNext?()
+        }
+        
+        if let mediaSendRequest = message.mediaSendRequest {
+            MessageRepository()
+                .upload(
+                    imageData: mediaSendRequest.data,
+                    imageType: mediaSendRequest.type,
+                    fileName: mediaSendRequest.filename) { [weak self] result in
+                        switch result {
+                        case .success(let response):
+                            message.image = nil
+                            message.media = MediaObject(id: response.media, description: nil)
+                            message.mediaSendRequest = nil
+                            self?.send(message, isNewMessage: false, onNext: nil)
+                        case .failure(let error):
+                            onError(error: error)
+                        }
+                    }
+        } else {
+            MessageRepository().store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
         }
     }
 

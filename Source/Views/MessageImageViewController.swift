@@ -57,7 +57,7 @@ internal class MessageImageViewController: UIViewController {
     private func setupImageView() {
         scrollView.addSubview(imageView)
         
-        if let image = self.message?.image {
+        if let image = message?.image {
             imageView.image = image
             
             imageView.sizeToFit()
@@ -65,7 +65,7 @@ internal class MessageImageViewController: UIViewController {
             
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
-        } else if let id = self.message?.id {
+        } else if let id = message?.id {
             activityIndicatorView.isHidden = false
             activityIndicatorView.startAnimating()
             
@@ -83,12 +83,11 @@ internal class MessageImageViewController: UIViewController {
                 dismiss(animated: true, completion: nil)
             }
             
-            switch Parley.shared.network.apiVersion {
-            case .v1_6:
-                guard let url = message?.imageURL?.pathComponents.dropFirst().dropFirst().joined(separator: "/") else { return }
+            if let media = message?.media, let mediaIdUrl = URL(string: media.id) {
+                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
                 MessageRepository()
                     .find(media: url, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
-            default:
+            } else {
                 MessageRepository()
                     .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
             }

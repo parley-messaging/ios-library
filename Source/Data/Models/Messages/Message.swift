@@ -1,6 +1,7 @@
 import ObjectMapper
 import Foundation
 import UIKit
+import AlamofireImage
 
 public class Message: Mappable, Equatable {
     
@@ -33,14 +34,17 @@ public class Message: Mappable, Equatable {
     var title: String?
     var message: String?
     
-    var imageURL: URL?
-  
-    var media: MediaObject?
-    var cachedMedia: MediaModel?
-    
     @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
     var image: UIImage?
+    var imageURL: URL?
     var imageData: Data?
+    
+    var media: MediaObject?
+    internal var mediaSendRequest: MediaModel?
+    
+    internal var hasMedium: Bool {
+        imageURL != nil || imageData != nil || media != nil || image != nil
+    }
     
     var buttons: [MessageButton]?
     
@@ -56,13 +60,17 @@ public class Message: Mappable, Equatable {
     var referrer: String?
     
     public init() {
-        self.uuid = NSUUID().uuidString
+        self.uuid = UUID().uuidString
         
         self.time = Date()
     }
 
     public required init?(map: Map) {
         //
+    }
+    
+    internal func hasMediaOrImage() {
+        
     }
 
     public func mapping(map: Map) {

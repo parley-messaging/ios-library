@@ -9,12 +9,8 @@ internal struct MediaModel {
     
     func createMessage(status: Message.MessageStatus) -> Message {
         let message = Message()
-        switch Parley.shared.network.apiVersion {
-        case .v1_6:
-            message.cachedMedia = self
-        default:
-            message.image = image
-        }
+        message.image = image
+        message.mediaSendRequest = self
         message.status = status
         message.type = .user
         return message

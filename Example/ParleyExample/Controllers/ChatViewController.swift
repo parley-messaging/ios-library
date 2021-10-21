@@ -17,7 +17,6 @@ class ChatViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.title = NSLocalizedString("chat_title", comment: "")
     }
     

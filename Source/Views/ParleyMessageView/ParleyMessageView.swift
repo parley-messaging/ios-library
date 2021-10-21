@@ -157,7 +157,7 @@ class ParleyMessageView: UIView {
             self.imageActivityIndicatorView.stopAnimating()
             
             self.renderGradients()
-        } else if let id = self.message.id, message.imageURL != nil, message.cachedMedia != nil {
+        } else if let id = self.message.id, message.hasMedium {
             imageHolderView.isHidden = false
             
             findImageRequest?.cancel()
@@ -183,13 +183,14 @@ class ParleyMessageView: UIView {
                 renderGradients()
             }
             
-            switch Parley.shared.network.apiVersion {
-            case .v1_6:
-                guard let url = message?.imageURL?.pathComponents.dropFirst().dropFirst().joined(separator: "/") else { return }
+            if let media = message.media, let mediaIdUrl = URL(string: media.id) {
+                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
                 findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            default:
+            } else {
                 findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
             }
+            
+           
         } else {
             self.imageHolderView.isHidden = true
             
@@ -203,7 +204,7 @@ class ParleyMessageView: UIView {
     private func renderName() {
         if self.message.agent?.name == nil || !(self.appearance?.name == true) {
             self.displayName = .hidden
-        } else if self.message.image != nil || self.message.imageURL != nil {
+        } else if message.hasMedium {
             self.displayName = .image
         } else {
             self.displayName = .message
@@ -217,7 +218,7 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMeta(forcedTime: Date? = nil) {
-        if self.message.message != nil || self.message.title != nil || (self.message.image == nil && self.message.imageURL == nil) {
+        if self.message.message != nil || self.message.title != nil || (!message.hasMedium) {
             self.displayMeta = .message
         } else {
             self.displayMeta = .image
