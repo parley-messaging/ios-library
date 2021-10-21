@@ -68,10 +68,6 @@ public class Message: Mappable, Equatable {
     public required init?(map: Map) {
         //
     }
-    
-    internal func hasMediaOrImage() {
-        
-    }
 
     public func mapping(map: Map) {
         self.id             <- map["id"]
