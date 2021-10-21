@@ -99,6 +99,15 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
+    // Button time label
+    @IBOutlet weak var buttonsTimeView: UIView!
+    @IBOutlet weak var buttonsTimeLabel: UILabel!
+    
+    @IBOutlet weak var buttonTimeTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var buttonTimeLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var buttonTimeRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var buttonTimeBottomLayoutConstraint: NSLayoutConstraint!
+    
     // Image
     private var findImageRequest: DataRequest?
     
@@ -114,7 +123,6 @@ class ParleyMessageView: UIView {
     internal var appearance: ParleyMessageViewAppearance? {
         didSet {
             guard let appearance = appearance else { return }
-            
             apply(appearance)
         }
     }
@@ -127,7 +135,6 @@ class ParleyMessageView: UIView {
     }
     
     func render(forcedTime: Date?) {
-        
         renderName()
         renderMeta(forcedTime: forcedTime)
         renderMetaStatus()
@@ -224,6 +231,7 @@ class ParleyMessageView: UIView {
         
         imageMetaTimeLabel.text = time
         timeLabel.text = time
+        buttonsTimeLabel.text = time
     }
     
     private func renderMetaStatus() {
@@ -347,6 +355,10 @@ class ParleyMessageView: UIView {
             buttonsView.isHidden = false
             if message.message != nil || message.title != nil {
                 buttonsStackView.addArrangedSubview(createButtonSeparator())
+                buttonsTimeView.isHidden = true
+            } else if message.message == nil && message.title == nil {
+                metaView.isHidden = true
+                buttonsTimeView.isHidden = false
             }
             for (tag, messageButton) in messageButtons.enumerated() {
                 let button = createButton(from: messageButton, tag: tag)
@@ -357,26 +369,15 @@ class ParleyMessageView: UIView {
                 ])
                 buttonsStackView.addArrangedSubview(createButtonSeparator())
             }
-            
-            if let messageTimeStackView: UIStackView = metaStackView.copyView() {
-                timeLabel.isHidden = true
-                messageTimeStackView.heightAnchor.constraint(equalToConstant: appearance?.buttonHeight ?? 40).isActive = true
-                (messageTimeStackView.arrangedSubviews.first(where: {$0 is UILabel }) as? UILabel)?.textAlignment = .right
-                buttonsStackView.addArrangedSubview(messageTimeStackView)
-                
-                NSLayoutConstraint.activate([
-                    messageTimeStackView.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 10),
-                    messageTimeStackView.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: -10)
-                ])
-            }
         } else {
+            buttonsTimeView.isHidden = true
             buttonsView.isHidden = true
         }
     }
     
     private func createButtonSeparator() -> UIView {
         let seperator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
-        seperator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white:0.91, alpha:1.0)
+        seperator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white: 0.91, alpha: 1.0)
         seperator.heightAnchor.constraint(equalToConstant: 1).isActive = true
         return seperator
     }
@@ -482,6 +483,15 @@ class ParleyMessageView: UIView {
         buttonsLeftLayoutConstraint.constant = appearance.buttonInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonInsets?.bottom ?? 0
+        
+        // Buttons's time label
+        buttonsTimeLabel.textColor = appearance.timeColor
+        buttonsTimeLabel.font = appearance.timeFont
+        
+        buttonTimeTopLayoutConstraint.constant = appearance.balloonContentTextInsets?.top ?? 0
+        buttonTimeLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
+        buttonTimeRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
+        buttonTimeBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
     }
     
     // MARK: - Actions
