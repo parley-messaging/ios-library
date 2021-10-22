@@ -7,7 +7,7 @@ public struct ParleyNetwork {
     let headers: [String: String]
     var apiVersion: ApiVersion = .v1_6
     
-    var absoluteURL: URL {
+    internal var absoluteURL: URL {
         guard var url = URL(string: self.url) else {
             fatalError("Invalid URL passed to ParleyNetwork")
         }
