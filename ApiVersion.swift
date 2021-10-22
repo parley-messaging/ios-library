@@ -21,4 +21,13 @@ public enum ApiVersion: String {
     case v1_5 = "v1.5"
   
     case v1_6 = "v1.6"
+    
+    var isUsingMedia: Bool {
+        switch self {
+        case .v1_6:
+            return true
+        default:
+            return false
+        }
+    }
 }

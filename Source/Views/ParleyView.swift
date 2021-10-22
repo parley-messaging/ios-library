@@ -500,7 +500,7 @@ extension ParleyView: ParleyComposeViewDelegate {
     }
     
     func send(image: UIImage, with data: Data, url: URL, fileName: String) {
-        Parley.shared.network.apiVersion == .v1_6
+        Parley.shared.network.apiVersion.isUsingMedia
             ?  Parley.shared.upload(media: MediaModel(image: image, data: data, url: url, filename: fileName))
             :  Parley.shared.send(url, image, data)
     }

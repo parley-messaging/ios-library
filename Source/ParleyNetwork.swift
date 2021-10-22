@@ -22,6 +22,14 @@ public struct ParleyNetwork {
         self.headers = [:]
     }
     
+    @available(*, deprecated, message: "Please specify your apiVersion.")
+    public init(url: String, path: String, headers: [String:String] = [:]) {
+        self.url = url
+        self.path = path
+        self.headers = headers
+        self.apiVersion = .v1_6
+    }
+    
     public init(url: String, path: String, headers: [String:String] = [:], apiVersion: ApiVersion = .v1_6) {
         self.url = url
         self.path = path
