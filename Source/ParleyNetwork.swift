@@ -12,7 +12,6 @@ public struct ParleyNetwork {
             fatalError("Invalid URL passed to ParleyNetwork")
         }
         url.appendPathComponent(path)
-        url.appendPathComponent(apiVersion.rawValue)
         return url
     }
     
