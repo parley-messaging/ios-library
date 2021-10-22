@@ -182,8 +182,8 @@ let headers: [String: String] = [
 let network = ParleyNetwork(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.6/",
-    headers: headers,
-    apiVersion: .v1_6
+    apiVersion: .v1_6,
+    headers: headers
 )
 
 Parley.setNetwork(network)

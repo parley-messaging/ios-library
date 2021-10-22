@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.3.0 - Upcoming
+
+### Updating:
+
+- **NOTE (BREAKING)**: When specyfing a custom `ParleyNetwork` and using API 1.5 or lower, the default implementation may break the images functionality in the chat. To resolve this: specify the used `apiVersion` in the `ParleyNetwork`.
+- **DEPRECATION**: Using `ParleyNetwork` without `apiVersion` is now deprecated. Please specify an `apiVersion` when using `ParleyNetwork`.
+
+### Changes:
+
+- Added support for API 1.6
+- Added `ApiVersion` parameter to `ParleyNetwork`
+- By default Parley will now target API 1.6
+- Parley is now using the new media implementation when using API 1.6 or higher
+
 ## 3.2.4 - Released 12 Oct 2021
 
 - Fixed an issue with imports when using SPM
