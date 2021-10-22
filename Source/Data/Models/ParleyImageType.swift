@@ -23,8 +23,7 @@ internal enum ParleyImageType: String, CaseIterable {
     /// example: .png
     var fileExtension: String {
         return ".\(self.rawValue)"
-    }
-    
+    }    
     
     /// Returns a ParleyImageType from a given URL
     /// Defaults to .jpg.

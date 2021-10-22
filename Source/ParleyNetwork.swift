@@ -29,10 +29,10 @@ public struct ParleyNetwork {
         self.apiVersion = .v1_6
     }
     
-    public init(url: String, path: String, headers: [String:String] = [:], apiVersion: ApiVersion = .v1_6) {
+    public init(url: String, path: String, apiVersion: ApiVersion = .v1_6, headers: [String:String] = [:]) {
         self.url = url
         self.path = path
-        self.headers = headers
         self.apiVersion = apiVersion
+        self.headers = headers
     }
 }

@@ -120,8 +120,6 @@ internal class ParleyRemote {
             }
     }
     
-   
-    
     // MARK: Image
     internal static let imageCache = NSCache<NSString, UIImage>()
     
