@@ -1,7 +1,7 @@
 import UIKit
 import Parley
 
-class ChatViewController: UIViewController {
+class ChatViewController: BaseViewController {
     
     @IBOutlet weak var parleyView: ParleyView! {
         didSet {
