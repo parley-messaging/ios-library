@@ -27,7 +27,8 @@ public class Message: Mappable, Equatable {
     
     var id: Int?
     
-    var uuid: String? // Used to identify pending or failed messages.
+    /// Used to identify pending or failed messages.
+    var uuid: String?
     
     var time: Date?
     

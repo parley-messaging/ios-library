@@ -297,23 +297,20 @@ public class Parley {
     
     internal func upload(media: MediaModel) {
         let message = media.createMessage(status: .pending)
-        message.uuid = UUID().uuidString
-        let indexPaths = messagesManager.add(message)
-        delegate?.willSend(indexPaths)
-        send(message, isNewMessage: true, onNext: nil)
+        send(message, isNewMessage: true, onNext: nil, image: message.mediaSendRequest?.image)
     }
 
-    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
+    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil, image: UIImage? = nil) {
         message.referrer = self.referrer
         
         if isNewMessage {
-            let indexPaths = self.messagesManager.add(message)
-            self.delegate?.willSend(indexPaths)
+            let indexPaths = messagesManager.add(message)
+            delegate?.willSend(indexPaths)
 
-            self.userStopTypingTimer?.fire()
+            userStopTypingTimer?.fire()
         }
 
-        if !self.reachable { return }
+        guard self.reachable else { return }
         
         func onSuccess(message: Message) {
             message.status = .success
@@ -328,6 +325,7 @@ public class Parley {
         
         func onError(error: Error) {
             if !isCachingEnabled() || !isOfflineError(error) {
+                message.image = image
                 message.status = .failed
 
                 messagesManager.update(message)
@@ -347,8 +345,9 @@ public class Parley {
                         case .success(let response):
                             message.image = nil
                             message.media = MediaObject(id: response.media, description: nil)
+                            message.status = .pending
                             message.mediaSendRequest = nil
-                            self?.send(message, isNewMessage: false, onNext: nil)
+                            self?.send(message, isNewMessage: false, onNext: nil, image: image)
                         case .failure(let error):
                             onError(error: error)
                         }
