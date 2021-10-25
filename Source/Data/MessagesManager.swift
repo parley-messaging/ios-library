@@ -42,6 +42,7 @@ class MessagesManager {
             self.originalMessages.append(contentsOf: cachedMessages)
         }
         
+        // Attach media as image if needed. Used when messages with media have a pending state which may be send at a later moment.
         pendingMessages.filter({ $0.mediaSendRequest != nil }).forEach { message in
             if let data = message.mediaSendRequest?.image {
                 message.image = UIImage(data: data)
