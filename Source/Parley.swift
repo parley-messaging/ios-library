@@ -268,9 +268,8 @@ public class Parley {
 
     private func send(_ messages: [Message]) {
         if let message = messages.first {
-            
-            send(message, isNewMessage: false, onNext: {
-                self.send(Array(messages.dropFirst()))
+            send(message, isNewMessage: false, onNext: { [weak self] in
+                self?.send(Array(messages.dropFirst()))
             })
         }
     }
@@ -316,7 +315,7 @@ public class Parley {
         
         func onSuccess(message: Message) {
             message.status = .success
-
+            message.mediaSendRequest = nil
             messagesManager.update(message)
             delegate?.didUpdate(message)
 
@@ -328,7 +327,6 @@ public class Parley {
         func onError(error: Error) {
             if !isCachingEnabled() || !isOfflineError(error) {
                 message.status = .failed
-
                 messagesManager.update(message)
                 delegate?.didUpdate(message)
             }
@@ -336,7 +334,7 @@ public class Parley {
             onNext?()
         }
         
-        if let mediaSendRequest = message.mediaSendRequest {
+        if let mediaSendRequest = message.mediaSendRequest, mediaSendRequest.hasUploaded == false {
             MessageRepository()
                 .upload(
                     imageData: mediaSendRequest.image,
@@ -346,7 +344,7 @@ public class Parley {
                         case .success(let response):
                             message.media = MediaObject(id: response.media, description: nil)
                             message.status = .pending
-                            message.mediaSendRequest = nil
+                            message.mediaSendRequest?.hasUploaded = true
                             self?.send(message, isNewMessage: false, onNext: nil)
                         case .failure(let error):
                             onError(error: error)

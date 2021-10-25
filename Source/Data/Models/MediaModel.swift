@@ -5,6 +5,7 @@ internal struct MediaModel: Codable {
     var url: URL
     var type: ParleyImageType { .map(from: url) }
     let filename: String
+    var hasUploaded = false
     
     func createMessage(status: Message.MessageStatus) -> Message {
         let message = Message()
