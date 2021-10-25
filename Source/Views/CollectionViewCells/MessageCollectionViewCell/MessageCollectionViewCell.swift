@@ -42,7 +42,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
         height += appearance.balloonContentInsets?.top ?? 0
         height += appearance.balloonContentInsets?.bottom ?? 0
 
-        if message.image != nil || message.imageURL != nil {
+        if message.hasMedium {
             height += 140
 
             height += appearance.imageInsets?.top ?? 0
@@ -71,7 +71,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
             height += message.height(withConstrainedWidth: width, font: appearance.messageRegularFont)
         }
 
-        if message.message != nil || message.title != nil || (message.image == nil && message.imageURL == nil) {
+        if message.message != nil || message.title != nil || (!message.hasMedium) {
             height += appearance.metaInsets?.left ?? 0
             height += appearance.metaInsets?.bottom ?? 0
 
@@ -85,7 +85,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
             height += CGFloat((40 + 1) * messageButtons.count)
         }
 
-        if message.message != nil || message.title != nil || (message.image == nil && message.imageURL == nil) {
+        if message.message != nil || message.title != nil || message.hasMedium {
             height += appearance.balloonContentTextInsets?.top ?? 0
             height += appearance.balloonContentTextInsets?.bottom ?? 0
         }

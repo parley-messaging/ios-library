@@ -157,29 +157,40 @@ class ParleyMessageView: UIView {
             self.imageActivityIndicatorView.stopAnimating()
             
             self.renderGradients()
-        } else if let id = self.message.id, message.imageURL != nil {
-            self.imageHolderView.isHidden = false
+        } else if let id = self.message.id, message.hasMedium {
+            imageHolderView.isHidden = false
             
-            self.findImageRequest?.cancel()
+            findImageRequest?.cancel()
             
-            self.imageActivityIndicatorView.isHidden = false
-            self.imageActivityIndicatorView.startAnimating()
+            imageActivityIndicatorView.isHidden = false
+            imageActivityIndicatorView.startAnimating()
             
-            self.imageImageView.image = appearance?.imagePlaceholder
+            imageImageView.image = appearance?.imagePlaceholder
             
-            self.findImageRequest = MessageRepository().findImage(id, onSuccess: { (image) in
-                self.imageActivityIndicatorView.isHidden = true
-                self.imageActivityIndicatorView.stopAnimating()
+            func onFindSuccess(image: UIImage) {
+                imageActivityIndicatorView.isHidden = true
+                imageActivityIndicatorView.stopAnimating()
                 
-                self.imageImageView.image = image
+                imageImageView.image = image
                 
-                self.renderGradients()
-            }) { (error) in
-                self.imageActivityIndicatorView.isHidden = true
-                self.imageActivityIndicatorView.stopAnimating()
-                
-                self.renderGradients()
+                renderGradients()
             }
+            
+            func onFindError(error: Error) {
+                imageActivityIndicatorView.isHidden = true
+                imageActivityIndicatorView.stopAnimating()
+                
+                renderGradients()
+            }
+            
+            if let media = message.media, let mediaIdUrl = URL(string: media.id) {
+                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
+                findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
+            } else {
+                findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
+            }
+            
+           
         } else {
             self.imageHolderView.isHidden = true
             
@@ -193,7 +204,7 @@ class ParleyMessageView: UIView {
     private func renderName() {
         if self.message.agent?.name == nil || !(self.appearance?.name == true) {
             self.displayName = .hidden
-        } else if self.message.image != nil || self.message.imageURL != nil {
+        } else if message.hasMedium {
             self.displayName = .image
         } else {
             self.displayName = .message
@@ -207,7 +218,7 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMeta(forcedTime: Date? = nil) {
-        if self.message.message != nil || self.message.title != nil || (self.message.image == nil && self.message.imageURL == nil) {
+        if self.message.message != nil || self.message.title != nil || (!message.hasMedium) {
             self.displayMeta = .message
         } else {
             self.displayMeta = .image

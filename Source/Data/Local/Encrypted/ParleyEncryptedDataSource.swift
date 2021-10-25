@@ -32,6 +32,7 @@ public class ParleyEncryptedDataSource: ParleyDataSource {
 extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
     
     public func string(forKey key: String) -> String? {
+        
         if let data = self.data(forKey: key) {
             return String(decoding: data, as: UTF8.self)
         }
@@ -101,14 +102,15 @@ extension ParleyEncryptedDataSource: ParleyMessageDataSource {
                 if message.type == .user, message.status == .pending, let uuid = message.uuid, let imageData = self.data(forKey: uuid), let imageUrl = message.imageURL {
                     message.imageData = imageData
                     
-                    if imageUrl.pathExtension == "gif" {
+                    switch ParleyImageType.map(from: imageUrl) {
+                    case .gif:
                         message.image = UIImage.gif(data: imageData)
-                    } else {
+                    default:
                         message.image = UIImage(data: imageData)
                     }
                 }
             }
-            
+
             return messages
         }
         

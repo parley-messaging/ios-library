@@ -1,7 +1,7 @@
 import UIKit
 import WebKit
 
-class DocumentationViewController: UIViewController {
+class DocumentationViewController: BaseViewController {
         
     @IBOutlet weak var webView: WKWebView! {
         didSet {

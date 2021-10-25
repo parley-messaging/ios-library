@@ -39,7 +39,7 @@ internal class MessageTableViewCell: UITableViewCell {
     private var messages: (messages: [Message], time: Date?)?
     
     internal func render(_ message: Message) {
-        if message.image != nil || message.imageURL != nil || message.title != nil || message.message != nil || message.buttons?.count ?? 0 > 0 {
+        if message.hasMedium || message.title != nil || message.message != nil || message.buttons?.count ?? 0 > 0 {
             self.messageView.isHidden = false
 
             self.parleyMessageView.set(message: message)

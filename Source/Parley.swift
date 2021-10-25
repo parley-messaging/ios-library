@@ -54,7 +54,7 @@ public class Parley {
     internal var referrer: String? = nil
 
     internal var userAuthorization: String?
-    internal var userAdditionalInformation: [String:String]?
+    internal var userAdditionalInformation: [String: String]?
     private let notificationService = NotificationService()
 
     internal weak var delegate: ParleyDelegate? {
@@ -71,7 +71,7 @@ public class Parley {
         }
     }
 
-    internal var messagesManager = MessagesManager()
+    internal let messagesManager = MessagesManager()
 
     internal var agentIsTyping = false
     private var agentStopTypingTimer: Timer?
@@ -138,7 +138,7 @@ public class Parley {
         self.configure(onSuccess: onSuccess, onFailure: onFailure)
     }
 
-    private func configure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         debugPrint("Parley.configure(_, _)")
 
         if self.isLoading { return }
@@ -268,8 +268,8 @@ public class Parley {
 
     private func send(_ messages: [Message]) {
         if let message = messages.first {
-            self.send(message, isNewMessage: false, onNext: {
-                self.send(Array(messages.dropFirst()))
+            send(message, isNewMessage: false, onNext: { [weak self] in
+                self?.send(Array(messages.dropFirst()))
             })
         }
     }
@@ -282,8 +282,9 @@ public class Parley {
 
         self.send(message, isNewMessage: true)
     }
-
-    internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data?=nil) {
+    
+    @available(*, deprecated)
+    internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
         let message = Message()
         message.type = .user
         message.imageURL = imageUrl
@@ -293,37 +294,64 @@ public class Parley {
 
         self.send(message, isNewMessage: true)
     }
+    
+    internal func upload(media: MediaModel, displayedImage: UIImage?) {
+        let message = media.createMessage(status: .pending)
+        message.image = displayedImage
+        send(message, isNewMessage: true, onNext: nil)
+    }
 
-    internal func send(_ message: Message, isNewMessage: Bool, onNext: (()->())? = nil) {
+    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
         message.referrer = self.referrer
         
         if isNewMessage {
-            let indexPaths = self.messagesManager.add(message)
-            self.delegate?.willSend(indexPaths)
+            let indexPaths = messagesManager.add(message)
+            delegate?.willSend(indexPaths)
 
-            self.userStopTypingTimer?.fire()
+            userStopTypingTimer?.fire()
         }
 
-        if !self.reachable { return }
-
-        MessageRepository().store(message, onSuccess: { message in
+        guard self.reachable else { return }
+        
+        func onSuccess(message: Message) {
             message.status = .success
+            message.mediaSendRequest = nil
+            messagesManager.update(message)
+            delegate?.didUpdate(message)
 
-            self.messagesManager.update(message)
-            self.delegate?.didUpdate(message)
-
-            self.delegate?.didSent(message)
+            delegate?.didSent(message)
 
             onNext?()
-        }) { (error) in
-            if !self.isCachingEnabled() || !self.isOfflineError(error) {
+        }
+        
+        func onError(error: Error) {
+            if !isCachingEnabled() || !isOfflineError(error) {
                 message.status = .failed
-
-                self.messagesManager.update(message)
-                self.delegate?.didUpdate(message)
+                messagesManager.update(message)
+                delegate?.didUpdate(message)
             }
 
             onNext?()
+        }
+        
+        if let mediaSendRequest = message.mediaSendRequest, mediaSendRequest.hasUploaded == false {
+            MessageRepository()
+                .upload(
+                    imageData: mediaSendRequest.image,
+                    imageType: mediaSendRequest.type,
+                    fileName: mediaSendRequest.filename) { [weak self] result in
+                        switch result {
+                        case .success(let response):
+                            message.media = MediaObject(id: response.media, description: nil)
+                            message.status = .pending
+                            message.mediaSendRequest?.hasUploaded = true
+                            self?.send(message, isNewMessage: false, onNext: nil)
+                        case .failure(let error):
+                            onError(error: error)
+                        }
+                    }
+        } else {
+            MessageRepository().store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
         }
     }
 
@@ -354,23 +382,19 @@ public class Parley {
                 delegate?.didReceiveMessage(indexPaths)
             }
         } else {
-            self.delegate?.didStopTyping()
+            delegate?.didStopTyping()
 
-            let indexPaths = self.messagesManager.add(message)
-            self.delegate?.didReceiveMessage(indexPaths)
+            let indexPaths = messagesManager.add(message)
+            delegate?.didReceiveMessage(indexPaths)
         }
     }
 
     internal func handleEvent(_ event: String?) {
         switch event {
         case kParleyEventStartTyping?:
-            self.agentStartTyping()
-
-            break
+            agentStartTyping()
         case kParleyEventStopTyping?:
-            self.agentStopTyping()
-
-            break
+            agentStopTyping()
         default:
             break
         }

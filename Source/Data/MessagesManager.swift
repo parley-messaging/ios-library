@@ -1,9 +1,9 @@
 import Foundation
+import UIKit
 
 class MessagesManager {
     
     enum HandleType {
-        
         case all
         case before
         case after
@@ -25,14 +25,14 @@ class MessagesManager {
     }
     var pendingMessages: [Message] {
         get {
-            var pendingMessages: [Message] = []
-            self.originalMessages.forEach { message in
-                if message.status == .pending || message.status == .failed {
-                    pendingMessages.append(message)
+            originalMessages.reduce([Message]()) { partialResult, message in
+                switch message.status {
+                case .failed, .pending:
+                    return partialResult + [message]
+                default:
+                    return partialResult
                 }
             }
-            
-            return pendingMessages
         }
     }
 
@@ -41,6 +41,13 @@ class MessagesManager {
         
         if let cachedMessages = Parley.shared.dataSource?.all() {
             self.originalMessages.append(contentsOf: cachedMessages)
+        }
+        
+        // Attach media as image if needed. Used when messages with media have a pending state which may be send at a later moment.
+        pendingMessages.filter({ $0.mediaSendRequest != nil }).forEach { message in
+            if let data = message.mediaSendRequest?.image {
+                message.image = UIImage(data: data)
+            }
         }
         
         self.stickyMessage = nil

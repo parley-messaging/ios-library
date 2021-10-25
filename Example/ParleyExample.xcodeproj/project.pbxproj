@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		106038F82725F27C0097A46E /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 106038F72725F27C0097A46E /* BaseViewController.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ChatViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		106038F72725F27C0097A46E /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		2B8756F201C032FE0925A4A9 /* Pods-ParleyExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.release.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.release.xcconfig"; sourceTree = "<group>"; };
 		3C0B7F538C47A35CCDBCAD44 /* Pods-Parley.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Parley.release.xcconfig"; path = "Target Support Files/Pods-Parley/Pods-Parley.release.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* ParleyExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParleyExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -166,6 +168,7 @@
 		F832646922D34BB50047041D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				106038F72725F27C0097A46E /* BaseViewController.swift */,
 				607FACD71AFB9204008FA782 /* ChatViewController.swift */,
 				F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */,
 				F84985CB233CB34D00BD6B73 /* DocumentationViewController.swift */,
@@ -390,6 +393,7 @@
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				F844F59522DCCF1400E705AE /* Constants.swift in Sources */,
 				F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */,
+				106038F82725F27C0097A46E /* BaseViewController.swift in Sources */,
 				F84985D1233CBE6000BD6B73 /* UIButtonExtension.swift in Sources */,
 				F84985CE233CB4FC00BD6B73 /* TabBarViewController.swift in Sources */,
 				F84985CC233CB34D00BD6B73 /* DocumentationViewController.swift in Sources */,

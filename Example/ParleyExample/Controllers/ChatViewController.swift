@@ -1,7 +1,7 @@
 import UIKit
 import Parley
 
-class ChatViewController: UIViewController {
+class ChatViewController: BaseViewController {
     
     @IBOutlet weak var parleyView: ParleyView! {
         didSet {
@@ -17,7 +17,6 @@ class ChatViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.title = NSLocalizedString("chat_title", comment: "")
     }
     
