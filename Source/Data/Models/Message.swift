@@ -88,6 +88,7 @@ public class Message: Mappable, Equatable {
         if self.message?.isEmpty == true {
             self.message = nil
         }
+        self.mediaSendRequest <- (map["mediaSendRequest"], CodableTransform<MediaModel>())
         
         self.imageURL       <- (map["image"], StringToURLTransform())
         self.media          <- (map["media"], CodableTransform<MediaObject>())

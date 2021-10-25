@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-internal enum ParleyImageType: String, CaseIterable {
+internal enum ParleyImageType: String, CaseIterable, Codable {
     case png
     case gif
     case jpg

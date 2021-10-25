@@ -42,6 +42,12 @@ class MessagesManager {
             self.originalMessages.append(contentsOf: cachedMessages)
         }
         
+        pendingMessages.filter({ $0.mediaSendRequest != nil }).forEach { message in
+            if let data = message.mediaSendRequest?.image {
+                message.image = UIImage(data: data)
+            }
+        }
+        
         self.stickyMessage = nil
         self.welcomeMessage = Parley.shared.dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
         

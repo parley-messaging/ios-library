@@ -138,7 +138,7 @@ public class Parley {
         self.configure(onSuccess: onSuccess, onFailure: onFailure)
     }
 
-    private func configure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         debugPrint("Parley.configure(_, _)")
 
         if self.isLoading { return }
@@ -268,6 +268,7 @@ public class Parley {
 
     private func send(_ messages: [Message]) {
         if let message = messages.first {
+            
             send(message, isNewMessage: false, onNext: {
                 self.send(Array(messages.dropFirst()))
             })
@@ -295,12 +296,13 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func upload(media: MediaModel) {
+    internal func upload(media: MediaModel, displayedImage: UIImage?) {
         let message = media.createMessage(status: .pending)
-        send(message, isNewMessage: true, onNext: nil, image: message.mediaSendRequest?.image)
+        message.image = displayedImage
+        send(message, isNewMessage: true, onNext: nil)
     }
 
-    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil, image: UIImage? = nil) {
+    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
         message.referrer = self.referrer
         
         if isNewMessage {
@@ -325,7 +327,6 @@ public class Parley {
         
         func onError(error: Error) {
             if !isCachingEnabled() || !isOfflineError(error) {
-                message.image = image
                 message.status = .failed
 
                 messagesManager.update(message)
@@ -338,16 +339,15 @@ public class Parley {
         if let mediaSendRequest = message.mediaSendRequest {
             MessageRepository()
                 .upload(
-                    imageData: mediaSendRequest.data,
+                    imageData: mediaSendRequest.image,
                     imageType: mediaSendRequest.type,
                     fileName: mediaSendRequest.filename) { [weak self] result in
                         switch result {
                         case .success(let response):
-                            message.image = nil
                             message.media = MediaObject(id: response.media, description: nil)
                             message.status = .pending
                             message.mediaSendRequest = nil
-                            self?.send(message, isNewMessage: false, onNext: nil, image: image)
+                            self?.send(message, isNewMessage: false, onNext: nil)
                         case .failure(let error):
                             onError(error: error)
                         }

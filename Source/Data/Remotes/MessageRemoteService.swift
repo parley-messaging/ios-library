@@ -21,7 +21,7 @@ internal class MessageRemoteService {
     
     internal func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         DispatchQueue.global().async {
-            if let imageURL = message.imageURL, let imageData = message.imageData { // Deprecated
+            if let imageURL = message.imageURL, let imageData = message.imageData, message.media == nil { // Deprecated
                 ParleyRemote.execute(path: "messages", multipartFormData: { multipartFormData in
                     let type = ParleyImageType.map(from: imageURL)
                     multipartFormData.append(imageData, withName: "image", fileName: imageURL.lastPathComponent, mimeType: type.mimeType)
