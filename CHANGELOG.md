@@ -14,7 +14,7 @@
 - By default Parley will now target API 1.6
 - Parley is now using the new media implementation when using API 1.6 or higher
 
-## 3.2.4 - Released 12 Oct 2021
+## 3.2.4 - Released 13 Oct 2021
 
 - Fixed an issue with imports when using SPM
 
