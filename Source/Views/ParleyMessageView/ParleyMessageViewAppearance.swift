@@ -56,6 +56,7 @@ public class ParleyMessageViewAppearance {
     public var buttonInsets: UIEdgeInsets?
     
     public var buttonSeperatorColor: UIColor = UIColor(white:0.91, alpha:1.0)
+    @available(*, deprecated, message: "Button height is not being used anymore since version 3.3.0. Control the button styling via `buttonInsets` instead.")
     public var buttonHeight: CGFloat = 40.0
     
     public var buttonFont: UIFont = UIFont.systemFont(ofSize: 16)
