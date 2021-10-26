@@ -405,7 +405,13 @@ class ParleyMessageView: UIView {
         button.setTitle(messageButton.title, for: .normal)
         button.setTitleColor(appearance?.buttonColor ?? UIColor.black, for: .normal)
         button.titleLabel?.font = appearance?.buttonFont
-        button.heightAnchor.constraint(equalToConstant: appearance?.buttonHeight ?? 40).isActive = true
+        let insets = appearance?.buttonInsets ?? .zero
+        button.contentEdgeInsets = insets
+        if #available(iOS 15, *) {
+            var configuration = UIButton.Configuration.borderless()
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: insets.top, leading: insets.left, bottom: insets.bottom, trailing: insets.right)
+            button.configuration = configuration
+        }
         return button
     }
     

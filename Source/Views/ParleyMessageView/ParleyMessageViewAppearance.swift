@@ -52,6 +52,7 @@ public class ParleyMessageViewAppearance {
     public var statusTintColor: UIColor = UIColor(white: 1, alpha: 0.6)
     
     // Buttons
+    public var buttonsInsets: UIEdgeInsets?
     public var buttonInsets: UIEdgeInsets?
     
     public var buttonSeperatorColor: UIColor = UIColor(white:0.91, alpha:1.0)
