@@ -13,7 +13,7 @@
 - Added `ApiVersion` parameter to `ParleyNetwork`
 - By default Parley will now target API 1.6
 - Parley is now using the new media implementation when using API 1.6 or higher
-- Added `buttonsInsets` field to `ParleyMessageViewAppearance` to control the insets for each button
+- Added `buttonsInsets` field to `ParleyMessageViewAppearance` to control the insets for the buttons
 
 ## 3.2.4 - Released 13 Oct 2021
 
