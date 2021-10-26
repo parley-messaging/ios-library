@@ -216,7 +216,7 @@ class ParleyMessageView: UIView {
     }
     
     private func renderMeta(forcedTime: Date? = nil) {
-        if message.message != nil || message.title != nil || (!message.hasMedium) {
+        if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
             displayMeta = .message
         } else {
             displayMeta = .image
@@ -350,9 +350,10 @@ class ParleyMessageView: UIView {
             $0.removeFromSuperview()
         }
         
-        if let messageButtons = message.buttons, messageButtons.count > 0 {
+        if message.hasButtons,
+           let messageButtons = message.buttons {
             buttonsView.isHidden = false
-            if displayName == .message || message.title != nil || message.message != nil {
+            if message.title != nil || displayName == .message || message.message != nil || message.hasMedium {
                 let sep = createButtonSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
