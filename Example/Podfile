@@ -8,5 +8,5 @@ target 'ParleyExample' do
   pod 'Firebase/Analytics', '~> 7.9.0'
   pod 'Firebase/Messaging', '~> 7.9.0'
 
-  pod 'Wormholy', :configurations => ['Debug']
+  # pod 'Wormholy', :configurations => ['Debug'] # Only for testing
 end
