@@ -43,7 +43,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
         height += appearance.balloonContentInsets?.bottom ?? 0
 
         if message.hasMedium {
-            height += 140
+            height += 158
 
             height += appearance.imageInsets?.top ?? 0
             height += appearance.imageInsets?.bottom ?? 0
@@ -58,31 +58,35 @@ class MessageCollectionViewCell: UICollectionViewCell {
         }
 
         if let title = message.title {
-            height += appearance.titleInsets?.left ?? 0
+            height += appearance.titleInsets?.top ?? 0
             height += appearance.titleInsets?.bottom ?? 0
 
             height += title.height(withConstrainedWidth: width, font: appearance.titleFont)
         }
 
         if let message = message.message {
-            height += appearance.messageInsets?.left ?? 0
+            height += appearance.messageInsets?.top ?? 0
             height += appearance.messageInsets?.bottom ?? 0
 
             height += message.height(withConstrainedWidth: width, font: appearance.messageRegularFont)
         }
 
-        if message.message != nil || message.title != nil || (!message.hasMedium) {
-            height += appearance.metaInsets?.left ?? 0
+        if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
+            height += appearance.metaInsets?.top ?? 0
             height += appearance.metaInsets?.bottom ?? 0
 
-            height += (message.time?.asTime() ?? "").height(withConstrainedWidth: width, font: appearance.nameFont)
+            height += (message.time?.asTime() ?? "").height(withConstrainedWidth: width, font: appearance.timeFont)
         }
 
         if message.hasButtons {
-            height += appearance.buttonInsets?.left ?? 0
-            height += appearance.buttonInsets?.bottom ?? 0
-
-            height += CGFloat((40 + 1) * (message.buttons?.count ?? 0))
+            height += appearance.buttonsInsets?.top ?? 0
+            height += appearance.buttonsInsets?.bottom ?? 0
+            
+            message.buttons?.forEach({ (button: MessageButton) in
+                height += appearance.buttonInsets?.top ?? 0
+                height += appearance.buttonInsets?.bottom ?? 0
+                height += button.title.height(withConstrainedWidth: width, font: appearance.buttonFont)
+            })
         }
 
         if message.message != nil || message.title != nil || message.hasMedium {
