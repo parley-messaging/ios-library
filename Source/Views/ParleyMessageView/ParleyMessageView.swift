@@ -365,25 +365,12 @@ class ParleyMessageView: UIView {
             if message.title != nil || message.message != nil {
                 let sep = createButtonSeparator()
                 buttonsStackView.addArrangedSubview(sep)
-                
-                NSLayoutConstraint.activate([
-                    sep.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 0),
-                    sep.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: 0)
-                ])
             }
             for (tag, messageButton) in messageButtons.enumerated() {
                 let button = createButton(from: messageButton, tag: tag)
                 buttonsStackView.addArrangedSubview(button)
-//                NSLayoutConstraint.activate([
-//                    button.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 10),
-//                    button.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: -10)
-//                ])
                 let sep = createButtonSeparator()
                 buttonsStackView.addArrangedSubview(sep)
-                NSLayoutConstraint.activate([
-                    sep.leftAnchor.constraint(equalTo: buttonsStackView.leftAnchor, constant: 0),
-                    sep.rightAnchor.constraint(equalTo: buttonsStackView.rightAnchor, constant: 0)
-                ])
             }
         } else {
 //            buttonsTimeView.isHidden = true
