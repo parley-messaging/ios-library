@@ -35,7 +35,7 @@
             </collectionViewCellContentView>
             <size key="customSize" width="310" height="542"/>
             <connections>
-                <outlet property="parleyMessageView" destination="Gr2-Pm-ysq" id="lC5-dS-yHN"/>
+                <outlet property="parleyMessageView" destination="Gr2-Pm-ysq" id="iXV-EV-Q5K"/>
                 <outlet property="widthLayoutConstraint" destination="7Ot-Xg-ppt" id="lWq-Nv-CJX"/>
             </connections>
             <point key="canvasLocation" x="7.2463768115942031" y="12.053571428571429"/>
