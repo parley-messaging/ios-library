@@ -48,7 +48,7 @@ public class Message: Mappable, Equatable {
     }
     
     internal var hasButtons: Bool {
-        (buttons?.count ?? 0) > 1
+        (buttons?.count ?? 0) > 0
     }
     
     var buttons: [MessageButton]?

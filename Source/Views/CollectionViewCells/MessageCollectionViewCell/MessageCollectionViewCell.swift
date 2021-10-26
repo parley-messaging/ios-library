@@ -78,11 +78,11 @@ class MessageCollectionViewCell: UICollectionViewCell {
             height += (message.time?.asTime() ?? "").height(withConstrainedWidth: width, font: appearance.nameFont)
         }
 
-        if let messageButtons = message.buttons, messageButtons.count > 0 {
+        if message.hasButtons {
             height += appearance.buttonInsets?.left ?? 0
             height += appearance.buttonInsets?.bottom ?? 0
 
-            height += CGFloat((40 + 1) * messageButtons.count)
+            height += CGFloat((40 + 1) * (message.buttons?.count ?? 0))
         }
 
         if message.message != nil || message.title != nil || message.hasMedium {
