@@ -1,11 +1,12 @@
 # Changelog
 
-## 3.3.0 - Upcoming
+## 3.3.0 - Released 26 Oct 2021
 
 ### Updating:
 
 - **NOTE (BREAKING)**: When specyfing a custom `ParleyNetwork` and using API 1.5 or lower, the default implementation may break the images functionality in the chat. To resolve this: specify the used `apiVersion` in the `ParleyNetwork`.
 - **DEPRECATION**: Using `ParleyNetwork` without `apiVersion` is now deprecated. Please specify an `apiVersion` when using `ParleyNetwork`.
+- **DEPRECATION**: `ParleyMessageViewAppearance.buttonHeight` is now deprecated and unused since version 3.3.0. Style the buttons by using `ParleyMessageViewAppearance.buttonInsets` instead.
 
 ### Changes:
 
