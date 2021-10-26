@@ -156,7 +156,7 @@ class ParleyMessageView: UIView {
             
 
             renderGradients()
-        } else if let id = self.message.id, message.hasMedium {
+        } else if message.hasMedium {
             imageHolderView.isHidden = false
             
             findImageRequest?.cancel()
@@ -185,10 +185,11 @@ class ParleyMessageView: UIView {
             if let media = message.media, let mediaIdUrl = URL(string: media.id) {
                 let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
                 findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else {
+            } else if let id = message.id {
                 findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
+            } else {
+                print("Failed to render image for message \(message.id)")
             }
-           
         } else {
             imageHolderView.isHidden = true
             
@@ -201,9 +202,9 @@ class ParleyMessageView: UIView {
     
     private func renderName() {
         if self.message.agent?.name == nil || !(self.appearance?.name == true) {
-            self.displayName = .hidden
+            displayName = .hidden
         } else if message.hasMedium {
-            self.displayName = .image
+            displayName = .image
         } else {
             displayName = .message
         }
