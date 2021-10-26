@@ -384,7 +384,7 @@ class ParleyMessageView: UIView {
         let insets = appearance?.buttonInsets ?? .zero
         button.contentEdgeInsets = insets
         if #available(iOS 15, *) {
-            var configuration = UIButton.Configuration.borderless()
+            var configuration = UIButton.Configuration.plain()
             configuration.contentInsets = NSDirectionalEdgeInsets(top: insets.top, leading: insets.left, bottom: insets.bottom, trailing: insets.right)
             button.configuration = configuration
         }
