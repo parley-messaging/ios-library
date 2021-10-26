@@ -25,6 +25,9 @@ public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
         appearance.balloonContentInsets = UIEdgeInsets(top: 0, left: 2, bottom: 0, right: 0)
         appearance.balloonContentTextInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
         
+        appearance.buttonsInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        appearance.buttonInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
         return appearance
     }
     

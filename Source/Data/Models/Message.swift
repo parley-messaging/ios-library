@@ -47,6 +47,10 @@ public class Message: Mappable, Equatable {
         imageURL != nil || imageData != nil || media != nil || image != nil
     }
     
+    internal var hasButtons: Bool {
+        (buttons?.count ?? 0) > 0
+    }
+    
     var buttons: [MessageButton]?
     
     var carousel: [Message]?

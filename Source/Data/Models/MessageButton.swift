@@ -1,7 +1,7 @@
 import ObjectMapper
 
 public class MessageButton: Mappable {
-    
+   
     var title: String!
     var payload: String!
     var type: MessageButtonType!
