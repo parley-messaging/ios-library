@@ -212,4 +212,91 @@ class MessagesManager {
         paging = nil
         loadCachedData()
     }
+    
+    /// Only used for testing
+    private func testMessages() {
+        let userMessage_shortPending = Message()
+        userMessage_shortPending.type = .user
+        userMessage_shortPending.message = "Hello 👋"
+        userMessage_shortPending.status = .pending
+        
+        let agentMessage_fullMessageWithActions = Message()
+        agentMessage_fullMessageWithActions.id = 0
+        agentMessage_fullMessageWithActions.type = .agent
+        agentMessage_fullMessageWithActions.title = "Welcome"
+        agentMessage_fullMessageWithActions.message = "Here are some quick actions for more information about *Parley*"
+        agentMessage_fullMessageWithActions.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
+        agentMessage_fullMessageWithActions.buttons = [
+            createButton("Open app", "open-app://parley.nu"),
+            createButton("Call us", "call://+31362022080"),
+            createButton("Webuildapps", "https://webuildapps.com")
+        ]
+        
+        let agentMessage_messageWithCarouselSmall = Message()
+        agentMessage_messageWithCarouselSmall.id = 1
+        agentMessage_messageWithCarouselSmall.type = .agent
+        agentMessage_messageWithCarouselSmall.agent = Agent()
+        agentMessage_messageWithCarouselSmall.agent?.name = "Webuildapps"
+        agentMessage_messageWithCarouselSmall.message = "Here are some quick actions for more information about *Parley*"
+        agentMessage_messageWithCarouselSmall.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
+        agentMessage_messageWithCarouselSmall.buttons = [
+            createButton("Home page", "https://www.parley.nu/")
+        ]
+        
+        agentMessage_messageWithCarouselSmall.carousel = [
+            createMessage("Parley libraries", "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.", nil, [
+                createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
+                createButton("iOS SDK", "https://github.com/parley-messaging/ios-library")
+            ]),
+            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
+                createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
+                createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
+                createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2")
+            ]),
+        ]
+        
+        let agentMessage_messageWithCarouselImages = Message()
+        agentMessage_messageWithCarouselImages.id = 2
+        agentMessage_messageWithCarouselImages.type = .agent
+        agentMessage_messageWithCarouselImages.agent = Agent()
+        agentMessage_messageWithCarouselImages.agent?.name = "Webuildapps"
+        agentMessage_messageWithCarouselImages.imageURL = URL(string: "https://parley.nu/images/tab6.png")
+        agentMessage_messageWithCarouselImages.buttons = [
+            createButton("Home page", "https://www.parley.nu/")
+        ]
+        
+        agentMessage_messageWithCarouselImages.carousel = [
+            createMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
+            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
+            createMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
+            createMessage(nil, nil, "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png", nil),
+        ]
+        
+        originalMessages.removeAll()
+//        originalMessages.append(userMessage_shortPending) // Will be send
+//        originalMessages.append(agentMessage_fullMessageWithActions)
+        originalMessages.append(agentMessage_messageWithCarouselSmall)
+//        originalMessages.append(agentMessage_messageWithCarouselImages)
+    }
+    
+    /// Only used for testing
+    private func createMessage(_ title: String?, _ message: String?, _ image: String?, _ buttons: [MessageButton]?) -> Message {
+        let m = Message()
+        m.type = .agent
+        m.title = title
+        m.message = message
+        if let image = image {
+            m.imageURL = URL(string: image)
+        }
+        m.buttons = buttons
+        return m
+    }
+    
+    /// Only used for testing
+    private func createButton(_ title: String, _ payload: String) -> MessageButton {
+        let b = MessageButton()
+        b.title = title
+        b.payload = payload
+        return b
+    }
 }
