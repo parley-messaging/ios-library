@@ -268,10 +268,8 @@ class ParleyMessageView: UIView {
     }
     
     private func renderTitle() {
-        if message.title == nil {
-            displayTitle = .hidden
-            titleView.isHidden = true
-        }
+        displayTitle = message.title == nil ? .hidden : .message
+        titleView.isHidden = displayTitle == .hidden
         titleLabel.text = message.title
         
         if displayName == .message {
@@ -284,7 +282,7 @@ class ParleyMessageView: UIView {
     private func renderMessage() {
         if let message = message.getFormattedMessage() {
             switch (displayName, displayTitle) {
-            case (.message, .message):
+            case (_, .message), (.message, _):
                 messageTopLayoutConstraint.constant = appearance?.messageInsets?.top ?? 0
             default:
                 messageTopLayoutConstraint.constant = (appearance?.balloonContentTextInsets?.top ?? 0) + (appearance?.messageInsets?.top ?? 0)
