@@ -362,7 +362,7 @@ class ParleyMessageView: UIView {
         
         if let messageButtons = message.buttons, messageButtons.count > 0 {
             buttonsView.isHidden = false
-            if message.title != nil || message.message != nil {
+            if displayName == .message || message.title != nil || message.message != nil {
                 let sep = createButtonSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
