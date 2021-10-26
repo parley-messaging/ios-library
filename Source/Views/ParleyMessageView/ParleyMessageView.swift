@@ -99,15 +99,6 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
-    // Button time label
-//    @IBOutlet weak var buttonsTimeView: UIView!
-//    @IBOutlet weak var buttonsTimeLabel: UILabel!
-//
-//    @IBOutlet weak var buttonTimeTopLayoutConstraint: NSLayoutConstraint!
-//    @IBOutlet weak var buttonTimeLeftLayoutConstraint: NSLayoutConstraint!
-//    @IBOutlet weak var buttonTimeRightLayoutConstraint: NSLayoutConstraint!
-//    @IBOutlet weak var buttonTimeBottomLayoutConstraint: NSLayoutConstraint!
-    
     // Image
     private var findImageRequest: DataRequest?
     
@@ -242,7 +233,6 @@ class ParleyMessageView: UIView {
         
         imageMetaTimeLabel.text = time
         timeLabel.text = time
-//        buttonsTimeLabel.text = time
     }
     
     private func renderMetaStatus() {
@@ -373,7 +363,6 @@ class ParleyMessageView: UIView {
                 buttonsStackView.addArrangedSubview(sep)
             }
         } else {
-//            buttonsTimeView.isHidden = true
             buttonsView.isHidden = true
         }
     }
@@ -492,15 +481,6 @@ class ParleyMessageView: UIView {
         buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
-        
-        // Buttons's time label
-//        buttonsTimeLabel.textColor = appearance.timeColor
-//        buttonsTimeLabel.font = appearance.timeFont
-        
-//        buttonTimeTopLayoutConstraint.constant = appearance.balloonContentTextInsets?.top ?? 0
-//        buttonTimeLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
-//        buttonTimeRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
-//        buttonTimeBottomLayoutConstraint.constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
     }
     
     // MARK: - Actions
