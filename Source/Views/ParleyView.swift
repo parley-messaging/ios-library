@@ -1,4 +1,3 @@
-import Reachability
 import UIKit
 
 public class ParleyView: UIView {
@@ -12,9 +11,7 @@ public class ParleyView: UIView {
     @IBOutlet var tapGestureRecognizer: UITapGestureRecognizer!
 
     @IBOutlet weak var messagesTableView: ReversedTableView! {
-        didSet {
-            messagesTableView.separatorStyle = .none
-        }
+        didSet { messagesTableView.separatorStyle = .none }
     }
 
     @IBOutlet weak var stackView: UIStackView!
@@ -501,9 +498,11 @@ extension ParleyView: ParleyComposeViewDelegate {
     func send(_ message: String) {
         Parley.shared.send(message)
     }
-
-    func send(_ url: URL, _ image: UIImage, _ data: Data?=nil) {
-        Parley.shared.send(url, image, data)
+    
+    func send(image: UIImage, with data: Data, url: URL, fileName: String) {
+        Parley.shared.network.apiVersion.isUsingMedia
+            ?  Parley.shared.upload(media: MediaModel(image: data, url: url, filename: fileName), displayedImage: image)
+            :  Parley.shared.send(url, image, data)
     }
 }
 

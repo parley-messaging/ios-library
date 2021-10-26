@@ -3,7 +3,6 @@ import ObjectMapper
 public class Device: Mappable {
     
     public enum PushType: Int {
-        
         case customWebhook = 4
         case customWebhookBehindOAuth = 5
         case fcm = 6

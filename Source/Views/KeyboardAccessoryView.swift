@@ -1,16 +1,19 @@
 import Foundation
 import UIKit
 
-protocol KeyboardAccessoryViewDelegate{
-    
+protocol KeyboardAccessoryViewDelegate: AnyObject {
     func keyboardDidShow(_ frame: CGRect)
     func keyboardFrameChanged(_ frame: CGRect)
     func keyboardDidHide(_ frame: CGRect)
 }
 
+extension KeyboardAccessoryViewDelegate {
+    func keyboardDidShow(_ frame: CGRect) { }
+}
+
 class KeyboardAccessoryView: UIView {
     
-    var delegate:KeyboardAccessoryViewDelegate?
+    weak var delegate: KeyboardAccessoryViewDelegate?
     private var kvoContext: UInt8 = 1
     
     override init(frame: CGRect) {

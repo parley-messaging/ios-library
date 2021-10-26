@@ -47,7 +47,7 @@ public class ParleyComposeView: UIView {
             self.apply(self.appearance)
         }
     }
-    var delegate: ParleyComposeViewDelegate?
+    weak var delegate: ParleyComposeViewDelegate?
     
     var placeholder: String? {
         didSet {
@@ -257,10 +257,6 @@ extension ParleyComposeView: UITextViewDelegate {
 // MARK: KeyboardAccessoryViewDelegate
 extension ParleyComposeView: KeyboardAccessoryViewDelegate {
     
-    func keyboardDidShow(_ frame: CGRect) {
-        //
-    }
-    
     func keyboardFrameChanged(_ frame: CGRect) {
         if let keyWindow = UIApplication.shared.keyWindow {
             let yFromBottom = keyWindow.bounds.height - self.convert(keyWindow.frame, to: nil).origin.y - self.frame.size.height
@@ -286,30 +282,25 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let imageURL = info[.imageURL] as? URL, let phAsset = info[.phAsset] as? PHAsset {
-            PHImageManager.default().requestImageData(for: phAsset, options: nil) { (data, uti, _, _) in
-                if uti?.contains(".gif") == true, let data = data, let image = UIImage.gif(data: data) {
-                    self.delegate?.send(imageURL, image, data)
-                    
-                    picker.dismiss(animated: true, completion: nil)
-                } else if let data = data, let image = UIImage(data: data) {
-                    self.delegate?.send(imageURL, image, data)
-                    
+            PHImageManager.default().requestImageData(for: phAsset, options: nil) { [weak delegate] (data, _, _, _) in
+                if let data = data, let image = UIImage(data: data) {
+                    delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
                     picker.dismiss(animated: true, completion: nil)
                 } else {
                     self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
                 }
             }
         } else  {
-            self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
+            imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
         }
     }
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaLegacyWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let imageURL = URL(string: "tmp://fake/image/path/tmp.jpg")!
         let image = info[.originalImage] as! UIImage
-        let data = image.jpegData(compressionQuality: 1.0)
+        let data = image.jpegData(compressionQuality: 1.0) ?? .init()
         
-        self.delegate?.send(imageURL, image, data)
+        delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
         
         picker.dismiss(animated: true, completion: nil)
     }

@@ -1,11 +1,17 @@
 import ObjectMapper
 import Foundation
 import UIKit
+import AlamofireImage
 
 public class Message: Mappable, Equatable {
     
-    enum MessageType: Int {
-        
+    enum MessageStatus: Int {
+        case failed = 0
+        case pending = 1
+        case success = 2
+    }
+    
+    enum MessageType: Int, Codable {
         case loading = -3
         case agentTyping = -2
         case date = -1
@@ -19,25 +25,27 @@ public class Message: Mappable, Equatable {
         static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
     }
     
-    enum MessageStatus: Int {
-        
-        case failed = 0
-        case pending = 1
-        case success = 2
-    }
-    
     var id: Int?
     
-    var uuid: String? // Used to identify pending or failed messages.
+    /// Used to identify pending or failed messages.
+    var uuid: String?
     
     var time: Date?
     
     var title: String?
     var message: String?
     
-    var imageURL: URL?
+    @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
     var image: UIImage?
+    var imageURL: URL?
     var imageData: Data?
+    
+    var media: MediaObject?
+    internal var mediaSendRequest: MediaModel?
+    
+    internal var hasMedium: Bool {
+        imageURL != nil || imageData != nil || media != nil || image != nil
+    }
     
     var buttons: [MessageButton]?
     
@@ -53,7 +61,7 @@ public class Message: Mappable, Equatable {
     var referrer: String?
     
     public init() {
-        self.uuid = NSUUID().uuidString
+        self.uuid = UUID().uuidString
         
         self.time = Date()
     }
@@ -80,8 +88,10 @@ public class Message: Mappable, Equatable {
         if self.message?.isEmpty == true {
             self.message = nil
         }
+        self.mediaSendRequest <- (map["mediaSendRequest"], CodableTransform<MediaModel>())
         
         self.imageURL       <- (map["image"], StringToURLTransform())
+        self.media          <- (map["media"], CodableTransform<MediaObject>())
         
         self.buttons        <- map["buttons"]
         
@@ -100,8 +110,9 @@ public class Message: Mappable, Equatable {
     public func ignore() -> Bool {
         return (self.title == nil && self.message == nil &&
             self.imageURL == nil && self.image == nil &&
-            self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0)
-            || Message.MessageType.ignored.contains(self.type)
+            self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0
+            && media == nil)
+            || MessageType.ignored.contains(self.type)
     }
 
     public static func == (lhs: Message, rhs: Message) -> Bool {
