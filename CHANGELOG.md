@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.0 - Released 26 Oct 2021
+## 3.3.0 - Released 27 Oct 2021
 
 ### Updating:
 
