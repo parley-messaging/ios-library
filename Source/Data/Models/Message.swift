@@ -131,7 +131,6 @@ public class Message: Mappable, Equatable {
         guard let message = message else {
             return nil
         }
-        // Format plain urls to markdown urls
-        return message.replacingOccurrences(of: "(?<=[^\\(\\[])https?://\\S+\\b", with: "[$0]($0)", options: .regularExpression)
+        return message
     }
 }
