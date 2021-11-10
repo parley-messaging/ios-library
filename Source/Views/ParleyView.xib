@@ -16,9 +16,11 @@
                 <outlet property="messagesTableView" destination="lAj-6r-J3s" id="ci0-On-tPl"/>
                 <outlet property="offlineNotificationView" destination="JuJ-45-jqA" id="cxP-bo-Tx0"/>
                 <outlet property="pushDisabledNotificationView" destination="hey-oA-c9S" id="7PQ-ro-Ut4"/>
-                <outlet property="stackView" destination="OE5-rN-JE3" id="5fk-Jr-zmr"/>
+                <outlet property="specialsConstraintTop" destination="1sk-LL-Khl" id="rvH-c7-7Xg"/>
+                <outlet property="specialsStackView" destination="OE5-rN-JE3" id="5fk-Jr-zmr"/>
                 <outlet property="statusLabel" destination="cvD-Dt-1VK" id="fYD-ks-nwh"/>
                 <outlet property="stickyView" destination="ddE-q7-khO" id="Eiu-Pt-rg9"/>
+                <outlet property="suggestionsContraintBottom" destination="8LL-Vq-Bf7" id="tgm-GT-xMU"/>
                 <outlet property="suggestionsView" destination="Xdd-0k-xz0" id="lqu-ti-zvq"/>
                 <outlet property="tapGestureRecognizer" destination="ab4-TF-tKw" id="Udz-5r-zAP"/>
             </connections>
