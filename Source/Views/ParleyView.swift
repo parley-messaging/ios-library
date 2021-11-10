@@ -144,13 +144,15 @@ public class ParleyView: UIView {
     }
 
     private func syncStackView(_ changes: @escaping () -> Void) {
-        UIView.animate(withDuration: 0, animations: changes) { [weak self] finished in
-            guard finished, let self = self else { return }
+        changes()
+        
+        stackView.isHidden = !stackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
+        
+        // Force redraw: otherwise `stackView.frame.height` is incorrect
+        stackView.setNeedsLayout() // Require redraw
+        stackView.layoutIfNeeded() // Execute redraw
 
-            self.stackView.isHidden = !self.stackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
-            
-            self.syncMessageTableViewContentInsets()
-        }
+        syncMessageTableViewContentInsets()
     }
     
     private func syncMessageTableViewContentInsets() {
