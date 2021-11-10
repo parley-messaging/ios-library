@@ -1,8 +1,9 @@
 # Changelog
 
-## 3.3.1 - Upcoming
+## 3.3.1 - Released 10 Nov 2021
 
 - Fixed an issue where (sticky) messages were hidden unintentionally due to concurrency
+- Fixed links within parentheses not being clickable
 
 ## 3.3.0 - Released 27 Oct 2021
 
