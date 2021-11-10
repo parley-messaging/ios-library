@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1 - Upcoming
+
+- Fixed an issue where (sticky) messages were hidden unintentionally due to concurrency
+
 ## 3.3.0 - Released 27 Oct 2021
 
 ### Updating:
