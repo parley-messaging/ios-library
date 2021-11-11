@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.4.0 - Upcoming
+
+- Added `ParleyViewAppearance.notificationsPosition` to configure where the notifications should be shown in the chat: `.top` (default) or `.bottom`.
+  For example: to show them on the bottom of the chat, use:
+  ```
+  let appearance = ParleyViewAppearance(...) 
+  appearance.notificationsPosition = .bottom
+  parleyView.appearance = appearance
+  ```
+
 ## 3.3.1 - Released 10 Nov 2021
 
 - Fixed an issue where (sticky) messages were hidden unintentionally due to concurrency
