@@ -159,6 +159,7 @@ public class ParleyView: UIView {
     }
     
     private func syncMessageTableViewContentInsets() {
+        let isAtBottom = self.messagesTableView.contentOffset.y == 0
         let top: CGFloat
         let bottom: CGFloat
         let notificationsHeight = getNotificationsHeight()
@@ -180,6 +181,10 @@ public class ParleyView: UIView {
             bottom: bottom,
             right: 0
         )
+        if (isAtBottom && bottom != 0) {
+            // Stay at bottom
+            self.messagesTableView.setContentOffset(CGPoint(x: 0, y: 0 - bottom), animated: true)
+        }
     }
     
     private func getNotificationsHeight() -> CGFloat {
