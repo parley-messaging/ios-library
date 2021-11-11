@@ -257,7 +257,7 @@ public class ParleyView: UIView {
                 // Reset to original
                 notificationsConstraintBottom?.isActive = false
                 notificationsStackView.removeConstraint(bottomConstraint)
-                notificationsConstraintTop.isActive = true
+                notificationsConstraintTop?.isActive = true
                 syncStackView { }
             }
             break;
