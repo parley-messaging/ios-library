@@ -14,9 +14,9 @@ public class ParleyView: UIView {
         didSet { messagesTableView.separatorStyle = .none }
     }
 
-    @IBOutlet weak var specialsStackView: UIStackView!
-    @IBOutlet weak var specialsConstraintTop: NSLayoutConstraint!
-    private weak var specialsConstraintBottom: NSLayoutConstraint? = nil
+    @IBOutlet weak var notificationsStackView: UIStackView!
+    @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
+    private weak var notificationsConstraintBottom: NSLayoutConstraint? = nil
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
             pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
@@ -149,11 +149,11 @@ public class ParleyView: UIView {
     private func syncStackView(_ changes: @escaping () -> Void) {
         changes()
         
-        specialsStackView.isHidden = !specialsStackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
+        notificationsStackView.isHidden = !notificationsStackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
         
         // Force redraw: otherwise `stackView.frame.height` is incorrect
-        specialsStackView.setNeedsLayout() // Require redraw
-        specialsStackView.layoutIfNeeded() // Execute redraw
+        notificationsStackView.setNeedsLayout() // Require redraw
+        notificationsStackView.layoutIfNeeded() // Execute redraw
 
         syncMessageTableViewContentInsets()
     }
@@ -161,17 +161,17 @@ public class ParleyView: UIView {
     private func syncMessageTableViewContentInsets() {
         let top: CGFloat
         let bottom: CGFloat
-        let specialsHeight = getSpecialsHeight()
+        let notificationsHeight = getNotificationsHeight()
         let suggestionsHeight = getSuggestionsHeight()
-        switch appearance.specialsPosition {
+        switch appearance.notificationsPosition {
         case .top:
-            top = specialsHeight
+            top = notificationsHeight
             bottom = suggestionsHeight
             suggestionsContraintBottom.constant = 0
         case .bottom:
             top = 0
-            bottom = suggestionsHeight + specialsHeight
-            suggestionsContraintBottom.constant = specialsHeight
+            bottom = suggestionsHeight + notificationsHeight
+            suggestionsContraintBottom.constant = notificationsHeight
         }
         
         messagesTableView.contentInset = UIEdgeInsets(
@@ -182,8 +182,8 @@ public class ParleyView: UIView {
         )
     }
     
-    private func getSpecialsHeight() -> CGFloat {
-        return specialsStackView.isHidden ? 0 : specialsStackView.frame.height
+    private func getNotificationsHeight() -> CGFloat {
+        return notificationsStackView.isHidden ? 0 : notificationsStackView.frame.height
     }
     
     private func getSuggestionsHeight() -> CGFloat {
@@ -251,20 +251,20 @@ public class ParleyView: UIView {
         suggestionsView.appearance = appearance.suggestions
         
         // Positioning
-        switch appearance.specialsPosition {
+        switch appearance.notificationsPosition {
         case .top:
-            if let bottomConstraint = specialsConstraintBottom {
+            if let bottomConstraint = notificationsConstraintBottom {
                 // Reset to original
-                specialsConstraintBottom?.isActive = false
-                specialsStackView.removeConstraint(bottomConstraint)
-                specialsConstraintTop.isActive = true
+                notificationsConstraintBottom?.isActive = false
+                notificationsStackView.removeConstraint(bottomConstraint)
+                notificationsConstraintTop.isActive = true
                 syncStackView { }
             }
             break;
         case .bottom:
-            specialsConstraintTop?.isActive = false
-            specialsConstraintBottom = specialsStackView.bottomAnchor.constraint(equalTo: composeView.topAnchor, constant: 0)
-            specialsConstraintBottom?.isActive = true
+            notificationsConstraintTop?.isActive = false
+            notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(equalTo: composeView.topAnchor, constant: 0)
+            notificationsConstraintBottom?.isActive = true
             syncStackView { }
             break;
         }
@@ -515,11 +515,11 @@ extension ParleyView: UITableViewDelegate {
             suggestionsView.alpha = 0
         } else if scrollY < 0 {
             let bottomSpace: CGFloat
-            switch appearance.specialsPosition {
+            switch appearance.notificationsPosition {
             case .top:
                 bottomSpace = 0
             case .bottom:
-                bottomSpace = getSpecialsHeight()
+                bottomSpace = getNotificationsHeight()
             }
             let alpha = (abs(scrollY) - bottomSpace) / getSuggestionsHeight()
             

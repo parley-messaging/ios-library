@@ -6,7 +6,7 @@ public class ParleyViewAppearance {
     
     public var textColor: UIColor = UIColor(white: 0.62, alpha: 1.0)
     
-    public var specialsPosition: ParleyPositionVertical = .top
+    public var notificationsPosition: ParleyPositionVertical = .top
     public var offlineNotification: ParleyNotificationViewAppearance
     public var pushDisabledNotification: ParleyNotificationViewAppearance
     public var sticky = ParleyStickyViewAppearance()
