@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.4.0 - Upcoming
+## 3.4.0 - Released 12 Nov 2021
 
 - Added `ParleyViewAppearance.notificationsPosition` to configure where the notifications should be shown in the chat: `.top` (default) or `.bottom`.
   For example: to show them on the bottom of the chat, use:
