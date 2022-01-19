@@ -279,6 +279,7 @@ public class Parley {
         message.message = text
         message.type = silent ? .systemMessageUser : .user
         message.status = .pending
+        message.time = Date()
 
         self.send(message, isNewMessage: true)
     }
@@ -291,6 +292,7 @@ public class Parley {
         message.image = image
         message.imageData = imageData
         message.status = .pending
+        message.time = Date()
 
         self.send(message, isNewMessage: true)
     }

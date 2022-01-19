@@ -12,6 +12,7 @@ internal struct MediaModel: Codable {
         message.mediaSendRequest = self
         message.status = status
         message.type = .user
+        message.time = Date()
         return message
     }
 }
