@@ -104,6 +104,7 @@ class MessagesManager {
            self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(globalMessageTime, inSameDayAs: messageTime))) {
             let dateMessage = Message()
             dateMessage.time = message.time
+            dateMessage.message = message.time?.asDate()
             dateMessage.type = .date
             
             indexPaths.append(IndexPath(row: index + 1, section: 0))
