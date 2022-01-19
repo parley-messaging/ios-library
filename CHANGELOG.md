@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.4.1 - Upcoming
+
+- Fixed date message not showing up directly when sending the first message of the day
+
 ## 3.4.0 - Released 12 Nov 2021
 
 - Added `ParleyViewAppearance.notificationsPosition` to configure where the notifications should be shown in the chat: `.top` (default) or `.bottom`.
