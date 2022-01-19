@@ -156,25 +156,30 @@ class MessagesManager {
     internal func formatMessages() {
         var formattedMessages: [Message] = []
     
-        var lastDate = (originalMessages.first?.time ?? Date()).asDate()
+        var lastDate = originalMessages.first?.time
         for (index, message) in originalMessages.enumerated() {
-            if message.time?.asDate() != lastDate {
+            if message.time?.asDate() != lastDate?.asDate() {
+                // This message is older than the previous ones: Inserting date header
+                // print("Adding date before: \(message.time!) - \(lastDate)")
                 let dateMessage = Message()
-                dateMessage.time = message.time
-                dateMessage.message = lastDate
+                dateMessage.time = lastDate
+                dateMessage.message = lastDate?.asDate()
                 dateMessage.type = .date
                 
                 formattedMessages.append(dateMessage)
                 
-                lastDate = message.time?.asDate() ?? ""
+                lastDate = message.time
             }
             
+            // print("Adding message for: \(message.time!)")
             formattedMessages.append(message)
             
             if index == originalMessages.count - 1 {
+                // This is the first message in the chat: Show this date as header (`lastDate` is same day here, but that is the date of the latest message of that day)
+                // print("Adding date after:  \(message.time!) - \(lastDate)")
                 let dateMessage = Message()
                 dateMessage.time = message.time
-                dateMessage.message = lastDate
+                dateMessage.message = message.time?.asDate()
                 dateMessage.type = .date
                 
                 formattedMessages.append(dateMessage)
