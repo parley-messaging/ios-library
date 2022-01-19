@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.4.1 - Upcoming
+## 3.4.1 - Released 19 Jan 2022
 
 - Fixed date message not showing up directly when sending the first message of the day
 - Fixed date messages showing incorrect date in some cases
