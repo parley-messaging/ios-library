@@ -205,7 +205,7 @@ public class Parley {
     }
     
     private func reset() {
-        messagesManager.clear()
+        clear()
         state = .unconfigured
     }
 
