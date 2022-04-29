@@ -40,14 +40,9 @@ internal class ParleyRemote {
     private static func getDeviceUUID() -> String {
         if let uuid = UserDefaults.standard.string(forKey: kParleyUserDefaultDeviceUUID) {
             return uuid
-        }
-        
-        if let uuid = UIDevice.current.identifierForVendor?.uuidString {
-            return uuid
         } else {
             let uuid = UUID().uuidString
             UserDefaults.standard.set(uuid, forKey: kParleyUserDefaultDeviceUUID)
-            
             return uuid
         }
     }

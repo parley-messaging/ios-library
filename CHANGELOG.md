@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.5.0 - Upcoming
+
+### Upgrading:
+
+Parley now uses a unique device id per app installation as default setting.
+
+**IMPORTANT**: When using anonymous chats, the chat now always starts empty after a new app installation by default.
+
+_What's changed?_
+
+- In Parley 3.4.2 and lower the iOS `identifierForVendor` was used as device id. This device id does not change per app installation, causing anonymous chats to continue with their existing chat even when the user deleted and reinstalled the app. 
+- In Parley 3.5.0 and higher a random UUID is used as device id. This value is stored in the user defaults by default and is generated once per installation. Updating the app won't result in a new device id as long as the user defaults aren't cleared. This ensures that new anonymous chats always start empty.
+
+**Note**: This only affects the behavior of starting anonymous chats, chats that use the user authorization won't be affected by this change.
+
+**Note**: This is the default behavior of Parley. When passing the device id to the configure method, Parley will use that as device id instead and won't store it in the user defaults either.
+
+### Changes:
+
+- Device id is now unique per installation, instead of using the iOS `identifierForVendor`. Affects how anonymous chats are handled.
+
 ## 3.4.1 - Released 19 Jan 2022
 
 - Fixed date message not showing up directly when sending the first message of the day
