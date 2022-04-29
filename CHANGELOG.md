@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.0 - Upcoming
+
+- Added optional `Parley.reset(callback)` method to reset Parley back to its initial state, clearing the user and chat data that is in memory.
+
 ## 3.4.1 - Released 19 Jan 2022
 
 - Fixed date message not showing up directly when sending the first message of the day

@@ -259,6 +259,17 @@ Parley.send("User opened chat", silent: true)
 Parley.setReferrer("https://parley.nu/")
 ```
 
+### Reset
+
+Parley doesn't need to be reset usually, but in some cases this might be wanted. For example when a user logs out and then logs in with a different account. 
+
+Resetting Parley will clear the current user information and chat data that is in memory. 
+Requires calling the `configure()` method again to use Parley.
+
+```swift
+Parley.reset()
+```
+
 ## Customize
 
 ### Callbacks
