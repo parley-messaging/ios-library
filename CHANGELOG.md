@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.4.2 - Upcoming
+
+- Added optional `uniqueDeviceIdentifier` parameter to the configure method to override the default device identifier that Parley uses.
+
 ## 3.4.1 - Released 19 Jan 2022
 
 - Fixed date message not showing up directly when sending the first message of the day
