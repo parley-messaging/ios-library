@@ -20,6 +20,11 @@ _What's changed?_
 ### Changes:
 
 - Device id is now unique per installation, instead of using the iOS `identifierForVendor`. Affects how anonymous chats are handled.
+- Added optional `Parley.reset(callback)` method to reset Parley back to its initial state, clearing the user and chat data that is in memory.
+
+## 3.4.2 - Released 2 May 2022
+
+- Added optional `uniqueDeviceIdentifier` parameter to the configure method to override the default device identifier that Parley uses.
 
 ## 3.4.1 - Released 19 Jan 2022
 

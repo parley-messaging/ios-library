@@ -28,7 +28,7 @@ internal class ParleyRemote {
         guard let secret = Parley.shared.secret else {
             fatalError("ParleyRemote: Secret is not set")
         }
-        headers["x-iris-identification"] = "\(secret):\(getDeviceUUID())"
+        headers["x-iris-identification"] = "\(secret):\(getDeviceId())"
         
         if let userAuthorization = Parley.shared.userAuthorization {
             headers["Authorization"] = userAuthorization
@@ -37,7 +37,11 @@ internal class ParleyRemote {
         return HTTPHeaders(headers)
     }
     
-    private static func getDeviceUUID() -> String {
+    private static func getDeviceId() -> String {
+        if let configuredDeviceId = Parley.shared.uniqueDeviceIdentifier {
+            return configuredDeviceId
+        }
+        
         if let uuid = UserDefaults.standard.string(forKey: kParleyUserDefaultDeviceUUID) {
             return uuid
         } else {
