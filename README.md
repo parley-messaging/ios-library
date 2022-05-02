@@ -261,7 +261,7 @@ Parley.setReferrer("https://parley.nu/")
 
 ### Custom Unique Device Identifier
 
-By default Parley uses the identifierForVendor or a random UUID as device identifier which will be stored in the user defaults. This can be overridden by passing a custom `uniqueDeviceIdentifier` to the configure method:
+By default Parley uses a random UUID as device identifier which will be stored in the user defaults. This can be overridden by passing a custom `uniqueDeviceIdentifier` to the configure method:
 
 ```swift
 Parley.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
