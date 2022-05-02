@@ -269,6 +269,17 @@ Parley.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
 
 _When passing the `uniqueDeviceIdentifier` to the configure method, Parley will not store it. Client applications are responsible for storing it and providing Parley with the same ID in this case._
 
+### Reset
+
+Parley doesn't need to be reset usually, but in some cases this might be wanted. For example when a user logs out and then logs in with a different account. 
+
+Resetting Parley will clear the current user information and chat data that is in memory. 
+Requires calling the `configure()` method again to use Parley.
+
+```swift
+Parley.reset()
+```
+
 ## Customize
 
 ### Callbacks

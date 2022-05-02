@@ -332,6 +332,7 @@ extension ParleyView: ParleyDelegate {
 
         switch state {
         case .unconfigured:
+            messagesTableView.reloadData()
             messagesTableView.isHidden = true
             composeView.isHidden = true
             suggestionsView.isHidden = true

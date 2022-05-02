@@ -205,6 +205,11 @@ public class Parley {
             }
         }, onFailure)
     }
+    
+    private func reset() {
+        clear()
+        state = .unconfigured
+    }
 
     private func isOfflineError(_ error: Error) -> Bool {
         return isOfflineErrorCode((error as NSError).code)
@@ -627,6 +632,27 @@ extension Parley {
         shared.clearCacheWhenNeeded(secret: secret)
         
         shared.configure(secret, uniqueDeviceIdentifier: uniqueDeviceIdentifier, onSuccess: onSuccess, onFailure: onFailure)
+    }
+    
+    /**
+     Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
+     
+     Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
+     
+     __Note__: Requires calling the `configure()` method again to use Parley.
+     */
+    public static func reset(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        clearUserInformation(
+            onSuccess: {
+                shared.secret = nil
+                onSuccess?()
+            },
+            onFailure: { code, message in
+                shared.secret = nil
+                onFailure?(code, message)
+            }
+        )
+        shared.reset()
     }
     
     /**

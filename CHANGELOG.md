@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.0 - Upcoming
+
+- Added optional `Parley.reset(callback)` method to reset Parley back to its initial state, clearing the user and chat data that is in memory.
+
 ## 3.4.2 - Released 2 May 2022
 
 - Added optional `uniqueDeviceIdentifier` parameter to the configure method to override the default device identifier that Parley uses.
