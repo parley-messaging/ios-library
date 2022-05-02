@@ -39,6 +39,7 @@ public class Parley {
     }
 
     internal var secret: String?
+    internal var uniqueDeviceIdentifier: String?
 
     internal var network: ParleyNetwork = ParleyNetwork()
     internal var dataSource: ParleyDataSource? {
@@ -128,12 +129,13 @@ public class Parley {
     }
 
     // MARK: Configure
-    private func configure(_ secret: String, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    private func configure(_ secret: String, uniqueDeviceIdentifier: String?, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
         debugPrint("Parley.configure(_, _, _)")
 
         self.state = .unconfigured
 
         self.secret = secret
+        self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
 
         self.configure(onSuccess: onSuccess, onFailure: onFailure)
     }
@@ -611,17 +613,25 @@ extension Parley {
 
     /**
      Configure Parley Messaging.
+     
+     The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
+     a random UUID that will be stored in the user defaults. When providing a unique device
+     ID to this configure method, it is not stored by Parley and only kept for the current instance
+     of Parley. Client applications are responsible for storing it and providing Parley with the
+     same ID. This gives client applications the flexibility to change the ID if required (for
+     example when another user is logged-in to the app).
 
      - Parameter secret: Application secret of your Parley instance.
+     - Parameter uniqueDeviceIdentifier: The device identifier to use for device registration.
      - Parameter onSuccess: Execution block when Parley is configured.
      - Parameter onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      - Parameter code: HTTP Status Code.
      - Parameter message: Description what went wrong.
      */
-    public static func configure(_ secret: String, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func configure(_ secret: String, uniqueDeviceIdentifier: String? = nil, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
         shared.clearCacheWhenNeeded(secret: secret)
         
-        shared.configure(secret, onSuccess: onSuccess, onFailure: onFailure)
+        shared.configure(secret, uniqueDeviceIdentifier: uniqueDeviceIdentifier, onSuccess: onSuccess, onFailure: onFailure)
     }
     
     /**

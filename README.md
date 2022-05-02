@@ -259,6 +259,16 @@ Parley.send("User opened chat", silent: true)
 Parley.setReferrer("https://parley.nu/")
 ```
 
+### Custom Unique Device Identifier
+
+By default Parley uses the identifierForVendor or a random UUID as device identifier which will be stored in the user defaults. This can be overridden by passing a custom `uniqueDeviceIdentifier` to the configure method:
+
+```swift
+Parley.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
+```
+
+_When passing the `uniqueDeviceIdentifier` to the configure method, Parley will not store it. Client applications are responsible for storing it and providing Parley with the same ID in this case._
+
 ### Reset
 
 Parley doesn't need to be reset usually, but in some cases this might be wanted. For example when a user logs out and then logs in with a different account. 

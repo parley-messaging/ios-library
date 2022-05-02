@@ -7,7 +7,7 @@ class DocumentationViewController: BaseViewController {
         didSet {
             self.webView.navigationDelegate = self
             
-            if let url = URL(string: "https://developers.parley.nu/docs/introduction-2") {
+            if let url = URL(string: "https://github.com/parley-messaging/ios-library#readme") {
                 let urlRequest = URLRequest(url: url)
                 
                 self.webView.load(urlRequest)
