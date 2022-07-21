@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.1 - Released 21 Jul 2022
+
+- Fixed crashes when using carousels and quick replies when using SPM.
+
 ## 3.5.0 - Released 2 May 2022
 
 ### Upgrading:
