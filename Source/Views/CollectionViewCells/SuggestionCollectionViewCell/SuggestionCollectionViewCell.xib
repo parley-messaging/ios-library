@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SuggestionCollectionViewCell" id="R8h-HO-hgE" customClass="SuggestionCollectionViewCell" customModule="Parley" customModuleProvider="target">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SuggestionCollectionViewCell" id="R8h-HO-hgE" customClass="SuggestionCollectionViewCell" customModule="Parley">
             <rect key="frame" x="0.0" y="0.0" width="76" height="16"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="3Ck-FA-RAx">
@@ -55,18 +55,18 @@
             </collectionViewCellContentView>
             <size key="customSize" width="256" height="252"/>
             <connections>
-                <outlet property="balloonContentBottomLayoutConstraint" destination="5b1-Xa-TTS" id="YRv-Jy-trf"/>
-                <outlet property="balloonContentLeftLayoutConstraint" destination="N0q-xw-npp" id="1u5-8d-UAn"/>
-                <outlet property="balloonContentRightLayoutConstraint" destination="4SW-zp-GjO" id="VHF-q3-FXP"/>
-                <outlet property="balloonContentTopLayoutConstraint" destination="eNN-6R-nRO" id="gKm-aG-p8x"/>
-                <outlet property="balloonContentView" destination="pJb-Gd-eVm" id="Hwd-aB-Ytl"/>
-                <outlet property="balloonImageView" destination="0hN-Ga-be8" id="KcR-sq-TqB"/>
-                <outlet property="suggestionBottomLayoutConstraint" destination="7Sb-tg-j1p" id="WPq-Ra-ZJJ"/>
+                <outlet property="balloonContentBottomLayoutConstraint" destination="5b1-Xa-TTS" id="igt-1X-u7y"/>
+                <outlet property="balloonContentLeftLayoutConstraint" destination="N0q-xw-npp" id="UVY-LB-zW4"/>
+                <outlet property="balloonContentRightLayoutConstraint" destination="4SW-zp-GjO" id="mgy-nM-8Ev"/>
+                <outlet property="balloonContentTopLayoutConstraint" destination="eNN-6R-nRO" id="SWk-HQ-yWT"/>
+                <outlet property="balloonContentView" destination="pJb-Gd-eVm" id="Mrn-76-2pm"/>
+                <outlet property="balloonImageView" destination="0hN-Ga-be8" id="VFZ-9E-LA7"/>
+                <outlet property="suggestionBottomLayoutConstraint" destination="7Sb-tg-j1p" id="Xif-FW-LlC"/>
                 <outlet property="suggestionLabel" destination="JD0-UX-jcU" id="9Om-Qm-f2z"/>
-                <outlet property="suggestionLeftLayoutConstraint" destination="OZy-Ub-n8F" id="YG2-uW-zjW"/>
+                <outlet property="suggestionLeftLayoutConstraint" destination="OZy-Ub-n8F" id="MAG-r3-HeK"/>
                 <outlet property="suggestionMaxWidthLayoutConstraint" destination="fHN-2n-QNe" id="AKp-x8-3a1"/>
-                <outlet property="suggestionRightLayoutConstraint" destination="un5-fZ-Dgf" id="8m6-Ah-iow"/>
-                <outlet property="suggestionTopLayoutConstraint" destination="wNz-Vw-bFS" id="A5X-fE-Vqh"/>
+                <outlet property="suggestionRightLayoutConstraint" destination="un5-fZ-Dgf" id="FwN-vt-g9z"/>
+                <outlet property="suggestionTopLayoutConstraint" destination="wNz-Vw-bFS" id="iyl-Kz-xlc"/>
             </connections>
             <point key="canvasLocation" x="-33.333333333333336" y="-85.379464285714278"/>
         </collectionViewCell>
