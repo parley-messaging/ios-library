@@ -130,7 +130,7 @@ public class Parley {
 
     // MARK: Configure
     private func configure(_ secret: String, uniqueDeviceIdentifier: String?, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        debugPrint("Parley.configure(_, _, _)")
+        debugPrint("Parley.configure(_, _, _, _)")
 
         self.state = .unconfigured
 
@@ -141,6 +141,10 @@ public class Parley {
     }
 
     private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+        if state == .configured {
+            fatalError("Detected calling `Parley.configure()` while Parley is already configuring. Make sure to call `Parley.configure()` only once.")
+        }
+        
         debugPrint("Parley.configure(_, _)")
 
         if self.isLoading { return }
@@ -206,8 +210,8 @@ public class Parley {
         }, onFailure)
     }
     
-    private func reset() {
-        clear()
+    private func clearChat() {
+        clearMessages()
         state = .unconfigured
     }
 
@@ -226,20 +230,10 @@ public class Parley {
             return
         }
         
-        self.clear()
+        self.clearMessages()
     }
     
-    private func clearCacheWhenNeeded(userAuthorization: String?) {
-        if let cachedUserAuthorization = self.dataSource?.string(forKey: kParleyCacheKeyUserAuthorization), cachedUserAuthorization == userAuthorization {
-            return
-        } else if let currentUserAuthorization = self.userAuthorization, currentUserAuthorization == userAuthorization {
-            return
-        }
-        
-        self.clear()
-    }
-    
-    private func clear() {
+    private func clearMessages() {
         self.messagesManager.clear()
         self.dataSource?.clear()
         delegate?.didReceiveMessages()
@@ -589,12 +583,12 @@ extension Parley {
      - Parameter onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func setUserInformation(_ authorization: String, additionalInformation: [String:String]?=nil, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        shared.clearCacheWhenNeeded(userAuthorization: authorization)
-        
         shared.userAuthorization = authorization
         shared.userAdditionalInformation = additionalInformation
-
-        Parley.shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        
+        if shared.state == .configured {
+            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+        }
     }
 
     /**
@@ -604,12 +598,12 @@ extension Parley {
      - Parameter onFailure: Execution block when user information is can not be cleared (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func clearUserInformation(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        shared.clearCacheWhenNeeded(userAuthorization: nil)
-        
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-
-        Parley.shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        
+        if shared.state == .configured {
+            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+        }
     }
 
     /**
@@ -621,6 +615,8 @@ extension Parley {
      of Parley. Client applications are responsible for storing it and providing Parley with the
      same ID. This gives client applications the flexibility to change the ID if required (for
      example when another user is logged-in to the app).
+     
+     _Note: calling `Parley.configure()` twice is unsupported and will result in an error._
 
      - Parameter secret: Application secret of your Parley instance.
      - Parameter uniqueDeviceIdentifier: The device identifier to use for device registration.
@@ -643,17 +639,23 @@ extension Parley {
      __Note__: Requires calling the `configure()` method again to use Parley.
      */
     public static func reset(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        clearUserInformation(
-            onSuccess: {
-                shared.secret = nil
-                onSuccess?()
-            },
-            onFailure: { code, message in
-                shared.secret = nil
-                onFailure?(code, message)
-            }
-        )
-        shared.reset()
+        shared.userAuthorization = nil
+        shared.userAdditionalInformation = nil
+        
+        Parley.shared.registerDevice(onSuccess: {
+            shared.secret = nil
+            onSuccess?()
+        }, onFailure: { code, message in
+            shared.secret = nil
+            onFailure?(code, message)
+        })
+
+        shared.clearChat()
+    }
+    
+    private func reconfigure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        Parley.shared.clearChat()
+        Parley.shared.configure(onSuccess: onSuccess, onFailure: onFailure)
     }
     
     /**
