@@ -210,6 +210,11 @@ public class Parley {
         }, onFailure)
     }
     
+    private func reconfigure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+        Parley.shared.clearChat()
+        Parley.shared.configure(onSuccess: onSuccess, onFailure: onFailure)
+    }
+    
     private func clearChat() {
         clearMessages()
         state = .unconfigured
@@ -651,11 +656,6 @@ extension Parley {
         })
 
         shared.clearChat()
-    }
-    
-    private func reconfigure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        Parley.shared.clearChat()
-        Parley.shared.configure(onSuccess: onSuccess, onFailure: onFailure)
     }
     
     /**
