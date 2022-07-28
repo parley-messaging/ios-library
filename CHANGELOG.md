@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+- Added new SSL certificate of [parley.nu](https://parley.nu) for SSL pinning.
 - Fixed a crash when sending or receiving a new message when there is no welcome message.
 - Fixed a crash when setting the user information after calling `Parley.configure()`.
 - When setting or clearing the user information, Parley will now reconfigure itself to show the contents of the corresponding chat.
