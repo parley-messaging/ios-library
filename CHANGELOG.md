@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- Added new SSL certificate of [parley.nu](https://parley.nu) for SSL pinning.
+
 ## 3.5.1 - Released 21 Jul 2022
 
 - Fixed crashes when using carousels and quick replies when using SPM.
