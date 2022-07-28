@@ -99,9 +99,10 @@ class MessagesManager {
         var indexPaths: [IndexPath] = []
         
         let index = self.messages.first?.type == .agentTyping ? 1 : 0
-        if let globalMessageTime = messages[index].time,
-           let messageTime = message.time,
-           self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(globalMessageTime, inSameDayAs: messageTime))) {
+        
+        let lastDate = (messages.count > index ? messages[index].time : nil) ?? Date()
+        if let messageTime = message.time,
+           self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(lastDate, inSameDayAs: messageTime))) {
             let dateMessage = Message()
             dateMessage.time = message.time
             dateMessage.message = message.time?.asDate()
