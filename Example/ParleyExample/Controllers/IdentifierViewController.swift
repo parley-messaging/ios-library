@@ -58,6 +58,9 @@ class IdentifierViewController: UIViewController {
         return .lightContent
     }
     
+    /// Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret` can change, which is the case for this demo app. Single app implementations don't need to reset Parley before configuring.
+    private var alreadyConfiguredParley = false
+    
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,7 +110,21 @@ class IdentifierViewController: UIViewController {
         self.view.endEditing(true)
     }
     
-    @IBAction func startChat(_ sender: Any) {
+    @IBAction func startChatClicked(_ sender: Any) {
+        if alreadyConfiguredParley {
+            // Only in the demo we'll need to reset Parley when we've already configured it once
+            Parley.reset(onSuccess: { [weak self] in
+                self?.startChatDemo()
+            }, onFailure: { _, _ in
+                print("Failed to reset Parley")
+            })
+        } else {
+            startChatDemo()
+        }
+    }
+    
+    // Start a chat based on the input
+    private func startChatDemo() {
         if let customerIdentification = self.customerIdentificationTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !customerIdentification.isEmpty {
             self.startChat(customerIdentification: customerIdentification)
         } else if let secret = self.identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty, secret.count == 20 {
@@ -128,6 +145,7 @@ class IdentifierViewController: UIViewController {
         }
     }
     
+    // Start chat with user authorization
     private func startChat(customerIdentification: String) {
         self.startButton.setLoading(true)
         
@@ -139,6 +157,7 @@ class IdentifierViewController: UIViewController {
         Parley.setUserInformation(authorization)
         
         Parley.configure(kParleySecret, onSuccess: {
+            self.alreadyConfiguredParley = true
             self.startButton.setLoading(false)
             
             self.identifierTextView.text = kParleySecret
@@ -154,6 +173,7 @@ class IdentifierViewController: UIViewController {
         }
     }
     
+    // Start anonymous chat
     private func startChat(secret: String) {
         self.startButton.setLoading(true)
         
@@ -162,6 +182,7 @@ class IdentifierViewController: UIViewController {
         }
         
         Parley.configure(secret, onSuccess: {
+            self.alreadyConfiguredParley = true
             self.startButton.setLoading(false)
             
             UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
