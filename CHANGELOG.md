@@ -1,6 +1,6 @@
 # Changelog
 
-## Upcoming
+## 3.6.0 - Released 28 Jul 2022
 
 - Added new SSL certificate of [parley.nu](https://parley.nu) for SSL pinning.
 - Fixed a crash when sending or receiving a new message when there is no welcome message.
