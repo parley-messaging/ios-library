@@ -141,10 +141,6 @@ public class Parley {
     }
 
     private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        if state == .configured {
-            fatalError("Detected calling `Parley.configure()` while Parley is already configuring. Make sure to call `Parley.configure()` only once.")
-        }
-        
         debugPrint("Parley.configure(_, _)")
 
         if self.isLoading { return }
@@ -621,7 +617,7 @@ extension Parley {
      same ID. This gives client applications the flexibility to change the ID if required (for
      example when another user is logged-in to the app).
      
-     _Note: calling `Parley.configure()` twice is unsupported and will result in an error._
+     _Note: calling `Parley.configure()` twice is unsupported, make sure to call `Parley.configure()` only once for the lifecycle of Parley._
 
      - Parameter secret: Application secret of your Parley instance.
      - Parameter uniqueDeviceIdentifier: The device identifier to use for device registration.
