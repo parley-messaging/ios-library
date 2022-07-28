@@ -108,7 +108,7 @@
                                 <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat SemiBold" pointSize="17"/>
                                 <state key="normal" title="identifier_start"/>
                                 <connections>
-                                    <action selector="startChat:" destination="eqZ-7O-pFe" eventType="touchUpInside" id="zrv-nt-SdI"/>
+                                    <action selector="startChatClicked:" destination="eqZ-7O-pFe" eventType="touchUpInside" id="VMg-is-tBr"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -303,7 +303,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="yQG-ia-UMW"/>
+        <segue reference="7D9-nW-WGx"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Header" width="375" height="165"/>
