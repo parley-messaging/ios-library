@@ -3,6 +3,7 @@
 ## 3.5.2 - Upcoming
 
 - Fixed a crash when sending or receiving a new message when there is no welcome message.
+- Fixed a crash when setting the user information after calling `Parley.configure()`.
 
 ## 3.5.1 - Released 21 Jul 2022
 

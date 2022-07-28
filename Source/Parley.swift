@@ -242,6 +242,7 @@ public class Parley {
     private func clear() {
         self.messagesManager.clear()
         self.dataSource?.clear()
+        delegate?.didReceiveMessages()
     }
     
     // MARK: Devices
