@@ -427,6 +427,10 @@ extension ParleyView: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.row >= getMessagesManager().messages.count {
+            return .init()
+        }
+        
         let message = getMessagesManager().messages[indexPath.row]
 
         switch message.type {
@@ -467,11 +471,14 @@ extension ParleyView: UITableViewDataSource {
 
             return messageTableViewCell
         default:
-            return UITableViewCell()
+            return .init()
         }
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.row >= getMessagesManager().messages.count {
+            return 0
+        }
         let message = getMessagesManager().messages[indexPath.row]
 
         if message.ignore() {
