@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.2 - Upcoming
+
+- Fixed a crash when sending or receiving a new message when there is no welcome message.
+
 ## 3.5.1 - Released 21 Jul 2022
 
 - Fixed crashes when using carousels and quick replies when using SPM.
