@@ -6,7 +6,7 @@
 - Fixed a crash when sending or receiving a new message when there is no welcome message.
 - Fixed a crash when setting the user information after calling `Parley.configure()`.
 - Fixed a crash that could happen due to keyboard visiblity.
-- When setting or clearing the user information, Parley will now reconfigure itself to show the contents of the corresponding chat.
+- When setting or clearing the user information, Parley will now reconfigure itself when needed to show the contents of the corresponding chat.
 - Calling `Parley.configure()` twice without resetting Parley is unsupported and will now throw an error when this happens.
 
 ## 3.5.1 - Released 21 Jul 2022
