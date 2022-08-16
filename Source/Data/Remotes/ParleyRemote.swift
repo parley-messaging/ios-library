@@ -59,7 +59,7 @@ internal class ParleyRemote {
     @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, keyPath: String? = "data", onSuccess: @escaping (_ items: [T])->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
-                let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
+        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
         request.validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: AFDataResponse<[T]>) in
             switch response.result {
             case .success(let items):
