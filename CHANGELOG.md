@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- Fixed requests sometimes failing due to the body encoding (now forces JSONEncoding, instead of using the default setting of `Alamofire`).
+
 ## 3.6.0 - Released 28 Jul 2022
 
 - Added new SSL certificate of [parley.nu](https://parley.nu) for SSL pinning.
