@@ -386,6 +386,10 @@ extension ParleyView: ParleyDelegate {
             syncSuggestionsView()
             
             messagesTableView.scroll(to: .bottom, animated: false)
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.updateSuggestionsAlpha()
+            }
         }
     }
 
@@ -527,6 +531,11 @@ extension ParleyView: UITableViewDelegate {
             Parley.shared.loadMoreMessages(lastMessageId)
         }
         
+        updateSuggestionsAlpha()
+    }
+    
+    private func updateSuggestionsAlpha() {
+        let scrollY = messagesTableView.contentOffset.y
         if scrollY > 0 {
             suggestionsView.alpha = 0
         } else if scrollY < 0 {
