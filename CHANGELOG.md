@@ -3,6 +3,7 @@
 ## Upcoming
 
 - Fixed requests sometimes failing due to the body encoding (now forces JSONEncoding, instead of using the default setting of `Alamofire`).
+- Fixed an issue causing suggestions showing on top of existing messages, instead of below them.
 
 ## 3.6.0 - Released 28 Jul 2022
 

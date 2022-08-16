@@ -201,15 +201,17 @@ public class ParleyView: UIView {
             suggestionsView.isHidden = false
             
             suggestionsView.render(quickReplies)
-            
-            syncMessageTableViewContentInsets()
         } else {
             suggestionsView.render([])
             
             suggestionsView.isHidden = true
-            
-            syncMessageTableViewContentInsets()
         }
+        
+        // Force redraw: otherwise `stackView.frame.height` is incorrect
+        suggestionsView.setNeedsLayout() // Require redraw
+        suggestionsView.layoutIfNeeded() // Execute redraw
+        
+        syncStackView { }
     }
 
     // MARK: Observers
