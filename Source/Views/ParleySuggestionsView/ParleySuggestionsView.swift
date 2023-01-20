@@ -15,10 +15,6 @@ internal class ParleySuggestionsView: UIView {
             
             self.collectionView.dataSource = self
             self.collectionView.delegate = self
-            
-            if let flowLayout = self.collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
-                flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
-            }
         }
     }
     
@@ -42,25 +38,28 @@ internal class ParleySuggestionsView: UIView {
     internal func render(_ suggestions: [String]) {
         self.suggestions = suggestions
         
-        var maxHeight: CGFloat = 0
-        suggestions.forEach { suggestion in
-            let height = SuggestionCollectionViewCell.calculateHeight(self.appearance.suggestion, suggestion)
-            if height > maxHeight {
-                maxHeight = height
-            }
-        }
-        
-        if let flowLayout = self.collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.estimatedItemSize = CGSize(width: 1, height: maxHeight)
-        }
-        
-        self.heightLayoutConstraint.constant = maxHeight
-        
-        self.collectionView.reloadData()
+        let maxHeight = getMaxHeight()
+        heightLayoutConstraint.constant = maxHeight
+        collectionView.reloadData()
     }
     
     private func apply(_ appearance: ParleySuggestionsViewAppearance) {
-        //
+        let maxHeight = getMaxHeight()
+        heightLayoutConstraint.constant = maxHeight
+        collectionView.reloadData()
+    }
+    
+    private func getMaxHeight() -> CGFloat {
+        var maxHeight: CGFloat = 0
+        if let suggestions {
+            suggestions.forEach { suggestion in
+                let height = SuggestionCollectionViewCell.calculateHeight(self.appearance.suggestion, suggestion)
+                if height > maxHeight {
+                    maxHeight = height
+                }
+            }
+        }
+        return maxHeight
     }
     
     // MARK: View
@@ -120,5 +119,16 @@ extension ParleySuggestionsView: UICollectionViewDelegate {
         guard let suggestion = self.suggestions?[indexPath.row] else { return }
         
         self.delegate?.didSelect(suggestion)
+    }
+}
+
+extension ParleySuggestionsView: UICollectionViewDelegateFlowLayout {
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let maxHeight = getMaxHeight()
+        let balloonContentInsets = (appearance.suggestion.balloonContentInsets?.left ?? 0) + (appearance.suggestion.balloonContentInsets?.right ?? 0)
+        let suggestionInsets = (appearance.suggestion.suggestionInsets?.left ?? 0) + (appearance.suggestion.suggestionInsets?.right ?? 0)
+        let maxItemWidth = appearance.suggestion.suggestionMaxWidth + balloonContentInsets + suggestionInsets
+        return CGSize(width: maxItemWidth, height: maxHeight)
     }
 }

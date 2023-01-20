@@ -12,7 +12,7 @@ public class SuggestionCollectionViewCellAppearance {
     public var suggestionColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
     public var suggestionFont: UIFont = UIFont.boldSystemFont(ofSize: 14)
     
-    public var suggestionMaxWidth: CGFloat = 350
+    public var suggestionMaxWidth: CGFloat = 200 // 350
     public var suggestionInsets: UIEdgeInsets?
     
     init() {
