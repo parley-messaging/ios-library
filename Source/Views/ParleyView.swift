@@ -51,6 +51,9 @@ public class ParleyView: UIView {
     @IBOutlet weak var statusLabel: UILabel!
     private let notificationService = NotificationService()
     private var pollingService: PollingServiceProtocol = PollingService()
+    
+    private var observeNotificationsBounds: NSKeyValueObservation?
+    private var observeSuggestionsBounds: NSKeyValueObservation?
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -96,6 +99,13 @@ public class ParleyView: UIView {
         Parley.shared.delegate = self
         
         setupPollingIfNecessary()
+        
+        observeNotificationsBounds = notificationsStackView.observe(\.bounds) { [weak self] _, _ in
+            self?.syncMessageTableViewContentInsets()
+        }
+        observeSuggestionsBounds = suggestionsView.observe(\.bounds) { [weak self] _, _ in
+            self?.syncMessageTableViewContentInsets()
+        }
     }
     
     private func setupPollingIfNecessary() {
@@ -145,18 +155,6 @@ public class ParleyView: UIView {
         let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
         messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
-
-    private func syncStackView(_ changes: @escaping () -> Void) {
-        changes()
-        
-        notificationsStackView.isHidden = !notificationsStackView.arrangedSubviews.contains { view -> Bool in return view.isHidden == false }
-        
-        // Force redraw: otherwise `stackView.frame.height` is incorrect
-        notificationsStackView.setNeedsLayout() // Require redraw
-        notificationsStackView.layoutIfNeeded() // Execute redraw
-
-        syncMessageTableViewContentInsets()
-    }
     
     private func syncMessageTableViewContentInsets() {
         let top: CGFloat
@@ -181,15 +179,15 @@ public class ParleyView: UIView {
             right: 0
         )
 
-        let isAtBottom = self.messagesTableView.contentOffset.y <= 0
+        let isAtBottom = messagesTableView.contentOffset.y <= 0
         if (isAtBottom) {
             // Stay at bottom
-            self.messagesTableView.setContentOffset(CGPoint(x: 0, y: 0 - bottom), animated: true)
+            messagesTableView.setContentOffset(CGPoint(x: 0, y: 0 - bottom), animated: true)
         }
     }
     
     private func getNotificationsHeight() -> CGFloat {
-        return notificationsStackView.isHidden ? 0 : notificationsStackView.frame.height
+        return notificationsStackView.frame.height
     }
     
     private func getSuggestionsHeight() -> CGFloat {
@@ -199,19 +197,11 @@ public class ParleyView: UIView {
     private func syncSuggestionsView() {
         if let message = getMessagesManager().messages.first, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
             suggestionsView.isHidden = false
-            
             suggestionsView.render(quickReplies)
         } else {
             suggestionsView.render([])
-            
             suggestionsView.isHidden = true
         }
-        
-        // Force redraw: otherwise `stackView.frame.height` is incorrect
-        suggestionsView.setNeedsLayout() // Require redraw
-        suggestionsView.layoutIfNeeded() // Execute redraw
-        
-        syncStackView { }
     }
 
     // MARK: Observers
@@ -266,17 +256,14 @@ public class ParleyView: UIView {
                 notificationsConstraintBottom?.isActive = false
                 notificationsStackView.removeConstraint(bottomConstraint)
                 notificationsConstraintTop?.isActive = true
-                syncStackView { }
             }
             break;
         case .bottom:
             notificationsConstraintTop?.isActive = false
             notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(equalTo: composeView.topAnchor, constant: 0)
             notificationsConstraintBottom?.isActive = true
-            syncStackView { }
             break;
         }
-
         messagesTableView.reloadData()
     }
 }
@@ -376,10 +363,8 @@ extension ParleyView: ParleyDelegate {
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
             
-            syncStackView { [weak self, messagesManager = getMessagesManager()] in
-                self?.stickyView.text = messagesManager.stickyMessage
-                self?.stickyView.isHidden = messagesManager.stickyMessage == nil
-            }
+            stickyView.text = getMessagesManager().stickyMessage
+            stickyView.isHidden = getMessagesManager().stickyMessage == nil
 
             messagesTableView.reloadData()
             
@@ -398,27 +383,21 @@ extension ParleyView: ParleyDelegate {
             if self?.offlineNotificationView.isHidden == false { return }
             pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
             
-            self?.syncStackView { [weak self] in
-                self?.pushDisabledNotificationView.isHidden = pushEnabled
-            }
+            self?.pushDisabledNotificationView.isHidden = pushEnabled
         }
     }
 
     func reachable() {
-        syncStackView { [weak self] in
-            self?.pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
-            self?.offlineNotificationView.isHidden = true
-        }
+        pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
+        offlineNotificationView.isHidden = true
 
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
     }
 
     func unreachable() {
-        syncStackView { [weak self] in
-            self?.pushDisabledNotificationView.isHidden = true
-            self?.offlineNotificationView.isHidden = false
-        }
+        pushDisabledNotificationView.isHidden = true
+        offlineNotificationView.isHidden = false
 
         composeView.isEnabled = Parley.shared.isCachingEnabled()
         suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
