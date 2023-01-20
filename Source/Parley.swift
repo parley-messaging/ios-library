@@ -24,7 +24,6 @@ public class Parley {
     private var reachability: Reachability?
     private var reachable = false {
         didSet {
-//            debugPrint("Parley.reachable: \(self.reachable)")
             if self.reachable {
                 self.delegate?.reachable()
 
