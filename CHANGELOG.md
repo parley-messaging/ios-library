@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.6.2 - Released 20 Jan 2023
+## 3.6.2 - Released 23 Jan 2023
 
 - Fixed an issue causing quick replies not formatting correctly.
 - Fixed an issue causing quick replies not to show up after receiving them via push.
