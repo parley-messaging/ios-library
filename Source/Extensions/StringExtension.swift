@@ -10,14 +10,4 @@ extension String {
 
         return ceil(boundingBox.height)
     }
-    
-    func height(withConstrainedWidth width: CGFloat, font: UIFont, lines: Int) -> CGFloat {
-        let label =  UILabel(frame: CGRect(x: 0, y: 0, width: width, height: .greatestFiniteMagnitude))
-        label.numberOfLines = 0
-        label.text = self
-        label.font = font
-        label.sizeToFit()
-
-        return label.frame.height
-    }
 }

@@ -21,13 +21,13 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2232</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We hebben toegang tot de camera nodig om foto's te kunnen maken.</string>
+	<string>We hebben toegang tot de camera nodig om foto&apos;s te kunnen maken.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We hebben toegang tot de foto bibliotheek nodig om foto's te kunnen selecteren.</string>
+	<string>We hebben toegang tot de foto bibliotheek nodig om foto&apos;s te kunnen selecteren.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Bold.ttf</string>
@@ -47,6 +47,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -59,5 +61,7 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

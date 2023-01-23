@@ -31,69 +31,82 @@ class MessageCollectionViewCell: UICollectionViewCell {
     }
     
     internal static func calculateSize(_ appearance: MessageCollectionViewCellAppearance, _ message: Message) -> CGSize {
-        var width: CGFloat = appearance.width
-        width -= appearance.balloonContentInsets?.left ?? 0
-        width -= appearance.balloonContentInsets?.right ?? 0
-        width -= appearance.balloonContentTextInsets?.left ?? 0
-        width -= appearance.balloonContentTextInsets?.right ?? 0
-        width += 16
+        let balloonWidth: CGFloat = appearance.width
+        var contentWidth = balloonWidth
+        contentWidth -= appearance.balloonContentInsets?.left ?? 0
+        contentWidth -= appearance.balloonContentInsets?.right ?? 0
+        contentWidth -= appearance.balloonContentTextInsets?.left ?? 0
+        contentWidth -= appearance.balloonContentTextInsets?.right ?? 0
         
-        var height: CGFloat = 0
-        height += appearance.balloonContentInsets?.top ?? 0
-        height += appearance.balloonContentInsets?.bottom ?? 0
-
+        var totalHeight: CGFloat = 0
+        totalHeight += appearance.balloonContentInsets?.top ?? 0
+        totalHeight += appearance.balloonContentInsets?.bottom ?? 0
+        
         if message.hasMedium {
-            height += 158
+            totalHeight += 160
 
-            height += appearance.imageInsets?.top ?? 0
-            height += appearance.imageInsets?.bottom ?? 0
+            totalHeight += appearance.imageInsets?.top ?? 0
+            totalHeight += appearance.imageInsets?.bottom ?? 0
         } else {
             // No image
             if let name = message.agent?.name, appearance.name {
-                height += appearance.nameInsets?.top ?? 0
-                height += appearance.nameInsets?.bottom ?? 0
+                totalHeight += appearance.nameInsets?.top ?? 0
+                totalHeight += appearance.nameInsets?.bottom ?? 0
 
-                height += name.height(withConstrainedWidth: width, font: appearance.nameFont)
+                totalHeight += name.height(withConstrainedWidth: contentWidth, font: appearance.nameFont)
             }
         }
 
         if let title = message.title {
-            height += appearance.titleInsets?.top ?? 0
-            height += appearance.titleInsets?.bottom ?? 0
+            totalHeight += appearance.titleInsets?.top ?? 0
+            totalHeight += appearance.titleInsets?.bottom ?? 0
 
-            height += title.height(withConstrainedWidth: width, font: appearance.titleFont)
+            totalHeight += title.height(withConstrainedWidth: contentWidth, font: appearance.titleFont)
         }
 
         if let message = message.message {
-            height += appearance.messageInsets?.top ?? 0
-            height += appearance.messageInsets?.bottom ?? 0
+            totalHeight += appearance.messageInsets?.top ?? 0
+            totalHeight += appearance.messageInsets?.bottom ?? 0
 
-            height += message.height(withConstrainedWidth: width, font: appearance.messageRegularFont)
+            totalHeight += message.height(withConstrainedWidth: contentWidth, font: appearance.messageRegularFont)
         }
 
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
-            height += appearance.metaInsets?.top ?? 0
-            height += appearance.metaInsets?.bottom ?? 0
+            totalHeight += appearance.metaInsets?.top ?? 0
+            totalHeight += appearance.metaInsets?.bottom ?? 0
 
-            height += (message.time?.asTime() ?? "").height(withConstrainedWidth: width, font: appearance.timeFont)
+            totalHeight += (message.time?.asTime() ?? "").height(withConstrainedWidth: contentWidth, font: appearance.timeFont)
         }
 
         if message.hasButtons {
-            height += appearance.buttonsInsets?.top ?? 0
-            height += appearance.buttonsInsets?.bottom ?? 0
+            totalHeight += appearance.buttonsInsets?.top ?? 0
+            totalHeight += appearance.buttonsInsets?.bottom ?? 0
             
+            var buttonWidth = balloonWidth
+            buttonWidth -= appearance.buttonsInsets?.left ?? 0
+            buttonWidth -= appearance.buttonsInsets?.right ?? 0
+            buttonWidth -= appearance.buttonInsets?.left ?? 0
+            buttonWidth -= appearance.buttonInsets?.right ?? 0
+            
+            totalHeight += 1 // Initial separator
             message.buttons?.forEach({ (button: MessageButton) in
-                height += appearance.buttonInsets?.top ?? 0
-                height += appearance.buttonInsets?.bottom ?? 0
-                height += button.title.height(withConstrainedWidth: width, font: appearance.buttonFont)
+                totalHeight += appearance.buttonInsets?.top ?? 0
+                totalHeight += appearance.buttonInsets?.bottom ?? 0
+                totalHeight += button.title.height(withConstrainedWidth: buttonWidth, font: appearance.buttonFont)
+                totalHeight += 1 // Button separator
             })
+            
+            if (message.message == nil && message.title == nil && !message.hasMedium) {
+                totalHeight += appearance.balloonContentTextInsets?.top ?? 0
+            }
         }
 
         if message.message != nil || message.title != nil || message.hasMedium {
-            height += appearance.balloonContentTextInsets?.top ?? 0
-            height += appearance.balloonContentTextInsets?.bottom ?? 0
+            totalHeight += appearance.balloonContentTextInsets?.top ?? 0
+            totalHeight += appearance.balloonContentTextInsets?.bottom ?? 0
         }
         
-        return CGSize(width: appearance.width, height: height)
+        totalHeight += 4
+        return CGSize(width: appearance.width, height: totalHeight)
     }
 }

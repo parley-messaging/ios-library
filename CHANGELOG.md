@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.6.2 - Released 23 Jan 2023
+
+- Fixed an issue causing quick replies not formatting correctly.
+- Fixed an issue causing quick replies not to show up after receiving them via push.
+- Fixed some layout issues when showing the notifications, sticky message, or quick replies during the chat.
+- Fixed an issue with some carousel messages being cut off.
+
 ## 3.6.1 - Released 16 Aug 2022
 
 - Fixed requests sometimes failing due to the body encoding (now forces JSONEncoding, instead of using the default setting of `Alamofire`).
