@@ -83,7 +83,7 @@ PODS:
   - nanopb/decode (2.30907.0)
   - nanopb/encode (2.30907.0)
   - ObjectMapper (4.2.0)
-  - Parley (3.6.1):
+  - Parley (3.6.3):
     - Alamofire (~> 5.4.1)
     - AlamofireImage (~> 4.1.0)
     - MarkdownKit (~> 1.6)
@@ -137,10 +137,10 @@ SPEC CHECKSUMS:
   MarkdownKit: a00e8e2e77c091367996f6013a0a1b8ab355ab73
   nanopb: 59221d7f958fb711001e6a449489542d92ae113e
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
-  Parley: c132843b912fdd46d2bfca86888f99782fdf143e
+  Parley: ea01839122547098905e4540f8da3560ef36bd2d
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
 
 PODFILE CHECKSUM: 512bd39ff343dc662c8d7fec6bfcdb8410b9298c
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
