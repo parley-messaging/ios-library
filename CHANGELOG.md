@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.6.3 - Released 27 Jun 2023
+
+- Added new SSL certificate of [parley.nu](https://parley.nu) for SSL pinning.
+
 ## 3.6.2 - Released 23 Jan 2023
 
 - Fixed an issue causing quick replies not formatting correctly.
