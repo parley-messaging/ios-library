@@ -1,7 +1,6 @@
 import ObjectMapper
 import Foundation
 import UIKit
-import AlamofireImage
 
 public class Message: Mappable, Equatable {
     
@@ -132,5 +131,61 @@ public class Message: Mappable, Equatable {
             return nil
         }
         return message
+    }
+    
+}
+
+// MARK: - Accessibility
+extension Message {
+    
+    internal func getAccessibilityLabelDescription() -> String {
+        var accessibilityLabel = "parley_voice_over_message_label_message".localized
+        
+        appendAgentNameIfAvailable(to: &accessibilityLabel)
+        appendBody(to: &accessibilityLabel)
+        appendAccessibilityLabelDescriptionEnding(to: &accessibilityLabel)
+        
+        return accessibilityLabel
+    }
+    
+    private func appendAgentNameIfAvailable(to accessibilityLabel: inout String) {
+        if let agentName = agent?.name {
+            let format = "parley_voice_over_message_label_sender".localized
+            accessibilityLabel.append(.localizedStringWithFormat(format, agentName))
+        }
+        
+        accessibilityLabel.append(".")
+    }
+    
+    private func appendBody(to accessibilityLabel: inout String) {
+        if title != nil || message != nil {
+            if let title {
+                accessibilityLabel.append(title)
+            }
+            
+            if let message {
+                accessibilityLabel.append(message)
+            }
+        }
+        
+        if hasMedium {
+            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_media_attached".localized)
+        }
+    }
+    
+    private func appendAccessibilityLabelDescriptionEnding(to accessibilityLabel: inout String) {
+        switch status {
+        case .failed:
+            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_failed".localized)
+        case .pending:
+            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_pending".localized)
+        case .success:
+            break
+        }
+        
+        if let time {
+            let format = "parley_voice_over_message_time".localized
+            accessibilityLabel.appendWithCorrectSpacing(.localizedStringWithFormat(format, time.asTime()))
+        }
     }
 }

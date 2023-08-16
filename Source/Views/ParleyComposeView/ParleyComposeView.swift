@@ -33,7 +33,10 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var placeholderLabel: UILabel!
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
-            self.sendButton.layer.cornerRadius = 13
+            sendButton.layer.cornerRadius = 13
+            sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
+            
+            
         }
     }
     
@@ -56,9 +59,13 @@ public class ParleyComposeView: UIView {
     }
     var isEnabled: Bool = true {
         didSet {
-            self.cameraButton.isEnabled = self.isEnabled
-            self.textView.isEditable = self.isEnabled
-            self.sendButton.isEnabled = self.isEnabled && !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            cameraButton.isEnabled = isEnabled
+            textView.isEditable = isEnabled
+            sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            
+            if !sendButton.isEnabled {
+                sendButton.accessibilityHint = "parley_voice_over_send_button_disabled_hint".localized
+            }
         }
     }
     var maxCount: Int = 2000
@@ -109,13 +116,21 @@ public class ParleyComposeView: UIView {
         
         self.sendButton.backgroundColor = appearance.sendBackgroundColor
         if let iconTintColor = appearance.sendTintColor {
-            self.sendButton.setImage(appearance.sendIcon.withRenderingMode(.alwaysTemplate), for: .normal)
+            let sendIcon = appearance.sendIcon.withRenderingMode(.alwaysTemplate)
+            sendIcon.isAccessibilityElement = false
+            sendIcon.accessibilityLabel = nil
+            
+            self.sendButton.setImage(sendIcon, for: .normal)
+            
             self.sendButton.tintColor = iconTintColor
         } else {
             self.sendButton.setImage(appearance.sendIcon, for: .normal)
         }
         
-        self.cameraButton.setImage(appearance.cameraIcon.withRenderingMode(.alwaysTemplate), for: .normal)
+        let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
+        cameraIcon.isAccessibilityElement = false
+        cameraIcon.accessibilityLabel = nil
+        self.cameraButton.setImage(cameraIcon, for: .normal)
         self.cameraButton.tintColor = appearance.cameraTintColor
         
         self.placeholderLabel.textColor = appearance.placeholderColor

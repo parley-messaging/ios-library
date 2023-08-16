@@ -70,6 +70,14 @@ internal class MessageTableViewCell: UITableViewCell {
         }
 
         self.collectionView.reloadData()
+        
+        setupAccessibilityFeatures(for: message)
+    }
+    
+    private func setupAccessibilityFeatures(for message: Message) {
+        isAccessibilityElement = false
+        messageView.isAccessibilityElement = true
+        messageView.accessibilityLabel = message.getAccessibilityLabelDescription()
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {

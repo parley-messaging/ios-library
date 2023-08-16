@@ -1,17 +1,32 @@
-"parley_push_disabled" = "Meldingen zijn uitgeschakeld";
-"parley_notification_offline" = "Controleer uw internetverbinding";
-
-"parley_photo" = "Foto";
-"parley_select_photo" = "Selecteer een foto";
-"parley_take_photo" = "Maak een foto";
-
-"parley_type_message" = "Typ een bericht...";
-
 "parley_cancel" = "Annuleren";
 "parley_ok" = "Oke";
-
 "parley_state_failed" = "De chat kan op het moment niet weergegeven worden.";
 "parley_state_unconfigured" = "De chat is niet geconfigureerd.";
 
+// MARK: Notifications
+"parley_push_disabled" = "Meldingen zijn uitgeschakeld";
+"parley_notification_offline" = "Controleer uw internetverbinding";
+
+// MARK: Photos
+"parley_photo" = "Foto";
+"parley_select_photo" = "Selecteer een foto";
+"parley_take_photo" = "Maak een foto";
 "parley_photo_access_denied_title" = "Foto toegang";
 "parley_photo_access_denied_body" = "We hebben toegang nodig tot je foto's. Ga naar instellingen en geef de applicatie toegang tot je foto's.";
+
+// MARK: Message Compose View
+"parley_type_message" = "Typ een bericht...";
+
+// MARK: - Accessibility - Voice Over
+
+// Message Compose View
+"parley_voice_over_send_button_label" = "Verzend knop";
+"parley_voice_over_send_button_disabled_hint" = "knop uitgeschakeld";
+
+// Message
+"parley_voice_over_message_label_message" = "Bericht";
+"parley_voice_over_message_label_sender" = "van %@";
+"parley_voice_over_message_media_attached" = "Media bijgevoegd.";
+"parley_voice_over_message_failed" = "Bericht kan niet worden verzonden.";
+"parley_voice_over_message_pending" = "Bericht wordt nog steeds verzonden.";
+"parley_voice_over_message_time" = "Om %@.";

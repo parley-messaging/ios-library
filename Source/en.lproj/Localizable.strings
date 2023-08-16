@@ -1,17 +1,32 @@
-"parley_push_disabled" = "Notifications are disabled";
-"parley_notification_offline" = "Check your internet connection";
-
-"parley_photo" = "Photo";
-"parley_select_photo" = "Select photo";
-"parley_take_photo" = "Take photo";
-
-"parley_type_message" = "Type a message...";
-
 "parley_cancel" = "Cancel";
 "parley_ok" = "Ok";
-
 "parley_state_failed" = "The chat cannot be displayed at this time.";
 "parley_state_unconfigured" = "The chat is not configured.";
 
+// MARK: Notifications
+"parley_push_disabled" = "Notifications are disabled";
+"parley_notification_offline" = "Check your internet connection";
+
+// MARK: Photos
+"parley_photo" = "Photo";
+"parley_select_photo" = "Select photo";
+"parley_take_photo" = "Take photo";
 "parley_photo_access_denied_title" = "Photo access";
 "parley_photo_access_denied_body" = "We need access to your photos. Go to settings and give the application access to your photos.";
+
+// MARK: Message Compose View
+"parley_type_message" = "Type a message...";
+
+// MARK: - Accessibility - Voice Over
+
+// Message Compose View
+"parley_voice_over_send_button_label" = "Send button";
+"parley_voice_over_send_button_disabled_hint" = "Disabled";
+
+// Message
+"parley_voice_over_message_label_message" = "Message";
+"parley_voice_over_message_label_sender" = "from %@";
+"parley_voice_over_message_media_attached" = "Media attached.";
+"parley_voice_over_message_failed" = "Message failed to send.";
+"parley_voice_over_message_pending" = "Message still sending.";
+"parley_voice_over_message_time" = "At %@.";
