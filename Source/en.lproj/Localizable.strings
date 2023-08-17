@@ -33,3 +33,6 @@
 "parley_voice_over_message_failed" = "Message failed to send.";
 "parley_voice_over_message_pending" = "Message still sending.";
 "parley_voice_over_message_time" = "At %@.";
+
+// Announcements
+"parley_voice_over_announcement_sent_message" = "Message sent.";

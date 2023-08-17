@@ -136,7 +136,6 @@ public class Message: Mappable, Equatable {
         }
         return message
     }
-    
 }
 
 // MARK: - Accessibility - Custom Actions

@@ -286,6 +286,7 @@ extension ParleyView: ParleyDelegate {
 
     func didSent(_ message: Message) {
         delegate?.didSentMessage()
+        UIAccessibility.post(notification: .announcement, argument: "parley_voice_over_announcement_sent_message".localized)
     }
 
     func didReceiveMessage(_ indexPath: [IndexPath]) {

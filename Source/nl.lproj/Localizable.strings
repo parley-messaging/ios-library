@@ -32,3 +32,6 @@
 "parley_voice_over_message_failed" = "Bericht kan niet worden verzonden.";
 "parley_voice_over_message_pending" = "Bericht wordt nog steeds verzonden.";
 "parley_voice_over_message_time" = "Om %@.";
+
+// Announcements
+"parley_voice_over_announcement_sent_message" = "Bericht verstuurd.";
