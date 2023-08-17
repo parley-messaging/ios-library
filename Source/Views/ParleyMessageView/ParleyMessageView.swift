@@ -14,7 +14,12 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var contentView: UIView!
     
     // Balloon
-    @IBOutlet weak var balloonImageView: UIImageView!
+    @IBOutlet weak var balloonImageView: UIImageView! {
+        didSet {
+            balloonImageView.isAccessibilityElement = false
+            balloonImageView.accessibilityTraits = .none 
+        }
+    }
 
     // Balloon content
     @IBOutlet weak var balloonContentView: UIView!

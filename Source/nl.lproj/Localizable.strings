@@ -22,10 +22,12 @@
 // Message Compose View
 "parley_voice_over_send_button_label" = "Verzend knop";
 "parley_voice_over_send_button_disabled_hint" = "knop uitgeschakeld";
+"parley_voice_over_dismiss_keyboard_action" = "Toetsenbord verbergen";
 
 // Message
-"parley_voice_over_message_label_message" = "Bericht";
-"parley_voice_over_message_label_sender" = "van %@";
+"parley_voice_over_message_from_agent_name" = "Bericht van %@.";
+"parley_voice_over_message_from_agent" = "Bericht van agent.";
+"parley_voice_over_message_from_you" = "Bericht van jou.";
 "parley_voice_over_message_media_attached" = "Media bijgevoegd.";
 "parley_voice_over_message_failed" = "Bericht kan niet worden verzonden.";
 "parley_voice_over_message_pending" = "Bericht wordt nog steeds verzonden.";

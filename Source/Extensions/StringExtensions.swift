@@ -16,4 +16,8 @@ extension String {
         
         self.append(string)
     }
+    
+    internal var localized: String {
+        NSLocalizedString(self, bundle: Bundle.current, comment: "")
+    }
 }

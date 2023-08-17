@@ -28,15 +28,27 @@ public class ParleyComposeView: UIView {
             keyboardAccessoryView.delegate = self
             
             self.textView.inputAccessoryView = keyboardAccessoryView
+            
+            textView.accessibilityCustomActions = [
+                UIAccessibilityCustomAction(
+                    name: "parley_voice_over_dismiss_keyboard_action".localized,
+                    target: self,
+                    selector: #selector(dismissKeyboard)
+                )
+            ]
         }
     }
+    
+    @objc private func dismissKeyboard() {
+        textView.resignFirstResponder()
+    }
+    
     @IBOutlet weak var placeholderLabel: UILabel!
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
             sendButton.layer.cornerRadius = 13
             sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
-            
-            
+            placeholderLabel.isAccessibilityElement = false
         }
     }
     
@@ -54,7 +66,8 @@ public class ParleyComposeView: UIView {
     
     var placeholder: String? {
         didSet {
-            self.placeholderLabel.text = self.placeholder
+            placeholderLabel.text = placeholder
+            textView.accessibilityLabel = placeholder
         }
     }
     var isEnabled: Bool = true {

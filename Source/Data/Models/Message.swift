@@ -63,6 +63,10 @@ public class Message: Mappable, Equatable {
     
     var referrer: String?
     
+    // MARK: Accessibility properties
+    /// - Note: Only used when deployment target is below iOS 13.
+    private var accessibilityCustomActionCallback: (target: AnyObject, selector: Selector)?
+    
     public init() {
         self.uuid = UUID().uuidString
         
@@ -135,57 +139,38 @@ public class Message: Mappable, Equatable {
     
 }
 
-// MARK: - Accessibility
+// MARK: - Accessibility - Custom Actions
 extension Message {
     
-    internal func getAccessibilityLabelDescription() -> String {
-        var accessibilityLabel = "parley_voice_over_message_label_message".localized
+    @available(iOS 11, *)
+    /// -- Note: This method requires the `accessibilityCustomActionCallback` property on the `Message` class,
+    /// this is not preferred. This function also needs to use Selectors which in turn requires this class to receive the custom actions callback.
+    /// All this is needed to know what button the user selected on which message.
+    /// - Remark: Use `Message.Accessibility.getAccessibilityCustomActions(for:, actionHandler:)` when ** iOS 13** is the minimum supported version.
+    internal func getAccessibilityCustomActions(target: AnyObject, selector: Selector) -> [UIAccessibilityCustomAction]? {
+        guard let buttons, !buttons.isEmpty else { return nil }
         
-        appendAgentNameIfAvailable(to: &accessibilityLabel)
-        appendBody(to: &accessibilityLabel)
-        appendAccessibilityLabelDescriptionEnding(to: &accessibilityLabel)
+        accessibilityCustomActionCallback = (target, selector)
         
-        return accessibilityLabel
+        var actions = [UIAccessibilityCustomAction]()
+        for button in buttons {
+            let action = UIAccessibilityCustomAction(name: button.title, target: self, selector: #selector(customActionTriggered(_:)))
+            action.accessibilityTraits = [.button]
+            actions.append(action)
+        }
+        
+        return actions
     }
     
-    private func appendAgentNameIfAvailable(to accessibilityLabel: inout String) {
-        if let agentName = agent?.name {
-            let format = "parley_voice_over_message_label_sender".localized
-            accessibilityLabel.append(.localizedStringWithFormat(format, agentName))
-        }
-        
-        accessibilityLabel.append(".")
-    }
-    
-    private func appendBody(to accessibilityLabel: inout String) {
-        if title != nil || message != nil {
-            if let title {
-                accessibilityLabel.append(title)
-            }
-            
-            if let message {
-                accessibilityLabel.append(message)
-            }
-        }
-        
-        if hasMedium {
-            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_media_attached".localized)
-        }
-    }
-    
-    private func appendAccessibilityLabelDescriptionEnding(to accessibilityLabel: inout String) {
-        switch status {
-        case .failed:
-            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_failed".localized)
-        case .pending:
-            accessibilityLabel.appendWithCorrectSpacing("parley_voice_over_message_pending".localized)
-        case .success:
-            break
-        }
-        
-        if let time {
-            let format = "parley_voice_over_message_time".localized
-            accessibilityLabel.appendWithCorrectSpacing(.localizedStringWithFormat(format, time.asTime()))
-        }
+    @objc private func customActionTriggered(_ action: UIAccessibilityCustomAction) {
+        guard
+            let id,
+            let accessibilityCustomActionCallback,
+            let buttons,
+            let button = buttons.first(where: { $0.title == action.name })
+        else { return }
+     
+        let (target, selector) = accessibilityCustomActionCallback
+        _ = target.perform(selector, with: id, with: button.title)
     }
 }

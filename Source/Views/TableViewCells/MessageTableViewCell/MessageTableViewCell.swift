@@ -77,7 +77,28 @@ internal class MessageTableViewCell: UITableViewCell {
     private func setupAccessibilityFeatures(for message: Message) {
         isAccessibilityElement = false
         messageView.isAccessibilityElement = true
-        messageView.accessibilityLabel = message.getAccessibilityLabelDescription()
+        messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
+        
+        if #available(iOS 13, *) {
+            messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
+                for: message,
+                actionHandler: { [weak delegate] message, button in
+                    delegate?.didSelect(button)
+                })
+        } else {
+            messageView.accessibilityCustomActions = message.getAccessibilityCustomActions(
+                target: self,
+                selector: #selector(messageCustomActionTriggered)
+            )
+        }
+    }
+    
+    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
+        guard
+            let message = messages?.messages.first(where: {$0.id == messageId}),
+            let button = message.buttons?.first(where: {$0.title == buttonTitle })
+        else { return }
+        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {

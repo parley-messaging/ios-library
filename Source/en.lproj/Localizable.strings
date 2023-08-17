@@ -22,10 +22,13 @@
 // Message Compose View
 "parley_voice_over_send_button_label" = "Send button";
 "parley_voice_over_send_button_disabled_hint" = "Disabled";
+"parley_voice_over_dismiss_keyboard_action" = "Dismiss keyboard";
 
 // Message
-"parley_voice_over_message_label_message" = "Message";
-"parley_voice_over_message_label_sender" = "from %@";
+"parley_voice_over_message_unknown_sender" = "Message.";
+"parley_voice_over_message_from_agent_name" = "Message from %@.";
+"parley_voice_over_message_from_agent" = "Message from agent.";
+"parley_voice_over_message_from_you" = "Message from you.";
 "parley_voice_over_message_media_attached" = "Media attached.";
 "parley_voice_over_message_failed" = "Message failed to send.";
 "parley_voice_over_message_pending" = "Message still sending.";
