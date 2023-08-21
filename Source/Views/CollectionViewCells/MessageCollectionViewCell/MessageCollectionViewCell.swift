@@ -22,7 +22,12 @@ class MessageCollectionViewCell: UICollectionViewCell {
     
     internal func render(_ message: Message, time: Date?) {
         parleyMessageView.set(message: message, time: time)
+        setupAccessibilityOptions(for: message)
+    }
+    
+    private func setupAccessibilityOptions(for message: Message) {
         isAccessibilityElement = true
+        watchForVoiceOverDidChangeNotification(observer: self)
         accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
         
         if #available(iOS 13, *) {
@@ -35,6 +40,15 @@ class MessageCollectionViewCell: UICollectionViewCell {
                 selector: #selector(messageCustomActionTriggered)
             )
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+    }
+    
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        // Disable drag interaction for VoiceOver.
+        isUserInteractionEnabled = !isVoiceOverRunning
     }
     
     @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {

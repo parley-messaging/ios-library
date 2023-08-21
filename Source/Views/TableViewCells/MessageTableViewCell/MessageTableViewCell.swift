@@ -76,6 +76,7 @@ internal class MessageTableViewCell: UITableViewCell {
     
     private func setupAccessibilityFeatures(for message: Message) {
         isAccessibilityElement = false
+        watchForVoiceOverDidChangeNotification(observer: self)
         messageView.isAccessibilityElement = true
         messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
         
@@ -91,6 +92,15 @@ internal class MessageTableViewCell: UITableViewCell {
                 selector: #selector(messageCustomActionTriggered)
             )
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+    }
+    
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        // Disable drag interaction for VoiceOver.
+        isUserInteractionEnabled = !isVoiceOverRunning
     }
     
     @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {

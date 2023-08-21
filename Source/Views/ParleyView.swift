@@ -209,12 +209,14 @@ public class ParleyView: UIView {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+        watchForVoiceOverDidChangeNotification(observer: self)
     }
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillShowNotification)
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillHideNotification)
         NotificationCenter.default.removeObserver(UIDevice.orientationDidChangeNotification)
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
     }
 
     // MARK: Keyboard
@@ -596,5 +598,13 @@ extension ParleyView: ParleySuggestionsViewDelegate {
     
     func didSelect(_ suggestion: String) {
         Parley.shared.send(suggestion)
+    }
+}
+
+// MARK: - Accessibility - VoiceOver
+internal extension ParleyView {
+    
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        messagesTableView.reloadData()
     }
 }
