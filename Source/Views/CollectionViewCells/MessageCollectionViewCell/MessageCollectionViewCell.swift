@@ -22,6 +22,27 @@ class MessageCollectionViewCell: UICollectionViewCell {
     
     internal func render(_ message: Message, time: Date?) {
         parleyMessageView.set(message: message, time: time)
+        isAccessibilityElement = true
+        accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
+        
+        if #available(iOS 13, *) {
+            accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in
+                parleyMessageView?.delegate?.didSelect(button)
+            })
+        } else {
+            accessibilityCustomActions = message.getAccessibilityCustomActions(
+                target: self,
+                selector: #selector(messageCustomActionTriggered)
+            )
+        }
+    }
+    
+    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
+        guard
+            let message = parleyMessageView.message,
+            let button = message.buttons?.first(where: {$0.title == buttonTitle })
+        else { return }
+        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageCollectionViewCellAppearance) {

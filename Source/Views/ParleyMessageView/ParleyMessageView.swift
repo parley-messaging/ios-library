@@ -122,8 +122,8 @@ class ParleyMessageView: UIView {
             apply(appearance)
         }
     }
-    
-    private var message: Message!
+    /// Can be set to private when target is iOS 13 or higher.
+    private(set) var message: Message!
     
     
     // MARK: - View
