@@ -3,6 +3,8 @@ import UIKit
 
 public class ParleyComposeView: UIView {
     
+    private var sendButtonEnabledObservation: NSKeyValueObservation?
+    
     @IBOutlet var contentView: UIView! {
         didSet {
             self.contentView.backgroundColor = UIColor.clear
@@ -49,6 +51,16 @@ public class ParleyComposeView: UIView {
             sendButton.layer.cornerRadius = 13
             sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
             placeholderLabel.isAccessibilityElement = false
+            
+            sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
+                let isEnabled = change.newValue
+                
+                if isEnabled == true {
+                    self?.sendButton.accessibilityHint = nil
+                } else {
+                    self?.sendButton.accessibilityHint = "parley_voice_over_send_button_disabled_hint".localized
+                }
+            }
         }
     }
     
@@ -75,10 +87,6 @@ public class ParleyComposeView: UIView {
             cameraButton.isEnabled = isEnabled
             textView.isEditable = isEnabled
             sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            
-            if !sendButton.isEnabled {
-                sendButton.accessibilityHint = "parley_voice_over_send_button_disabled_hint".localized
-            }
         }
     }
     var maxCount: Int = 2000
