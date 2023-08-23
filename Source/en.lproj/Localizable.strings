@@ -34,5 +34,12 @@
 "parley_voice_over_message_pending" = "Message still sending.";
 "parley_voice_over_message_time" = "At %@.";
 
+"parley_voice_over_message_agent_is_typing" = "Agent is typing.";
+"parley_voice_over_message_informational" = "Informational message.";
+
 // Announcements
 "parley_voice_over_announcement_sent_message" = "Message sent.";
+"parley_voice_over_announcement_agent_typing" = "Agent is typing.";
+"parley_voice_over_announcement_message_received" = "Message received.";
+"parley_voice_over_announcement_info_message_received" = "Informational message received.";
+"parley_voice_over_announcement_quick_replies_received" = "Suggestions available.";

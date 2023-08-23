@@ -11,14 +11,32 @@ public class Message: Mappable, Equatable {
     }
     
     enum MessageType: Int, Codable {
+        /// A message from the user that is still being sent.
         case loading = -3
+        
+        /// Agent typing indicator
         case agentTyping = -2
+        
+        /// Date header
         case date = -1
+        
+        /// Informational message
         case info = 0
+        
+        /// Message from the user
         case user = 1
+        
+        /// Message from the agent
         case agent = 2
+        
+        /// Automatic message from the backend system.
+        /// Comparable to the `info` field in that is used for informational content.
         case auto = 3
+        
+        /// Message from the system, as the user
         case systemMessageUser = 4
+        
+        /// Message from the system, as the agent
         case systemMessageAgent = 5
         
         static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]

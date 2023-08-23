@@ -28,7 +28,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
     private func setupAccessibilityOptions(for message: Message) {
         isAccessibilityElement = true
         watchForVoiceOverDidChangeNotification(observer: self)
-        accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
+        accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
         if #available(iOS 13, *) {
             accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in

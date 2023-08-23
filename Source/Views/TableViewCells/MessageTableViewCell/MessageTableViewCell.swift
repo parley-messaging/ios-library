@@ -78,7 +78,7 @@ internal class MessageTableViewCell: UITableViewCell {
         isAccessibilityElement = false
         watchForVoiceOverDidChangeNotification(observer: self)
         messageView.isAccessibilityElement = true
-        messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(message)
+        messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
         if #available(iOS 13, *) {
             messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(

@@ -220,8 +220,12 @@ class MessagesManager {
         loadCachedData()
     }
     
-    /// Only used for testing
-    private func testMessages() {
+}
+
+// MARK: - Only used for testing
+private extension  MessagesManager {
+    
+    func testMessages() {
         let userMessage_shortPending = Message()
         userMessage_shortPending.type = .user
         userMessage_shortPending.message = "Hello 👋"
@@ -286,8 +290,7 @@ class MessagesManager {
 //        originalMessages.append(agentMessage_messageWithCarouselImages)
     }
     
-    /// Only used for testing
-    private func createMessage(_ title: String?, _ message: String?, _ image: String?, _ buttons: [MessageButton]?) -> Message {
+    func createMessage(_ title: String?, _ message: String?, _ image: String?, _ buttons: [MessageButton]?) -> Message {
         let m = Message()
         m.type = .agent
         m.title = title
@@ -299,8 +302,7 @@ class MessagesManager {
         return m
     }
     
-    /// Only used for testing
-    private func createButton(_ title: String, _ payload: String) -> MessageButton {
+    func createButton(_ title: String, _ payload: String) -> MessageButton {
         let b = MessageButton()
         b.title = title
         b.payload = payload
