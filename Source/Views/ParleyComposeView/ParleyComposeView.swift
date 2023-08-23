@@ -11,7 +11,11 @@ public class ParleyComposeView: UIView {
         }
     }
     
-    @IBOutlet weak var cameraButton: UIButton!
+    @IBOutlet weak var cameraButton: UIButton! {
+        didSet {
+            cameraButton.accessibilityLabel = "parley_voice_over_camera_button_label".localized
+        }
+    }
     @IBOutlet weak var textViewBackgroundView: UIView! {
         didSet {
             self.textViewBackgroundView.layer.cornerRadius = 18
@@ -45,12 +49,15 @@ public class ParleyComposeView: UIView {
         textView.resignFirstResponder()
     }
     
-    @IBOutlet weak var placeholderLabel: UILabel!
+    @IBOutlet weak var placeholderLabel: UILabel! {
+        didSet {
+            placeholderLabel.isAccessibilityElement = false
+        }
+    }
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
             sendButton.layer.cornerRadius = 13
             sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
-            placeholderLabel.isAccessibilityElement = false
             
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
                 let isEnabled = change.newValue

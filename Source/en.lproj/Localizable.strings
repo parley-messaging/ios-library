@@ -20,7 +20,8 @@
 // MARK: - Accessibility - Voice Over
 
 // Message Compose View
-"parley_voice_over_send_button_label" = "Send button";
+"parley_voice_over_camera_button_label" = "Camera";
+"parley_voice_over_send_button_label" = "Send";
 "parley_voice_over_send_button_disabled_hint" = "Disabled";
 "parley_voice_over_dismiss_keyboard_action" = "Dismiss keyboard";
 

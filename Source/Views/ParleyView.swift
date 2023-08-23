@@ -36,10 +36,10 @@ public class ParleyView: UIView {
             syncMessageTableViewContentInsets()
         }
     }
-    @IBOutlet weak var suggestionsContraintBottom: NSLayoutConstraint!
+    @IBOutlet weak var suggestionsConstraintBottom: NSLayoutConstraint!
 
     @IBOutlet weak var composeView: ParleyComposeView! {
-        didSet{
+        didSet {
             composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
             composeView.maxCount = kParleyMessageMaxCount
 
@@ -165,11 +165,11 @@ public class ParleyView: UIView {
         case .top:
             top = notificationsHeight
             bottom = suggestionsHeight
-            suggestionsContraintBottom.constant = 0
+            suggestionsConstraintBottom.constant = 0
         case .bottom:
             top = 0
             bottom = suggestionsHeight + notificationsHeight
-            suggestionsContraintBottom.constant = notificationsHeight
+            suggestionsConstraintBottom.constant = notificationsHeight
         }
         
         messagesTableView.contentInset = UIEdgeInsets(

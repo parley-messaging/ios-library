@@ -33,9 +33,7 @@ extension Message {
                     return "parley_voice_over_message_from_agent".localized
                 }
             case .user, .systemMessageUser, .loading:
-                let ms = "parley_voice_over_message_from_you".localized
-                print(ms)
-                return ms
+                return "parley_voice_over_message_from_you".localized
             case .agentTyping:
                 return "parley_voice_over_message_agent_is_typing".localized
             case .info, .auto:
