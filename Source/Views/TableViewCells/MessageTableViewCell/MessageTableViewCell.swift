@@ -70,6 +70,45 @@ internal class MessageTableViewCell: UITableViewCell {
         }
 
         self.collectionView.reloadData()
+        
+        setupAccessibilityFeatures(for: message)
+    }
+    
+    private func setupAccessibilityFeatures(for message: Message) {
+        isAccessibilityElement = false
+        watchForVoiceOverDidChangeNotification(observer: self)
+        messageView.isAccessibilityElement = true
+        messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
+        
+        if #available(iOS 13, *) {
+            messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
+                for: message,
+                actionHandler: { [weak delegate] message, button in
+                    delegate?.didSelect(button)
+                })
+        } else {
+            messageView.accessibilityCustomActions = message.getAccessibilityCustomActions(
+                target: self,
+                selector: #selector(messageCustomActionTriggered)
+            )
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+    }
+    
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        // Disable drag interaction for VoiceOver.
+        isUserInteractionEnabled = !isVoiceOverRunning
+    }
+    
+    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
+        guard
+            let message = messages?.messages.first(where: {$0.id == messageId}),
+            let button = message.buttons?.first(where: {$0.title == buttonTitle })
+        else { return }
+        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {

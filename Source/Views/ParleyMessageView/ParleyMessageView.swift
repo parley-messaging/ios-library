@@ -14,7 +14,12 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var contentView: UIView!
     
     // Balloon
-    @IBOutlet weak var balloonImageView: UIImageView!
+    @IBOutlet weak var balloonImageView: UIImageView! {
+        didSet {
+            balloonImageView.isAccessibilityElement = false
+            balloonImageView.accessibilityTraits = .none 
+        }
+    }
 
     // Balloon content
     @IBOutlet weak var balloonContentView: UIView!
@@ -117,8 +122,38 @@ class ParleyMessageView: UIView {
             apply(appearance)
         }
     }
+    /// Can be set to private when target is iOS 13 or higher.
+    private(set) var message: Message!
     
-    private var message: Message!
+    
+    // MARK: - View
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        setup()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+
+        setup()
+    }
+    
+    private func setup() {
+        loadXib()
+    }
+    
+    private func loadXib() {
+        Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
+
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
+
+        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+    }
     
     internal func set(message: Message, time: Date? = nil) {
         self.message = message
@@ -234,6 +269,9 @@ class ParleyMessageView: UIView {
         
         imageMetaTimeLabel.text = time
         timeLabel.text = time
+        
+        imageMetaTimeLabel.isAccessibilityElement = false
+        timeLabel.isAccessibilityElement = false
     }
     
     private func renderMetaStatus() {
@@ -493,34 +531,5 @@ class ParleyMessageView: UIView {
     @objc private func buttonAction(sender: UIButton) {
         guard let messageButton = message.buttons?[sender.tag] else { return }
         delegate?.didSelect(messageButton)
-    }
-    
-    // MARK: - View
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        setup()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-
-        setup()
-    }
-    
-    private func setup() {
-        loadXib()
-    }
-    
-    private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
-
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(contentView)
-
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
     }
 }

@@ -36,10 +36,10 @@ public class ParleyView: UIView {
             syncMessageTableViewContentInsets()
         }
     }
-    @IBOutlet weak var suggestionsContraintBottom: NSLayoutConstraint!
+    @IBOutlet weak var suggestionsConstraintBottom: NSLayoutConstraint!
 
     @IBOutlet weak var composeView: ParleyComposeView! {
-        didSet{
+        didSet {
             composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
             composeView.maxCount = kParleyMessageMaxCount
 
@@ -165,11 +165,11 @@ public class ParleyView: UIView {
         case .top:
             top = notificationsHeight
             bottom = suggestionsHeight
-            suggestionsContraintBottom.constant = 0
+            suggestionsConstraintBottom.constant = 0
         case .bottom:
             top = 0
             bottom = suggestionsHeight + notificationsHeight
-            suggestionsContraintBottom.constant = notificationsHeight
+            suggestionsConstraintBottom.constant = notificationsHeight
         }
         
         messagesTableView.contentInset = UIEdgeInsets(
@@ -209,12 +209,14 @@ public class ParleyView: UIView {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+        watchForVoiceOverDidChangeNotification(observer: self)
     }
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillShowNotification)
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillHideNotification)
         NotificationCenter.default.removeObserver(UIDevice.orientationDidChangeNotification)
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
     }
 
     // MARK: Keyboard
@@ -286,6 +288,7 @@ extension ParleyView: ParleyDelegate {
 
     func didSent(_ message: Message) {
         delegate?.didSentMessage()
+        UIAccessibility.post(notification: .announcement, argument: "parley_voice_over_announcement_sent_message".localized)
     }
 
     func didReceiveMessage(_ indexPath: [IndexPath]) {
@@ -595,5 +598,13 @@ extension ParleyView: ParleySuggestionsViewDelegate {
     
     func didSelect(_ suggestion: String) {
         Parley.shared.send(suggestion)
+    }
+}
+
+// MARK: - Accessibility - VoiceOver
+internal extension ParleyView {
+    
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        messagesTableView.reloadData()
     }
 }

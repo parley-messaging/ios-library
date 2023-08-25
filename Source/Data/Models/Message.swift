@@ -1,7 +1,6 @@
 import ObjectMapper
 import Foundation
 import UIKit
-import AlamofireImage
 
 public class Message: Mappable, Equatable {
     
@@ -12,14 +11,32 @@ public class Message: Mappable, Equatable {
     }
     
     enum MessageType: Int, Codable {
+        /// A message from the user that is still being sent.
         case loading = -3
+        
+        /// Agent typing indicator
         case agentTyping = -2
+        
+        /// Date header
         case date = -1
+        
+        /// Informational message
         case info = 0
+        
+        /// Message from the user
         case user = 1
+        
+        /// Message from the agent
         case agent = 2
+        
+        /// Automatic message from the backend system.
+        /// Comparable to the `info` field in that is used for informational content.
         case auto = 3
+        
+        /// Message from the system, as the user
         case systemMessageUser = 4
+        
+        /// Message from the system, as the agent
         case systemMessageAgent = 5
         
         static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
@@ -63,6 +80,10 @@ public class Message: Mappable, Equatable {
     var agent: Agent?
     
     var referrer: String?
+    
+    // MARK: Accessibility properties
+    /// - Note: Only used when deployment target is below iOS 13.
+    private var accessibilityCustomActionCallback: (target: AnyObject, selector: Selector)?
     
     public init() {
         self.uuid = UUID().uuidString
@@ -132,5 +153,41 @@ public class Message: Mappable, Equatable {
             return nil
         }
         return message
+    }
+}
+
+// MARK: - Accessibility - Custom Actions
+extension Message {
+    
+    @available(iOS 11, *)
+    /// -- Note: This method requires the `accessibilityCustomActionCallback` property on the `Message` class,
+    /// this is not preferred. This function also needs to use Selectors which in turn requires this class to receive the custom actions callback.
+    /// All this is needed to know what button the user selected on which message.
+    /// - Remark: Use `Message.Accessibility.getAccessibilityCustomActions(for:, actionHandler:)` when ** iOS 13** is the minimum supported version.
+    internal func getAccessibilityCustomActions(target: AnyObject, selector: Selector) -> [UIAccessibilityCustomAction]? {
+        guard let buttons, !buttons.isEmpty else { return nil }
+        
+        accessibilityCustomActionCallback = (target, selector)
+        
+        var actions = [UIAccessibilityCustomAction]()
+        for button in buttons {
+            let action = UIAccessibilityCustomAction(name: button.title, target: self, selector: #selector(customActionTriggered(_:)))
+            action.accessibilityTraits = [.button]
+            actions.append(action)
+        }
+        
+        return actions
+    }
+    
+    @objc private func customActionTriggered(_ action: UIAccessibilityCustomAction) {
+        guard
+            let id,
+            let accessibilityCustomActionCallback,
+            let buttons,
+            let button = buttons.first(where: { $0.title == action.name })
+        else { return }
+     
+        let (target, selector) = accessibilityCustomActionCallback
+        _ = target.perform(selector, with: id, with: button.title)
     }
 }
