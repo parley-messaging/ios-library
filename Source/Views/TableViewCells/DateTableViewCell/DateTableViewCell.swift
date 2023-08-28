@@ -33,6 +33,8 @@ internal class DateTableViewCell: UITableViewCell {
         self.timeLabel.font = appearance.textFont
         self.timeLabel.textColor = appearance.textColor
         
+        self.timeLabel.adjustsFontForContentSizeCategory = true
+        
         self.topLayoutConstraint.constant = appearance.contentInset?.top ?? 0
         self.leftLayoutConstraint.constant = appearance.contentInset?.left ?? 0
         self.bottomLayoutConstraint.constant = appearance.contentInset?.bottom ?? 0

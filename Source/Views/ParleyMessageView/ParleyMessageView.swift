@@ -272,6 +272,9 @@ class ParleyMessageView: UIView {
         
         imageMetaTimeLabel.isAccessibilityElement = false
         timeLabel.isAccessibilityElement = false
+        
+        timeLabel.adjustsFontForContentSizeCategory = true
+        imageMetaTimeLabel.adjustsFontForContentSizeCategory = true
     }
     
     private func renderMetaStatus() {
@@ -300,6 +303,7 @@ class ParleyMessageView: UIView {
         displayTitle = message.title == nil ? .hidden : .message
         titleView.isHidden = displayTitle == .hidden
         titleLabel.text = message.title
+        titleLabel.adjustsFontForContentSizeCategory = true
         
         if displayName == .message {
             titleTopLayoutConstraint.constant = appearance?.titleInsets?.top ?? 0
@@ -408,10 +412,10 @@ class ParleyMessageView: UIView {
     }
     
     private func createButtonSeparator() -> UIView {
-        let seperator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
-        seperator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white: 0.91, alpha: 1.0)
-        seperator.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        return seperator
+        let separator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
+        separator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white: 0.91, alpha: 1.0)
+        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        return separator
     }
     
     private func createButton(from messageButton: MessageButton, tag: Int) -> UIButton {

@@ -2,68 +2,72 @@ import UIKit
 
 public class ParleyNotificationView: UIView {
     
-    @IBOutlet var contentView: UIView! {
+    @IBOutlet private var contentView: UIView! {
         didSet {
             self.contentView.backgroundColor = UIColor.clear
         }
     }
     
-    @IBOutlet var imageView: UIImageView!
-    @IBOutlet var label: UILabel!
+    @IBOutlet private var imageView: UIImageView!
+    @IBOutlet private var label: UILabel!
     
     var appearance: ParleyNotificationViewAppearance? {
         didSet {
-            guard let appearance = self.appearance else { return }
+            guard let appearance = appearance else { return }
             
-            self.apply(appearance)
+            apply(appearance)
         }
     }
     
     var text: String? {
         didSet {
-            self.label.text = self.text
+            label.text = text
         }
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.setup()
+        setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        self.setup()
+        setup()
     }
     
     private func setup() {
-        self.loadXib()
+        loadXib()
     }
     
     private func loadXib() {
         Bundle.current.loadNibNamed("ParleyNotificationView", owner: self, options: nil)
         
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
         
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor)
+        ])
     }
     
     private func apply(_ appearance: ParleyNotificationViewAppearance) {
-        self.backgroundColor = appearance.backgroundColor
+        backgroundColor = appearance.backgroundColor
         
         if let iconTintColor = appearance.iconTintColor {
-            self.imageView.image = appearance.icon.withRenderingMode(.alwaysTemplate)
-            self.imageView.tintColor = iconTintColor
+            imageView.image = appearance.icon.withRenderingMode(.alwaysTemplate)
+            imageView.tintColor = iconTintColor
         } else {
-            self.imageView.image = appearance.icon.withRenderingMode(.alwaysOriginal)
+            imageView.image = appearance.icon.withRenderingMode(.alwaysOriginal)
         }
         
-        self.label.textColor = appearance.textColor
-        self.label.font = appearance.font
+        label.textColor = appearance.textColor
+        label.font = appearance.font
+        label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
     }
 }

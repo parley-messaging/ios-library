@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -21,17 +21,17 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RVz-hI-DWr">
-                    <rect key="frame" x="115" y="445" width="184" height="16"/>
+                    <rect key="frame" x="115" y="448" width="184" height="14.5"/>
                     <subviews>
                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CMe-d1-quq">
-                            <rect key="frame" x="0.0" y="0.0" width="16" height="16"/>
+                            <rect key="frame" x="0.0" y="-1" width="16" height="16"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="16" id="E6X-es-6j5"/>
                                 <constraint firstAttribute="height" constant="16" id="Tev-ld-dFW"/>
                             </constraints>
                         </imageView>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="parley_push_disabled_title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i46-8w-Br6">
-                            <rect key="frame" x="24" y="1" width="160" height="14.5"/>
+                            <rect key="frame" x="24" y="0.0" width="160" height="14.5"/>
                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
@@ -39,12 +39,12 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="CMe-d1-quq" firstAttribute="top" secondItem="RVz-hI-DWr" secondAttribute="top" id="57Z-Gj-X4L"/>
+                        <constraint firstItem="i46-8w-Br6" firstAttribute="top" secondItem="RVz-hI-DWr" secondAttribute="top" id="2wG-h6-CvA"/>
                         <constraint firstAttribute="trailing" secondItem="i46-8w-Br6" secondAttribute="trailing" id="FxG-qu-NtX"/>
                         <constraint firstItem="CMe-d1-quq" firstAttribute="leading" secondItem="RVz-hI-DWr" secondAttribute="leading" id="Kvh-5k-U0r"/>
-                        <constraint firstAttribute="bottom" secondItem="CMe-d1-quq" secondAttribute="bottom" id="PDn-hv-lR8"/>
+                        <constraint firstAttribute="bottom" secondItem="i46-8w-Br6" secondAttribute="bottom" id="b7L-Cb-pIB"/>
                         <constraint firstItem="i46-8w-Br6" firstAttribute="leading" secondItem="CMe-d1-quq" secondAttribute="trailing" constant="8" id="ia8-uI-cIK"/>
-                        <constraint firstItem="i46-8w-Br6" firstAttribute="centerY" secondItem="RVz-hI-DWr" secondAttribute="centerY" id="w1c-GH-bV3"/>
+                        <constraint firstItem="CMe-d1-quq" firstAttribute="centerY" secondItem="i46-8w-Br6" secondAttribute="centerY" id="jTK-7d-bgH"/>
                     </constraints>
                 </view>
             </subviews>

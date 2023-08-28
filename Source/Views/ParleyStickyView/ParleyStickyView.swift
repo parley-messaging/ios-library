@@ -2,6 +2,8 @@ import UIKit
 
 public class ParleyStickyView: UIView {
     
+    @IBOutlet private weak var contentHeightConstraint: NSLayoutConstraint!
+    
     @IBOutlet var contentView: UIView! {
         didSet {
             self.contentView.backgroundColor = UIColor.clear
@@ -10,6 +12,9 @@ public class ParleyStickyView: UIView {
     
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var textView: ParleyTextView!
+    
+    private var heightObserver: NSKeyValueObservation?
+    private let totalVerticalContentInsets: CGFloat = 16
     
     var appearance: ParleyStickyViewAppearance = ParleyStickyViewAppearance() {
         didSet {
@@ -38,7 +43,8 @@ public class ParleyStickyView: UIView {
     private func setup() {
         self.loadXib()
         
-        self.apply(self.appearance)
+        apply(appearance)
+        watchContentHeight()
     }
     
     private func loadXib() {
@@ -71,5 +77,27 @@ public class ParleyStickyView: UIView {
         self.textView.boldFont = appearance.boldFont
     
         self.textView.markdownText = self.text
+        
+        textView.contentInset = UIEdgeInsets(
+            top: totalVerticalContentInsets / 2,
+            left: 0,
+            bottom: totalVerticalContentInsets / 2,
+            right: 0
+        )
+    }
+    
+    private func watchContentHeight() {
+        heightObserver = observe(\.textView?.contentSize, options: [.initial, .new]) { [weak self] _, change in
+            guard
+                let newValue = change.newValue,
+                let height = newValue?.height,
+                let self
+            else { return }
+            
+            let totalVerticalInsets: CGFloat = self.totalVerticalContentInsets
+            self.contentHeightConstraint.constant = min(200, (height + totalVerticalInsets))
+            
+            self.layoutIfNeeded()
+        }
     }
 }
