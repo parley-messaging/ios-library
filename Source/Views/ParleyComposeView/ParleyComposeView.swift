@@ -3,8 +3,6 @@ import UIKit
 
 public class ParleyComposeView: UIView {
     
-    private var sendButtonEnabledObservation: NSKeyValueObservation?
-    
     @IBOutlet var contentView: UIView! {
         didSet {
             self.contentView.backgroundColor = UIColor.clear
@@ -42,6 +40,8 @@ public class ParleyComposeView: UIView {
                     selector: #selector(dismissKeyboard)
                 )
             ]
+            
+            textView.adjustsFontForContentSizeCategory = true
         }
     }
     
@@ -52,11 +52,14 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var placeholderLabel: UILabel! {
         didSet {
             placeholderLabel.isAccessibilityElement = false
+            placeholderLabel.adjustsFontForContentSizeCategory = true
         }
     }
+    
+    private var sendButtonEnabledObservation: NSKeyValueObservation?
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
-            sendButton.layer.cornerRadius = 13
+            sendButton.layer.cornerRadius = sendButton.bounds.height / 2
             sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
             
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
@@ -108,32 +111,37 @@ public class ParleyComposeView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.setup()
+        setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        self.setup()
+        setup()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
     
     private func setup() {
-        self.loadXib()
-        
-        self.apply(self.appearance)
+        loadXib()
+        apply(appearance)
     }
     
     private func loadXib() {
         Bundle.current.loadNibNamed("ParleyComposeView", owner: self, options: nil)
         
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
         
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        self.bottomLayoutConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
-        self.bottomLayoutConstraint.isActive = true
+        bottomLayoutConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0),
+            bottomLayoutConstraint
+        ])
     }
     
     private func apply(_ appearance: ParleyComposeViewAppearance) {
