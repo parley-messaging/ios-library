@@ -65,7 +65,7 @@ internal class PollingService: PollingServiceProtocol {
     }
     
     private func refreshFeed() {
-        guard let id = messagesManager.lastMessage?.id, timer?.isValid == true else { return }
+        guard let id = messagesManager.lastSentMessage?.id, timer?.isValid == true else { return }
         messageRepository.findAfter(id, onSuccess: { [weak self, weak delegate, weak messagesManager] messageCollection in
             guard !messageCollection.messages.isEmpty else {
                 self?.loopRepeated += 1

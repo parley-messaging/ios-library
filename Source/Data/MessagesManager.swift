@@ -9,38 +9,48 @@ class MessagesManager {
         case after
     }
     
-    private(set) var originalMessages: [Message] = []
+    private var originalMessages: [Message] = []
     private(set) var messages: [Message] = []
 
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
     
-    var lastMessage: Message? {
-        get {
-            return self.originalMessages.first { message in
-                return message.id != nil && message.status == .success
+    /// The last messages that has been successfully sent.
+    var lastSentMessage: Message? {
+        originalMessages.first { message in
+            message.id != nil && message.status == .success
+        }
+    }
+    
+    /// The messages that are currently pending in a sorted way.
+    var pendingMessages: [Message] {
+        originalMessages.reduce([Message]()) { partialResult, message in
+            switch message.status {
+            case .failed, .pending:
+                return partialResult + [message]
+            default:
+                return partialResult
             }
         }
     }
-    var pendingMessages: [Message] {
-        get {
-            originalMessages.reduce([Message]()) { partialResult, message in
-                switch message.status {
-                case .failed, .pending:
-                    return partialResult + [message]
-                default:
-                    return partialResult
-                }
+    
+    internal func getOldestMessage() -> Message? {
+        messages.first(where: {
+            switch $0.type {
+            case .agent, .systemMessageAgent, .user, .systemMessageUser:
+                return true
+            default:
+                return false
             }
-        }
+        })
     }
 
     internal func loadCachedData() {
-        self.originalMessages.removeAll()
+        originalMessages.removeAll(keepingCapacity: true)
         
         if let cachedMessages = Parley.shared.dataSource?.all() {
-            self.originalMessages.append(contentsOf: cachedMessages)
+            originalMessages.append(contentsOf: cachedMessages.sorted(by: <))
         }
         
         // Attach media as image if needed. Used when messages with media have a pending state which may be send at a later moment.
@@ -63,148 +73,181 @@ class MessagesManager {
     }
     
     internal func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
+        let newMessages = messageCollection.messages.filter { message in
+            if originalMessages.contains(where: { $0.id == message.id }) {
+                return false
+            }
+            return true
+        }
+        
+        
         switch handleType {
         case .before:
-            self.originalMessages.append(contentsOf: messageCollection.messages)
+            originalMessages.insert(contentsOf: newMessages, at: .zero)
         case .all, .after:
             let pendingMessages = self.pendingMessages
-            self.originalMessages.removeAll { message -> Bool in
+            originalMessages.removeAll { message -> Bool in
                 return message.status == .pending || message.status == .failed
             }
             
-            self.originalMessages.insert(contentsOf: messageCollection.messages, at: 0)
-            self.originalMessages.insert(contentsOf: pendingMessages, at: 0)
+            originalMessages.append(contentsOf: newMessages)
+            originalMessages.append(contentsOf: pendingMessages)
         }
         
-        Parley.shared.dataSource?.save(self.originalMessages)
+        Parley.shared.dataSource?.save(originalMessages)
         
-        self.stickyMessage = messageCollection.stickyMessage
+        stickyMessage = messageCollection.stickyMessage
         
-        self.welcomeMessage = messageCollection.welcomeMessage
-        Parley.shared.dataSource?.set(self.welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        welcomeMessage = messageCollection.welcomeMessage
+        Parley.shared.dataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
 
         if handleType != .after {
-            self.paging = messageCollection.paging
-            Parley.shared.dataSource?.set(self.paging?.toJSONString(), forKey: kParleyCacheKeyPaging)
+            paging = messageCollection.paging
+            Parley.shared.dataSource?.set(paging?.toJSONString(), forKey: kParleyCacheKeyPaging)
         }
         
-        self.formatMessages()
+        formatMessages()
     }
     
     internal func add(_ message: Message) -> [IndexPath] {
-        if self.originalMessages.contains(message) {
-            return []
-        }
+        guard !originalMessages.contains(message) else { return [] }
         
+        let lastIndex = lastMessage()?.index
+        var addIndex = lastIndex ?? 0
         var indexPaths: [IndexPath] = []
-        
-        let index = self.messages.first?.type == .agentTyping ? 1 : 0
-        
-        let lastDate = (messages.count > index ? messages[index].time : nil) ?? Date()
-        if let messageTime = message.time,
-           self.messages.count == 0 || (self.messages.count > index && (self.messages[index].type == .info || !Calendar.current.isDate(lastDate, inSameDayAs: messageTime))) {
-            let dateMessage = Message()
-            dateMessage.time = message.time
-            dateMessage.message = message.time?.asDate()
-            dateMessage.type = .date
-            
-            indexPaths.append(IndexPath(row: index + 1, section: 0))
-            self.messages.insert(dateMessage, at: index)
+
+        if isFirstMessageOfToday(message) {
+            let dateIndex = lastIndex == nil ? 0 : addIndex + 1
+            indexPaths.append(IndexPath(row: dateIndex, section: 0))
+            let dateMessage = createDateMessage(message.time ?? Date())
+            messages.append(dateMessage)
+            addIndex = dateIndex + 1
         }
-        
-        indexPaths.append(IndexPath(row: index, section: 0))
-        self.messages.insert(message, at: index)
-        
-        self.originalMessages.insert(message, at: 0)
+
+        indexPaths.append(IndexPath(row: addIndex, section: 0))
+        messages.append(message)
+
+        originalMessages.append(message)
         Parley.shared.dataSource?.insert(message, at: 0)
         
         return indexPaths
     }
+    
+    private func lastMessage() -> (index: Int, message: Message)? {
+        guard let lastMessage = messages.last else { return nil }
+        var lastMessageIndex = messages.count - 1
+        if lastMessage.type == .agentTyping {
+            lastMessageIndex -= 1
+        }
+        return (lastMessageIndex, lastMessage)
+    }
+    
+    private func isFirstMessageOfToday(_ message: Message) -> Bool {
+        guard
+            !messages.isEmpty,
+            let (lastMessageIndex, lastMessage) = self.lastMessage()
+        else { return true }
+        
+        guard let messageTime = message.time else { return false }
+
+        let calendar = Calendar.current
+        let lastDate = (messages.count > lastMessageIndex ? lastMessage.time : nil) ?? Date()
+        let messageDatesMatch = calendar.isDate(lastDate, inSameDayAs: messageTime)
+        let isFirstMessageAfterInfoMessage = messages.count > lastMessageIndex && lastMessage.type == .info
+        
+        return isFirstMessageAfterInfoMessage || !messageDatesMatch
+    }
 
     internal func update(_ message: Message) {
-        guard let originalMessagesIndex = originalMessages.firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }) else {
-            return
-        }
-        guard let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid }) else {
-            return
-        }
+        guard
+            let originalMessagesIndex = originalMessages.firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }),
+            let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid })
+        else { return }
 
-        self.originalMessages[originalMessagesIndex] = message
-        self.messages[messagesIndex] = message
+        originalMessages[originalMessagesIndex] = message
+        messages[messagesIndex] = message
         
         Parley.shared.dataSource?.update(message)
     }
     
+    /// Adds a typing indicator message
+    /// - Returns: The `IndexPath`'s to add.
     internal func addTypingMessage() -> [IndexPath] {
         let typingMessage = Message()
         typingMessage.type = .agentTyping
         
-        self.messages.insert(typingMessage, at: 0)
+        messages.append(typingMessage)
         
-        return [IndexPath(row: 0, section: 0)]
+        return [IndexPath(row: messages.count - 1, section: 0)]
     }
     
+    /// Removes the typing indicator message
+    /// - Returns: the `IndexPath`'s to remove.
     internal func removeTypingMessage() -> [IndexPath]? {
-        if self.messages.first?.type == .agentTyping {
-            self.messages.remove(at: 0)
-            
-            return [IndexPath(row: 0, section: 0)]
-        }
-        
-        return nil
+        guard messages.last?.type == .agentTyping else { return nil }
+        messages.removeLast()
+        return [IndexPath(row: messages.count - 1, section: 0)]
     }
     
     internal func formatMessages() {
         var formattedMessages: [Message] = []
-    
-        var lastDate = originalMessages.first?.time
-        for (index, message) in originalMessages.enumerated() {
-            if message.time?.asDate() != lastDate?.asDate() {
-                // This message is older than the previous ones: Inserting date header
-                // print("Adding date before: \(message.time!) - \(lastDate)")
-                let dateMessage = Message()
-                dateMessage.time = lastDate
-                dateMessage.message = lastDate?.asDate()
-                dateMessage.type = .date
-                
-                formattedMessages.append(dateMessage)
-                
-                lastDate = message.time
-            }
-            
-            // print("Adding message for: \(message.time!)")
-            formattedMessages.append(message)
-            
-            if index == originalMessages.count - 1 {
-                // This is the first message in the chat: Show this date as header (`lastDate` is same day here, but that is the date of the latest message of that day)
-                // print("Adding date after:  \(message.time!) - \(lastDate)")
-                let dateMessage = Message()
-                dateMessage.time = message.time
-                dateMessage.message = message.time?.asDate()
-                dateMessage.type = .date
-                
-                formattedMessages.append(dateMessage)
-            }
-        }
         
         if canLoadMore() {
-            let loadingMessage = Message()
-            loadingMessage.type = .loading
-            
-            formattedMessages.append(loadingMessage)
-        } else if let welcomeMessage = self.welcomeMessage {
-            let infoMessage = Message()
-            infoMessage.type = .info
-            infoMessage.message = welcomeMessage
-            
-            formattedMessages.append(infoMessage)
+            formattedMessages.append(createLoadingMessage())
+        } else if let welcomeMessage = welcomeMessage {
+            formattedMessages.append(createInfoMessages(welcomeMessage))
+        }
+        
+        let messagesByDate = getMessagesByDate()
+        
+        for date in messagesByDate.keys.sorted(by: <) {
+            for message in messagesByDate[date]!.sorted(by: <) {
+                formattedMessages.append(message)
+            }
         }
 
-        self.messages = formattedMessages
+        messages = formattedMessages
+    }
+    
+    private func getMessagesByDate() -> [Date: [Message]] {
+        let calendar = Calendar.current
+        
+        var messagesByDate = [Date: [Message]]()
+        for message in originalMessages {
+            guard let time = message.time else { continue }
+            let date: Date = calendar.startOfDay(for: time)
+            if messagesByDate[date] == nil {
+                messagesByDate[date] = [createDateMessage(date)]
+            }
+            messagesByDate[date]?.append(message)
+        }
+        
+        return messagesByDate
+    }
+    
+    private func createDateMessage(_ date: Date) -> Message {
+        let dateMessage = Message()
+        dateMessage.time = date
+        dateMessage.message = date.asDate()
+        dateMessage.type = .date
+        return dateMessage
+    }
+    
+    private func createInfoMessages(_ message: String) -> Message {
+        let infoMessage = Message()
+        infoMessage.type = .info
+        infoMessage.message = message
+        return infoMessage
+    }
+    
+    private func createLoadingMessage() -> Message {
+        let loadingMessage = Message()
+        loadingMessage.type = .loading
+        return loadingMessage
     }
 
     internal func canLoadMore() -> Bool {
-        if let paging = self.paging, let before = paging.before, !before.isEmpty {
+        if let paging = paging, let before = paging.before, !before.isEmpty {
             return true
         }
         
@@ -219,7 +262,6 @@ class MessagesManager {
         paging = nil
         loadCachedData()
     }
-    
 }
 
 // MARK: - Only used for testing

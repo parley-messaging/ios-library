@@ -156,6 +156,32 @@ public class Message: Mappable, Equatable {
     }
 }
 
+extension Message: Comparable {
+    
+    public static func < (lhs: Message, rhs: Message) -> Bool {
+        switch lhs.type {
+        case .info, .loading:
+            return false
+        case .agentTyping:
+            return true
+        default:
+            if lhs.time == nil && rhs.time == nil {
+                return false
+            } else if lhs.time == nil {
+                return true
+            } else if rhs.time == nil {
+                return false
+            } else {
+                return lhs.time! < rhs.time!
+            }
+        }
+    }
+    
+    public static func > (lhs: Message, rhs: Message) -> Bool {
+        return !(lhs < rhs)
+    }
+}
+
 // MARK: - Accessibility - Custom Actions
 extension Message {
     

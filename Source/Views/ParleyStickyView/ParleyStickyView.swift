@@ -84,6 +84,7 @@ public class ParleyStickyView: UIView {
             bottom: totalVerticalContentInsets / 2,
             right: 0
         )
+        textView.isScrollEnabled = true
     }
     
     private func watchContentHeight() {
