@@ -10,8 +10,11 @@ public class ParleyView: UIView {
 
     @IBOutlet var tapGestureRecognizer: UITapGestureRecognizer!
 
-    @IBOutlet weak var messagesTableView: MessagesTableView!
-
+    private var messagesContentHeightObserver: NSKeyValueObservation?
+    @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messagesTableView: MessagesTableView!
+    @IBOutlet private weak var messagesTableViewPaddingToSafeAreaTopView: UIView!
+    
     @IBOutlet weak var notificationsStackView: UIStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
     private weak var notificationsConstraintBottom: NSLayoutConstraint? = nil
@@ -148,6 +151,23 @@ public class ParleyView: UIView {
         messagesTableView.dataSource = self
         messagesTableView.delegate = self
         messagesTableView.separatorStyle = .none
+        messagesTableView.keyboardDismissMode = .interactive
+        messagesTableView.alwaysBounceVertical = false
+        
+        messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [.initial, .new]) { [weak self] messagesTableView, change in
+            guard let self, let newContentHeight = change.newValue?.height else { return }
+            let verticalInsets = messagesTableView.contentInset.top + messagesTableView.contentInset.bottom
+            let newHeight = newContentHeight + verticalInsets
+            
+            self.messagesTableViewHeightConstraint.constant = newHeight
+            
+            let isScrollable = newContentHeight > messagesTableView.frame.maxY
+            if isScrollable {
+                messagesTableView.keyboardDismissMode = .interactive
+            } else {
+                messagesTableView.keyboardDismissMode = .onDrag
+            }
+        }
     }
 
     private func registerNibCell(_ nibName: String) {
@@ -177,15 +197,25 @@ public class ParleyView: UIView {
             bottom: bottom,
             right: 0
         )
-
-        let isAtBottom = messagesTableView.contentOffset.y <= 0
+        
+        let contentHeight = messagesTableView.contentSize.height
+        let scrollY = messagesTableView.contentOffset.y
+        let isAtBottom = scrollY + messagesTableView.frame.height >= contentHeight
         if isAtBottom {
             // Stay at bottom
-            messagesTableView.setContentOffset(CGPoint(x: 0, y: 0 - bottom), animated: true)
+            messagesTableView.scroll(to: .bottom, animated: true)
         }
     }
     
     private func getNotificationsHeight() -> CGFloat {
+        return notificationsStackView.frame.height
+    }
+    
+    /// Gets the notification height for the specified vertical position based on the current appearance.
+    /// - Parameter position: Vertical position
+    /// - Returns: Vertical height, `0` if the current appearance is not the
+    private func getNotificationsHeight(for position: ParleyPositionVertical) -> CGFloat {
+        guard appearance.notificationsPosition == position else { return .zero }
         return notificationsStackView.frame.height
     }
     
@@ -223,10 +253,12 @@ public class ParleyView: UIView {
     // MARK: Keyboard
     @objc private func keyboardDidShow(notification: NSNotification) {
         messagesTableView.addGestureRecognizer(tapGestureRecognizer)
+        messagesTableViewPaddingToSafeAreaTopView.addGestureRecognizer(tapGestureRecognizer)
     }
 
     @objc private func keyboardDidHide(notification: NSNotification) {
         messagesTableView.removeGestureRecognizer(tapGestureRecognizer)
+        messagesTableViewPaddingToSafeAreaTopView.removeGestureRecognizer(tapGestureRecognizer)
     }
 
     @IBAction func hideKeyboard(_ sender: Any) {

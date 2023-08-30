@@ -14,6 +14,8 @@
                 <outlet property="composeView" destination="LwN-Tu-1Cr" id="l3b-wL-jl1"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="OEN-6p-26p"/>
                 <outlet property="messagesTableView" destination="lAj-6r-J3s" id="ci0-On-tPl"/>
+                <outlet property="messagesTableViewHeightConstraint" destination="bms-dq-pfa" id="kGG-pm-UWK"/>
+                <outlet property="messagesTableViewPaddingToSafeAreaTopView" destination="mGp-aQ-yNS" id="ZPj-X8-WB6"/>
                 <outlet property="notificationsConstraintTop" destination="1sk-LL-Khl" id="rvH-c7-7Xg"/>
                 <outlet property="notificationsStackView" destination="OE5-rN-JE3" id="5fk-Jr-zmr"/>
                 <outlet property="offlineNotificationView" destination="JuJ-45-jqA" id="cxP-bo-Tx0"/>
@@ -30,9 +32,19 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" keyboardDismissMode="interactive" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="MessagesTableView" customModule="Parley">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGp-aQ-yNS">
+                    <rect key="frame" x="0.0" y="59" width="393" height="0.0"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" id="jQ8-s0-Fct"/>
+                    </constraints>
+                </view>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="MessagesTableView" customModule="Parley">
                     <rect key="frame" x="0.0" y="59" width="393" height="705"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" priority="999" constant="705" id="bms-dq-pfa"/>
+                    </constraints>
                     <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                 </tableView>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3">
@@ -93,16 +105,20 @@
                 <constraint firstAttribute="trailing" secondItem="OE5-rN-JE3" secondAttribute="trailing" id="B8e-2k-lBS"/>
                 <constraint firstAttribute="bottom" secondItem="LwN-Tu-1Cr" secondAttribute="bottom" id="Cbi-PT-rdi"/>
                 <constraint firstAttribute="trailing" secondItem="LwN-Tu-1Cr" secondAttribute="trailing" id="ClF-t3-PYN"/>
-                <constraint firstItem="lAj-6r-J3s" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="HbP-0j-hsA"/>
+                <constraint firstItem="lAj-6r-J3s" firstAttribute="top" relation="greaterThanOrEqual" secondItem="mGp-aQ-yNS" secondAttribute="bottom" id="HbP-0j-hsA"/>
                 <constraint firstItem="ia4-aN-GDT" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hjg-4r-I43"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="mGp-aQ-yNS" secondAttribute="trailing" id="O5e-Dv-SAz"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="O6w-Zn-4GC"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Xdd-0k-xz0" secondAttribute="trailing" id="ObI-b7-GOz"/>
+                <constraint firstItem="mGp-aQ-yNS" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="RwY-rm-tYh"/>
                 <constraint firstItem="lAj-6r-J3s" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UUp-qI-W7y"/>
+                <constraint firstItem="lAj-6r-J3s" firstAttribute="top" secondItem="mGp-aQ-yNS" secondAttribute="bottom" id="amM-eN-tcJ"/>
                 <constraint firstItem="ia4-aN-GDT" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="b9L-1N-0Sl"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="cVA-uV-nmT"/>
                 <constraint firstItem="Xdd-0k-xz0" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="dWj-EI-3Ps"/>
                 <constraint firstItem="lAj-6r-J3s" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="fE4-lU-Lfq"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cvD-Dt-1VK" secondAttribute="trailing" constant="16" id="fYn-7i-q2p"/>
+                <constraint firstItem="mGp-aQ-yNS" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="jmz-kh-Uda"/>
                 <constraint firstItem="cvD-Dt-1VK" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="kjD-7A-EaA"/>
                 <constraint firstItem="LwN-Tu-1Cr" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="nnX-P8-5qI"/>
             </constraints>
