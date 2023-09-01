@@ -11,12 +11,14 @@ internal class MessageImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.setupView()
-        self.setupScrollView()
-        self.setupImageView()
-        self.setupActivityIndicatorView()
+        setupView()
+        setupScrollView()
+        setupImageView()
+        setupActivityIndicatorView()
         
-        self.addSwipeToDismissPanGestureRecognizer()
+        addSwipeToDismissPanGestureRecognizer()
+        
+        addDismissButton()
     }
     
     override func viewDidLayoutSubviews() {
@@ -63,6 +65,7 @@ internal class MessageImageViewController: UIViewController {
             imageView.image = image
             
             imageView.sizeToFit()
+            imageView.isAccessibilityElement = true
             adjustContentInset()
             
             activityIndicatorView.isHidden = true
@@ -115,6 +118,30 @@ internal class MessageImageViewController: UIViewController {
         let verticalInset = imageViewSize.height < scrollViewSize.height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0
         let horizontalInset = imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
         scrollView.contentInset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
+    }
+    
+    
+    private func addDismissButton() {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        let image = UIImage(named: "ic_close", in: .current, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
+        button.setImage(image, for: .normal)
+        button.tintColor = .white
+        button.isAccessibilityElement = true
+        button.accessibilityLabel = "parley_close".localized
+        
+        view.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+        
+        button.addTarget(self, action: #selector(dismissTapped), for: .touchUpInside)
+    }
+    
+    @objc private func dismissTapped() {
+        dismissWithSwipeToDismiss(1)
     }
     
     // MARK: Swipe to dismiss

@@ -2,6 +2,7 @@
 "parley_ok" = "Oke";
 "parley_state_failed" = "De chat kan op het moment niet weergegeven worden.";
 "parley_state_unconfigured" = "De chat is niet geconfigureerd.";
+"parley_close" = "Sluiten";
 
 // MARK: Notifications
 "parley_push_disabled" = "Meldingen zijn uitgeschakeld";
