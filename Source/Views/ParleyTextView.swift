@@ -46,6 +46,7 @@ class ParleyTextView: UITextView {
     private func setup() {
         isSelectable = true
         isEditable = false
+        isScrollEnabled = false
         alwaysBounceVertical = false
         
         textContainerInset = .zero
