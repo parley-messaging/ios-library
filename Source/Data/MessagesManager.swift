@@ -120,12 +120,14 @@ class MessagesManager {
             let dateIndex = lastIndex == nil ? 0 : addIndex + 1
             indexPaths.append(IndexPath(row: dateIndex, section: 0))
             let dateMessage = createDateMessage(message.time ?? Date())
-            messages.append(dateMessage)
+            messages.insert(dateMessage, at: dateIndex)
             addIndex = dateIndex + 1
+        } else {
+            addIndex += 1
         }
 
         indexPaths.append(IndexPath(row: addIndex, section: 0))
-        messages.append(message)
+        messages.insert(message, at: addIndex)
 
         originalMessages.append(message)
         Parley.shared.dataSource?.insert(message, at: 0)
@@ -173,11 +175,7 @@ class MessagesManager {
     /// Adds a typing indicator message
     /// - Returns: The `IndexPath`'s to add.
     internal func addTypingMessage() -> [IndexPath] {
-        let typingMessage = Message()
-        typingMessage.type = .agentTyping
-        
-        messages.append(typingMessage)
-        
+        messages.append(createTypingMessage())
         return [IndexPath(row: messages.count - 1, section: 0)]
     }
     
@@ -185,8 +183,9 @@ class MessagesManager {
     /// - Returns: the `IndexPath`'s to remove.
     internal func removeTypingMessage() -> [IndexPath]? {
         guard messages.last?.type == .agentTyping else { return nil }
+        let tyingIndicatorIndex = messages.count - 1
         messages.removeLast()
-        return [IndexPath(row: messages.count - 1, section: 0)]
+        return [IndexPath(row: tyingIndicatorIndex, section: 0)]
     }
     
     internal func formatMessages() {
@@ -204,6 +203,10 @@ class MessagesManager {
             for message in messagesByDate[date]!.sorted(by: <) {
                 formattedMessages.append(message)
             }
+        }
+        
+        if messages.last?.type == .agentTyping {
+            formattedMessages.append(createTypingMessage())
         }
 
         messages = formattedMessages
@@ -223,6 +226,12 @@ class MessagesManager {
         }
         
         return messagesByDate
+    }
+    
+    private func createTypingMessage() -> Message {
+        let typingMessage = Message()
+        typingMessage.type = .agentTyping
+        return typingMessage
     }
     
     private func createDateMessage(_ date: Date) -> Message {

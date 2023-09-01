@@ -10,7 +10,7 @@ public class AgentTypingTableViewCellAppearance {
     public var dotColor: UIColor = UIColor.black
     
     init() {
-        let edgdeInsets = UIEdgeInsets(top: 21, left: 23, bottom: 21, right: 21)
-        self.backgroundImage = UIImage(named: "agent_balloon", in: Bundle.current, compatibleWith: nil)?.resizableImage(withCapInsets: edgdeInsets)
+        let edgeInsets = UIEdgeInsets(top: 21, left: 23, bottom: 21, right: 21)
+        self.backgroundImage = UIImage(named: "agent_balloon", in: Bundle.current, compatibleWith: nil)?.resizableImage(withCapInsets: edgeInsets)
     }
 }

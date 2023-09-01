@@ -38,8 +38,6 @@ public class Message: Mappable, Equatable {
         
         /// Message from the system, as the agent
         case systemMessageAgent = 5
-        
-        static let ignored: [MessageType] = [.auto, .systemMessageUser, .systemMessageAgent]
     }
     
     var id: Int?
@@ -133,11 +131,21 @@ public class Message: Mappable, Equatable {
     }
     
     public func ignore() -> Bool {
-        return (self.title == nil && self.message == nil &&
-            self.imageURL == nil && self.image == nil &&
-            self.buttons?.count ?? 0 == 0 && self.carousel?.count ?? 0 == 0
-            && media == nil)
-            || MessageType.ignored.contains(self.type)
+        
+        switch type! {
+        case .auto, .systemMessageUser, .systemMessageAgent:
+            return true
+        case .agentTyping, .loading:
+            return false
+        case .date, .info, .agent, .user:
+            return (title == nil &&
+                    message == nil &&
+                    imageURL == nil &&
+                    image == nil &&
+                    buttons?.count ?? 0 == 0 &&
+                    carousel?.count ?? 0 == 0 &&
+                    media == nil)
+        }
     }
 
     public static func == (lhs: Message, rhs: Message) -> Bool {
@@ -162,8 +170,6 @@ extension Message: Comparable {
         switch lhs.type {
         case .info, .loading:
             return false
-        case .agentTyping:
-            return true
         default:
             if lhs.time == nil && rhs.time == nil {
                 return false

@@ -53,6 +53,7 @@ public class ParleyComposeView: UIView {
         didSet {
             placeholderLabel.isAccessibilityElement = false
             placeholderLabel.adjustsFontForContentSizeCategory = true
+            placeholderLabel.numberOfLines = 2
         }
     }
     
@@ -90,8 +91,10 @@ public class ParleyComposeView: UIView {
         didSet {
             placeholderLabel.text = placeholder
             textView.accessibilityLabel = placeholder
+            setPlaceHolderHeight()
         }
     }
+    
     var isEnabled: Bool = true {
         didSet {
             cameraButton.isEnabled = isEnabled
@@ -127,6 +130,7 @@ public class ParleyComposeView: UIView {
     private func setup() {
         loadXib()
         apply(appearance)
+        watchForContentSizeCategoryChanges()
     }
     
     private func loadXib() {
@@ -177,6 +181,33 @@ public class ParleyComposeView: UIView {
         self.textView.font = appearance.font
     }
     
+    private func watchForContentSizeCategoryChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleContentSizeCategoryDidChange),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func handleContentSizeCategoryDidChange() {
+        setPlaceHolderHeight()
+    }
+    
+    func setPlaceHolderHeight() {
+        // Needs extra time to render label in new font size.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.placeholderLabel.sizeToFit()
+            
+            if textView.text?.isEmpty == true {
+                self.textViewHeightConstraint.constant = max(23, self.placeholderLabel.bounds.height)
+            }
+            
+            self.layoutIfNeeded()
+        }
+    }
+    
     @IBAction func send(_ sender: UIButton) {
         if let message = self.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
             self.delegate?.send(message)
@@ -193,8 +224,8 @@ public class ParleyComposeView: UIView {
             break
         case .notDetermined:
             PHPhotoLibrary.requestAuthorization { _ in
-                DispatchQueue.main.async {
-                    self.presentImageActionSheet(sender)
+                DispatchQueue.main.async { [weak self] in
+                    self?.presentImageActionSheet(sender)
                 }
             }
             
@@ -222,21 +253,20 @@ public class ParleyComposeView: UIView {
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_select_photo", bundle: Bundle.current, comment: ""),
             style: .default,
-            handler: { (action) in
-                self.showImagePickerController(.photoLibrary)
+            handler: { [weak self] action in
+                self?.showImagePickerController(.photoLibrary)
         }))
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_take_photo", bundle: Bundle.current, comment: ""),
             style: .default,
-            handler: { (action) in
-                self.showImagePickerController(.camera)
+            handler: { [weak self] action in
+                self?.showImagePickerController(.camera)
         }))
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_cancel", bundle: Bundle.current, comment: ""),
-            style: .cancel,
-            handler: nil
+            style: .cancel
         ))
         
         self.present(alertController, animated: true, completion: nil)
@@ -259,8 +289,7 @@ public class ParleyComposeView: UIView {
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_ok", bundle: Bundle.current, comment: ""),
-            style: .cancel,
-            handler: nil
+            style: .cancel
         ))
         
         self.present(alertController, animated: true, completion: nil)

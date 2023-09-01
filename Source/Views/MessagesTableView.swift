@@ -2,6 +2,8 @@ import UIKit
 
 internal class MessagesTableView: UITableView {
     
+    private(set) internal var isAtBottom: Bool = false
+    
     internal enum ScrollPosition {
         case top
         case bottom
@@ -39,5 +41,10 @@ internal class MessagesTableView: UITableView {
         UIView.setAnimationsEnabled(false)
         super.reloadRows(at: indexPaths, with: animation)
         UIView.setAnimationsEnabled(true)
+    }
+    
+    func scrollViewDidScroll() {
+        let padding: CGFloat = 16
+        isAtBottom = contentOffset.y + frame.height + padding >= contentSize.height
     }
 }
