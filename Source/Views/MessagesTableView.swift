@@ -42,7 +42,7 @@ internal class MessagesTableView: UITableView {
         super.reloadRows(at: indexPaths, with: animation)
         UIView.setAnimationsEnabled(true)
     }
-    
+  
     func scrollViewDidScroll() {
         let padding: CGFloat = 16
         isAtBottom = contentOffset.y + frame.height + padding >= contentSize.height

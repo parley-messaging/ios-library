@@ -170,6 +170,8 @@ extension Message: Comparable {
         switch lhs.type {
         case .info, .loading:
             return false
+        case .agentTyping:
+            return true
         default:
             if lhs.time == nil && rhs.time == nil {
                 return false

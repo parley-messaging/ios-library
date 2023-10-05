@@ -109,7 +109,7 @@ class MessagesManager {
         formatMessages()
     }
     
-    internal func add(_ message: Message) -> [IndexPath] {
+   internal func add(_ message: Message) -> [IndexPath] {
         guard !originalMessages.contains(message) else { return [] }
         
         let lastIndex = lastMessage()?.index
@@ -172,9 +172,10 @@ class MessagesManager {
         Parley.shared.dataSource?.update(message)
     }
     
-    /// Adds a typing indicator message
+     /// Adds a typing indicator message
     /// - Returns: The `IndexPath`'s to add.
     internal func addTypingMessage() -> [IndexPath] {
+        guard messages.last?.type != .agentTyping else { return [] }
         messages.append(createTypingMessage())
         return [IndexPath(row: messages.count - 1, section: 0)]
     }
