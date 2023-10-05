@@ -2,6 +2,7 @@
 "parley_ok" = "Ok";
 "parley_state_failed" = "The chat cannot be displayed at this time.";
 "parley_state_unconfigured" = "The chat is not configured.";
+"parley_close" = "Close";
 
 // MARK: Notifications
 "parley_push_disabled" = "Notifications are disabled";

@@ -9,6 +9,7 @@ public class ParleyView: UIView {
     }
 
     @IBOutlet var tapGestureRecognizer: UITapGestureRecognizer!
+    private var tableViewTopPaddingTapGestureRecognizer: UITapGestureRecognizer?
 
     private var messagesContentHeightObserver: NSKeyValueObservation?
     @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
@@ -55,6 +56,7 @@ public class ParleyView: UIView {
     
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
+    private var isShowingKeyboardWithMessagesScrolledToBottom = false
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -198,10 +200,7 @@ public class ParleyView: UIView {
             right: 0
         )
         
-        let contentHeight = messagesTableView.contentSize.height
-        let scrollY = messagesTableView.contentOffset.y
-        let isAtBottom = scrollY + messagesTableView.frame.height >= contentHeight
-        if isAtBottom {
+        if messagesTableView.isAtBottom {
             // Stay at bottom
             messagesTableView.scroll(to: .bottom, animated: true)
         }
@@ -235,8 +234,10 @@ public class ParleyView: UIView {
 
     // MARK: Observers
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contentSizeCategoryDidChange), name: UIContentSizeCategory.didChangeNotification, object: nil)
         watchForVoiceOverDidChangeNotification(observer: self)
@@ -244,21 +245,49 @@ public class ParleyView: UIView {
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillShowNotification)
+        NotificationCenter.default.removeObserver(UIResponder.keyboardDidShowNotification)
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillHideNotification)
+        NotificationCenter.default.removeObserver(UIResponder.keyboardDidHideNotification)
         NotificationCenter.default.removeObserver(UIDevice.orientationDidChangeNotification)
         NotificationCenter.default.removeObserver(UIContentSizeCategory.didChangeNotification)
         NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
     }
 
     // MARK: Keyboard
-    @objc private func keyboardDidShow(notification: NSNotification) {
+    @objc private func keyboardWillShow(notification: NSNotification) {
         messagesTableView.addGestureRecognizer(tapGestureRecognizer)
-        messagesTableViewPaddingToSafeAreaTopView.addGestureRecognizer(tapGestureRecognizer)
+        
+        if messagesTableView.isAtBottom {
+            isShowingKeyboardWithMessagesScrolledToBottom = true
+        }
+        
+        let topPaddingTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard(_:)))
+        messagesTableViewPaddingToSafeAreaTopView.addGestureRecognizer(topPaddingTapGestureRecognizer)
+        tableViewTopPaddingTapGestureRecognizer = topPaddingTapGestureRecognizer
+    }
+    
+    @objc private func keyboardDidShow() {
+        guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
+        messagesTableView.scroll(to: .bottom, animated: false)
+        isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
-    @objc private func keyboardDidHide(notification: NSNotification) {
+    @objc private func keyboardWillHide(notification: NSNotification) {
         messagesTableView.removeGestureRecognizer(tapGestureRecognizer)
-        messagesTableViewPaddingToSafeAreaTopView.removeGestureRecognizer(tapGestureRecognizer)
+        if let tableViewTopPaddingTapGestureRecognizer {
+            messagesTableViewPaddingToSafeAreaTopView.removeGestureRecognizer(tableViewTopPaddingTapGestureRecognizer)
+            self.tableViewTopPaddingTapGestureRecognizer = nil
+        }
+        
+        if messagesTableView.isAtBottom {
+            isShowingKeyboardWithMessagesScrolledToBottom = true
+        }
+    }
+    
+    @objc private func keyboardDidHide() {
+        guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
+        messagesTableView.scroll(to: .bottom, animated: true)
+        isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
     @IBAction func hideKeyboard(_ sender: Any) {
@@ -531,6 +560,8 @@ extension ParleyView: UITableViewDataSource {
 extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        messagesTableView.scrollViewDidScroll()
+        
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
 
