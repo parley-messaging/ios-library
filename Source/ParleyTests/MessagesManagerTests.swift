@@ -3,19 +3,23 @@ import XCTest
 
 final internal class MessagesManagerTests: XCTestCase {
     
-    internal let MESSAGE_WELCOME_TEXT = "Welcome message";
-    internal let MESSAGE_STICKY_TEXT = "Sticky message";
+    struct MessagesManagerTestsError: Error {
+        let message: String
+    }
     
-    internal var messagesManager = MessagesManager()
-    internal var dataSource = ParleyInMemoryDataSource()
+    private let MESSAGE_WELCOME_TEXT = "Welcome message";
+    private let MESSAGE_STICKY_TEXT = "Sticky message";
     
-    func setUp() {
+    private var messagesManager = MessagesManager()
+    private var dataSource: ParleyDataSource? = ParleyInMemoryDataSource()
+    
+    override func setUp() {
         messagesManager = MessagesManager()
         dataSource = ParleyInMemoryDataSource()
         Parley.shared.dataSource = dataSource
      }
     
-    func testMessagesManagerIsEmptyOnCreation() {
+    func testMessagesManager_ShouldBeEmpty_WhenCreated() {
         XCTAssertTrue(messagesManager.messages.isEmpty)
         XCTAssertNil(messagesManager.welcomeMessage)
         XCTAssertNil(messagesManager.stickyMessage)
@@ -25,7 +29,27 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertNil(messagesManager.getOldestMessage())
     }
     
-    func testWelcomeMessageIsReadAndAddedToMessages() {
+    func testMessageManager_ShouldBeCorrectlyConfigured_WhenStartingTheMessagesMannagerWithAMessageCollection() {
+        let firstMessage = createUserMessage("Hello!")
+        let secondMessage = createUserMessage("How are you?")
+        let collection = MessageCollection(
+            messages: [firstMessage, secondMessage],
+            agent: nil,
+            paging: MessageCollection.Paging(before: "", after: "After"),
+            stickyMessage: MESSAGE_STICKY_TEXT,
+            welcomeMessage: MESSAGE_WELCOME_TEXT
+        )
+        messagesManager.handle(collection, .all)
+        
+        XCTAssertEqual(messagesManager.welcomeMessage, MESSAGE_WELCOME_TEXT)
+        XCTAssertEqual(messagesManager.stickyMessage, MESSAGE_STICKY_TEXT)
+        XCTAssertEqual(messagesManager.messages[0].message, MESSAGE_WELCOME_TEXT, "First message should be the welcome message.")
+        XCTAssertEqual(messagesManager.messages[1].type, .date, "Second message should be the date message.")
+        XCTAssertEqual(messagesManager.messages[2], firstMessage, "Third message should be the first user message.")
+        XCTAssertEqual(messagesManager.messages[3], secondMessage, "Fourth message should be the second user message.")
+    }
+    
+    func testWelcomeMessage_ShouldBeSetAndAddedToMessages_WhenSettingTheWelcomeMessage() {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         
@@ -39,7 +63,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages.count, 1, "Welcome message should be the only message in the messages array.")
     }
     
-    func testAddUserMessageReturnCorrectIndexPath() {
+    func testAddUserMessage_ShouldReturnCorrectIndexPath_WhenAddingInfoMessageAndFirstUserMessage() {
         let firstMessageInsertionIndexPaths = addInfoMessageAndFirstUserMessage()
         
         XCTAssertEqual(firstMessageInsertionIndexPaths[0].row, 1, "First index path should correspond to the second item in the table view.")
@@ -51,7 +75,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(firstMessageInsertionIndexPaths.count, 2)
     }
     
-    func testFirstSentUserMessageAfterWelcomeMessage() {
+    func testFirstUserMessage_ShouldAppearAfterWelcomeMessage_WhenAddingUserMessageAfterInfoMessage() {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         
@@ -70,13 +94,11 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertNil(messagesManager.lastSentMessage, "Message should not be considered as being sent.")
     }
     
-    func testTwoMessagesOnDifferentDaysAreSeparatedByDateIndicators() {
+    func testTwoMessagesOnDifferentDays_ShouldBeSeparatedByDateIndicators_WhenMessagesAreOnDifferentDays() throws {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         
-        guard let yesterdayDate = getYesterdayDate() else {
-            XCTFail("Failed to create a new date from yesterday.") ; return
-        }
+        let yesterdayDate = try getYesterdayDate()
         let yesterdayMessageText = "All my troubles seemed so far away"
         let yesterdayMessage = createUserMessage(yesterdayMessageText, date: yesterdayDate)
         _ = messagesManager.add(yesterdayMessage)
@@ -101,7 +123,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages[4].type, .user, "Today message should be from the user.")
     }
     
-    func testShouldIgnoreAddedTheSameMessageTwice() {
+    func testMessage_ShouldBeIgnored_WhenTryingToAddTheSameMessageTwice() {
         let message = createUserMessage("Good morning")
         let firstInsertionIndexPaths = messagesManager.add(message)
         
@@ -113,20 +135,18 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages.count, 2, "Array of messages should remain the same.")
     }
     
-    func testAddingTypingIndicator() {
+    func testTypingMessage_ShouldBeLastMessage_WhenAddingTheTypingMessage() {
         addInfoMessageAndFirstUserMessage()
         
         let indexPaths = messagesManager.addTypingMessage()
         XCTAssertEqual(indexPaths.count, 1, "Adding Typing indicator should only add a single IndexPath.")
-        XCTAssertEqual(indexPaths.count, 1, "Adding Typing indicator should only add a single IndexPath.")
-        
-        XCTAssertEqual(indexPaths[0].row, 3, "Typing message should be the forth index.")
-        XCTAssertEqual(indexPaths[0].section, 0, "Typing message should be the forth index.")
+        XCTAssertEqual(indexPaths[0].row, 3, "Typing message should be the fourth index.")
+        XCTAssertEqual(indexPaths[0].section, 0, "Typing message should be the fourth index.")
         
         XCTAssertEqual(messagesManager.messages.last!.type, .agentTyping, "Last message should be of type agent typing.")
     }
     
-    func testAddingTypingIndicatorTwiceShouldNotAddTwoTyingIndicators() {
+    func testAddTypingIndicator_ShouldBeIgnored_WhenTryingToAddItTwice() {
         addInfoMessageAndFirstUserMessage()
         
         let indexPathsFirstTypingMessage = messagesManager.addTypingMessage()
@@ -136,14 +156,14 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertTrue(indexPathsSecondTypingMessage.isEmpty)
     }
     
-    func testTryingToRemovingNonExistentTypingIndicator() {
+    func testRemoveTypingIndicator_ShouldReturnNil_WhenTryingToRemoveANonExistentTypingIndicator() {
         addInfoMessageAndFirstUserMessage()
         
         XCTAssertNotEqual(messagesManager.messages.last!.type, .agentTyping, "There shouldn't be a typing message present.")
         XCTAssertNil(messagesManager.removeTypingMessage(), "Trying to remove a typing message without there being one should result in nil being returned.")
     }
     
-    func testAddingAndRemovingTyingIndicator() {
+    func testTypingIndicator_ShouldBeGone_WhenAddingAndRemvovingTheTypingIndicator() {
         addInfoMessageAndFirstUserMessage()
         
         _ = messagesManager.addTypingMessage()
@@ -157,14 +177,14 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(removedTyingMessageIndexPaths![0].section, 0, "Section index should always be 0.")
     }
     
-    func testAddingMessageWhileAgentIsTying() {
+    func testAddUserMessage_ShouldRetainCorrectOrder_WhenAgentIsTying() {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         let firstMessage = createUserMessage("Good morning")
         _ = messagesManager.add(firstMessage)
         _ = messagesManager.addTypingMessage()
         
-        XCTAssertEqual(messagesManager.messages[3].type, .agentTyping, "Forth message should be the typing indicator.")
+        XCTAssertEqual(messagesManager.messages[3].type, .agentTyping, "Fourth message should be the typing indicator.")
         XCTAssertEqual(messagesManager.messages.last, messagesManager.messages[3], "Tying indicator should be the last message.")
         
         let secondMessageText = "👀"
@@ -175,13 +195,13 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages[0].type, .info, "First message should be the info message.")
         XCTAssertEqual(messagesManager.messages[1].type, .date, "Second message should be the date indicator.")
         XCTAssertEqual(messagesManager.messages[2].type, .user, "Third message should be the first user message.")
-        XCTAssertEqual(messagesManager.messages[3].type, .user, "Forth message should be the second message from the user.")
+        XCTAssertEqual(messagesManager.messages[3].type, .user, "Fourth message should be the second message from the user.")
         XCTAssertEqual(indexPaths[0].row, 3, "first index path should insert at index 3.")
         XCTAssertEqual(messagesManager.messages[4].type, .agentTyping, "Fifth message should the typing indicator.")
         XCTAssertEqual(messagesManager.messages.last, messagesManager.messages[4], "Tying indicator should be the last message.")
     }
     
-    func testRetrievingOldestMessage() {
+    func testGetOldestMessage_ShouldReturnCorrectValueAtAllTimes_WhenInsertingMessages() {
         XCTAssertNil(messagesManager.getOldestMessage())
         
         setWelcomeMessage()
@@ -197,7 +217,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(firstMessage, messagesManager.getOldestMessage())
     }
     
-    func testUpdateMessage() {
+    func testUpdateMessage_ShouldUpdateMessage_WhenGivenANewMessageObjectEqualUUID() {
         let originalMessage = Message()
         originalMessage.type = .user
         originalMessage.uuid = UUID().uuidString
@@ -213,7 +233,7 @@ final internal class MessagesManagerTests: XCTestCase {
         updatedMessage.uuid = originalMessage.uuid
         let updatedMessageText = "Updated message text"
         updatedMessage.message = updatedMessageText
-        _ = messagesManager.update(updatedMessage)
+        messagesManager.update(updatedMessage)
         
         XCTAssertNotEqual(messagesManager.messages.last!.message, originalMessageText)
         XCTAssertEqual(messagesManager.messages.last!.message, updatedMessageText)
@@ -221,7 +241,7 @@ final internal class MessagesManagerTests: XCTestCase {
     }
 }
 
-internal extension MessagesManagerTests {
+private extension MessagesManagerTests {
     
     @discardableResult
     func addInfoMessageAndFirstUserMessage() -> [IndexPath] {
@@ -233,7 +253,7 @@ internal extension MessagesManagerTests {
     }
     
     func setWelcomeMessage() {
-        XCTAssertTrue(dataSource.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo))
+        dataSource?.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo)
     }
     
     func createUserMessage(_ message: String, date: Date = Date()) -> Message {
@@ -244,9 +264,11 @@ internal extension MessagesManagerTests {
         return userMessage
     }
     
-    func getYesterdayDate() -> Date? {
+    func getYesterdayDate() throws -> Date {
         let today = Date()
-        guard let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) else { return nil }
+        guard let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) else {
+            throw MessagesManagerTestsError(message: "Failed to create a new date from yesterday.")
+        }
         return yesterday
     }
 }
