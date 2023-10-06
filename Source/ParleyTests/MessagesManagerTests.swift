@@ -29,7 +29,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertNil(messagesManager.getOldestMessage())
     }
     
-    func testMessageManager_ShouldBeCorrectlyConfigured_WhenStartingTheMessagesMannagerWithAMessageCollection() {
+    func testMessageManager_ShouldBeCorrectlyConfigured_WhenStartingWithAMessageCollection() {
         let firstMessage = createUserMessage("Hello!")
         let secondMessage = createUserMessage("How are you?")
         let collection = MessageCollection(
@@ -94,7 +94,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertNil(messagesManager.lastSentMessage, "Message should not be considered as being sent.")
     }
     
-    func testTwoMessagesOnDifferentDays_ShouldBeSeparatedByDateIndicators_WhenMessagesAreOnDifferentDays() throws {
+    func testTwoMessages_ShouldBeSeparatedByDateIndicators_WhenMessagesAreOnDifferentDays() throws {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         
@@ -146,7 +146,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages.last!.type, .agentTyping, "Last message should be of type agent typing.")
     }
     
-    func testAddTypingIndicator_ShouldBeIgnored_WhenTryingToAddItTwice() {
+    func testTypingIndicator_ShouldBeIgnored_WhenTryingToAddItTwice() {
         addInfoMessageAndFirstUserMessage()
         
         let indexPathsFirstTypingMessage = messagesManager.addTypingMessage()
@@ -156,7 +156,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertTrue(indexPathsSecondTypingMessage.isEmpty)
     }
     
-    func testRemoveTypingIndicator_ShouldReturnNil_WhenTryingToRemoveANonExistentTypingIndicator() {
+    func testTypingIndicator_ShouldReturnNil_WhenTryingToRemoveANonExistentTypingIndicator() {
         addInfoMessageAndFirstUserMessage()
         
         XCTAssertNotEqual(messagesManager.messages.last!.type, .agentTyping, "There shouldn't be a typing message present.")
@@ -177,7 +177,7 @@ final internal class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(removedTyingMessageIndexPaths![0].section, 0, "Section index should always be 0.")
     }
     
-    func testAddUserMessage_ShouldRetainCorrectOrder_WhenAgentIsTying() {
+    func testUserMessage_ShouldBeAddedAfterTyping_WhenAgentIsTyping() {
         setWelcomeMessage()
         messagesManager.loadCachedData()
         let firstMessage = createUserMessage("Good morning")
