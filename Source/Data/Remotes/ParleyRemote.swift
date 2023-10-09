@@ -4,9 +4,60 @@ import ObjectMapper
 import UIKit
 import Foundation
 
+
+public typealias ParleyRemoteInterceptor = ParleyRemoteRequestInterceptorProtocol & ParleyRemoteResponseInterceptorProtocol
+
+public protocol ParleyRemoteRequestInterceptorProtocol: AnyObject {
+    func httpRequestWillStart(with request: inout URLRequest) throws
+}
+
+public protocol ParleyRemoteResponseInterceptorProtocol: AnyObject {
+    func httpResponseReceived(response: HTTPURLResponse) throws
+}
+
+internal class ParleyRemoteInterceptorProxy: RequestInterceptor {
+
+    private let interceptors: [ParleyRemoteInterceptor]
+    
+    init(interceptors: [ParleyRemoteInterceptor]) {
+        self.interceptors = interceptors
+    }
+    
+    func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        guard interceptors.count > 0 else {
+            completion(.success(urlRequest))
+            return
+        }
+        var editableUrlRequest = urlRequest
+        
+        interceptors.forEach {
+            do {
+                try $0.httpRequestWillStart(with: &editableUrlRequest)
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        completion(.success(editableUrlRequest))
+    }
+    
+    func validate(request: URLRequest?, response: HTTPURLResponse, data: Data?) -> Request.ValidationResult {
+        guard interceptors.count > 0 else {
+            return Request.ValidationResult.success(())
+        }
+        
+        do {
+            try interceptors.forEach { try $0.httpResponseReceived(response: response) }
+            return Request.ValidationResult.success(())
+        } catch {
+            return Request.ValidationResult.failure(error)
+        }
+    }
+}
+
 internal class ParleyRemote {
     
     internal static var sessionManager: Alamofire.Session!
+    internal static var parleyRemoteInterceptorProxy: ParleyRemoteInterceptorProxy!
     
     internal static func refresh(_ network: ParleyNetwork) {
         guard let domain = URL(string: network.url)?.host else {
@@ -17,8 +68,11 @@ internal class ParleyRemote {
             domain: PublicKeysTrustEvaluator()
         ]
         
+        parleyRemoteInterceptorProxy = ParleyRemoteInterceptorProxy(interceptors: network.interceptors)
+        
         sessionManager = Session(
             configuration: URLSessionConfiguration.af.default,
+            interceptor: parleyRemoteInterceptorProxy,
             serverTrustManager: ServerTrustManager(evaluators: evaluators)
         )
     }
@@ -60,7 +114,9 @@ internal class ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: AFDataResponse<[T]>) in
+        request
+            .validate(parleyRemoteInterceptorProxy.validate)
+            .validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: AFDataResponse<[T]>) in
             switch response.result {
             case .success(let items):
                 onSuccess(items)
@@ -76,7 +132,9 @@ internal class ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
+        request
+            .validate(parleyRemoteInterceptorProxy.validate)
+            .validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
             switch response.result {
             case .success(let item):
                 onSuccess(item)
@@ -92,7 +150,9 @@ internal class ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
         let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseJSON { (response) in
+        request
+            .validate(parleyRemoteInterceptorProxy.validate)
+            .validate(statusCode: 200...299).responseJSON { (response) in
             switch response.result {
             case .success:
                 onSuccess()
@@ -109,6 +169,7 @@ internal class ParleyRemote {
         
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
             .validate(statusCode: 200...299)
+            .validate(parleyRemoteInterceptorProxy.validate)
             .responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
                 switch response.result {
                 case .success(let item):
@@ -133,7 +194,10 @@ internal class ParleyRemote {
             debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
             
             let request = sessionManager.request(url, method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-            request.validate(statusCode: 200...299).responseImage { response in
+            request
+                .validate(statusCode: 200...299)
+                .validate(parleyRemoteInterceptorProxy.validate)
+                .responseImage { response in
                 switch response.result {
                 case .success(let image):
                     if let contentType: String = response.response?.allHeaderFields["Content-Type"] as? String, contentType.contains("image/gif"), let data = response.data, let image = UIImage.gif(data: data) {
