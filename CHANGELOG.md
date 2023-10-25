@@ -8,7 +8,9 @@
   - Interact with the chat.
   - Announcing received messages.
   - Fully supporting rich message types.
-- Bug fixes.
+- Added dismiss button to image viewer.
+- All icons now preserve vector data for a cleaner resolve.
+- Fixed an issue where the loading or typing indicator would not display in some cases.
 
 ## 3.7.0 - N/A - 19 Oct 2022
 
