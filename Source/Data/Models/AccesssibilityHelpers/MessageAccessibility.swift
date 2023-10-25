@@ -8,7 +8,7 @@ extension Message {
         static internal func getAccessibilityLabelDescription(for message: Message) -> String? {
             guard message.type != .date else { return nil }
             return [
-                createAccessibilityMessageLabelIntroduction(message),
+                createAccessibilityLabelForMessageType(message),
                 createAccessibilityMessageLabelBody(message),
                 createAccessibilityMessageLabelEnding(message)
             ].compactMap({$0}).reduce("") { partialResult, nextString in
@@ -16,11 +16,6 @@ extension Message {
                 nextResult.appendWithCorrectSpacing(nextString)
                 return nextResult
             }
-        }
-        
-        // MARK: Accessibility Label - Introduction
-        static private func createAccessibilityMessageLabelIntroduction(_ message: Message) -> String? {
-            createAccessibilityLabelForMessageType(message)
         }
         
         static private func createAccessibilityLabelForMessageType(_ message: Message) -> String? {
@@ -32,8 +27,10 @@ extension Message {
                 } else {
                     return "parley_voice_over_message_from_agent".localized
                 }
-            case .user, .systemMessageUser, .loading:
+            case .user, .systemMessageUser:
                 return "parley_voice_over_message_from_you".localized
+            case .loading:
+                return "parley_voice_over_message_loading".localized
             case .agentTyping:
                 return "parley_voice_over_message_agent_is_typing".localized
             case .info, .auto:
@@ -62,7 +59,7 @@ extension Message {
         static private func createMessageTextualContentLabelIfAvailable(_ message: Message) -> String? {
             let textualContent = [message.title, message.message]
                 .compactMap { $0 }
-                .joined(separator: " ")
+                .joined(separator: ". ")
             
             guard !textualContent.isEmpty else { return nil }
             return textualContent
@@ -105,19 +102,20 @@ extension Message {
 extension Message.Accessibility {
     
     static internal func getAccessibilityAnnouncement(for message: Message) -> String? {
-        let messageArray: Array<String?>
+        let messageArray: [String?]
         
         switch message.type {
         case .agent, .systemMessageAgent:
-            if message.message == "🤖" {
+            if message.quickReplies?.isEmpty == false {
                 return "parley_voice_over_announcement_quick_replies_received".localized
             } else {
                 messageArray = [
                     "parley_voice_over_announcement_message_received".localized,
-                    Self.getAccessibilityLabelDescription(for: message)
+                    Self.getAccessibilityLabelDescription(for: message),
+                    Self.createActionsAttachedLabelIfAvailable(message)
                 ]
             }
-        case .info:
+        case .info, .auto:
             messageArray = [
                 "parley_voice_over_announcement_info_message_received".localized,
                 message.message
@@ -132,6 +130,11 @@ extension Message.Accessibility {
                 nextResult.appendWithCorrectSpacing(nextString)
                 return nextResult
             }
+    }
+    
+    static private func createActionsAttachedLabelIfAvailable(_ message: Message) -> String? {
+        guard message.hasButtons else { return nil }
+        return "parley_voice_over_message_actions_attached".localized
     }
 }
 

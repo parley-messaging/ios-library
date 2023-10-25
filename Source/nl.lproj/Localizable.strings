@@ -19,9 +19,8 @@
 "parley_type_message" = "Typ een bericht...";
 
 // MARK: - Accessibility - Voice Over
-
 // Message Compose View
-"parley_voice_over_camera_button_label" = "Camera";
+"parley_voice_over_camera_button_label" = "Foto";
 "parley_voice_over_send_button_label" = "Verzenden";
 "parley_voice_over_send_button_disabled_hint" = "uitgeschakeld";
 "parley_voice_over_dismiss_keyboard_action" = "Toetsenbord verbergen";
@@ -34,9 +33,10 @@
 "parley_voice_over_message_failed" = "Bericht kan niet worden verzonden.";
 "parley_voice_over_message_pending" = "Bericht wordt nog steeds verzonden.";
 "parley_voice_over_message_time" = "Om %@.";
-
 "parley_voice_over_message_agent_is_typing" = "Agent is aan het typen.";
 "parley_voice_over_message_informational" = "Informatief bericht.";
+"parley_voice_over_message_loading" = "Oudere berichten worden opgehaald.";
+"parley_voice_over_message_actions_attached" = "Acties bijgevoegd.";
 
 // Announcements
 "parley_voice_over_announcement_sent_message" = "Bericht verstuurd.";

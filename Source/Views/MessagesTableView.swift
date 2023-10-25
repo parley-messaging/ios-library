@@ -18,10 +18,12 @@ internal class MessagesTableView: UITableView {
             
             let indexPath = IndexPath(row: row, section: section)
             scrollToRow(at: indexPath, at: .bottom, animated: animated)
+            isAtBottom = true
         case .top:
             guard numberOfRows(inSection: 0) > 0 else { return }
             let indexPath = IndexPath(row: 0, section: 0)
             scrollToRow(at: indexPath, at: .top, animated: animated)
+            isAtBottom = false
         }
     }
     

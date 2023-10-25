@@ -370,18 +370,20 @@ public class Parley {
         message.time = Date()
 
         if self.isLoading { return } // Ignore remote messages when configuring chat.
-        
-        if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
-            UIAccessibility.post(notification: .announcement, argument: announcement)
-        }
 
         if let id = message.id {
             MessageRepository().find(id, onSuccess: { [weak delegate, messagesManager] message in
+                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
+                }
                 delegate?.didStopTyping()
 
                 let indexPaths = messagesManager.add(message)
                 delegate?.didReceiveMessage(indexPaths)
             }) { [weak delegate, messagesManager] error in
+                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
+                }
                 delegate?.didStopTyping()
 
                 let indexPaths = messagesManager.add(message)

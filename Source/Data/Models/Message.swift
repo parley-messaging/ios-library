@@ -131,8 +131,7 @@ public class Message: Mappable, Equatable {
     }
     
     public func ignore() -> Bool {
-        
-        switch type! {
+        switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
             return true
         case .agentTyping, .loading:
@@ -145,6 +144,8 @@ public class Message: Mappable, Equatable {
                     buttons?.count ?? 0 == 0 &&
                     carousel?.count ?? 0 == 0 &&
                     media == nil)
+        case .none:
+            return true
         }
     }
 

@@ -2,8 +2,12 @@
 
 ## 3.8.0 - Upcoming
 
+- Added Dynamic Type support.
 - Added support for VoiceOver.
-- Added support for Dynamic Type.
+  - Read through the chat.
+  - Interact with the chat.
+  - Announcing received messages.
+  - Fully supporting rich message types.
 - Added dismiss button to image viewer.
 - All icons now preserve vector data for a cleaner resolve.
 - Fixed an issue where the loading or typing indicator would not display in some cases.
