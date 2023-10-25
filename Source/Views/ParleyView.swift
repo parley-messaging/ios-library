@@ -224,6 +224,9 @@ public class ParleyView: UIView {
     
     private func syncSuggestionsView() {
         if let message = getMessagesManager().messages.last, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+            if UIAccessibility.isVoiceOverRunning {
+                messagesTableView.scroll(to: .bottom, animated: false)
+            }
             suggestionsView.isHidden = false
             suggestionsView.render(quickReplies)
         } else {
@@ -582,9 +585,8 @@ extension ParleyView: UITableViewDelegate {
     private func updateSuggestionsAlpha() {
         let scrollY = messagesTableView.contentOffset.y
         let contentHeight = messagesTableView.contentSize.height - messagesTableView.frame.size.height
-        let isAtBottomOfContent = scrollY >= contentHeight
         
-        if isAtBottomOfContent {
+        if messagesTableView.isAtBottom {
             let bottomSpace: CGFloat
             switch appearance.notificationsPosition {
             case .top:
