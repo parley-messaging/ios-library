@@ -1,17 +1,46 @@
+"parley_cancel" = "Annuleren";
+"parley_ok" = "Oke";
+"parley_state_failed" = "De chat kan op het moment niet weergegeven worden.";
+"parley_state_unconfigured" = "De chat is niet geconfigureerd.";
+"parley_close" = "Sluiten";
+
+// MARK: Notifications
 "parley_push_disabled" = "Meldingen zijn uitgeschakeld";
 "parley_notification_offline" = "Controleer uw internetverbinding";
 
+// MARK: Photos
 "parley_photo" = "Foto";
 "parley_select_photo" = "Selecteer een foto";
 "parley_take_photo" = "Maak een foto";
-
-"parley_type_message" = "Typ een bericht...";
-
-"parley_cancel" = "Annuleren";
-"parley_ok" = "Oke";
-
-"parley_state_failed" = "De chat kan op het moment niet weergegeven worden.";
-"parley_state_unconfigured" = "De chat is niet geconfigureerd.";
-
 "parley_photo_access_denied_title" = "Foto toegang";
 "parley_photo_access_denied_body" = "We hebben toegang nodig tot je foto's. Ga naar instellingen en geef de applicatie toegang tot je foto's.";
+
+// MARK: Message Compose View
+"parley_type_message" = "Typ een bericht...";
+
+// MARK: - Accessibility - Voice Over
+// Message Compose View
+"parley_voice_over_camera_button_label" = "Foto";
+"parley_voice_over_send_button_label" = "Verzenden";
+"parley_voice_over_send_button_disabled_hint" = "uitgeschakeld";
+"parley_voice_over_dismiss_keyboard_action" = "Toetsenbord verbergen";
+
+// Message
+"parley_voice_over_message_from_agent_name" = "Bericht van %@.";
+"parley_voice_over_message_from_agent" = "Bericht van agent.";
+"parley_voice_over_message_from_you" = "Bericht van jou.";
+"parley_voice_over_message_media_attached" = "Media bijgevoegd.";
+"parley_voice_over_message_failed" = "Bericht kan niet worden verzonden.";
+"parley_voice_over_message_pending" = "Bericht wordt nog steeds verzonden.";
+"parley_voice_over_message_time" = "Om %@.";
+"parley_voice_over_message_agent_is_typing" = "Agent is aan het typen.";
+"parley_voice_over_message_informational" = "Informatief bericht.";
+"parley_voice_over_message_loading" = "Oudere berichten worden opgehaald.";
+"parley_voice_over_message_actions_attached" = "Acties bijgevoegd.";
+
+// Announcements
+"parley_voice_over_announcement_sent_message" = "Bericht verstuurd.";
+"parley_voice_over_announcement_agent_typing" = "Agent is aan het typen.";
+"parley_voice_over_announcement_message_received" = "Bericht ontvangen.";
+"parley_voice_over_announcement_info_message_received" = "Informatief bericht ontvangen.";
+"parley_voice_over_announcement_quick_replies_received" = "Suggesties beschikbaar.";

@@ -8,7 +8,7 @@ public class ParleyNotificationViewAppearance {
     public var iconTintColor: UIColor? = UIColor.white
     
     public var textColor = UIColor.white
-    public var font = UIFont.systemFont(ofSize: 13, weight: .regular)
+    @ParleyScaledFont(textStyle: .body) public var font = .systemFont(ofSize: 13, weight: .regular)
     
     init(icon: UIImage) {
         self.icon = icon

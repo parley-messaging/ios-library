@@ -4,6 +4,23 @@ Easily setup a secure chat with the Parley Messaging iOS library. The Parley SDK
 
 *Pay attention: You need an `appSecret` to use this library. The `appSecret` can be obtained by contacting [Parley](https://www.parley.nu/).*
 
+## Screenshots
+
+Empty | Conversation
+-- | --
+![Parley](Screenshots/default-empty.png) | ![Parley](Screenshots/default.png)
+
+## Features
+
+- Chat: Send and receive text messages by using Parley.
+- Images and gifs: Send and receive images, including gifs, within the chat.
+- Messages with actions: Provide custom action buttons, allowing the user to choose from a set of actions.
+- Carousel messages: Sending carousel messages as an agent when using rich messaging.
+- Nested messages: Carousel messages support the same features as other messages inside the chat.
+- Answer Suggestions: Agents can provide reply suggestions for users when using rich messaging.
+- Custom styling: Fully change the styling of the chat to match your brand. All elements can be styled based on your preference.
+- Accessibility: Full support for VoiceOver and Dynamic Type for a more accessible experience.
+
 ## Requirements
 
 - iOS 11.0+
@@ -13,12 +30,6 @@ Easily setup a secure chat with the Parley Messaging iOS library. The Parley SDK
 **Firebase**
 
 For remote notifications Parley relies on Google Firebase. Configure Firebase (using the [installation guide](https://firebase.google.com/docs/ios/setup)) if you haven't configured Firebase yet.
-
-## Screenshots
-
-Empty | Conversation
--- | --
-![Parley](Screenshots/default-empty.png) | ![Parley](Screenshots/default.png)
 
 ## Installation
 
@@ -30,7 +41,7 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.6.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.8.x"))
 ]
 ```
 

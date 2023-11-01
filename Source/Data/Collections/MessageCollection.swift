@@ -11,6 +11,11 @@ internal class MessageCollection: Mappable {
             //
         }
         
+        internal init(before: String, after: String) {
+            self.before = before
+            self.after = after
+        }
+        
         func mapping(map: Map) {
             self.before <- map["before"]
             self.after <- map["after"]
@@ -25,6 +30,20 @@ internal class MessageCollection: Mappable {
     
     required init?(map: Map) {
         //
+    }
+    
+    internal init(
+        messages: [Message],
+        agent: Agent?,
+        paging: Paging,
+        stickyMessage: String?,
+        welcomeMessage: String?
+    ) {
+        self.messages = messages
+        self.agent = agent
+        self.paging = paging
+        self.stickyMessage = stickyMessage
+        self.welcomeMessage = welcomeMessage
     }
     
     func mapping(map: Map) {

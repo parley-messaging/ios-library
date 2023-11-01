@@ -30,6 +30,13 @@ class SuggestionCollectionViewCell: UICollectionViewCell {
     
     internal func render(_ suggestion: String) {
         self.suggestionLabel.text = suggestion
+        setupAccessibilityOptions(suggestion)
+    }
+    
+    private func setupAccessibilityOptions(_ suggestion: String) {
+        isAccessibilityElement = true
+        accessibilityLabel = suggestion
+        accessibilityTraits = [.button]
     }
     
     private func apply(_ appearance: SuggestionCollectionViewCellAppearance) {

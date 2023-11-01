@@ -1,17 +1,46 @@
+"parley_cancel" = "Cancel";
+"parley_ok" = "Ok";
+"parley_state_failed" = "The chat cannot be displayed at this time.";
+"parley_state_unconfigured" = "The chat is not configured.";
+"parley_close" = "Close";
+
+// MARK: Notifications
 "parley_push_disabled" = "Notifications are disabled";
 "parley_notification_offline" = "Check your internet connection";
 
+// MARK: Photos
 "parley_photo" = "Photo";
 "parley_select_photo" = "Select photo";
 "parley_take_photo" = "Take photo";
-
-"parley_type_message" = "Type a message...";
-
-"parley_cancel" = "Cancel";
-"parley_ok" = "Ok";
-
-"parley_state_failed" = "The chat cannot be displayed at this time.";
-"parley_state_unconfigured" = "The chat is not configured.";
-
 "parley_photo_access_denied_title" = "Photo access";
 "parley_photo_access_denied_body" = "We need access to your photos. Go to settings and give the application access to your photos.";
+
+// MARK: Message Compose View
+"parley_type_message" = "Type a message...";
+
+// MARK: - Accessibility - Voice Over
+// Message Compose View
+"parley_voice_over_camera_button_label" = "Picture";
+"parley_voice_over_send_button_label" = "Send";
+"parley_voice_over_send_button_disabled_hint" = "Disabled";
+"parley_voice_over_dismiss_keyboard_action" = "Dismiss keyboard";
+
+// Message
+"parley_voice_over_message_from_agent_name" = "Message from %@.";
+"parley_voice_over_message_from_agent" = "Message from agent.";
+"parley_voice_over_message_from_you" = "Message from you.";
+"parley_voice_over_message_media_attached" = "Media attached.";
+"parley_voice_over_message_failed" = "Message failed to send.";
+"parley_voice_over_message_pending" = "Message still sending.";
+"parley_voice_over_message_time" = "At %@.";
+"parley_voice_over_message_agent_is_typing" = "Agent is typing.";
+"parley_voice_over_message_informational" = "Informational message.";
+"parley_voice_over_message_loading" = "Older message are being retrieved.";
+"parley_voice_over_message_actions_attached" = "Actions attached.";
+
+// Announcements
+"parley_voice_over_announcement_sent_message" = "Message sent.";
+"parley_voice_over_announcement_agent_typing" = "Agent is typing.";
+"parley_voice_over_announcement_message_received" = "Message received.";
+"parley_voice_over_announcement_info_message_received" = "Informational message received.";
+"parley_voice_over_announcement_quick_replies_received" = "Suggestions available.";

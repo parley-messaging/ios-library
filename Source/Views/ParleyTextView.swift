@@ -27,9 +27,9 @@ class ParleyTextView: UITextView {
     
     var paragraphStyle = NSMutableParagraphStyle()
     
-    var regularFont: UIFont = UIFont.systemFont(ofSize: 14)
-    var italicFont: UIFont = UIFont.italicSystemFont(ofSize: 14)
-    var boldFont: UIFont = UIFont.boldSystemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var regularFont = .systemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var italicFont = .italicSystemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var boldFont = .boldSystemFont(ofSize: 14)
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
@@ -44,11 +44,14 @@ class ParleyTextView: UITextView {
     }
     
     private func setup() {
-        self.isSelectable = true
-        self.isEditable = false
-        self.isScrollEnabled = false
+        isSelectable = true
+        isEditable = false
+        isScrollEnabled = false
+        alwaysBounceVertical = false
         
-        self.textContainerInset = .zero
-        self.textContainer.lineFragmentPadding = 0
+        textContainerInset = .zero
+        textContainer.lineFragmentPadding = 0
+        
+        adjustsFontForContentSizeCategory = true
     }
 }

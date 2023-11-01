@@ -9,7 +9,11 @@ public class ParleyComposeView: UIView {
         }
     }
     
-    @IBOutlet weak var cameraButton: UIButton!
+    @IBOutlet weak var cameraButton: UIButton! {
+        didSet {
+            cameraButton.accessibilityLabel = "parley_voice_over_camera_button_label".localized
+        }
+    }
     @IBOutlet weak var textViewBackgroundView: UIView! {
         didSet {
             self.textViewBackgroundView.layer.cornerRadius = 18
@@ -28,12 +32,46 @@ public class ParleyComposeView: UIView {
             keyboardAccessoryView.delegate = self
             
             self.textView.inputAccessoryView = keyboardAccessoryView
+            
+            textView.accessibilityCustomActions = [
+                UIAccessibilityCustomAction(
+                    name: "parley_voice_over_dismiss_keyboard_action".localized,
+                    target: self,
+                    selector: #selector(dismissKeyboard)
+                )
+            ]
+            
+            textView.adjustsFontForContentSizeCategory = true
         }
     }
-    @IBOutlet weak var placeholderLabel: UILabel!
+    
+    @objc private func dismissKeyboard() {
+        textView.resignFirstResponder()
+    }
+    
+    @IBOutlet weak var placeholderLabel: UILabel! {
+        didSet {
+            placeholderLabel.isAccessibilityElement = false
+            placeholderLabel.adjustsFontForContentSizeCategory = true
+            placeholderLabel.numberOfLines = 2
+        }
+    }
+    
+    private var sendButtonEnabledObservation: NSKeyValueObservation?
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
-            self.sendButton.layer.cornerRadius = 13
+            sendButton.layer.cornerRadius = sendButton.bounds.height / 2
+            sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
+            
+            sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
+                let isEnabled = change.newValue
+                
+                if isEnabled == true {
+                    self?.sendButton.accessibilityHint = nil
+                } else {
+                    self?.sendButton.accessibilityHint = "parley_voice_over_send_button_disabled_hint".localized
+                }
+            }
         }
     }
     
@@ -51,14 +89,17 @@ public class ParleyComposeView: UIView {
     
     var placeholder: String? {
         didSet {
-            self.placeholderLabel.text = self.placeholder
+            placeholderLabel.text = placeholder
+            textView.accessibilityLabel = placeholder
+            setPlaceHolderHeight()
         }
     }
+    
     var isEnabled: Bool = true {
         didSet {
-            self.cameraButton.isEnabled = self.isEnabled
-            self.textView.isEditable = self.isEnabled
-            self.sendButton.isEnabled = self.isEnabled && !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            cameraButton.isEnabled = isEnabled
+            textView.isEditable = isEnabled
+            sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
     var maxCount: Int = 2000
@@ -73,32 +114,38 @@ public class ParleyComposeView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.setup()
+        setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        self.setup()
+        setup()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
     
     private func setup() {
-        self.loadXib()
-        
-        self.apply(self.appearance)
+        loadXib()
+        apply(appearance)
+        watchForContentSizeCategoryChanges()
     }
     
     private func loadXib() {
         Bundle.current.loadNibNamed("ParleyComposeView", owner: self, options: nil)
         
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
         
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        self.bottomLayoutConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
-        self.bottomLayoutConstraint.isActive = true
+        bottomLayoutConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0),
+            bottomLayoutConstraint
+        ])
     }
     
     private func apply(_ appearance: ParleyComposeViewAppearance) {
@@ -109,13 +156,21 @@ public class ParleyComposeView: UIView {
         
         self.sendButton.backgroundColor = appearance.sendBackgroundColor
         if let iconTintColor = appearance.sendTintColor {
-            self.sendButton.setImage(appearance.sendIcon.withRenderingMode(.alwaysTemplate), for: .normal)
+            let sendIcon = appearance.sendIcon.withRenderingMode(.alwaysTemplate)
+            sendIcon.isAccessibilityElement = false
+            sendIcon.accessibilityLabel = nil
+            
+            self.sendButton.setImage(sendIcon, for: .normal)
+            
             self.sendButton.tintColor = iconTintColor
         } else {
             self.sendButton.setImage(appearance.sendIcon, for: .normal)
         }
         
-        self.cameraButton.setImage(appearance.cameraIcon.withRenderingMode(.alwaysTemplate), for: .normal)
+        let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
+        cameraIcon.isAccessibilityElement = false
+        cameraIcon.accessibilityLabel = nil
+        self.cameraButton.setImage(cameraIcon, for: .normal)
         self.cameraButton.tintColor = appearance.cameraTintColor
         
         self.placeholderLabel.textColor = appearance.placeholderColor
@@ -124,6 +179,33 @@ public class ParleyComposeView: UIView {
         self.textView.textColor = appearance.textColor
         self.textView.tintColor = appearance.tintColor
         self.textView.font = appearance.font
+    }
+    
+    private func watchForContentSizeCategoryChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleContentSizeCategoryDidChange),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func handleContentSizeCategoryDidChange() {
+        setPlaceHolderHeight()
+    }
+    
+    func setPlaceHolderHeight() {
+        // Needs extra time to render label in new font size.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.placeholderLabel.sizeToFit()
+            
+            if textView.text?.isEmpty == true {
+                self.textViewHeightConstraint.constant = max(23, self.placeholderLabel.bounds.height)
+            }
+            
+            self.layoutIfNeeded()
+        }
     }
     
     @IBAction func send(_ sender: UIButton) {
@@ -142,8 +224,8 @@ public class ParleyComposeView: UIView {
             break
         case .notDetermined:
             PHPhotoLibrary.requestAuthorization { _ in
-                DispatchQueue.main.async {
-                    self.presentImageActionSheet(sender)
+                DispatchQueue.main.async { [weak self] in
+                    self?.presentImageActionSheet(sender)
                 }
             }
             
@@ -171,21 +253,20 @@ public class ParleyComposeView: UIView {
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_select_photo", bundle: Bundle.current, comment: ""),
             style: .default,
-            handler: { (action) in
-                self.showImagePickerController(.photoLibrary)
+            handler: { [weak self] action in
+                self?.showImagePickerController(.photoLibrary)
         }))
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_take_photo", bundle: Bundle.current, comment: ""),
             style: .default,
-            handler: { (action) in
-                self.showImagePickerController(.camera)
+            handler: { [weak self] action in
+                self?.showImagePickerController(.camera)
         }))
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_cancel", bundle: Bundle.current, comment: ""),
-            style: .cancel,
-            handler: nil
+            style: .cancel
         ))
         
         self.present(alertController, animated: true, completion: nil)
@@ -208,8 +289,7 @@ public class ParleyComposeView: UIView {
         
         alertController.addAction(UIAlertAction(
             title: NSLocalizedString("parley_ok", bundle: Bundle.current, comment: ""),
-            style: .cancel,
-            handler: nil
+            style: .cancel
         ))
         
         self.present(alertController, animated: true, completion: nil)

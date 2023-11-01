@@ -5,7 +5,6 @@ import UIKit
 public class Parley {
 
     enum State {
-
         case unconfigured
         case configuring
         case configured
@@ -128,7 +127,7 @@ public class Parley {
 
     // MARK: Configure
     private func configure(_ secret: String, uniqueDeviceIdentifier: String?, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        debugPrint("Parley.configure(_, _, _, _)")
+        debugPrint("Parley.\(#function)")
 
         self.state = .unconfigured
 
@@ -139,7 +138,7 @@ public class Parley {
     }
 
     private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        debugPrint("Parley.configure(_, _)")
+        debugPrint("Parley.\(#function)")
 
         if self.isLoading { return }
         self.isLoading = true
@@ -188,7 +187,7 @@ public class Parley {
                 onSuccess?()
             }
 
-            if let lastMessage = self.messagesManager.lastMessage, let id = lastMessage.id {
+            if let lastMessage = self.messagesManager.lastSentMessage, let id = lastMessage.id {
                 MessageRepository().findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
                     messagesManager?.handle(messageCollection, .after)
 
@@ -374,11 +373,17 @@ public class Parley {
 
         if let id = message.id {
             MessageRepository().find(id, onSuccess: { [weak delegate, messagesManager] message in
+                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
+                }
                 delegate?.didStopTyping()
 
                 let indexPaths = messagesManager.add(message)
                 delegate?.didReceiveMessage(indexPaths)
             }) { [weak delegate, messagesManager] error in
+                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
+                }
                 delegate?.didStopTyping()
 
                 let indexPaths = messagesManager.add(message)
@@ -434,6 +439,7 @@ public class Parley {
         })
 
         if agentReallyStartTyping {
+            UIAccessibility.post(notification: .announcement, argument: "parley_voice_over_announcement_agent_typing".localized)
             self.delegate?.didStartTyping()
         }
     }

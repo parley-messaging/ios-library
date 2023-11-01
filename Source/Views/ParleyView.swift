@@ -9,11 +9,13 @@ public class ParleyView: UIView {
     }
 
     @IBOutlet var tapGestureRecognizer: UITapGestureRecognizer!
+    private var tableViewTopPaddingTapGestureRecognizer: UITapGestureRecognizer?
 
-    @IBOutlet weak var messagesTableView: ReversedTableView! {
-        didSet { messagesTableView.separatorStyle = .none }
-    }
-
+    private var messagesContentHeightObserver: NSKeyValueObservation?
+    @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messagesTableView: MessagesTableView!
+    @IBOutlet private weak var messagesTableViewPaddingToSafeAreaTopView: UIView!
+    
     @IBOutlet weak var notificationsStackView: UIStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
     private weak var notificationsConstraintBottom: NSLayoutConstraint? = nil
@@ -36,10 +38,10 @@ public class ParleyView: UIView {
             syncMessageTableViewContentInsets()
         }
     }
-    @IBOutlet weak var suggestionsContraintBottom: NSLayoutConstraint!
+    @IBOutlet weak var suggestionsConstraintBottom: NSLayoutConstraint!
 
     @IBOutlet weak var composeView: ParleyComposeView! {
-        didSet{
+        didSet {
             composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
             composeView.maxCount = kParleyMessageMaxCount
 
@@ -54,6 +56,7 @@ public class ParleyView: UIView {
     
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
+    private var isShowingKeyboardWithMessagesScrolledToBottom = false
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -149,6 +152,24 @@ public class ParleyView: UIView {
 
         messagesTableView.dataSource = self
         messagesTableView.delegate = self
+        messagesTableView.separatorStyle = .none
+        messagesTableView.keyboardDismissMode = .interactive
+        messagesTableView.alwaysBounceVertical = false
+        
+        messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [.initial, .new]) { [weak self] messagesTableView, change in
+            guard let self, let newContentHeight = change.newValue?.height else { return }
+            let verticalInsets = messagesTableView.contentInset.top + messagesTableView.contentInset.bottom
+            let newHeight = newContentHeight + verticalInsets
+            
+            self.messagesTableViewHeightConstraint.constant = newHeight
+            
+            let isScrollable = newContentHeight > messagesTableView.frame.maxY
+            if isScrollable {
+                messagesTableView.keyboardDismissMode = .interactive
+            } else {
+                messagesTableView.keyboardDismissMode = .onDrag
+            }
+        }
     }
 
     private func registerNibCell(_ nibName: String) {
@@ -165,11 +186,11 @@ public class ParleyView: UIView {
         case .top:
             top = notificationsHeight
             bottom = suggestionsHeight
-            suggestionsContraintBottom.constant = 0
+            suggestionsConstraintBottom.constant = 0
         case .bottom:
             top = 0
             bottom = suggestionsHeight + notificationsHeight
-            suggestionsContraintBottom.constant = notificationsHeight
+            suggestionsConstraintBottom.constant = notificationsHeight
         }
         
         messagesTableView.contentInset = UIEdgeInsets(
@@ -178,15 +199,22 @@ public class ParleyView: UIView {
             bottom: bottom,
             right: 0
         )
-
-        let isAtBottom = messagesTableView.contentOffset.y <= 0
-        if (isAtBottom) {
+        
+        if messagesTableView.isAtBottom {
             // Stay at bottom
-            messagesTableView.setContentOffset(CGPoint(x: 0, y: 0 - bottom), animated: true)
+            messagesTableView.scroll(to: .bottom, animated: true)
         }
     }
     
     private func getNotificationsHeight() -> CGFloat {
+        return notificationsStackView.frame.height
+    }
+    
+    /// Gets the notification height for the specified vertical position based on the current appearance.
+    /// - Parameter position: Vertical position
+    /// - Returns: Vertical height, `0` if the current appearance is not the
+    private func getNotificationsHeight(for position: ParleyPositionVertical) -> CGFloat {
+        guard appearance.notificationsPosition == position else { return .zero }
         return notificationsStackView.frame.height
     }
     
@@ -195,7 +223,10 @@ public class ParleyView: UIView {
     }
     
     private func syncSuggestionsView() {
-        if let message = getMessagesManager().messages.first, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+        if let message = getMessagesManager().messages.last, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+            if UIAccessibility.isVoiceOverRunning {
+                messagesTableView.scroll(to: .bottom, animated: false)
+            }
             suggestionsView.isHidden = false
             suggestionsView.render(quickReplies)
         } else {
@@ -206,24 +237,60 @@ public class ParleyView: UIView {
 
     // MARK: Observers
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(contentSizeCategoryDidChange), name: UIContentSizeCategory.didChangeNotification, object: nil)
+        watchForVoiceOverDidChangeNotification(observer: self)
     }
 
     private func removeObservers() {
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillShowNotification)
+        NotificationCenter.default.removeObserver(UIResponder.keyboardDidShowNotification)
         NotificationCenter.default.removeObserver(UIResponder.keyboardWillHideNotification)
+        NotificationCenter.default.removeObserver(UIResponder.keyboardDidHideNotification)
         NotificationCenter.default.removeObserver(UIDevice.orientationDidChangeNotification)
+        NotificationCenter.default.removeObserver(UIContentSizeCategory.didChangeNotification)
+        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
     }
 
     // MARK: Keyboard
-    @objc private func keyboardDidShow(notification: NSNotification) {
+    @objc private func keyboardWillShow(notification: NSNotification) {
         messagesTableView.addGestureRecognizer(tapGestureRecognizer)
+        
+        if messagesTableView.isAtBottom {
+            isShowingKeyboardWithMessagesScrolledToBottom = true
+        }
+        
+        let topPaddingTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard(_:)))
+        messagesTableViewPaddingToSafeAreaTopView.addGestureRecognizer(topPaddingTapGestureRecognizer)
+        tableViewTopPaddingTapGestureRecognizer = topPaddingTapGestureRecognizer
+    }
+    
+    @objc private func keyboardDidShow() {
+        guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
+        messagesTableView.scroll(to: .bottom, animated: false)
+        isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
-    @objc private func keyboardDidHide(notification: NSNotification) {
+    @objc private func keyboardWillHide(notification: NSNotification) {
         messagesTableView.removeGestureRecognizer(tapGestureRecognizer)
+        if let tableViewTopPaddingTapGestureRecognizer {
+            messagesTableViewPaddingToSafeAreaTopView.removeGestureRecognizer(tableViewTopPaddingTapGestureRecognizer)
+            self.tableViewTopPaddingTapGestureRecognizer = nil
+        }
+        
+        if messagesTableView.isAtBottom {
+            isShowingKeyboardWithMessagesScrolledToBottom = true
+        }
+    }
+    
+    @objc private func keyboardDidHide() {
+        guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
+        messagesTableView.scroll(to: .bottom, animated: true)
+        isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
     @IBAction func hideKeyboard(_ sender: Any) {
@@ -286,6 +353,7 @@ extension ParleyView: ParleyDelegate {
 
     func didSent(_ message: Message) {
         delegate?.didSentMessage()
+        UIAccessibility.post(notification: .announcement, argument: "parley_voice_over_announcement_sent_message".localized)
     }
 
     func didReceiveMessage(_ indexPath: [IndexPath]) {
@@ -373,6 +441,7 @@ extension ParleyView: ParleyDelegate {
             messagesTableView.scroll(to: .bottom, animated: false)
             
             DispatchQueue.main.async { [weak self] in
+                self?.messagesTableView.scroll(to: .bottom, animated: false)
                 self?.updateSuggestionsAlpha()
             }
         }
@@ -412,11 +481,7 @@ extension ParleyView: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row >= getMessagesManager().messages.count {
-            return .init()
-        }
-        
-        let message = getMessagesManager().messages[indexPath.row]
+        guard let message = getMessagesManager().messages[safe: indexPath.row] else { return .init() }
 
         switch message.type {
         case .agent?:
@@ -498,6 +563,8 @@ extension ParleyView: UITableViewDataSource {
 extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        messagesTableView.scrollViewDidScroll()
+        
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
 
@@ -506,7 +573,9 @@ extension ParleyView: UITableViewDelegate {
 
         let position = Int(scrollY + height)
         let positionTop = Int(contentHeight + insetHeight)
-        if positionTop-5...positionTop+5 ~= position, let lastMessageId = getMessagesManager().originalMessages.last?.id {
+        
+        if ((positionTop - 5)...(positionTop + 5)).contains(position),
+           let lastMessageId = getMessagesManager().getOldestMessage()?.id {
             Parley.shared.loadMoreMessages(lastMessageId)
         }
         
@@ -515,9 +584,9 @@ extension ParleyView: UITableViewDelegate {
     
     private func updateSuggestionsAlpha() {
         let scrollY = messagesTableView.contentOffset.y
-        if scrollY > 0 {
-            suggestionsView.alpha = 0
-        } else if scrollY < 0 {
+        let contentHeight = messagesTableView.contentSize.height - messagesTableView.frame.size.height
+        
+        if messagesTableView.isAtBottom {
             let bottomSpace: CGFloat
             switch appearance.notificationsPosition {
             case .top:
@@ -525,9 +594,10 @@ extension ParleyView: UITableViewDelegate {
             case .bottom:
                 bottomSpace = getNotificationsHeight()
             }
-            let alpha = (abs(scrollY) - bottomSpace) / getSuggestionsHeight()
-            
-            suggestionsView.alpha = alpha > 1 ? 1 : alpha
+            let alpha = (scrollY - (contentHeight + bottomSpace)) / getSuggestionsHeight()
+            suggestionsView.alpha = alpha
+        } else {
+            suggestionsView.alpha = 0
         }
     }
 
@@ -595,5 +665,19 @@ extension ParleyView: ParleySuggestionsViewDelegate {
     
     func didSelect(_ suggestion: String) {
         Parley.shared.send(suggestion)
+    }
+}
+
+// MARK: - Accessibility
+internal extension ParleyView {
+    
+    // MARK: VoiceOver
+    override func voiceOverDidChange(isVoiceOverRunning: Bool) {
+        messagesTableView.reloadData()
+    }
+    
+    // MARK: Dynamic Type
+    @objc private func contentSizeCategoryDidChange() {
+        messagesTableView.reloadData()
     }
 }
