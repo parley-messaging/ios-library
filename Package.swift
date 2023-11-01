@@ -31,7 +31,11 @@ let package = Package(
                 "Reachability",
                 "MarkdownKit"
             ],
-            path: "Source"
+            path: "Source",
+            exclude: [
+                "ParleyTests/Data/ParleyInMemoryDataSource.swift",
+                "ParleyTests/MessagesManagerTests.swift",
+            ]
         )
     ],
     swiftLanguageVersions: [.v5]
