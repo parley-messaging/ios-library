@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.8.0 - 1 Nov 2023
+## 3.8.0 - Released 1 Nov 2023
 
 - Added Dynamic Type support.
 - Added support for VoiceOver.

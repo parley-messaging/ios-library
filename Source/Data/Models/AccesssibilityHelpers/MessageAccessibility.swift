@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 // MARK: - Accessibility - Accessibility Label
 extension Message {
