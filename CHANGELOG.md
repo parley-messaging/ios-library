@@ -2,6 +2,8 @@
 
 ## 3.8.0 - Released 1 Nov 2023
 
+**IMPORTANT**: Parley now has a minimum deployment target of iOS 12.0.
+
 - Added Dynamic Type support.
 - Added support for VoiceOver.
   - Read through the chat.

@@ -6,7 +6,7 @@ let package = Package(
     name: "Parley",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v12)
     ],
     products: [
         .library(

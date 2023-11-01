@@ -23,8 +23,8 @@ Empty | Conversation
 
 ## Requirements
 
-- iOS 11.0+
-- Xcode 12+
+- iOS 12.0+
+- Xcode 14+
 - Swift 5+
 
 **Firebase**
