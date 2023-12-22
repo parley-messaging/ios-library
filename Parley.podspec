@@ -17,8 +17,8 @@ Pod::Spec.new do |s|
     "Source/**/*.xib"
   ]
 
-  s.dependency 'Alamofire', '~> 5.4.1'
-  s.dependency 'AlamofireImage', '~> 4.1.0'
+  s.dependency 'Alamofire', '~> 5.8.1'
+  s.dependency 'AlamofireImage', '~> 4.3.0'
 
   s.dependency 'ObjectMapper', '~> 4.2.0'
 

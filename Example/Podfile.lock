@@ -1,7 +1,7 @@
 PODS:
-  - Alamofire (5.4.1)
-  - AlamofireImage (4.1.0):
-    - Alamofire (~> 5.1)
+  - Alamofire (5.8.1)
+  - AlamofireImage (4.3.0):
+    - Alamofire (~> 5.8)
   - Firebase/Analytics (7.9.0):
     - Firebase/Core
   - Firebase/Core (7.9.0):
@@ -84,8 +84,8 @@ PODS:
   - nanopb/encode (2.30907.0)
   - ObjectMapper (4.2.0)
   - Parley (3.8.0):
-    - Alamofire (~> 5.4.1)
-    - AlamofireImage (~> 4.1.0)
+    - Alamofire (~> 5.8.1)
+    - AlamofireImage (~> 4.3.0)
     - MarkdownKit (~> 1.6)
     - ObjectMapper (~> 4.2.0)
     - ReachabilitySwift (~> 5.0.0)
@@ -122,8 +122,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
-  AlamofireImage: c4a2ba349885fb3064feb74d2e547bd42ce9be10
+  Alamofire: 3ca42e259043ee0dc5c0cdd76c4bc568b8e42af7
+  AlamofireImage: 843953fa97bee5f561cf05d83abd759e590b068d
   Firebase: d8bd6bd34b4c7ed57bfdd056c66ff5adcdde53ab
   FirebaseAnalytics: 31b1269830dfe16687db3c60b76082c12bd6d527
   FirebaseCore: 0798738ad1ae0fda67e17c7b9081241c431c6859
