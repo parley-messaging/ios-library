@@ -1,7 +1,7 @@
 import XCTest
 @testable import Parley
 
-final internal class MessagesManagerTests: XCTestCase {
+final class MessagesManagerTests: XCTestCase {
     
     struct MessagesManagerTestsError: Error {
         let message: String
