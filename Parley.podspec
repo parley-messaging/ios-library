@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'git@github.com:parley-messaging/ios-library.git', :tag => s.version.to_s }
   s.swift_version    = '5.0'
 
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
 
   s.source_files = 'Source/**/*.swift'
   s.resources = [
