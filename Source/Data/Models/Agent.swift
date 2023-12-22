@@ -1,22 +1,13 @@
-import ObjectMapper
+import Foundation
 
-class Agent: Mappable {
+struct Agent: Codable, Equatable {
+    var id: Int?
+    var name: String?
+    var avatar: String?
     
-    var id: Int!
-    var name: String!
-    var avatar: String!
-    
-    init() {
-        //
-    }
-    
-    required init?(map: Map) {
-        //
-    }
-    
-    func mapping(map: Map) {
-        self.id <- map["id"]
-        self.name <- map["name"]
-        self.avatar <- map["avatar"]
+    init(id: Int? = nil, name: String? = nil, avatar: String? = nil) {
+        self.id = id
+        self.name = name
+        self.avatar = avatar
     }
 }

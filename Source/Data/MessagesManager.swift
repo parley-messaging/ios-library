@@ -22,7 +22,7 @@ class MessagesManager {
             message.id != nil && message.status == .success
         }
     }
-    
+
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
         originalMessages.reduce([Message]()) { partialResult, message in
@@ -34,7 +34,7 @@ class MessagesManager {
             }
         }
     }
-    
+
     internal func getOldestMessage() -> Message? {
         messages.first(where: {
             switch $0.type {
@@ -63,8 +63,8 @@ class MessagesManager {
         self.stickyMessage = nil
         self.welcomeMessage = Parley.shared.dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
         
-        if let cachedPaging = Parley.shared.dataSource?.string(forKey: kParleyCacheKeyPaging) {
-            self.paging = MessageCollection.Paging(JSONString: cachedPaging)
+        if let cachedPagingData = Parley.shared.dataSource?.data(forKey: kParleyCacheKeyPaging) {
+            self.paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
         } else {
             self.paging = nil
         }
@@ -79,8 +79,8 @@ class MessagesManager {
             }
             return true
         }
-        
-        
+
+
         switch handleType {
         case .before:
             originalMessages.insert(contentsOf: newMessages, at: .zero)
@@ -103,7 +103,7 @@ class MessagesManager {
 
         if handleType != .after {
             paging = messageCollection.paging
-            Parley.shared.dataSource?.set(paging?.toJSONString(), forKey: kParleyCacheKeyPaging)
+            Parley.shared.dataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
         }
         
         formatMessages()
@@ -134,7 +134,7 @@ class MessagesManager {
         
         return indexPaths
     }
-    
+
     private func lastMessage() -> (index: Int, message: Message)? {
         guard let lastMessage = messages.last else { return nil }
         var lastMessageIndex = messages.count - 1
@@ -143,20 +143,20 @@ class MessagesManager {
         }
         return (lastMessageIndex, lastMessage)
     }
-    
+
     private func isFirstMessageOfToday(_ message: Message) -> Bool {
         guard
             !messages.isEmpty,
             let (lastMessageIndex, lastMessage) = self.lastMessage()
         else { return true }
-        
+
         guard let messageTime = message.time else { return false }
 
         let calendar = Calendar.current
         let lastDate = (messages.count > lastMessageIndex ? lastMessage.time : nil) ?? Date()
         let messageDatesMatch = calendar.isDate(lastDate, inSameDayAs: messageTime)
         let isFirstMessageAfterInfoMessage = messages.count > lastMessageIndex && lastMessage.type == .info
-        
+
         return isFirstMessageAfterInfoMessage || !messageDatesMatch
     }
 
@@ -191,31 +191,31 @@ class MessagesManager {
     
     internal func formatMessages() {
         var formattedMessages: [Message] = []
-        
+
         if canLoadMore() {
             formattedMessages.append(createLoadingMessage())
         } else if let welcomeMessage = welcomeMessage {
             formattedMessages.append(createInfoMessages(welcomeMessage))
         }
-        
+
         let messagesByDate = getMessagesByDate()
-        
+
         for date in messagesByDate.keys.sorted(by: <) {
             for message in messagesByDate[date]!.sorted(by: <) {
                 formattedMessages.append(message)
             }
         }
-        
+
         if messages.last?.type == .agentTyping {
             formattedMessages.append(createTypingMessage())
         }
 
         messages = formattedMessages
     }
-    
+
     private func getMessagesByDate() -> [Date: [Message]] {
         let calendar = Calendar.current
-        
+
         var messagesByDate = [Date: [Message]]()
         for message in originalMessages {
             guard let time = message.time else { continue }
@@ -225,16 +225,16 @@ class MessagesManager {
             }
             messagesByDate[date]?.append(message)
         }
-        
+
         return messagesByDate
     }
-    
+
     private func createTypingMessage() -> Message {
         let typingMessage = Message()
         typingMessage.type = .agentTyping
         return typingMessage
     }
-    
+
     private func createDateMessage(_ date: Date) -> Message {
         let dateMessage = Message()
         dateMessage.time = date
@@ -242,14 +242,14 @@ class MessagesManager {
         dateMessage.type = .date
         return dateMessage
     }
-    
+
     private func createInfoMessages(_ message: String) -> Message {
         let infoMessage = Message()
         infoMessage.type = .info
         infoMessage.message = message
         return infoMessage
     }
-    
+
     private func createLoadingMessage() -> Message {
         let loadingMessage = Message()
         loadingMessage.type = .loading
@@ -257,7 +257,7 @@ class MessagesManager {
     }
 
     internal func canLoadMore() -> Bool {
-        if let paging = paging, let before = paging.before, !before.isEmpty {
+        if let paging = paging, !paging.before.isEmpty {
             return true
         }
         
@@ -276,7 +276,7 @@ class MessagesManager {
 
 // MARK: - Only used for testing
 private extension  MessagesManager {
-    
+
     func testMessages() {
         let userMessage_shortPending = Message()
         userMessage_shortPending.type = .user
@@ -298,8 +298,7 @@ private extension  MessagesManager {
         let agentMessage_messageWithCarouselSmall = Message()
         agentMessage_messageWithCarouselSmall.id = 1
         agentMessage_messageWithCarouselSmall.type = .agent
-        agentMessage_messageWithCarouselSmall.agent = Agent()
-        agentMessage_messageWithCarouselSmall.agent?.name = "Webuildapps"
+        agentMessage_messageWithCarouselSmall.agent = Agent(name: "Webuildapps")
         agentMessage_messageWithCarouselSmall.message = "Here are some quick actions for more information about *Parley*"
         agentMessage_messageWithCarouselSmall.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
         agentMessage_messageWithCarouselSmall.buttons = [
@@ -321,8 +320,7 @@ private extension  MessagesManager {
         let agentMessage_messageWithCarouselImages = Message()
         agentMessage_messageWithCarouselImages.id = 2
         agentMessage_messageWithCarouselImages.type = .agent
-        agentMessage_messageWithCarouselImages.agent = Agent()
-        agentMessage_messageWithCarouselImages.agent?.name = "Webuildapps"
+        agentMessage_messageWithCarouselImages.agent = Agent(name: "Webuildapps")
         agentMessage_messageWithCarouselImages.imageURL = URL(string: "https://parley.nu/images/tab6.png")
         agentMessage_messageWithCarouselImages.buttons = [
             createButton("Home page", "https://www.parley.nu/")
@@ -355,9 +353,6 @@ private extension  MessagesManager {
     }
     
     func createButton(_ title: String, _ payload: String) -> MessageButton {
-        let b = MessageButton()
-        b.title = title
-        b.payload = payload
-        return b
+        return MessageButton(title: title, payload: payload)
     }
 }

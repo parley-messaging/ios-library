@@ -1,22 +1,13 @@
-import ObjectMapper
 
-public class MessageButton: Mappable {
+public struct MessageButton: Codable {
    
-    var title: String!
-    var payload: String!
+    var title: String
+    var payload: String?
     var type: MessageButtonType!
     
-    public init() {
-        //
-    }
-
-    public required init?(map: Map) {
-        //
-    }
-
-    public func mapping(map: Map) {
-        self.title      <- map["title"]
-        self.payload    <- map["payload"]
-        self.type       <- map["type"]
+    init(title: String, payload: String, type: MessageButtonType = .reply) {
+        self.title = title
+        self.payload = payload
+        self.type = type
     }
 }

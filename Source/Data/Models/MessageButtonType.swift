@@ -1,4 +1,4 @@
-enum MessageButtonType: String {
+enum MessageButtonType: String, Codable {
     case reply
     case phoneNumber
     case webUrl
