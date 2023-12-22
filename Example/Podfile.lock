@@ -82,12 +82,10 @@ PODS:
     - nanopb/encode (= 2.30907.0)
   - nanopb/decode (2.30907.0)
   - nanopb/encode (2.30907.0)
-  - ObjectMapper (4.2.0)
   - Parley (3.8.0):
     - Alamofire (~> 5.8.1)
     - AlamofireImage (~> 4.3.0)
     - MarkdownKit (~> 1.6)
-    - ObjectMapper (~> 4.2.0)
     - ReachabilitySwift (~> 5.0.0)
   - PromisesObjC (1.2.12)
   - ReachabilitySwift (5.0.0)
@@ -113,7 +111,6 @@ SPEC REPOS:
     - GoogleUtilities
     - MarkdownKit
     - nanopb
-    - ObjectMapper
     - PromisesObjC
     - ReachabilitySwift
 
@@ -136,8 +133,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: e1d9ed4e544fc32a93e00e721400cbc3f377200d
   MarkdownKit: a00e8e2e77c091367996f6013a0a1b8ab355ab73
   nanopb: 59221d7f958fb711001e6a449489542d92ae113e
-  ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
-  Parley: 11ddca6323e22b13bbe3fa45a017567ab09b5eb5
+  Parley: 548b9ca416a87489c4ced702030e2f55414d90fc
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
 
