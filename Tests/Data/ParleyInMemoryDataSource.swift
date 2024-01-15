@@ -1,5 +1,5 @@
 import Foundation
-import Parley
+@testable import Parley
 
 class ParleyInMemoryDataSource {
 

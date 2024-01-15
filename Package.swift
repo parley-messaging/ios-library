@@ -31,12 +31,13 @@ let package = Package(
                 "Reachability",
                 "MarkdownKit"
             ],
-            path: "Source",
-            exclude: [
-                "ParleyTests/Data/ParleyInMemoryDataSource.swift",
-                "ParleyTests/MessagesManagerTests.swift",
-            ]
-        )
+            path: "Source"
+        ),
+        .testTarget(
+            name: "ParleyTests",
+            dependencies: ["Parley"],
+            path: "Tests"
+        ),
     ],
     swiftLanguageVersions: [.v5]
 )
