@@ -28,13 +28,11 @@ let package = Package(
                 "AlamofireImage",
                 "Reachability",
                 "MarkdownKit"
-            ],
-            path: "Source"
+            ]
         ),
         .testTarget(
             name: "ParleyTests",
-            dependencies: ["Parley"],
-            path: "Tests"
+            dependencies: ["Parley"]
         ),
     ],
     swiftLanguageVersions: [.v5]

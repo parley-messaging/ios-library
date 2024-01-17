@@ -10,11 +10,11 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '12.0'
 
-  s.source_files = 'Source/**/*.swift'
+  s.source_files = 'Sources/Parley/**/*.swift'
   s.resources = [
-    "Source/**/*.lproj",
-    "Source/**/*.xcassets",
-    "Source/**/*.xib"
+    "Sources/Parley/**/*.lproj",
+    "Sources/Parley/**/*.xcassets",
+    "Sources/Parley/**/*.xib"
   ]
 
   s.dependency 'Alamofire', '~> 5.8.1'
