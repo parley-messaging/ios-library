@@ -87,7 +87,7 @@ public class Message: Codable, Equatable {
         time = Date()
     }
 
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case id
         case messageId
         case uuid
@@ -102,7 +102,7 @@ public class Message: Codable, Equatable {
         case buttons
         case carousel
         case quickReplies
-        case type
+        case type = "typeId"
         case status
         case agent
         case referrer
@@ -159,8 +159,8 @@ public class Message: Codable, Equatable {
         try container.encodeIfPresent(buttons, forKey: .buttons)
         try container.encodeIfPresent(carousel, forKey: .carousel)
         try container.encodeIfPresent(quickReplies, forKey: .quickReplies)
-        try container.encodeIfPresent(type, forKey: .type)
-        try container.encodeIfPresent(status, forKey: .status)
+        try container.encodeIfPresent(type?.rawValue, forKey: .type)
+        try container.encodeIfPresent(status.rawValue, forKey: .status)
         try container.encodeIfPresent(agent, forKey: .agent)
         try container.encodeIfPresent(referrer, forKey: .referrer)
     }

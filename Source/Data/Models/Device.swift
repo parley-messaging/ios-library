@@ -63,7 +63,7 @@ public struct Device: Codable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(self.pushToken, forKey: .pushToken)
-        try container.encodeIfPresent(self.pushType, forKey: .pushType)
+        try container.encodeIfPresent(self.pushType?.rawValue, forKey: .pushType)
         try container.encodeIfPresent(self.pushEnabled, forKey: .pushEnabled)
         try container.encodeIfPresent(self.userAdditionalInformation, forKey: .userAdditionalInformation)
         try container.encode(self.type, forKey: .type)

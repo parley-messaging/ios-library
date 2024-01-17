@@ -275,7 +275,7 @@ class MessagesManager {
 }
 
 // MARK: - Only used for testing
-private extension  MessagesManager {
+private extension MessagesManager {
 
     func testMessages() {
         let userMessage_shortPending = Message()
@@ -298,7 +298,7 @@ private extension  MessagesManager {
         let agentMessage_messageWithCarouselSmall = Message()
         agentMessage_messageWithCarouselSmall.id = 1
         agentMessage_messageWithCarouselSmall.type = .agent
-        agentMessage_messageWithCarouselSmall.agent = Agent(name: "Webuildapps")
+        agentMessage_messageWithCarouselSmall.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
         agentMessage_messageWithCarouselSmall.message = "Here are some quick actions for more information about *Parley*"
         agentMessage_messageWithCarouselSmall.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
         agentMessage_messageWithCarouselSmall.buttons = [
@@ -320,7 +320,7 @@ private extension  MessagesManager {
         let agentMessage_messageWithCarouselImages = Message()
         agentMessage_messageWithCarouselImages.id = 2
         agentMessage_messageWithCarouselImages.type = .agent
-        agentMessage_messageWithCarouselImages.agent = Agent(name: "Webuildapps")
+        agentMessage_messageWithCarouselImages.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
         agentMessage_messageWithCarouselImages.imageURL = URL(string: "https://parley.nu/images/tab6.png")
         agentMessage_messageWithCarouselImages.buttons = [
             createButton("Home page", "https://www.parley.nu/")

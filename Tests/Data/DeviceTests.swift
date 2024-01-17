@@ -4,8 +4,12 @@ import XCTest
 
 final class DeviceTests: XCTestCase {
 
-    var decoder: JSONDecoder!
-    var encoder: JSONEncoder!
+    private let pushToken = "YrViSfynsb3eB72Yd7gNfZ_"
+    private lazy var deviceString = "{\"pushEnabled\":true,\"pushType\":6,\"type\":2,\"version\":" +
+        "\"3.1.3\",\"pushToken\":\"\(pushToken)\"}"
+
+    private var decoder: JSONDecoder!
+    private var encoder: JSONEncoder!
 
     override func setUpWithError() throws {
         decoder = JSONDecoder()
@@ -17,22 +21,24 @@ final class DeviceTests: XCTestCase {
         encoder = nil
     }
 
-    func testDecode() throws {
-        let pushToken = "YrViSfynsb3eB72Yd7gNfZ_"
-        let deviceString = "{\"pushEnabled\":true,\"version\":\"3.1.3\",\"type\":2," +
-            "\"pushType\":6,\"pushToken\":\"\(pushToken)\"}"
+    func testDecodeEncode() throws {
+        let expectedResult = makeDevice()
 
-        let decodedDevice = Device(
+        let decodedSut = try decoder.decode(Device.self, from: Data(deviceString.utf8))
+        let encodedSut = try encoder.encode(decodedSut)
+        let result = try decoder.decode(Device.self, from: encodedSut)
+
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    private func makeDevice() -> Device {
+        Device(
             pushToken: pushToken,
             pushType: .fcm,
             pushEnabled: true,
             userAdditionalInformation: nil,
             referrer: nil
         )
-
-        let result = try decoder.decode(Device.self, from: Data(deviceString.utf8))
-
-        XCTAssertEqual(decodedDevice, result)
     }
 
 }
