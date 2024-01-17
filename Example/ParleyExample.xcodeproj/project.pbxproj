@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -27,28 +27,24 @@
 		F84985CC233CB34D00BD6B73 /* DocumentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84985CB233CB34D00BD6B73 /* DocumentationViewController.swift */; };
 		F84985CE233CB4FC00BD6B73 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84985CD233CB4FC00BD6B73 /* TabBarViewController.swift */; };
 		F84985D1233CBE6000BD6B73 /* UIButtonExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84985D0233CBE6000BD6B73 /* UIButtonExtension.swift */; };
-		F8E916E422BA6324007C1498 /* Pods_ParleyExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8E916E322BA6324007C1498 /* Pods_ParleyExample.framework */; };
 		F8E9A41222BCD3F8004341BB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8E9A41122BCD3F8004341BB /* GoogleService-Info.plist */; };
 		F8F61B3E22BA5E3700F9A51E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3D22BA5E3700F9A51E /* LaunchScreen.storyboard */; };
 		F8F61B4022BA600000F9A51E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3F22BA600000F9A51E /* Main.storyboard */; };
 		F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */; };
 		FA33D8DD2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */; };
+		FA66165C2B580EBF00B957CA /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165B2B580EBF00B957CA /* Parley */; };
+		FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165E2B58102D00B957CA /* FirebaseMessaging */; };
 		FA6FF0A72892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA6FF0A52892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		106038F72725F27C0097A46E /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
-		2B8756F201C032FE0925A4A9 /* Pods-ParleyExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.release.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.release.xcconfig"; sourceTree = "<group>"; };
-		3C0B7F538C47A35CCDBCAD44 /* Pods-Parley.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Parley.release.xcconfig"; path = "Target Support Files/Pods-Parley/Pods-Parley.release.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* ParleyExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParleyExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		607FACD71AFB9204008FA782 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		94C71995F3065F708BFF3A3D /* Pods_ParleyExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ParleyExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B2A63C7456C84126BFA0B5AD /* Pods-ParleyExample.alpha.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.alpha.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.alpha.xcconfig"; sourceTree = "<group>"; };
-		E3A771064F0F8583682341CC /* Pods-Parley.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Parley.debug.xcconfig"; path = "Target Support Files/Pods-Parley/Pods-Parley.debug.xcconfig"; sourceTree = "<group>"; };
-		F1B281D995BDC1338F40C7F3 /* Pods-ParleyExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParleyExample.debug.xcconfig"; path = "Target Support Files/Pods-ParleyExample/Pods-ParleyExample.debug.xcconfig"; sourceTree = "<group>"; };
 		F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifierViewController.swift; sourceTree = "<group>"; };
 		F844F57A22DCC10D00E705AE /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		F844F57C22DCC2E400E705AE /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -81,31 +77,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8E916E422BA6324007C1498 /* Pods_ParleyExample.framework in Frameworks */,
+				FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */,
+				FA66165C2B580EBF00B957CA /* Parley in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		526D28543E7A15B954C1F519 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				E3A771064F0F8583682341CC /* Pods-Parley.debug.xcconfig */,
-				3C0B7F538C47A35CCDBCAD44 /* Pods-Parley.release.xcconfig */,
-				F1B281D995BDC1338F40C7F3 /* Pods-ParleyExample.debug.xcconfig */,
-				2B8756F201C032FE0925A4A9 /* Pods-ParleyExample.release.xcconfig */,
-				B2A63C7456C84126BFA0B5AD /* Pods-ParleyExample.alpha.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
 				607FACD21AFB9204008FA782 /* ParleyExample */,
 				607FACD11AFB9204008FA782 /* Products */,
-				526D28543E7A15B954C1F519 /* Pods */,
 				60F7733B7F93D5ABCBA49DF1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -226,17 +210,19 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "ParleyExample" */;
 			buildPhases = (
-				9F7419233F5BCC1A48FB180A /* [CP] Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				A30ABA54394BCF2D33C78FE4 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ParleyExample;
+			packageProductDependencies = (
+				FA66165B2B580EBF00B957CA /* Parley */,
+				FA66165E2B58102D00B957CA /* FirebaseMessaging */,
+			);
 			productName = Parley;
 			productReference = 607FACD01AFB9204008FA782 /* ParleyExample.app */;
 			productType = "com.apple.product-type.application";
@@ -278,6 +264,10 @@
 				Base,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
+			packageReferences = (
+				FA66165A2B580EBF00B957CA /* XCLocalSwiftPackageReference ".." */,
+				FA66165D2B58102D00B957CA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -313,75 +303,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		9F7419233F5BCC1A48FB180A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ParleyExample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A30ABA54394BCF2D33C78FE4 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ParleyExample/Pods-ParleyExample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/AlamofireImage/AlamofireImage.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseInstanceID/FirebaseInstanceID.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/MarkdownKit/MarkdownKit.framework",
-				"${BUILT_PRODUCTS_DIR}/Parley/Parley.framework",
-				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
-				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlamofireImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreDiagnostics.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstanceID.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MarkdownKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Parley.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ParleyExample/Pods-ParleyExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		607FACCC1AFB9204008FA782 /* Sources */ = {
@@ -524,14 +445,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F1B281D995BDC1338F40C7F3 /* Pods-ParleyExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
@@ -540,7 +461,10 @@
 				DEVELOPMENT_TEAM = 82S7Z25Z57;
 				INFOPLIST_FILE = "ParleyExample/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"DEBUG\"";
@@ -554,7 +478,6 @@
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2B8756F201C032FE0925A4A9 /* Pods-ParleyExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
@@ -565,7 +488,10 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 82S7Z25Z57;
 				INFOPLIST_FILE = "ParleyExample/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"RELEASE\"";
@@ -637,7 +563,6 @@
 		};
 		F85B841822BBB15F00A256A8 /* Alpha */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B2A63C7456C84126BFA0B5AD /* Pods-ParleyExample.alpha.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
@@ -647,7 +572,10 @@
 				DEVELOPMENT_TEAM = 82S7Z25Z57;
 				INFOPLIST_FILE = "ParleyExample/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"ALPHA\"";
@@ -683,6 +611,36 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FA66165A2B580EBF00B957CA /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FA66165D2B58102D00B957CA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.20.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FA66165B2B580EBF00B957CA /* Parley */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Parley;
+		};
+		FA66165E2B58102D00B957CA /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA66165D2B58102D00B957CA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 607FACC81AFB9204008FA782 /* Project object */;
 }
