@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.9.0 - Released 17 Jan 2024
+
+- Parley now uses codables for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
+- Updated Alamofire to 5.8.1 (from 5.4.1)
+- Updated AlamofireImage to 4.3.0 (from 4.1.0)
+- Removed ObjectMapper dependency.
+- Fixed tests not showing up in Xcode.
+- Moved library and the example project to SPM structure and removed CocoaPods structure.
+
 ## 3.8.0 - Released 1 Nov 2023
 
 **IMPORTANT**: Parley now has a minimum deployment target of iOS 12.0.
