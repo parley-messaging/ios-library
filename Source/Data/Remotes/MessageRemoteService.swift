@@ -8,15 +8,15 @@ internal class MessageRemoteService {
     }
     
     internal func findAll(onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error)->()) {
-        ParleyRemote.execute(HTTPMethod.get, "messages", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
+        ParleyRemote.execute(HTTPMethod.get, "messages", keyPath: .none, onSuccess: onSuccess, onFailure: onFailure)
     }
     
     internal func findBefore(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        ParleyRemote.execute(HTTPMethod.get, "messages/before:\(id)", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
+        ParleyRemote.execute(HTTPMethod.get, "messages/before:\(id)", keyPath: .none, onSuccess: onSuccess, onFailure: onFailure)
     }
     
     internal func findAfter(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        ParleyRemote.execute(HTTPMethod.get, "messages/after:\(id)", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
+        ParleyRemote.execute(HTTPMethod.get, "messages/after:\(id)", keyPath: .none, onSuccess: onSuccess, onFailure: onFailure)
     }
     
     internal func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
@@ -32,9 +32,9 @@ internal class MessageRemoteService {
                     onSuccess(message)
                 }, onFailure: onFailure)
             } else {
-                ParleyRemote.execute(.post, "messages", parameters: message.toJSON(), onSuccess: { (savedMessage: Message) in
+                ParleyRemote.execute(.post, "messages", parameters: try? CodableHelper.shared.toDictionary(message), onSuccess: { (savedMessage: Message) in
                     message.id = savedMessage.id
-                    
+
                     onSuccess(message)
                 }, onFailure: onFailure)
             }

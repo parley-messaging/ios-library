@@ -20,8 +20,6 @@ Pod::Spec.new do |s|
   s.dependency 'Alamofire', '~> 5.8.1'
   s.dependency 'AlamofireImage', '~> 4.3.0'
 
-  s.dependency 'ObjectMapper', '~> 4.2.0'
-
   s.dependency 'ReachabilitySwift', '~> 5.0.0'
 
   s.dependency 'MarkdownKit', '~> 1.6'

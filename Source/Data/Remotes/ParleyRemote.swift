@@ -1,12 +1,13 @@
 import Alamofire
 import AlamofireImage
-import ObjectMapper
 import UIKit
 import Foundation
 
 internal class ParleyRemote {
     
     internal static var sessionManager: Alamofire.Session!
+    
+    private static let encoding = URLEncoding(boolEncoding: URLEncoding.BoolEncoding.literal)
     
     internal static func refresh(_ network: ParleyNetwork) {
         guard let domain = URL(string: network.url)?.host else {
@@ -56,42 +57,31 @@ internal class ParleyRemote {
     }
     
     // MARK: Execute request
-    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, keyPath: String? = "data", onSuccess: @escaping (_ items: [T])->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
+    @discardableResult internal static func execute<T: Codable>(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, keyPath: DataRequest.KeyPath = .data, onSuccess: @escaping (_ items: [T])->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
-        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseArray(keyPath: keyPath) { (response: AFDataResponse<[T]>) in
-            switch response.result {
-            case .success(let items):
-                onSuccess(items)
-            case .failure(let error):
-                onFailure(error)
-            }
-        }
+        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: Self.encoding, headers: getHeaders())
+        request.validate(statusCode: 200...299)
+            .responseDecodableAtKeyPath(of: [T].self, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
         
         return request
     }
     
-    @discardableResult internal static func execute<T: BaseMappable>(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, keyPath: String? = "data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest {
+    @discardableResult internal static func execute<T: Codable>(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, keyPath: DataRequest.KeyPath = .data, onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
-        
-        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
-        request.validate(statusCode: 200...299).responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
-            switch response.result {
-            case .success(let item):
-                onSuccess(item)
-            case .failure(let error):
-                onFailure(error)
-            }
-        }
+
+        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: Self.encoding, headers: getHeaders())
+        request
+            .validate(statusCode: 200...299)
+            .responseDecodableAtKeyPath(of: T.self, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
         
         return request
     }
     
-    @discardableResult internal static func execute(_ method: HTTPMethod, _ path: String, parameters: Parameters?=nil, onSuccess: @escaping ()->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
+    @discardableResult internal static func execute(_ method: HTTPMethod, _ path: String, parameters: Parameters? = nil, onSuccess: @escaping ()->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
         
-        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
+        let request = sessionManager.request(getUrl(path), method: method, parameters: parameters, encoding: Self.encoding, headers: getHeaders())
         request.validate(statusCode: 200...299).responseJSON { (response) in
             switch response.result {
             case .success:
@@ -104,19 +94,12 @@ internal class ParleyRemote {
         return request
     }
     
-    internal static func execute<T: BaseMappable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: String? = "data", onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error)->()) {
+    internal static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: @escaping (MultipartFormData) -> Void, keyPath: DataRequest.KeyPath = .data, onSuccess: @escaping (_ item: T) -> (), onFailure: @escaping (_ error: Error)->()) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
             .validate(statusCode: 200...299)
-            .responseObject(keyPath: keyPath) { (response: AFDataResponse<T>) in
-                switch response.result {
-                case .success(let item):
-                    onSuccess(item)
-                case .failure(let error):
-                    onFailure(error)
-                }
-            }
+            .responseDecodableAtKeyPath(of: T.self, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
     }
     
     // MARK: Image
@@ -132,7 +115,7 @@ internal class ParleyRemote {
         } else {
             debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
             
-            let request = sessionManager.request(url, method: method, parameters: parameters, encoding: JSONEncoding.default, headers: getHeaders())
+            let request = sessionManager.request(url, method: method, parameters: parameters, encoding: Self.encoding, headers: getHeaders())
             request.validate(statusCode: 200...299).responseImage { response in
                 switch response.result {
                 case .success(let image):
@@ -187,7 +170,7 @@ internal class ParleyRemote {
 
 internal extension ParleyRemote {
     
-    static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: MultipartFormData, keyPath: String? = "data", result: @escaping ((Result<T, Error>) -> ())) {
+    static func execute<T: Codable>(_ method: HTTPMethod = HTTPMethod.post, path: String, multipartFormData: MultipartFormData, result: @escaping ((Result<T, Error>) -> ())) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         sessionManager.upload(multipartFormData: multipartFormData, to: getUrl(path), method: method, headers: getHeaders())
             .validate(statusCode: 200...299)
@@ -196,7 +179,7 @@ internal extension ParleyRemote {
             })
     }
     
-    static func decodeData<T: Codable>(response: AFDataResponse<Data>, result: @escaping ((Result<T, Error>) -> ())) {
+    private static func decodeData<T: Codable>(response: AFDataResponse<Data>, result: @escaping ((Result<T, Error>) -> ())) {
         switch response.result {
         case .success(let data):
             do {

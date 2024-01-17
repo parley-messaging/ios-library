@@ -97,24 +97,27 @@ extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
 extension ParleyEncryptedDataSource: ParleyMessageDataSource {
     
     public func all() -> [Message]? {
-        if let jsonString = self.string(forKey: kParleyCacheKeyMessages), let messages: [Message] = Array(JSONString: jsonString) {
-            messages.forEach { message in
-                if message.type == .user, message.status == .pending, let uuid = message.uuid, let imageData = self.data(forKey: uuid), let imageUrl = message.imageURL {
-                    message.imageData = imageData
-                    
-                    switch ParleyImageType.map(from: imageUrl) {
-                    case .gif:
-                        message.image = UIImage.gif(data: imageData)
-                    default:
-                        message.image = UIImage(data: imageData)
-                    }
+        guard let jsonData = self.data(forKey: kParleyCacheKeyMessages),
+              let messages = try? CodableHelper.shared.decode([Message].self, from: jsonData)
+        else {
+            return nil
+        }
+
+        messages.forEach { message in
+            if message.type == .user, message.status == .pending, let uuid = message.uuid, let imageData = self.data(forKey: uuid), let imageUrl = message.imageURL {
+                message.imageData = imageData
+                
+                switch ParleyImageType.map(from: imageUrl) {
+                case .gif:
+                    message.image = UIImage.gif(data: imageData)
+                default:
+                    message.image = UIImage(data: imageData)
                 }
             }
-
-            return messages
         }
-        
-        return nil
+
+        return messages
+    
     }
     
     public func save(_ messages: [Message]) {
@@ -128,7 +131,7 @@ extension ParleyEncryptedDataSource: ParleyMessageDataSource {
             }
         }
         
-        let messages = messages.toJSONString()
+        let messages = try? CodableHelper.shared.toJSONString(messages)
         
         self.set(messages, forKey: kParleyCacheKeyMessages)
     }
