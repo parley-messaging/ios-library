@@ -66,7 +66,7 @@ class IdentifierViewController: UIViewController {
         super.viewDidLoad()
         
         self.setParleyNetworkConfiguration()
-//        self.setOfflineMessagingEnabled()
+        self.setOfflineMessagingEnabled()
         
         self.setNeedsStatusBarAppearanceUpdate()
     }
