@@ -1,8 +1,14 @@
-import Alamofire
+import Foundation
 
-internal class EventRemoteService {
-    
-    internal func fire(_ name: String, onSuccess: @escaping () -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        ParleyRemote.execute(.post, "services/event/\(name)", onSuccess: onSuccess, onFailure: onFailure)
+class EventRemoteService {
+
+    private let remote: ParleyRemote
+
+    init(remote: ParleyRemote) {
+        self.remote = remote
+    }
+
+    func fire(_ name: String, onSuccess: @escaping () -> (), onFailure: @escaping (_ error: Error) -> ()) {
+        remote.execute(.post, path: "services/event/\(name)", onSuccess: onSuccess, onFailure: onFailure)
     }
 }

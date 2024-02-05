@@ -1,6 +1,6 @@
 import UIKit
 
-internal class AgentTypingTableViewCell: UITableViewCell {
+class AgentTypingTableViewCell: UITableViewCell {
     
     @IBOutlet weak var backgroundImageView: UIImageView!
     
@@ -15,7 +15,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
     
     private var startTimer: Timer?
     
-    internal var appearance = AgentTypingTableViewCellAppearance() {
+    var appearance = AgentTypingTableViewCellAppearance() {
         didSet {
             self.apply(self.appearance)
         }
@@ -40,7 +40,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
         self.dot3View.transform = CGAffineTransform(scaleX: 1, y: 1)
     }
     
-    internal func startAnimating() {
+    func startAnimating() {
         self.stopAnimating()
         
         self.startTimer?.invalidate()
@@ -51,7 +51,7 @@ internal class AgentTypingTableViewCell: UITableViewCell {
         })
     }
     
-    internal func stopAnimating() {
+    func stopAnimating() {
         self.animating = false
     }
     

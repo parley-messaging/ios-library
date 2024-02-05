@@ -77,7 +77,7 @@ extension UIImage {
         return gif(data: dataAsset.data)
     }
 
-    internal class func delayForImageAtIndex(_ index: Int, source: CGImageSource!) -> Double {
+    class func delayForImageAtIndex(_ index: Int, source: CGImageSource!) -> Double {
         var delay = 0.1
 
         // Get dictionaries
@@ -112,7 +112,7 @@ extension UIImage {
         return delay
     }
 
-    internal class func gcdForPair(_ lhs: Int?, _ rhs: Int?) -> Int {
+    class func gcdForPair(_ lhs: Int?, _ rhs: Int?) -> Int {
         var lhs = lhs
         var rhs = rhs
         // Check if one of them is nil
@@ -147,7 +147,7 @@ extension UIImage {
         }
     }
 
-    internal class func gcdForArray(_ array: [Int]) -> Int {
+    class func gcdForArray(_ array: [Int]) -> Int {
         if array.isEmpty {
             return 1
         }
@@ -161,7 +161,7 @@ extension UIImage {
         return gcd
     }
 
-    internal class func animatedImageWithSource(_ source: CGImageSource) -> UIImage? {
+    class func animatedImageWithSource(_ source: CGImageSource) -> UIImage? {
         let count = CGImageSourceGetCount(source)
         var images = [CGImage]()
         var delays = [Int]()

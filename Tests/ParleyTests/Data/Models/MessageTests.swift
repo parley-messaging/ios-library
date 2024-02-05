@@ -21,7 +21,7 @@ final class MessageTests: XCTestCase {
     }
 
     func testDecodeEncode() throws {
-        let expectedResult = makeMessage()
+        let expectedResult = createMessage()
 
         let decodedSut = try decoder.decode(Message.self, from: Data(messageString.utf8))
         let encodedSut = try encoder.encode(decodedSut)
@@ -39,7 +39,7 @@ final class MessageTests: XCTestCase {
         XCTAssertEqual(result.status, expectedResult.status)
     }
 
-    private func makeMessage() -> Message {
+    private func createMessage() -> Message {
         let message = Message()
         message.type = .agent
         message.message = "Example message"

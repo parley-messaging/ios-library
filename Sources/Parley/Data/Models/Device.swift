@@ -7,21 +7,21 @@ public struct Device: Codable, Equatable {
         case customWebhookBehindOAuth = 5
         case fcm = 6
     }
-    
+
     private enum DeviceType: Int, Codable, Equatable {
         case android = 1
         case iOS = 2
         case web = 3
-        case generic = 4 // Custom build
+        case generic = 4 // Generic custom build
     }
 
-    var pushToken: String?
-    var pushType: PushType?
-    var pushEnabled: Bool?
-    var userAdditionalInformation: [String: String]?
-    private var type: DeviceType
-    var version: String
-    var referrer: String?
+    let pushToken: String?
+    let pushType: PushType?
+    let pushEnabled: Bool?
+    let userAdditionalInformation: [String: String]?
+    private let type: DeviceType
+    let version: String
+    let referrer: String?
 
     init(
         pushToken: String?,
@@ -38,7 +38,7 @@ public struct Device: Codable, Equatable {
         version = kParleyVersion
         self.referrer = referrer
     }
-    
+
     enum CodingKeys: CodingKey {
         case pushToken
         case pushType
@@ -48,27 +48,29 @@ public struct Device: Codable, Equatable {
         case version
         case referrer
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.pushToken = try container.decodeIfPresent(String.self, forKey: .pushToken)
-        self.pushType = try container.decodeIfPresent(Device.PushType.self, forKey: .pushType)
-        self.pushEnabled = try container.decodeIfPresent(Bool.self, forKey: .pushEnabled)
-        self.userAdditionalInformation = try container.decodeIfPresent([String : String].self, forKey: .userAdditionalInformation)
-        self.type = try container.decodeIfPresent(DeviceType.self, forKey: .type)  ?? DeviceType.iOS
-        self.version = try container.decodeIfPresent(String.self, forKey: .version) ?? kParleyVersion
-        self.referrer = try container.decodeIfPresent(String.self, forKey: .referrer)
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(self.pushToken, forKey: .pushToken)
-        try container.encodeIfPresent(self.pushType?.rawValue, forKey: .pushType)
-        try container.encodeIfPresent(self.pushEnabled, forKey: .pushEnabled)
-        try container.encodeIfPresent(self.userAdditionalInformation, forKey: .userAdditionalInformation)
-        try container.encode(self.type, forKey: .type)
-        try container.encode(self.version, forKey: .version)
-        try container.encodeIfPresent(self.referrer, forKey: .referrer)
+        pushToken = try container.decodeIfPresent(String.self, forKey: .pushToken)
+        pushType = try container.decodeIfPresent(Device.PushType.self, forKey: .pushType)
+        pushEnabled = try container.decodeIfPresent(Bool.self, forKey: .pushEnabled)
+        userAdditionalInformation = try container.decodeIfPresent(
+            [String : String].self,
+            forKey: .userAdditionalInformation
+        )
+        type = try container.decodeIfPresent(DeviceType.self, forKey: .type) ?? DeviceType.iOS
+        version = try container.decodeIfPresent(String.self, forKey: .version) ?? kParleyVersion
+        referrer = try container.decodeIfPresent(String.self, forKey: .referrer)
     }
 
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(pushToken, forKey: .pushToken)
+        try container.encodeIfPresent(pushType?.rawValue, forKey: .pushType)
+        try container.encodeIfPresent(pushEnabled, forKey: .pushEnabled)
+        try container.encodeIfPresent(userAdditionalInformation, forKey: .userAdditionalInformation)
+        try container.encode(type, forKey: .type)
+        try container.encode(version, forKey: .version)
+        try container.encodeIfPresent(referrer, forKey: .referrer)
+    }
 }

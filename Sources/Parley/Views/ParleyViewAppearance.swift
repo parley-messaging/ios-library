@@ -22,7 +22,7 @@ public class ParleyViewAppearance {
     public var date = DateTableViewCellAppearance()
     public var info = InfoTableViewCellAppearance()
     
-    public init(fontRegularName: String?=nil, fontItalicName: String?=nil, fontBoldName: String?=nil) {
+    public init(fontRegularName: String? = nil, fontItalicName: String? = nil, fontBoldName: String? = nil) {
         let offlineIcon = UIImage(named: "ic_error_no_connection", in: Bundle.current, compatibleWith: nil)!
         self.offlineNotification = ParleyNotificationViewAppearance(icon: offlineIcon)
         

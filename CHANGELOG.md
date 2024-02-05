@@ -1,5 +1,11 @@
 # Changelog
 
+## Upcoming
+- Split up Parley package to `Parley` and `ParleyNetwork`. You can now use Parley with your own http network layer. To do so you can implement `ParleyNetworkSession`.
+- Update Reachability to 5.2.0 (from 5.1.0)
+- Move configuring network settings to the `Parley.configure` function to make the setup order more clear.
+- Rename `ParleyNetwork` to `ParleyNetworkConfig` to better represent what the struct does.
+
 ## 3.9.1 - Upcoming
 
 - Parley now returns the formatted error message of the backend when an error occurs when configuring or registering the device.
@@ -9,7 +15,7 @@
 
 ## 3.9.0 - Released 17 Jan 2024
 
-- Parley now uses codables for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
+- Parley now uses `Codable` for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
 - Updated Alamofire to 5.8.1 (from 5.4.1).
 - Updated AlamofireImage to 4.3.0 (from 4.1.0).
 - Removed ObjectMapper dependency.

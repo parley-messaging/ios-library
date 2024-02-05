@@ -1,14 +1,14 @@
 import Foundation
 
 struct CodableHelper {
-    
+
     static let shared = CodableHelper(decoder: JSONDecoder(), encoder: JSONEncoder())
 
     init(decoder: JSONDecoder, encoder: JSONEncoder) {
         self.decoder = decoder
         self.encoder = encoder
     }
-    
+
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
@@ -18,7 +18,7 @@ struct CodableHelper {
         return result
     }
 
-    /// Converting object to postable dictionary
+    /// Converting object to post-able dictionary
     func toDictionary<T>(_ value: T) throws -> [String: Any] where T: Encodable {
         let data = try encoder.encode(value)
         let object = try JSONSerialization.jsonObject(with: data)

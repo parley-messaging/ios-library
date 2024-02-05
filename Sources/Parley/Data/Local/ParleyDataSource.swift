@@ -1,4 +1,5 @@
 public protocol ParleyDataSource: ParleyKeyValueDataSource, ParleyMessageDataSource {
     
-    @discardableResult func clear() -> Bool
+    @discardableResult 
+    func clear() -> Bool
 }

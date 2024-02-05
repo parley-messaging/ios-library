@@ -22,13 +22,13 @@ class SuggestionCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var suggestionRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var suggestionBottomLayoutConstraint: NSLayoutConstraint!
     
-    internal var appearance: SuggestionCollectionViewCellAppearance = SuggestionCollectionViewCellAppearance() {
+    var appearance: SuggestionCollectionViewCellAppearance = SuggestionCollectionViewCellAppearance() {
         didSet {
             self.apply(self.appearance)
         }
     }
     
-    internal func render(_ suggestion: String) {
+    func render(_ suggestion: String) {
         self.suggestionLabel.text = suggestion
         setupAccessibilityOptions(suggestion)
     }
@@ -74,7 +74,7 @@ class SuggestionCollectionViewCell: UICollectionViewCell {
         self.apply(self.appearance)
     }
     
-    internal static func calculateHeight(_ appearance: SuggestionCollectionViewCellAppearance, _ suggestion: String) -> CGFloat {
+    static func calculateHeight(_ appearance: SuggestionCollectionViewCellAppearance, _ suggestion: String) -> CGFloat {
         let labelWidth = appearance.suggestionMaxWidth
         
         var height: CGFloat = 0

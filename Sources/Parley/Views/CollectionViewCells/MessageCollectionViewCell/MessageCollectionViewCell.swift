@@ -6,13 +6,13 @@ class MessageCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var widthLayoutConstraint: NSLayoutConstraint!
     
-    internal weak var delegate: MessageTableViewCellDelegate? {
+    weak var delegate: MessageTableViewCellDelegate? {
         didSet {
             self.parleyMessageView.delegate = self.delegate
         }
     }
     
-    internal var appearance: MessageCollectionViewCellAppearance? {
+    var appearance: MessageCollectionViewCellAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
             
@@ -20,7 +20,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    internal func render(_ message: Message, time: Date?) {
+    func render(_ message: Message, time: Date?) {
         parleyMessageView.set(message: message, time: time)
         setupAccessibilityOptions(for: message)
     }
@@ -65,7 +65,7 @@ class MessageCollectionViewCell: UICollectionViewCell {
         self.widthLayoutConstraint.constant = CGFloat(appearance.width)
     }
     
-    internal static func calculateSize(_ appearance: MessageCollectionViewCellAppearance, _ message: Message) -> CGSize {
+    static func calculateSize(_ appearance: MessageCollectionViewCellAppearance, _ message: Message) -> CGSize {
         let balloonWidth: CGFloat = appearance.width
         var contentWidth = balloonWidth
         contentWidth -= appearance.balloonContentInsets?.left ?? 0

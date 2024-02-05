@@ -2,20 +2,21 @@ import Foundation
 import UIKit
 
 class MessagesManager {
-    
+
     enum HandleType {
         case all
         case before
         case after
     }
-    
+
     private var originalMessages: [Message] = []
     private(set) var messages: [Message] = []
 
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
-    
+    private weak var dataSource: ParleyDataSource?
+
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
         originalMessages.first { message in
@@ -35,7 +36,7 @@ class MessagesManager {
         }
     }
 
-    internal func getOldestMessage() -> Message? {
+    func getOldestMessage() -> Message? {
         messages.first(where: {
             switch $0.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
@@ -46,14 +47,19 @@ class MessagesManager {
         })
     }
 
-    internal func loadCachedData() {
+    init(dataSource: ParleyDataSource?) {
+        self.dataSource = dataSource
+    }
+
+    func loadCachedData() {
         originalMessages.removeAll(keepingCapacity: true)
-        
-        if let cachedMessages = Parley.shared.dataSource?.all() {
+
+        if let cachedMessages = dataSource?.all() {
             originalMessages.append(contentsOf: cachedMessages.sorted(by: <))
         }
-        
-        // Attach media as image if needed. Used when messages with media have a pending state which may be send at a later moment.
+
+        // Attach media as image if needed. Used when messages with media have a pending state which may be send at a
+        // later moment.
         pendingMessages.filter({ $0.mediaSendRequest != nil }).forEach { message in
             if let data = message.mediaSendRequest?.image {
                 message.image = UIImage(data: data)
@@ -61,9 +67,9 @@ class MessagesManager {
         }
         
         self.stickyMessage = nil
-        self.welcomeMessage = Parley.shared.dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
+        self.welcomeMessage = dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
         
-        if let cachedPagingData = Parley.shared.dataSource?.data(forKey: kParleyCacheKeyPaging) {
+        if let cachedPagingData = dataSource?.data(forKey: kParleyCacheKeyPaging) {
             self.paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
         } else {
             self.paging = nil
@@ -72,7 +78,7 @@ class MessagesManager {
         self.formatMessages()
     }
     
-    internal func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
+    func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
         let newMessages = messageCollection.messages.filter { message in
             if originalMessages.contains(where: { $0.id == message.id }) {
                 return false
@@ -89,29 +95,29 @@ class MessagesManager {
             originalMessages.removeAll { message -> Bool in
                 return message.status == .pending || message.status == .failed
             }
-            
+
             originalMessages.append(contentsOf: newMessages)
             originalMessages.append(contentsOf: pendingMessages)
         }
-        
-        Parley.shared.dataSource?.save(originalMessages)
-        
+
+        dataSource?.save(originalMessages)
+
         stickyMessage = messageCollection.stickyMessage
-        
+
         welcomeMessage = messageCollection.welcomeMessage
-        Parley.shared.dataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        dataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
 
         if handleType != .after {
             paging = messageCollection.paging
-            Parley.shared.dataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
+            dataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
         }
-        
+
         formatMessages()
     }
-    
-   internal func add(_ message: Message) -> [IndexPath] {
+
+    func add(_ message: Message) -> [IndexPath] {
         guard !originalMessages.contains(message) else { return [] }
-        
+
         let lastIndex = lastMessage()?.index
         var addIndex = lastIndex ?? 0
         var indexPaths: [IndexPath] = []
@@ -130,8 +136,8 @@ class MessagesManager {
         messages.insert(message, at: addIndex)
 
         originalMessages.append(message)
-        Parley.shared.dataSource?.insert(message, at: 0)
-        
+        dataSource?.insert(message, at: 0)
+
         return indexPaths
     }
 
@@ -160,7 +166,7 @@ class MessagesManager {
         return isFirstMessageAfterInfoMessage || !messageDatesMatch
     }
 
-    internal func update(_ message: Message) {
+    func update(_ message: Message) {
         guard
             let originalMessagesIndex = originalMessages.firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }),
             let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid })
@@ -168,28 +174,28 @@ class MessagesManager {
 
         originalMessages[originalMessagesIndex] = message
         messages[messagesIndex] = message
-        
-        Parley.shared.dataSource?.update(message)
+
+        dataSource?.update(message)
     }
-    
-     /// Adds a typing indicator message
+
+    /// Adds a typing indicator message
     /// - Returns: The `IndexPath`'s to add.
-    internal func addTypingMessage() -> [IndexPath] {
+    func addTypingMessage() -> [IndexPath] {
         guard messages.last?.type != .agentTyping else { return [] }
         messages.append(createTypingMessage())
         return [IndexPath(row: messages.count - 1, section: 0)]
     }
-    
+
     /// Removes the typing indicator message
     /// - Returns: the `IndexPath`'s to remove.
-    internal func removeTypingMessage() -> [IndexPath]? {
+    func removeTypingMessage() -> [IndexPath]? {
         guard messages.last?.type == .agentTyping else { return nil }
         let tyingIndicatorIndex = messages.count - 1
         messages.removeLast()
         return [IndexPath(row: tyingIndicatorIndex, section: 0)]
     }
-    
-    internal func formatMessages() {
+
+    func formatMessages() {
         var formattedMessages: [Message] = []
 
         if canLoadMore() {
@@ -256,15 +262,15 @@ class MessagesManager {
         return loadingMessage
     }
 
-    internal func canLoadMore() -> Bool {
+    func canLoadMore() -> Bool {
         if let paging = paging, !paging.before.isEmpty {
             return true
         }
-        
+
         return false
     }
 
-    internal func clear() {
+    func clear() {
         originalMessages.removeAll()
         messages.removeAll()
         welcomeMessage = nil
@@ -274,6 +280,7 @@ class MessagesManager {
     }
 }
 
+#if DEBUG
 // MARK: - Only used for testing
 private extension MessagesManager {
 
@@ -356,3 +363,4 @@ private extension MessagesManager {
         return MessageButton(title: title, payload: payload)
     }
 }
+#endif

@@ -1,15 +1,15 @@
 import UIKit
 
-internal class MessagesTableView: UITableView {
+class MessagesTableView: UITableView {
     
-    private(set) internal var isAtBottom: Bool = false
+    private(set) var isAtBottom: Bool = false
     
-    internal enum ScrollPosition {
+    enum ScrollPosition {
         case top
         case bottom
     }
     
-    internal func scroll(to: ScrollPosition, animated: Bool) {
+    func scroll(to: ScrollPosition, animated: Bool) {
         switch to {
         case .bottom:
             let section = max(0, numberOfSections - 1)

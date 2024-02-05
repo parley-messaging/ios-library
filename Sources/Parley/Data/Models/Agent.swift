@@ -1,10 +1,10 @@
 import Foundation
 
 struct Agent: Codable, Equatable {
-    var id: Int
-    var name: String?
-    var avatar: String?
-    
+    let id: Int
+    let name: String?
+    let avatar: String?
+
     init(id: Int, name: String?, avatar: String?) {
         self.id = id
         self.name = name

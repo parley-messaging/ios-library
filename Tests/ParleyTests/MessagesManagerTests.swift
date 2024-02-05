@@ -10,13 +10,12 @@ final class MessagesManagerTests: XCTestCase {
     private let MESSAGE_WELCOME_TEXT = "Welcome message";
     private let MESSAGE_STICKY_TEXT = "Sticky message";
     
-    private var messagesManager = MessagesManager()
-    private var dataSource: ParleyDataSource? = ParleyInMemoryDataSource()
+    private var messagesManager: MessagesManager!
+    private var dataSourceMock: ParleyDataSource!
     
     override func setUp() {
-        messagesManager = MessagesManager()
-        dataSource = ParleyInMemoryDataSource()
-        Parley.shared.dataSource = dataSource
+        dataSourceMock = ParleyDataSourceMock()
+        messagesManager = MessagesManager(dataSource: dataSourceMock)
      }
     
     func testMessagesManager_ShouldBeEmpty_WhenCreated() {
@@ -253,7 +252,7 @@ private extension MessagesManagerTests {
     }
     
     func setWelcomeMessage() {
-        dataSource?.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo)
+        dataSourceMock.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo)
     }
     
     func createUserMessage(_ message: String, date: Date = Date()) -> Message {

@@ -1,13 +1,12 @@
 import Foundation
 import UIKit
 
-internal class NotificationService {
-    
-    internal func notificationsEnabled(completion: @escaping  ((Bool) -> ())) {
+struct NotificationService {
+
+    func notificationsEnabled(completion: @escaping ((Bool) -> ())) {
         let current = UNUserNotificationCenter.current()
 
         current.getNotificationSettings(completionHandler: { settings in
-            
             switch settings.authorizationStatus {
             case .authorized, .ephemeral, .provisional:
                 completion(true)

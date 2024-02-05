@@ -1,11 +1,12 @@
 import UIKit
 import Parley
+import ParleyNetwork
 import Firebase
 
 class IdentifierViewController: UIViewController {
-    
+
     private static let kOfflineMessagingEnabled = true // Disable offline messaging in the demo app to show error messages as an alert before opening the chat
-    
+
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             self.titleLabel.text = NSLocalizedString("identifier_title", comment: "").uppercased()
@@ -66,17 +67,14 @@ class IdentifierViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if (Self.kOfflineMessagingEnabled) {
-            setParleyNetworkConfiguration()
-        }
+
         self.setOfflineMessagingEnabled()
         
         self.setNeedsStatusBarAppearanceUpdate()
     }
     
     // MARK: UI
-    
+
     private func showAlert(title: String, message: String) {
         let alertController = UIAlertController(
             title: title,
@@ -88,24 +86,22 @@ class IdentifierViewController: UIViewController {
             style: .cancel,
             handler: nil
         ))
-        
+
         present(alertController, animated: true, completion: nil)
     }
-    
+
     // MARK: Parley
-    private func setParleyNetworkConfiguration() {
+    private func createNetworkConfig() -> ParleyNetworkConfig {
         let headers: [String: String] = [
             "Custom-Header": "Custom header value"
         ]
         
-        let network = ParleyNetwork(
+        return ParleyNetworkConfig(
             url: "https://api.parley.nu/",
             path: "clientApi/v1.6",
             apiVersion: .v1_6,
             headers: headers
         )
-
-        Parley.setNetwork(network)
     }
     
     private func setUserInformation() {
@@ -117,12 +113,12 @@ class IdentifierViewController: UIViewController {
             kParleyAdditionalValueAddress: "Randstad 21 30, 1314, Nederland"
         ]
 
-        Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
+        Parley.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
     private func setOfflineMessagingEnabled() {
         if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {
-            Parley.enableOfflineMessaging(dataSource)
+            Parley.shared.enableOfflineMessaging(dataSource)
         }
     }
     
@@ -134,7 +130,7 @@ class IdentifierViewController: UIViewController {
     @IBAction func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-            Parley.reset(onSuccess: { [weak self] in
+            Parley.shared.reset(onSuccess: { [weak self] in
                 self?.startChatDemo()
             }, onFailure: { _, _ in
                 print("Failed to reset Parley")
@@ -161,15 +157,18 @@ class IdentifierViewController: UIViewController {
     // Start chat with user authorization
     private func startChat(customerIdentification: String) {
         self.startButton.setLoading(true)
-        
+
         let authorization = ParleyCustomerAuthorization.generate(
             identification: customerIdentification,
             secret: kParleyUserAuthorizationSecret,
             sharedSecret: kParleyUserAuthorizationSharedSecret
         )
-        Parley.setUserInformation(authorization)
-        
-        Parley.configure(kParleySecret, onSuccess: { [weak self] in
+        Parley.shared.setUserInformation(authorization)
+
+        Parley.shared.configure(
+        kParleySecret,
+        networkConfig: createNetworkConfig(),
+        onSuccess: { [weak self] in
             guard let self else { return }
             self.alreadyConfiguredParley = true
             self.startButton.setLoading(false)
@@ -192,16 +191,19 @@ class IdentifierViewController: UIViewController {
             }
         }
     }
-    
+
     // Start anonymous chat
     private func startChat(secret: String) {
         self.startButton.setLoading(true)
-        
+
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
-            Parley.clearUserInformation()
+            Parley.shared.clearUserInformation()
         }
         
-        Parley.configure(secret, onSuccess: { [weak self] in
+        Parley.shared.configure(
+        secret,
+        networkConfig: createNetworkConfig(),
+        onSuccess: { [weak self] in
             self?.alreadyConfiguredParley = true
             self?.startButton.setLoading(false)
             

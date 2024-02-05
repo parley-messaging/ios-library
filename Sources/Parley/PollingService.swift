@@ -1,13 +1,13 @@
 import Foundation
 import UIKit
 
-internal protocol PollingServiceProtocol {
+protocol PollingServiceProtocol: AnyObject {
     func startRefreshing()
     func stopRefreshing()
     var delegate: ParleyDelegate? { get set }
 }
 
-internal class PollingService: PollingServiceProtocol {
+class PollingService: PollingServiceProtocol {
     
     private enum TimerInterval: TimeInterval {
         case twoSeconds = 2
@@ -18,7 +18,7 @@ internal class PollingService: PollingServiceProtocol {
     
     private var timer: Timer?
     weak var delegate: ParleyDelegate?
-    private let messageRepository = MessageRepository()
+    private let messageRepository = MessageRepository(remote: Parley.shared.remote)
     private let messagesManager = Parley.shared.messagesManager
     
     private var loopRepeated: Int = 0 {
@@ -42,7 +42,7 @@ internal class PollingService: PollingServiceProtocol {
         didSet { timer?.invalidate() }
     }
     
-    internal func startRefreshing() {
+    func startRefreshing() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.setTimer(interval: .twoSeconds)
@@ -50,7 +50,7 @@ internal class PollingService: PollingServiceProtocol {
         }
     }
     
-    internal func stopRefreshing() {
+    func stopRefreshing() {
         timer?.invalidate()
         loopRepeated = 0
         timerInterval = .twoSeconds
@@ -65,7 +65,7 @@ internal class PollingService: PollingServiceProtocol {
     }
     
     private func refreshFeed() {
-        guard let id = messagesManager.lastSentMessage?.id, timer?.isValid == true else { return }
+        guard let id = messagesManager?.lastSentMessage?.id, timer?.isValid == true else { return }
         messageRepository.findAfter(id, onSuccess: { [weak self, weak delegate, weak messagesManager] messageCollection in
             guard !messageCollection.messages.isEmpty else {
                 self?.loopRepeated += 1
@@ -80,11 +80,9 @@ internal class PollingService: PollingServiceProtocol {
             print("Polling failed to retrieve latest messages")
         })
     }
-}
-
-internal extension PollingService {
     
-    // MARK: Observers
+    // MARK: - Observers
+
     private func addObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)

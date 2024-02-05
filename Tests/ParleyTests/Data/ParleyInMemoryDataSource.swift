@@ -1,13 +1,10 @@
 import Foundation
 @testable import Parley
 
-class ParleyInMemoryDataSource {
+class ParleyDataSourceMock: ParleyDataSource {
 
     private var messages = [Message]()
     private var dataDict = [String: Any]()
-}
-
-extension ParleyInMemoryDataSource: ParleyDataSource {
     
     func clear() -> Bool {
         messages.removeAll()
