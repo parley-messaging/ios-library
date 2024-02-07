@@ -172,12 +172,12 @@ class IdentifierViewController: UIViewController {
             guard let self else { return }
             self.alreadyConfiguredParley = true
             self.startButton.setLoading(false)
-            
+
             self.identifierTextView.text = kParleySecret
-            
+
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
-            
+
             self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
         }) { [weak self] code, message in
             self?.startButton.setLoading(false)
@@ -199,17 +199,17 @@ class IdentifierViewController: UIViewController {
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
             Parley.shared.clearUserInformation()
         }
-        
+
         Parley.shared.configure(
         secret,
         networkConfig: createNetworkConfig(),
         onSuccess: { [weak self] in
             self?.alreadyConfiguredParley = true
             self?.startButton.setLoading(false)
-            
+
             UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
-            
+
             self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
         }) { [weak self] code, message in
             self?.startButton.setLoading(false)

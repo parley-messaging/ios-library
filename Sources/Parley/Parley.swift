@@ -58,7 +58,6 @@ public class Parley {
 
     private(set) var userAuthorization: String?
     private(set) var userAdditionalInformation: [String: String]?
-    private let notificationService = NotificationService()
 
     weak var delegate: ParleyDelegate? {
         didSet {
@@ -312,7 +311,7 @@ public class Parley {
 
         self.isLoading = true
         messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
-            self?isLoading = false
+            self?.isLoading = false
 
             self?.messagesManager.handle(messageCollection, .before)
 
