@@ -83,8 +83,8 @@ internal class MessageTableViewCell: UITableViewCell {
         if #available(iOS 13, *) {
             messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
                 for: message,
-                actionHandler: { [weak delegate] message, button in
-                    delegate?.didSelect(button)
+                actionHandler: { [weak self] message, button in
+                    self?.delegate?.didSelect(button)
                 })
         } else {
             messageView.accessibilityCustomActions = message.getAccessibilityCustomActions(

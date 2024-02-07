@@ -156,7 +156,8 @@ class IdentifierViewController: UIViewController {
         )
         Parley.setUserInformation(authorization)
         
-        Parley.configure(kParleySecret, onSuccess: {
+        Parley.configure(kParleySecret, onSuccess: { [weak self] in
+            guard let self else { return }
             self.alreadyConfiguredParley = true
             self.startButton.setLoading(false)
             
@@ -166,10 +167,10 @@ class IdentifierViewController: UIViewController {
             UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
             
             self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { _, _ in
-            self.startButton.setLoading(false)
+        }) { [weak self] _, _ in
+            self?.startButton.setLoading(false)
             
-            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
         }
     }
     
@@ -181,18 +182,18 @@ class IdentifierViewController: UIViewController {
             Parley.clearUserInformation()
         }
         
-        Parley.configure(secret, onSuccess: {
-            self.alreadyConfiguredParley = true
-            self.startButton.setLoading(false)
+        Parley.configure(secret, onSuccess: { [weak self] in
+            self?.alreadyConfiguredParley = true
+            self?.startButton.setLoading(false)
             
             UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
             
-            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { _, _ in
-            self.startButton.setLoading(false)
+            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        }) { [weak self] _, _ in
+            self?.startButton.setLoading(false)
             
-            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
         }
     }
 }

@@ -18,7 +18,7 @@ public class ParleyView: UIView {
     
     @IBOutlet weak var notificationsStackView: UIStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
-    private weak var notificationsConstraintBottom: NSLayoutConstraint? = nil
+    private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
             pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
@@ -70,7 +70,7 @@ public class ParleyView: UIView {
         }
     }
 
-    public var delegate: ParleyViewDelegate?
+    public weak var delegate: ParleyViewDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -113,9 +113,9 @@ public class ParleyView: UIView {
     
     private func setupPollingIfNecessary() {
         pollingService.delegate = self
-        notificationService.notificationsEnabled() { [pollingService] isEnabled in
+        notificationService.notificationsEnabled() { [weak self] isEnabled in
             guard !isEnabled else { return }
-            pollingService.startRefreshing()
+            self?.pollingService.startRefreshing()
         }
     }
 
@@ -448,7 +448,8 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
-        DispatchQueue.main.async { [weak self, pollingService] in
+        DispatchQueue.main.async { [weak self] in
+            guard let pollingService = self?.pollingService else { return }
             if self?.offlineNotificationView.isHidden == false { return }
             pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
             

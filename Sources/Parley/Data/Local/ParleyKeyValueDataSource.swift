@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol ParleyKeyValueDataSource {
+public protocol ParleyKeyValueDataSource: AnyObject {
     
     func string(forKey key: String) -> String?
     func data(forKey key: String) -> Data?
