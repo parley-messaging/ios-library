@@ -1,6 +1,6 @@
 import Foundation
 import Parley
 
-struct RequestCancableStub: RequestCancable {
+struct RequestCancelableStub: RequestCancelable {
     func cancelRequest() { }
 }

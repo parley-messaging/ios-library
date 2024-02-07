@@ -36,11 +36,11 @@ class MessageRepository {
     }
     
     @available(*, deprecated)
-    @discardableResult func findImage(_ messageId: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancable? {
+    @discardableResult func findImage(_ messageId: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancelable? {
         messageRemoteService.findImage(messageId, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    @discardableResult func find(media: String, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancable? {
+    @discardableResult func find(media: String, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancelable? {
         messageRemoteService.findMedia(media, onSuccess: onSuccess, onFailure: onFailure)
     }
 }

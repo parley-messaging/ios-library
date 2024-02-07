@@ -108,7 +108,7 @@ class MessageRemoteService {
         _ id: Int,
         onSuccess: @escaping (_ message: UIImage) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancable? {
+    ) -> RequestCancelable? {
         remote.execute(.get, path: "images/\(id)", onSuccess: onSuccess, onFailure: onFailure)
     }
 
@@ -117,7 +117,7 @@ class MessageRemoteService {
         _ id: String,
         onSuccess: @escaping (_ message: UIImage) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancable? {
+    ) -> RequestCancelable? {
         remote.execute(.get, path: "media/\(id)", onSuccess: onSuccess, onFailure: onFailure)
     }
 }

@@ -1,5 +1,5 @@
 import Foundation
 
-public protocol RequestCancable {
+public protocol RequestCancelable {
     func cancelRequest()
 }

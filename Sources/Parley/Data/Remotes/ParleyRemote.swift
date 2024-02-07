@@ -210,7 +210,7 @@ class ParleyRemote {
         parameters: [String: Any]? = nil,
         onSuccess: @escaping (_ image: UIImage) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancable? {
+    ) -> RequestCancelable? {
         let url = getUrl(path)
 
         if let image = getImageFromCache(url.absoluteString) {

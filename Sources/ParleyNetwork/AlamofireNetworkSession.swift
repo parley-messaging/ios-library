@@ -33,7 +33,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
         parameters: [String : Any]?,
         headers: [String : String],
         completion: @escaping (Result<HTTPDataResponse, Error>) -> Void
-    ) -> RequestCancable {
+    ) -> RequestCancelable {
         let dataRequest = session.request(
             url,
             method: Alamofire.HTTPMethod(method),
@@ -67,7 +67,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
         parameters: [String: Any]?,
         headers: [String: String],
         completion: @escaping (_ result: Result<HTTPImageResponse, Error>) -> Void
-    ) -> RequestCancable {
+    ) -> RequestCancelable {
         let dataRequest = session.request(
             url,
             method: Alamofire.HTTPMethod(method),
@@ -100,7 +100,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
         method: HTTPRequestMethod,
         headers: [String : String],
         completion: @escaping (Result<HTTPDataResponse, Error>) -> Void
-    ) -> RequestCancable {
+    ) -> RequestCancelable {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
             .response { response in
                 guard let statusCode = response.response?.statusCode else {

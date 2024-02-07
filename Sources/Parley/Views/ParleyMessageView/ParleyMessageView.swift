@@ -107,7 +107,7 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var findImageRequest: RequestCancable?
+    private var findImageRequest: RequestCancelable?
     private var messageRepository: MessageRepository = Parley.shared.messageRepository
     
     // Helpers

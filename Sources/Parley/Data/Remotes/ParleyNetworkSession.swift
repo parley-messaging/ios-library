@@ -22,7 +22,7 @@ public protocol ParleyNetworkSession {
         parameters: [String: Any]?,
         headers: [String: String],
         completion: @escaping (_ result: Result<HTTPDataResponse, Error>) -> Void
-    ) -> RequestCancable
+    ) -> RequestCancelable
 
     @discardableResult
     func requestImage(
@@ -31,7 +31,7 @@ public protocol ParleyNetworkSession {
         parameters: [String: Any]?,
         headers: [String: String],
         completion: @escaping (_ result: Result<HTTPImageResponse, Error>) -> Void
-    ) -> RequestCancable
+    ) -> RequestCancelable
 
     @discardableResult
     func upload(
@@ -40,5 +40,5 @@ public protocol ParleyNetworkSession {
         method: HTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (_ result: Result<HTTPDataResponse, Error>) -> Void
-    ) -> RequestCancable
+    ) -> RequestCancelable
 }

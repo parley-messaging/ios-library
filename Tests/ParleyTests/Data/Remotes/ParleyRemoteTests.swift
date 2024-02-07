@@ -14,10 +14,10 @@ class ParleyRemoteTests: XCTestCase {
 
     override func setUpWithError() throws {
         parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionReturnValue = RequestCancableStub()
-        parleyNetworkSessionSpy.uploadDataToMethodHeadersReturnValue = RequestCancableStub()
-        parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancableStub()
-        parleyNetworkSessionSpy.requestImageMethodParametersHeadersCompletionReturnValue = RequestCancableStub()
+        parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionReturnValue = RequestCancelableStub()
+        parleyNetworkSessionSpy.uploadDataToMethodHeadersReturnValue = RequestCancelableStub()
+        parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
+        parleyNetworkSessionSpy.requestImageMethodParametersHeadersCompletionReturnValue = RequestCancelableStub()
 
         dataSourceMock = ParleyDataSourceMock()
         networkConfig = ParleyNetworkConfig(
