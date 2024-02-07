@@ -113,7 +113,7 @@ class ParleyMessageView: UIView {
     private var displayTitle: Display = .hidden
     
     // Delegate
-    internal var delegate: ParleyMessageViewDelegate?
+    internal weak var delegate: ParleyMessageViewDelegate?
     
     // MARK: - Appearance
     internal var appearance: ParleyMessageViewAppearance? {

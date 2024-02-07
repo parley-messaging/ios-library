@@ -39,7 +39,7 @@ public class Parley {
     internal var uniqueDeviceIdentifier: String?
 
     internal var network: ParleyNetwork = ParleyNetwork()
-    internal var dataSource: ParleyDataSource? {
+    internal weak var dataSource: ParleyDataSource? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
@@ -160,7 +160,8 @@ public class Parley {
             }
         }
 
-        let onFailure: (_ error: Error) -> () = { error in
+        let onFailure: (_ error: Error) -> () = { [weak self] error in
+            guard let self else { return }
             self.isLoading = false
 
             if self.isOfflineError(error) && self.isCachingEnabled() {
@@ -174,15 +175,15 @@ public class Parley {
 
         DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
             guard let self = self else { return }
-            let onSecondSuccess: () -> () = {
+            let onSecondSuccess: () -> () = { [weak self] in
                 delegate?.didReceiveMessages()
 
                 let pendingMessages = Array(messagesManager.pendingMessages.reversed())
-                self.send(pendingMessages)
+                self?.send(pendingMessages)
 
-                self.isLoading = false
+                self?.isLoading = false
 
-                self.state = .configured
+                self?.state = .configured
 
                 onSuccess?()
             }
@@ -255,14 +256,14 @@ public class Parley {
         }
 
         self.isLoading = true
-        MessageRepository().findBefore(lastMessageId, onSuccess: { messageCollection in
-            self.isLoading = false
+        MessageRepository().findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
+            self?.isLoading = false
 
-            self.messagesManager.handle(messageCollection, .before)
+            self?.messagesManager.handle(messageCollection, .before)
 
-            self.delegate?.didReceiveMessages()
-        }, onFailure: { (error) in
-            self.isLoading = false
+            self?.delegate?.didReceiveMessages()
+        }, onFailure: { [weak self] (error) in
+            self?.isLoading = false
         })
     }
 

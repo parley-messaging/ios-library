@@ -1,4 +1,4 @@
-public protocol ParleyViewDelegate {
+public protocol ParleyViewDelegate: AnyObject {
     
     func didSentMessage()
 }

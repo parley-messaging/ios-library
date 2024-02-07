@@ -362,12 +362,12 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let imageURL = info[.imageURL] as? URL, let phAsset = info[.phAsset] as? PHAsset {
-            PHImageManager.default().requestImageData(for: phAsset, options: nil) { [weak delegate] (data, _, _, _) in
+            PHImageManager.default().requestImageData(for: phAsset, options: nil) { [weak self] (data, _, _, _) in
                 if let data = data, let image = UIImage(data: data) {
-                    delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
+                    self?.delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
                     picker.dismiss(animated: true, completion: nil)
                 } else {
-                    self.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
+                    self?.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
                 }
             }
         } else  {
