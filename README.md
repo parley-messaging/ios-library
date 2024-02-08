@@ -89,15 +89,15 @@ Module: Parley
 
 ### Step 2: Configure Parley
 
-Configure Parley with your `appSecret` with `Parley.shared.configure(_ secret: String)` (for example in your *ViewController* from step 1).
+Configure Parley with your `appSecret` with `Parley.configure(_ secret: String)` (for example in your *ViewController* from step 1).
 
 ```swift
-Parley.shared.configure("appSecret")
+Parley.configure("appSecret")
 ```
 
 *Replace `appSecret` by your Parley `appSecret`. The `appSecret` can be obtained by contacting [Parley](https://www.parley.nu/).*
 
-*Note: calling `Parley.shared.configure()` twice is unsupported, make sure to call `Parley.shared.configure()` only once for the lifecycle of Parley.*
+*Note: calling `Parley.configure()` twice is unsupported, make sure to call `Parley.configure()` only once for the lifecycle of Parley.*
 
 ### Step 3: Configure Firebase
 
@@ -105,33 +105,33 @@ Parley needs the FCM token to successfully handle remote notifications.
 
 **FCM Token**
 
-After retrieving an FCM token via your Firebase instance, pass it to the Parley instance in order to support remote notifications. This is can be done by using `Parley.shared.setPushToken(_:)`.
+After retrieving an FCM token via your Firebase instance, pass it to the Parley instance in order to support remote notifications. This is can be done by using `Parley.setPushToken(_:)`.
 
 ```swift
-Parley.shared.setPushToken("pushToken")
+Parley.setPushToken("pushToken")
 ```
 
 **Other push types**
 
 ```swift
-Parley.shared.setPushToken("pushToken", pushType: .customWebhook)
-Parley.shared.setPushToken("pushToken", pushType: .customWebhookBehindOAuth)
-Parley.shared.setPushToken("pushToken", pushType: .fcm) // Default
+Parley.setPushToken("pushToken", pushType: .customWebhook)
+Parley.setPushToken("pushToken", pushType: .customWebhookBehindOAuth)
+Parley.setPushToken("pushToken", pushType: .fcm) // Default
 ```
 
 **Handle remote notifications**
 
-Open your `AppDelegate` and add `Parley.shared.handle(_ userInfo: [AnyHashable: Any])` to the `didReceiveRemoteNotification` method to handle remote notifications.
+Open your `AppDelegate` and add `Parley.handle(_ userInfo: [AnyHashable: Any])` to the `didReceiveRemoteNotification` method to handle remote notifications.
 
 ```swift
 extension AppDelegate : UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        _ = Parley.shared.handle(userInfo)
+        _ = Parley.handle(userInfo)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        if UIApplication.shared.applicationState == .active {
+        if UIApplication.applicationState == .active {
             completionHandler([]) // Do not show notifications when app is in foreground
         } else {
             completionHandler([.alert, .sound])
@@ -165,11 +165,11 @@ When a certificate is going to expire you can safely transition by adding the ne
 
 ## Advanced
 
-Parley allows the usage of advanced configurations, such as specifying the network, specifying the user information or enabling offline messaging. In all use cases it is recommended to apply the advanced configurations before configuring the chat with `Parley.shared.configure(_ secret: String)`.
+Parley allows the usage of advanced configurations, such as specifying the network, specifying the user information or enabling offline messaging. In all use cases it is recommended to apply the advanced configurations before configuring the chat with `Parley.configure(_ secret: String)`.
 
 ### Network
 
-The network configuration can be set by setting a `ParleyNetwork` with the `Parley.shared.configure(_ network: ParleyNetwork)` method.
+The network configuration can be set by setting a `ParleyNetwork` with the `Parley.configure(_ network: ParleyNetwork)` method.
 
 ```swift
 let network = ParleyNetworkConfig(
@@ -178,7 +178,7 @@ let network = ParleyNetworkConfig(
     apiVersion: .v1_6 // Must correspond to the same version in the path
 )
 
-Parley.shared.configure("appSecret", network: network)
+Parley.configure("appSecret", network: network)
 ```
 
 *Don't forget to add the right certificate to the project.*
@@ -201,7 +201,7 @@ let network = ParleyNetworkConfig(
     headers: headers
 )
 
-Parley.shared.configure("appSecret", network: network)
+Parley.configure("appSecret", network: network)
 ```
 
 ### User information
@@ -211,12 +211,12 @@ The chat can be identified and encrypted by applying an authorization token to t
 ```swift
 let authorization = "ZGFhbnw5ZTA5ZjQ2NWMyMGNjYThiYjMxNzZiYjBhOTZmZDNhNWY0YzVlZjYzMGVhNGZmMWUwMjFjZmE0NTEyYjlmMDQwYTJkMTJmNTQwYTE1YmUwYWU2YTZjNTc4NjNjN2IxMmRjODNhNmU1ODNhODhkMmQwNzY2MGYxZTEzZDVhNDk1Mnw1ZDcwZjM5ZTFlZWE5MTM2YmM3MmIwMzk4ZDcyZjEwNDJkNzUwOTBmZmJjNDM3OTg5ZWU1MzE5MzdlZDlkYmFmNTU1YTcyNTUyZWEyNjllYmI5Yzg5ZDgyZGQ3MDYwYTRjZGYxMzE3NWJkNTUwOGRhZDRmMDA1MTEzNjlkYjkxNQ"
 
-Parley.shared.setUserInformation(authorization)
+Parley.setUserInformation(authorization)
 ```
 
 **Additional information**
 
-Additionally, you can set additional information of the user by using the `additionalInformation` parameter in `Parley.shared.setUserInformation()` method. The parameter accepts a `[String: String]` Dictionary.
+Additionally, you can set additional information of the user by using the `additionalInformation` parameter in `Parley.setUserInformation()` method. The parameter accepts a `[String: String]` Dictionary.
 
 ```swift
 let authorization = "ZGFhbnw5ZTA5ZjQ2NWMyMGNjYThiYjMxNzZiYjBhOTZmZDNhNWY0YzVlZjYzMGVhNGZmMWUwMjFjZmE0NTEyYjlmMDQwYTJkMTJmNTQwYTE1YmUwYWU2YTZjNTc4NjNjN2IxMmRjODNhNmU1ODNhODhkMmQwNzY2MGYxZTEzZDVhNDk1Mnw1ZDcwZjM5ZTFlZWE5MTM2YmM3MmIwMzk4ZDcyZjEwNDJkNzUwOTBmZmJjNDM3OTg5ZWU1MzE5MzdlZDlkYmFmNTU1YTcyNTUyZWEyNjllYmI5Yzg5ZDgyZGQ3MDYwYTRjZGYxMzE3NWJkNTUwOGRhZDRmMDA1MTEzNjlkYjkxNQ"
@@ -233,12 +233,12 @@ Parley.setUserInformation(authorization, additionalInformation: additionalInform
 **Clear user information**
 
 ```swift
-Parley.shared.clearUserInformation()
+Parley.clearUserInformation()
 ```
 
 ### Offline messaging
 
-Offline messaging can be enabled with the `Parley.shared.enableOfflineMessaging(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES128 encryption.
+Offline messaging can be enabled with the `Parley.enableOfflineMessaging(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES128 encryption.
 
 ```swift
 if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {
@@ -249,7 +249,7 @@ if let key = "1234567890123456".data(using: .utf8), let dataSource = try? Parley
 **Disable offline messaging**
 
 ```swift
-Parley.shared.disableOfflineMessaging()
+Parley.disableOfflineMessaging()
 ```
 
 ### Send a (silent) message
@@ -257,7 +257,7 @@ Parley.shared.disableOfflineMessaging()
 In some cases it may be handy to send a message for the user. You can easily do this by calling;
 
 ```swift
-Parley.shared.send("Lorem ipsum dolar sit amet")
+Parley.send("Lorem ipsum dolar sit amet")
 ```
 
 **Silent**
@@ -271,7 +271,7 @@ Parley.send("User opened chat", silent: true)
 ### Referrer
 
 ```swift
-Parley.shared.setReferrer("https://parley.nu/")
+Parley.setReferrer("https://parley.nu/")
 ```
 
 ### Custom Unique Device Identifier
@@ -279,7 +279,7 @@ Parley.shared.setReferrer("https://parley.nu/")
 By default Parley uses a random UUID as device identifier which will be stored in the user defaults. This can be overridden by passing a custom `uniqueDeviceIdentifier` to the configure method:
 
 ```swift
-Parley.shared.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
+Parley.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
 ```
 
 _When passing the `uniqueDeviceIdentifier` to the configure method, Parley will not store it. Client applications are responsible for storing it and providing Parley with the same ID in this case._
@@ -292,7 +292,7 @@ Resetting Parley will clear the current user information and chat data that is i
 Requires calling the `configure()` method again to use Parley.
 
 ```swift
-Parley.shared.reset()
+Parley.reset()
 ```
 
 ## Customize

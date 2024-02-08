@@ -52,6 +52,7 @@ public class ParleyView: UIView {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
     private let notificationService = NotificationService()
+    private var messageRepository: MessageRepository = MessageRepository(remote: Parley.shared.remote)
     private var pollingService: PollingServiceProtocol = PollingService()
     
     private var observeNotificationsBounds: NSKeyValueObservation?
@@ -211,7 +212,8 @@ public class ParleyView: UIView {
     }
     
     /// Gets the notification height for the specified vertical position based on the current appearance.
-    /// - Parameter position: Vertical position
+    /// - Parameters:
+    ///  - position: Vertical position
     /// - Returns: Vertical height, `0` if the current appearance is not the
     private func getNotificationsHeight(for position: ParleyPositionVertical) -> CGFloat {
         guard appearance.notificationsPosition == position else { return .zero }
@@ -639,8 +641,9 @@ extension ParleyView: ParleyComposeViewDelegate {
     }
     
     func send(image: UIImage, with data: Data, url: URL) {
-        guard Parley.shared.network.apiVersion.isUsingMedia else {
-            Parley.shared.send(url, image, data) ; return
+        guard Parley.shared.networkConfig.apiVersion.isUsingMedia else {
+            Parley.shared.send(url, image, data)
+            return
         }
         
         guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
@@ -665,7 +668,7 @@ extension ParleyView: ParleyComposeViewDelegate {
 extension ParleyView: MessageTableViewCellDelegate {
     
     func didSelectImage(from message: Message) {
-        let imageViewController = MessageImageViewController()
+        let imageViewController = MessageImageViewController(messageRepository: messageRepository)
         imageViewController.modalPresentationStyle = .overFullScreen
         imageViewController.modalTransitionStyle = .crossDissolve
         imageViewController.message = message
@@ -683,9 +686,7 @@ extension ParleyView: MessageTableViewCellDelegate {
             guard let url = URL(string: payload) else { return }
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         case .reply:
-            Parley.send(payload)
-        case .none:
-            break
+            Parley.shared.send(payload)
         }
     }
 }
@@ -699,7 +700,7 @@ extension ParleyView: ParleySuggestionsViewDelegate {
 }
 
 // MARK: - Accessibility
-internal extension ParleyView {
+extension ParleyView {
     
     // MARK: VoiceOver
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {

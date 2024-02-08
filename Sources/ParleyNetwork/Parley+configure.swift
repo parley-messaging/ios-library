@@ -3,7 +3,7 @@ import Parley
 
 extension Parley {
 
-    public func configure(
+    public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig? = nil,

@@ -6,31 +6,21 @@ import XCTest
 
 final class AlamofireHTTParleyConfigureTestsPMethodTests: XCTestCase {
 
-    private var sut: Parley!
-
-    override func setUpWithError() throws {
-        sut = Parley.shared
-    }
-
-    override func tearDownWithError() throws {
-        sut = nil
-    }
-
     func testSettingDefaultConfig() {
-        sut.configure("secret")
+        Parley.configure("secret")
 
-        XCTAssertEqual(sut.networkConfig.headers, [:])
-        XCTAssertEqual(sut.networkConfig.url, kParleyNetworkUrl)
-        XCTAssertEqual(sut.networkConfig.path, kParleyNetworkPath)
+        XCTAssertEqual(Parley.shared.networkConfig.headers, [:])
+        XCTAssertEqual(Parley.shared.networkConfig.url, kParleyNetworkUrl)
+        XCTAssertEqual(Parley.shared.networkConfig.path, kParleyNetworkPath)
 
-        XCTAssertTrue(sut.remote.networkSession is AlamofireNetworkSession)
+        XCTAssertTrue(Parley.shared.remote.networkSession is AlamofireNetworkSession)
     }
 
     func testSettingCustomConfig() {
         let url = "https://example.com"
         let path = "/example"
         let headers = ["example": "example"]
-        sut.configure(
+        Parley.configure(
             "secret",
             networkConfig: ParleyNetworkConfig(
                 url: url,
@@ -40,10 +30,10 @@ final class AlamofireHTTParleyConfigureTestsPMethodTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(sut.networkConfig.headers, headers)
-        XCTAssertEqual(sut.networkConfig.url, url)
-        XCTAssertEqual(sut.networkConfig.path, path)
+        XCTAssertEqual(Parley.shared.networkConfig.headers, headers)
+        XCTAssertEqual(Parley.shared.networkConfig.url, url)
+        XCTAssertEqual(Parley.shared.networkConfig.path, path)
 
-        XCTAssertTrue(sut.remote.networkSession is AlamofireNetworkSession)
+        XCTAssertTrue(Parley.shared.remote.networkSession is AlamofireNetworkSession)
     }
 }

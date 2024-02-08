@@ -7,7 +7,7 @@ import UIKit
 /// network requests. You can also use your own network layer. To do
 /// so implement this protocol and register this with the following code:
 /// ```swift
-/// Parley.shared.configure(
+/// Parley.configure(
 ///    "<secret>"
 ///    networkConfig: ParleyNetworkConfig(url: "https://yourdomain.com"),
 ///    networkSession: YourImplementationOfParleyNetworkSession(),

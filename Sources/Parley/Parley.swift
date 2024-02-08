@@ -528,8 +528,9 @@ public class Parley {
 
         self.delegate?.didStopTyping()
     }
+}
 
-    // MARK: - Public methods
+extension Parley {
 
     /**
      Handle remote message.
@@ -539,8 +540,8 @@ public class Parley {
 
      - Returns: `true` if Parley handled this payload, `false` otherwise.
      */
-    public func handle(_ userInfo: [AnyHashable: Any]) -> Bool {
-        if secret == nil {
+    public static func handle(_ userInfo: [AnyHashable: Any]) -> Bool {
+        if shared.secret == nil {
             return false
         }
 
@@ -552,9 +553,9 @@ public class Parley {
 
         switch messageType {
         case kParleyTypeMessage:
-            handleMessage(object)
+            shared.handleMessage(object)
         case kParleyTypeEvent:
-            handleEvent(object["name"] as? String)
+            shared.handleEvent(object["name"] as? String)
         default:
             break
         }
@@ -568,8 +569,8 @@ public class Parley {
      - Parameters:
        - dataSource: ParleyDataSource instance
      */
-    public func enableOfflineMessaging(_ dataSource: ParleyDataSource) {
-        self.dataSource = dataSource
+    public static func enableOfflineMessaging(_ dataSource: ParleyDataSource) {
+        shared.dataSource = dataSource
     }
 
     /**
@@ -577,63 +578,77 @@ public class Parley {
 
      - Note: The `clear()` method will be called on the current instance to prevent unused data on the device.
      */
-    public func disableOfflineMessaging() {
-        dataSource?.clear()
-        dataSource = nil
+    public static func disableOfflineMessaging() {
+        shared.dataSource?.clear()
+        shared.dataSource = nil
     }
 
     /**
-     Set the users Firebase Cloud Messaging token.
+      Set the users Firebase Cloud Messaging token.
 
-     - Note: Method must be called before `Parley.shared.configure(_ secret: String)`.
+      - Note: Method must be called before `Parley.configure(_ secret: String)`.
 
-     - Parameters:
-       - fcmToken: The Firebase Cloud Messaging token
-       - pushType: The push type (default `fcm`)
-       - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-       - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
+      - Parameters:
+        - fcmToken: The Firebase Cloud Messaging token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
     @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
-    public func setFcmToken(_ fcmToken: String, pushType: Device.PushType = .fcm, onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+    public static func setFcmToken(
+        _ fcmToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
         setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
     }
-    
+
     /**
-     Set the push token of the user.
+      Set the push token of the user.
 
-     - Note: Method must be called before `Parley.shared.configure(_ secret: String)`.
+      - Note: Method must be called before `Parley.configure(_ secret: String)`.
 
-     - Parameters:
-       - pushToken: The push token
-       - pushType: The push type (default `fcm`)
-       - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-       - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
-    public func setPushToken(_ pushToken: String, pushType: Device.PushType = .fcm, onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        if pushToken == pushToken { return }
+      - Parameters:
+        - pushToken: The push token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushToken(
+        _ pushToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        if shared.pushToken == pushToken { return }
 
-        self.pushToken = pushToken
-        self.pushType = pushType
+        shared.pushToken = pushToken
+        shared.pushType = pushType
 
-        registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
     }
 
     /**
-     Set whether push is enabled by the user.
+      Set whether push is enabled by the user.
 
-     - Parameters:
-       - enabled: Indication if application's push is enabled.
-       - onSuccess: Execution block when pushEnabled is updated (only called when Parley is configuring/configured).
-       - onFailure: Execution block when pushEnabled can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
-    public func setPushEnabled(_ enabled: Bool, onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        guard pushEnabled != enabled else { return }
+      - Parameters:
+        - enabled: Indication if application's push is enabled.
+        - onSuccess: Execution block when pushEnabled is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when pushEnabled can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushEnabled(
+        _ enabled: Bool,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        guard shared.pushEnabled != enabled else { return }
 
-        pushEnabled = enabled
+        shared.pushEnabled = enabled
 
-        delegate?.didChangePushEnabled(enabled)
+        shared.delegate?.didChangePushEnabled(enabled)
 
-        registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
     }
 
     /**
@@ -645,12 +660,17 @@ public class Parley {
        - onSuccess: Execution block when user information is set (only called when Parley is configuring/configured).
        - onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public func setUserInformation(_ authorization: String, additionalInformation: [String : String]? = nil, onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        userAuthorization = authorization
-        userAdditionalInformation = additionalInformation
-        
-        if state == .configured {
-            reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+    public static func setUserInformation(
+        _ authorization: String,
+        additionalInformation: [String : String]? = nil,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        shared.userAuthorization = authorization
+        shared.userAdditionalInformation = additionalInformation
+
+        if shared.state == .configured {
+            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
         }
     }
 
@@ -661,26 +681,29 @@ public class Parley {
        - onSuccess: Execution block when user information is cleared (only called when Parley is configuring/configured).
        - onFailure: Execution block when user information is can not be cleared (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public func clearUserInformation(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        userAuthorization = nil
-        userAdditionalInformation = nil
-        
-        if state == .configured {
-            reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+    public static func clearUserInformation(
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        shared.userAuthorization = nil
+        shared.userAdditionalInformation = nil
+
+        if shared.state == .configured {
+            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
         }
     }
 
     /**
      Configure Parley Messaging with clearing the cache
-     
+
      The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
      a random UUID that will be stored in the user defaults. When providing a unique device
      ID to this configure method, it is not stored by Parley and only kept for the current instance
      of Parley. Client applications are responsible for storing it and providing Parley with the
      same ID. This gives client applications the flexibility to change the ID if required (for
      example when another user is logged-in to the app).
-     
-     - Note: calling `Parley.shared.configure()` twice is unsupported, make sure to call `Parley.shared.configure()` only once for the lifecycle of Parley.shared._
+
+     - Note: calling `Parley.configure()` twice is unsupported, make sure to call `Parley.configure()` only once for the lifecycle of Parley.shared._
 
      - Parameters:
        - secret: Application secret of your Parley instance.
@@ -692,7 +715,7 @@ public class Parley {
        - code: HTTP Status Code.
        - message: Description what went wrong.
      */
-    public func configure(
+    public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig,
@@ -700,9 +723,9 @@ public class Parley {
         onSuccess: (() -> ())? = nil,
         onFailure: ((_ code: Int, _ message: String) -> ())? = nil
     ) {
-        initialize(networkConfig: networkConfig, networkSession: networkSession)
-        
-        configure(
+        shared.initialize(networkConfig: networkConfig, networkSession: networkSession)
+
+        shared.configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             onSuccess: onSuccess,
@@ -710,31 +733,44 @@ public class Parley {
             clearCache: true
         )
     }
-    
+
     /**
      Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
-     
+
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
-     
+
      - Parameters:
        - onSuccess: Called when the device is correctly registered.
        - onFailure: Called when configuring of the device did result in a error.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        userAuthorization = nil
-        userAdditionalInformation = nil
-        
-        registerDevice(onSuccess: {
-            self.secret = nil
+    public static func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+        shared.userAuthorization = nil
+        shared.userAdditionalInformation = nil
+
+        shared.registerDevice(onSuccess: {
+            shared.secret = nil
             onSuccess?()
         }, onFailure: { code, message in
-            self.secret = nil
+            shared.secret = nil
             onFailure?(code, message)
         })
 
-        clearChat()
+        shared.clearChat()
+    }
+
+    /**
+     Send a message to Parley.
+
+     - Note: Call after chat is configured.
+
+     - Parameters:
+       - message: The message to sent
+       - silent: Indicates if the message needs to be sent silently. The message will not be shown to the user when `silent=true`.
+     */
+    public static func send(_ message: String, silent: Bool = false) {
+        shared.send(message, silent: silent)
     }
 
     /**
@@ -743,7 +779,7 @@ public class Parley {
      - Parameters:
        - referrer: Referrer
      */
-    public func setReferrer(_ referrer: String) {
-        self.referrer = referrer
+    public static func setReferrer(_ referrer: String) {
+        shared.referrer = referrer
     }
 }

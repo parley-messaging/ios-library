@@ -113,12 +113,12 @@ class IdentifierViewController: UIViewController {
             kParleyAdditionalValueAddress: "Randstad 21 30, 1314, Nederland"
         ]
 
-        Parley.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
+        Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
     private func setOfflineMessagingEnabled() {
         if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {
-            Parley.shared.enableOfflineMessaging(dataSource)
+            Parley.enableOfflineMessaging(dataSource)
         }
     }
     
@@ -130,7 +130,7 @@ class IdentifierViewController: UIViewController {
     @IBAction func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-            Parley.shared.reset(onSuccess: { [weak self] in
+            Parley.reset(onSuccess: { [weak self] in
                 self?.startChatDemo()
             }, onFailure: { _, _ in
                 print("Failed to reset Parley")
@@ -163,15 +163,15 @@ class IdentifierViewController: UIViewController {
             secret: kParleyUserAuthorizationSecret,
             sharedSecret: kParleyUserAuthorizationSharedSecret
         )
-        Parley.shared.setUserInformation(authorization)
+        Parley.setUserInformation(authorization)
 
         Parley.shared.configure(
-        kParleySecret,
-        networkConfig: createNetworkConfig(),
-        onSuccess: { [weak self] in
-            guard let self else { return }
-            self.alreadyConfiguredParley = true
-            self.startButton.setLoading(false)
+            kParleySecret,
+            networkConfig: createNetworkConfig(),
+            onSuccess: {  [weak self] in
+                guard let self else { return }
+                self.alreadyConfiguredParley = true
+                self.startButton.setLoading(false)
 
             self.identifierTextView.text = kParleySecret
 
@@ -197,15 +197,15 @@ class IdentifierViewController: UIViewController {
         self.startButton.setLoading(true)
 
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
-            Parley.shared.clearUserInformation()
+            Parley.clearUserInformation()
         }
 
         Parley.shared.configure(
-        secret,
-        networkConfig: createNetworkConfig(),
-        onSuccess: { [weak self] in
-            self?.alreadyConfiguredParley = true
-            self?.startButton.setLoading(false)
+            secret,
+            networkConfig: createNetworkConfig(),
+            onSuccess: { [weak self] in
+                self?.alreadyConfiguredParley = true
+                self?.startButton.setLoading(false)
 
             UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)

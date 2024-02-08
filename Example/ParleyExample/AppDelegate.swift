@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(options: authOptions, completionHandler: { pushEnabled, error in
-            Parley.shared.setPushEnabled(pushEnabled)
+            Parley.setPushEnabled(pushEnabled)
         })
 
         application.registerForRemoteNotifications()
@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
             let pushEnabled = notificationSettings.authorizationStatus == .authorized
 
-            Parley.shared.setPushEnabled(pushEnabled)
+            Parley.setPushEnabled(pushEnabled)
         }
     }
 }
@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate : UNUserNotificationCenterDelegate {
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        _ = Parley.shared.handle(userInfo)
+        _ = Parley.handle(userInfo)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -56,6 +56,6 @@ extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken pushToken: String?) {
         guard let pushToken = pushToken else { return }
         
-        Parley.shared.setPushToken(pushToken)
+        Parley.setPushToken(pushToken)
     }
 }

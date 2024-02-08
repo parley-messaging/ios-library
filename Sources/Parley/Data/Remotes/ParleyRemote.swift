@@ -103,14 +103,14 @@ class ParleyRemote {
                     try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
                     onSuccess()
                 } catch {
-                    onFailure(error)
+                    if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
+                        onFailure(apiError)
+                    } else {
+                        onFailure(error)
+                    }
                 }
             case .failure(let error):
-                if let data = response.data, let apiError = decodeBackendError(responseData: data) {
-                    onFailure(apiError)
-                } else {
                     onFailure(error)
-                }
             }
         }
     }
@@ -192,7 +192,11 @@ class ParleyRemote {
                     .decodeAtKeyPath(of: T.self, keyPath: keyPath)
                 onSuccess(decodedResponse)
             } catch {
-                onFailure(error)
+                if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
+                    onFailure(apiError)
+                } else {
+                    onFailure(error)
+                }
             }
         case .failure(let failure):
             onFailure(failure)
@@ -241,11 +245,10 @@ class ParleyRemote {
                         onSuccess(image)
                     } else if let data = response.body {
                         self.setImage(url, image: response.image, data: data)
-
                         onSuccess(response.image)
                     }
                 } catch {
-                    if let data = request.data, let apiError = decodeBackendError(responseData: data) {
+                    if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
                         onFailure(apiError)
                     } else {
                         onFailure(error)

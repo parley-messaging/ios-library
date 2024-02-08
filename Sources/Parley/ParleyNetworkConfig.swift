@@ -2,7 +2,7 @@ import UIKit
 
 public struct ParleyNetworkConfig {
     public let url: String
-    public let path: String
+    package let path: String
     package let headers: [String: String]
     package var apiVersion: ApiVersion = .v1_6
 
