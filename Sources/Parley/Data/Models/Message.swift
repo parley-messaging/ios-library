@@ -48,14 +48,15 @@ public class Message: Codable, Equatable {
 
     var title: String?
     var message: String?
-
+    var responseInfoType: String?
+    
     @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
     var image: UIImage?
     var imageURL: URL?
     var imageData: Data?
 
     var media: MediaObject?
-    internal var mediaSendRequest: MediaModel?
+    var mediaSendRequest: MediaModel?
 
     internal var hasMedium: Bool {
         imageURL != nil || imageData != nil || media != nil || image != nil
@@ -94,6 +95,7 @@ public class Message: Codable, Equatable {
         case time
         case title
         case message
+        case responseInfoType
         case image
         case imageURL
         case imageData
@@ -131,6 +133,7 @@ public class Message: Codable, Equatable {
         if message?.isEmpty == true {
             message = nil
         }
+        responseInfoType = try values.decodeIfPresent(String.self, forKey: .responseInfoType)
         imageURL = try values.decodeIfPresent(URL.self, forKey: .image)
         mediaSendRequest = try values.decodeIfPresent(MediaModel.self, forKey: .mediaSendRequest)
         media = try values.decodeIfPresent(MediaObject.self, forKey: .media)
@@ -153,6 +156,7 @@ public class Message: Codable, Equatable {
         }
         try container.encodeIfPresent(title, forKey: .title)
         try container.encodeIfPresent(message, forKey: .message)
+        try container.encodeIfPresent(responseInfoType, forKey: .responseInfoType)
         try container.encodeIfPresent(imageURL, forKey: .imageURL)
         try container.encodeIfPresent(mediaSendRequest, forKey: .mediaSendRequest)
         try container.encodeIfPresent(media, forKey: .media)

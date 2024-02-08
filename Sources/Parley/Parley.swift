@@ -328,6 +328,10 @@ public class Parley {
         }
         
         func onError(error: Error) {
+            if let parleyError = error as? ParleyErrorResponse {
+                message.responseInfoType = parleyError.notifications.first?.message
+            }
+            
             if !isCachingEnabled() || !isOfflineError(error) {
                 message.status = .failed
                 messagesManager.update(message)

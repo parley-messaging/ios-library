@@ -4,8 +4,7 @@ import Foundation
 extension DataRequest {
 
     enum KeyPath {
-        case data
-        case none
+        case data, none
     }
 
     @discardableResult
@@ -20,8 +19,8 @@ extension DataRequest {
                 switch response.result {
                 case .success(let responseData):
                     onSuccess(responseData.data)
-                case .failure(let error):
-                    onFailure(error)
+                case .failure(let defaultError):
+                    onFailure(Self.decodeError(for: response.data) ?? defaultError)
                 }
             }
         case .none:
@@ -29,12 +28,15 @@ extension DataRequest {
                 switch response.result {
                 case .success(let items):
                     onSuccess(items)
-                case .failure(let error):
-                    onFailure(error)
+                case .failure(let defaultError):
+                    onFailure(Self.decodeError(for: response.data) ?? defaultError)
                 }
             }
         }
-
     }
-
+    
+    private static func decodeError(for responseData: Data?) -> Error? {
+        guard let data = responseData else { return nil }
+        return ParleyRemote.decodeBackendError(responseData: data)
+    }
 }

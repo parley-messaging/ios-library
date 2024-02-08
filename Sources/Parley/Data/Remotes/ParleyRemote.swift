@@ -87,7 +87,11 @@ internal class ParleyRemote {
             case .success:
                 onSuccess()
             case .failure(let error):
-                onFailure(error)
+                if let data = response.data, let apiError = decodeBackendError(responseData: data) {
+                    onFailure(apiError)
+                } else {
+                    onFailure(error)
+                }
             }
         }
         
@@ -129,7 +133,11 @@ internal class ParleyRemote {
                         onSuccess(image)
                     }
                 case .failure(let error):
-                    onFailure(error)
+                    if let data = request.data, let apiError = decodeBackendError(responseData: data) {
+                        onFailure(apiError)
+                    } else {
+                        onFailure(error)
+                    }
                 }
             }
             
@@ -185,11 +193,21 @@ internal extension ParleyRemote {
             do {
                 let decodedData = try JSONDecoder().decode(ParleyResponse<T>.self, from: data)
                 result(.success(decodedData.data))
-            } catch {
-                result(.failure(error))
+            } catch let responseError {
+                
+                result(.failure(responseError))
             }
-        case .failure(let error):
-            result(.failure(error))
+        case .failure(let defaultError):
+            guard
+                let data = response.data,
+                let apiResponseError = decodeBackendError(responseData: data)
+            else { result(.failure(defaultError)) ; return }
+            
+            result(.failure(apiResponseError))
         }
+    }
+    
+    internal static func decodeBackendError(responseData: Data) -> ParleyErrorResponse? {
+        try? JSONDecoder().decode(ParleyErrorResponse.self, from: responseData)
     }
 }
