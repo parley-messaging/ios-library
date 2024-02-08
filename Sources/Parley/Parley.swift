@@ -300,7 +300,7 @@ public class Parley {
     
     internal func upload(media: MediaModel, displayedImage: UIImage?) {
         let message = media.createMessage(status: .pending)
-        message.image = displayedImage
+        message.image = media.type == .gif ? UIImage.gif(data: media.image) : displayedImage
         send(message, isNewMessage: true, onNext: nil)
     }
 

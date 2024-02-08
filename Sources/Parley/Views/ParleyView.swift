@@ -614,6 +614,19 @@ extension ParleyView: UITableViewDelegate {
 
 // MARK: ParleyComposeViewDelegate
 extension ParleyView: ParleyComposeViewDelegate {
+    
+    func failedToSelectImage() {
+        let title = NSLocalizedString("parley_send_failed_title", comment: "")
+        let message = NSLocalizedString("parley_send_failed_body_selecting_image", comment: "")
+        presentInformationalAlert(title: title, message: message)
+    }
+    
+    private func presentInformationalAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okMessage = NSLocalizedString("general_ok", comment: "")
+        alert.addAction(UIAlertAction(title: okMessage, style: .default))
+        present(alert, animated: true)
+    }
 
     func didChange() {
         if !composeView.textView.text.isEmpty {
@@ -625,10 +638,26 @@ extension ParleyView: ParleyComposeViewDelegate {
         Parley.shared.send(message)
     }
     
-    func send(image: UIImage, with data: Data, url: URL, fileName: String) {
-        Parley.shared.network.apiVersion.isUsingMedia
-            ?  Parley.shared.upload(media: MediaModel(image: data, url: url, filename: fileName), displayedImage: image)
-            :  Parley.shared.send(url, image, data)
+    func send(image: UIImage, with data: Data, url: URL) {
+        guard Parley.shared.network.apiVersion.isUsingMedia else {
+            Parley.shared.send(url, image, data) ; return
+        }
+        
+        guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
+            let title = NSLocalizedString("parley_send_failed_title", comment: "")
+            let message = NSLocalizedString("parley_send_failed_body_media_invalid", comment: "")
+            presentInformationalAlert(title: title, message: message)
+            return
+        }
+        
+        guard !mediaModel.isLargerThan(size: 10) else {
+            let title = NSLocalizedString("parley_send_failed_title", comment: "")
+            let message = NSLocalizedString("parley_send_failed_body_media_too_large", comment: "")
+            presentInformationalAlert(title: title, message: message)
+            return
+        }
+        
+        Parley.shared.upload(media: mediaModel, displayedImage: image)
     }
 }
 

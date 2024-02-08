@@ -360,29 +360,25 @@ extension ParleyComposeView: KeyboardAccessoryViewDelegate {
 // MARK: UIImagePickerControllerDelegate
 extension ParleyComposeView: UIImagePickerControllerDelegate {
     
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let imageURL = info[.imageURL] as? URL, let phAsset = info[.phAsset] as? PHAsset {
-            PHImageManager.default().requestImageData(for: phAsset, options: nil) { [weak self] (data, _, _, _) in
-                if let data = data, let image = UIImage(data: data) {
-                    self?.delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
-                    picker.dismiss(animated: true, completion: nil)
-                } else {
-                    self?.imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
-                }
-            }
-        } else  {
-            imagePickerController(picker, didFinishPickingMediaLegacyWithInfo: info)
+    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        guard let imageURL = info[.imageURL] as? URL, let asset = info[.phAsset] as? PHAsset else {
+            delegate?.failedToSelectImage()
+            picker.dismiss(animated: true, completion: nil)
+            return
         }
-    }
-    
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaLegacyWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let imageURL = URL(string: "tmp://fake/image/path/tmp.jpg")!
-        let image = info[.originalImage] as! UIImage
-        let data = image.jpegData(compressionQuality: 1.0) ?? .init()
         
-        delegate?.send(image: image, with: data, url: imageURL, fileName: imageURL.lastPathComponent)
-        
-        picker.dismiss(animated: true, completion: nil)
+        let options = PHImageRequestOptions()
+        options.isNetworkAccessAllowed = true
+            
+        PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] (data, _, _, _) in
+            if let data, let image = UIImage(data: data) {
+                picker.dismiss(animated: true, completion: {
+                    self?.delegate?.send(image: image, with: data, url: imageURL)
+                })
+            } else {
+                self?.delegate?.failedToSelectImage()
+            }
+        }
     }
     
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

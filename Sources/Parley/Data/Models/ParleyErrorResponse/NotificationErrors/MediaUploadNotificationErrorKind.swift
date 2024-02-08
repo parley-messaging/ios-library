@@ -11,9 +11,9 @@ enum MediaUploadNotificationErrorKind: String, Error, CaseIterable, Codable {
     var formattedMessage: String {
         switch self {
         case .invalidMediaType, .missingMedia, .couldNotSaveMedia:
-            return NSLocalizedString("media_upload_failed_to_send", comment: "")
+            return NSLocalizedString("parley_message_meta_failed_to_send", comment: "")
         case .mediaTooLarge:
-            return NSLocalizedString("media_upload_media_too_large", comment: "")
+            return NSLocalizedString("parley_message_meta_media_too_large", comment: "")
         }
     }
 }
