@@ -15,13 +15,13 @@
 "parley_photo_access_denied_title" = "Foto toegang";
 "parley_photo_access_denied_body" = "We hebben toegang nodig tot je foto's. Ga naar instellingen en geef de applicatie toegang tot je foto's.";
 
-"parley_message_meta_failed_to_send" = "Failed to send";
-"parley_message_meta_media_too_large" = "Image too large";
+"parley_message_meta_failed_to_send" = "Versturen is mislukt";
+"parley_message_meta_media_too_large" = "Foto is te groot";
 
 "parley_send_failed_title" = "Mislukt";
-"parley_send_failed_body_selecting_image" = "De geselecteerde foto kon niet worden opgehaald.";
-"parley_send_failed_body_media_invalid" = "Het is niet gelukt om de geselecteerde foto te verwerken.";
-"parley_send_failed_body_media_too_large" = "De afbeelding is te groot om te versturen.";
+"parley_send_failed_body_selecting_image" = "De foto kan niet worden verzonden.";
+"parley_send_failed_body_media_invalid" = "De foto kan niet worden verwerkt.";
+"parley_send_failed_body_media_too_large" = "De foto is te groot om te versturen.";
 
 // MARK: Message Compose View
 "parley_type_message" = "Typ een bericht...";
