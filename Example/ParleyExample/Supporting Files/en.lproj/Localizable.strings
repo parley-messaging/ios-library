@@ -12,5 +12,5 @@
 "chat_title" = "Chat";
 "documentation_title" = "Documentation";
 
-"media_upload_failed_to_send" = "Failed to send";
+"media_upload_failed_to_send" = "Versturen is mislukt";
 "media_upload_media_too_large" = "Afbeelding te groot";
