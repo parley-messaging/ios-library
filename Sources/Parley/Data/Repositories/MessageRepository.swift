@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class MessageRepository {
+final class MessageRepository {
     
     private let remote: ParleyRemote
     private let messageRemoteService: MessageRemoteService

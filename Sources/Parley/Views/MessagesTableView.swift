@@ -1,6 +1,6 @@
 import UIKit
 
-class MessagesTableView: UITableView {
+final class MessagesTableView: UITableView {
     
     private(set) var isAtBottom: Bool = false
     

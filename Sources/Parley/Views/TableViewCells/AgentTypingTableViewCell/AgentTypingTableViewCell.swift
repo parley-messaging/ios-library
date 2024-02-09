@@ -1,6 +1,6 @@
 import UIKit
 
-class AgentTypingTableViewCell: UITableViewCell {
+final class AgentTypingTableViewCell: UITableViewCell {
     
     @IBOutlet weak var backgroundImageView: UIImageView!
     

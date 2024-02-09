@@ -7,7 +7,7 @@ protocol PollingServiceProtocol: AnyObject {
     var delegate: ParleyDelegate? { get set }
 }
 
-class PollingService: PollingServiceProtocol {
+final class PollingService: PollingServiceProtocol {
     
     private enum TimerInterval: TimeInterval {
         case twoSeconds = 2

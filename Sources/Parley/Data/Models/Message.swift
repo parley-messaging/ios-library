@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class Message: Codable, Equatable {
+public final class Message: Codable, Equatable {
 
     enum MessageStatus: Int, Codable {
         case failed = 0

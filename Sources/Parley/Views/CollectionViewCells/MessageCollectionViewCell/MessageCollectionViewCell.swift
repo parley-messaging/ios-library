@@ -1,6 +1,6 @@
 import UIKit
 
-class MessageCollectionViewCell: UICollectionViewCell {
+final class MessageCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var parleyMessageView: ParleyMessageView!
     

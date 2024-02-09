@@ -1,6 +1,6 @@
 import UIKit
 
-class DateTableViewCell: UITableViewCell {
+final class DateTableViewCell: UITableViewCell {
     
     @IBOutlet weak var timeView: UIView!
     @IBOutlet weak var timeLabel: UILabel!
@@ -16,7 +16,7 @@ class DateTableViewCell: UITableViewCell {
         }
     }
     
-    override public func awakeFromNib() {
+    override func awakeFromNib() {
         super.awakeFromNib()
         
         self.apply(self.appearance)

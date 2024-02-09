@@ -1,6 +1,6 @@
 import UIKit
 
-class ParleySuggestionsView: UIView {
+final class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var contentView: UIView! {
         didSet {

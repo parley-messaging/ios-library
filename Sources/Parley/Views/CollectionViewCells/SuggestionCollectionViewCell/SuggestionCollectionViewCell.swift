@@ -1,6 +1,6 @@
 import UIKit
 
-class SuggestionCollectionViewCell: UICollectionViewCell {
+final class SuggestionCollectionViewCell: UICollectionViewCell {
     
     // Balloon
     @IBOutlet weak var balloonImageView: UIImageView!

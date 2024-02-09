@@ -5,7 +5,7 @@ import Foundation
 /// your app may run out of memory when trying to encode the dataset.
 struct MultipartFormData {
 
-    public let boundary: String
+    let boundary: String
 
     private let separator = "\r\n"
     private var data: Data

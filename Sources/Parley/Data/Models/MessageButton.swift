@@ -1,4 +1,4 @@
-public struct MessageButton: Codable {
+struct MessageButton: Codable {
     enum MessageButtonType: String, Codable {
         case reply
         case phoneNumber

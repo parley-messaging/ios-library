@@ -1,6 +1,6 @@
 import Foundation
 
-class DeviceRemoteService {
+final class DeviceRemoteService {
 
     private let remote: ParleyRemote
 

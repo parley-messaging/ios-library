@@ -2,7 +2,7 @@ import Foundation
 
 extension Data {
 
-    public mutating func append(
+    mutating func append(
         _ string: String,
         encoding: String.Encoding = .utf8
     ) {

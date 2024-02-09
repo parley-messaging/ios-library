@@ -4,13 +4,13 @@ import Foundation
 import Parley
 import UIKit
 
-public class AlamofireNetworkSession: ParleyNetworkSession {
+final class AlamofireNetworkSession: ParleyNetworkSession {
 
     private let encoding = URLEncoding(boolEncoding: URLEncoding.BoolEncoding.literal)
     private let networkConfig: ParleyNetworkConfig
     private let session: Session
 
-    public init(networkConfig: ParleyNetworkConfig) {
+    init(networkConfig: ParleyNetworkConfig) {
         self.networkConfig = networkConfig
 
         guard let host = URL(string: networkConfig.url)?.host else {
@@ -27,7 +27,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
         )
     }
 
-    public func request(
+    func request(
         _ url: URL,
         method: HTTPRequestMethod,
         parameters: [String : Any]?,
@@ -61,7 +61,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
     }
 
     @discardableResult
-    public func requestImage(
+    func requestImage(
         _ url: URL,
         method: HTTPRequestMethod,
         parameters: [String: Any]?,
@@ -94,7 +94,7 @@ public class AlamofireNetworkSession: ParleyNetworkSession {
         return dataRequest
     }
 
-    public func upload(
+    func upload(
         data: Data,
         to url: URL,
         method: HTTPRequestMethod,

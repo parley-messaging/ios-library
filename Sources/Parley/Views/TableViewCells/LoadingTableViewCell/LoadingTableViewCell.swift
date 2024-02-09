@@ -1,6 +1,6 @@
 import UIKit
 
-class LoadingTableViewCell: UITableViewCell {
+final class LoadingTableViewCell: UITableViewCell {
     
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     

@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class MessagesManager {
+final class MessagesManager {
 
     enum HandleType {
         case all

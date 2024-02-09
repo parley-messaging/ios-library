@@ -1,6 +1,6 @@
 import UIKit
 
-internal struct MediaModel: Codable {
+struct MediaModel: Codable {
     let image: Data
     let url: URL
     let type: ParleyImageType

@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import Parley
 
-class ParleyRemoteTests: XCTestCase {
+final class ParleyRemoteTests: XCTestCase {
 
     private var sut: ParleyRemote!
     private var parleyNetworkSessionSpy: ParleyNetworkSessionSpy!

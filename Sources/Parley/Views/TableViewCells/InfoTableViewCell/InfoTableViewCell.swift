@@ -1,6 +1,6 @@
 import UIKit
 
-class InfoTableViewCell: UITableViewCell {
+final class InfoTableViewCell: UITableViewCell {
     
     @IBOutlet weak var infoTextView: ParleyTextView! {
         didSet {
@@ -19,7 +19,7 @@ class InfoTableViewCell: UITableViewCell {
         }
     }
     
-    override public func awakeFromNib() {
+    override func awakeFromNib() {
         super.awakeFromNib()
         
         self.apply(self.appearance)

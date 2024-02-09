@@ -2,7 +2,7 @@ import Reachability
 import Foundation
 import UIKit
 
-public class Parley {
+public final class Parley {
 
     enum State {
         case unconfigured
@@ -11,7 +11,7 @@ public class Parley {
         case failed
     }
 
-    public static let shared = Parley()
+    static let shared = Parley()
 
     private(set) var state: State = .unconfigured {
         didSet {
@@ -282,7 +282,7 @@ public class Parley {
     }
 
     // MARK: Devices
-    private func registerDevice(onSuccess: (() - >())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+    private func registerDevice(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         if self.state == .configuring || self.state == .configured {
             deviceRepository.register(device: makeDeviceData(), onSuccess: { _ in
                 onSuccess?()
@@ -358,7 +358,7 @@ public class Parley {
        - text: The message to sent
        - silent: Indicates if the message needs to be sent silently. The message will not be shown when `silent=true`.
      */
-    public func send(_ text: String, silent: Bool = false) {
+    func send(_ text: String, silent: Bool = false) {
         let message = Message()
         message.message = text
         message.type = silent ? .systemMessageUser : .user
@@ -428,7 +428,7 @@ public class Parley {
 
     // MARK: Remote messages
 
-    func handleMessage(_ userInfo: [String: Any]) {
+    private func handleMessage(_ userInfo: [String: Any]) {
         guard let id = userInfo["id"] as? Int else { return }
         guard let typeId = userInfo["typeId"] as? Int else { return }
         guard let body = userInfo["body"] as? String else { return }
@@ -470,7 +470,7 @@ public class Parley {
         }
     }
 
-    func handleEvent(_ event: String?) {
+    private func handleEvent(_ event: String?) {
         switch event {
         case kParleyEventStartTyping?:
             agentStartTyping()

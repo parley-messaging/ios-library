@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class ParleyRemote {
+final class ParleyRemote {
 
     let networkSession: ParleyNetworkSession
     private var networkConfig: ParleyNetworkConfig

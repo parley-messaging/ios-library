@@ -165,7 +165,7 @@ class IdentifierViewController: UIViewController {
         )
         Parley.setUserInformation(authorization)
 
-        Parley.shared.configure(
+        Parley.configure(
             kParleySecret,
             networkConfig: createNetworkConfig(),
             onSuccess: {  [weak self] in
@@ -200,7 +200,7 @@ class IdentifierViewController: UIViewController {
             Parley.clearUserInformation()
         }
 
-        Parley.shared.configure(
+        Parley.configure(
             secret,
             networkConfig: createNetworkConfig(),
             onSuccess: { [weak self] in

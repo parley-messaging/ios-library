@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class MessageRemoteService {
+final class MessageRemoteService {
 
     private let remote: ParleyRemote
     private let codableHelper: CodableHelper

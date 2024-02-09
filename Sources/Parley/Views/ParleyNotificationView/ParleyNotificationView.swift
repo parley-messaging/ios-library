@@ -1,6 +1,6 @@
 import UIKit
 
-public class ParleyNotificationView: UIView {
+final class ParleyNotificationView: UIView {
     
     @IBOutlet private var contentView: UIView! {
         didSet {

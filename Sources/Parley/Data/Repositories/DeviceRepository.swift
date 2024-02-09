@@ -1,11 +1,11 @@
 import UserNotifications
 
-class DeviceRepository {
+final class DeviceRepository {
 
     private let remote: ParleyRemote
     private let deviceService: DeviceRemoteService
 
-    public init(remote: ParleyRemote) {
+    init(remote: ParleyRemote) {
         self.remote = remote
         deviceService = DeviceRemoteService(remote: remote)
     }

@@ -1,7 +1,7 @@
 import UIKit
 import Foundation
 
-class ParleyMessageView: UIView {
+final class ParleyMessageView: UIView {
     
     enum Display {
         case hidden

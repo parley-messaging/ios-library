@@ -1,6 +1,6 @@
 import UIKit
 
-public class ParleyStickyView: UIView {
+final class ParleyStickyView: UIView {
     
     @IBOutlet private weak var contentHeightConstraint: NSLayoutConstraint!
     

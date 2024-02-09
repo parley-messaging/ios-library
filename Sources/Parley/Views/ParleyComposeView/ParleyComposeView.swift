@@ -78,7 +78,7 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var textViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var textViewBackgroundViewTrailingConstraint: NSLayoutConstraint!
     
-    var bottomLayoutConstraint: NSLayoutConstraint!
+    private var bottomLayoutConstraint: NSLayoutConstraint!
     
     var appearance: ParleyComposeViewAppearance = ParleyComposeViewAppearance() {
         didSet {

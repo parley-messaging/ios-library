@@ -1,6 +1,6 @@
 import UIKit
 
-class MessageImageViewController: UIViewController {
+final class MessageImageViewController: UIViewController {
     
     private var scrollView = UIScrollView()
     private var imageView = UIImageView()
