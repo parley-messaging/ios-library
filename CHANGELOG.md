@@ -1,14 +1,17 @@
 # Changelog
 
-## Upcoming
+## 3.9.1 - Upcoming
 
 - Parley now returns the formatted error message of the backend when an error occurs when configuring or registering the device.
+- When selecting or sending an image that will fail to upload, an alert will be shown with the relevant error.
+- When an image inside the chat contains an error, the error message will be shown in the chat.
+- Resolved some memory leaks.
 
 ## 3.9.0 - Released 17 Jan 2024
 
 - Parley now uses codables for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
-- Updated Alamofire to 5.8.1 (from 5.4.1)
-- Updated AlamofireImage to 4.3.0 (from 4.1.0)
+- Updated Alamofire to 5.8.1 (from 5.4.1).
+- Updated AlamofireImage to 4.3.0 (from 4.1.0).
 - Removed ObjectMapper dependency.
 - Fixed tests not showing up in Xcode.
 - Moved library and the example project to SPM structure and removed CocoaPods structure.
