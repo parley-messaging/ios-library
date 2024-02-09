@@ -4,6 +4,8 @@ import Firebase
 
 class IdentifierViewController: UIViewController {
     
+    private static let kOfflineMessagingEnabled = true // Disable offline messaging in the demo app to show error messages as an alert before opening the chat
+    
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             self.titleLabel.text = NSLocalizedString("identifier_title", comment: "").uppercased()
@@ -65,10 +67,29 @@ class IdentifierViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.setParleyNetworkConfiguration()
+        if (Self.kOfflineMessagingEnabled) {
+            setParleyNetworkConfiguration()
+        }
         self.setOfflineMessagingEnabled()
         
         self.setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    // MARK: UI
+    
+    private func showAlert(title: String, message: String) {
+        let alertController = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(
+            title: NSLocalizedString("general_ok", comment: ""),
+            style: .cancel,
+            handler: nil
+        ))
+        
+        present(alertController, animated: true, completion: nil)
     }
     
     // MARK: Parley
@@ -130,18 +151,10 @@ class IdentifierViewController: UIViewController {
         } else if let secret = self.identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty, secret.count == 20 {
             self.startChat(secret: secret)
         } else {
-            let alertController = UIAlertController(
-                title: NSLocalizedString("identifier_error_title", comment: ""),
-                message: NSLocalizedString("identifier_error_body", comment: ""),
-                preferredStyle: .alert
+            showAlert(
+                title: NSLocalizedString("identifier_error_invalid_title", comment: ""),
+                message: NSLocalizedString("identifier_error_invalid_body", comment: "")
             )
-            alertController.addAction(UIAlertAction(
-                title: NSLocalizedString("general_ok", comment: ""),
-                style: .cancel,
-                handler: nil
-            ))
-            
-            self.present(alertController, animated: true, completion: nil)
         }
     }
     
@@ -167,10 +180,16 @@ class IdentifierViewController: UIViewController {
             UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
             
             self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { [weak self] _, _ in
+        }) { [weak self] code, message in
             self?.startButton.setLoading(false)
-            
-            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            if Self.kOfflineMessagingEnabled {
+                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            } else {
+                self?.showAlert(
+                    title: NSLocalizedString("identifier_error_start_title", comment: ""),
+                    message: String(format: NSLocalizedString("identifier_error_start_body", comment: ""), message, "\(code)")
+                )
+            }
         }
     }
     
@@ -190,10 +209,16 @@ class IdentifierViewController: UIViewController {
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
             
             self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { [weak self] _, _ in
+        }) { [weak self] code, message in
             self?.startButton.setLoading(false)
-            
-            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            if Self.kOfflineMessagingEnabled {
+                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            } else {
+                self?.showAlert(
+                    title: NSLocalizedString("identifier_error_start_title", comment: ""),
+                    message: String(format: NSLocalizedString("identifier_error_start_body", comment: ""), message, "\(code)")
+                )
+            }
         }
     }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- Parley now returns the formatted error message of the backend when an error occurs when configuring or registering the device.
+
 ## 3.9.0 - Released 17 Jan 2024
 
 - Parley now uses codables for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
