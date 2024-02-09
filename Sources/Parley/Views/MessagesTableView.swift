@@ -57,7 +57,6 @@ internal class MessagesTableView: UITableView {
     
     private func checkIsAtBottom() {
         let padding: CGFloat = 16
-        print("\(contentSize.height)")
         isAtBottom = contentOffset.y + frame.height + padding >= contentSize.height
     }
 }
