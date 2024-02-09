@@ -4,7 +4,13 @@ final class MessagesTableView: UITableView {
     
     private(set) var isAtBottom: Bool = false
     
-    enum ScrollPosition {
+    override var contentSize:CGSize {
+        didSet {
+            checkIsAtBottom()
+        }
+    }
+    
+    internal enum ScrollPosition {
         case top
         case bottom
     }
@@ -46,6 +52,10 @@ final class MessagesTableView: UITableView {
     }
   
     func scrollViewDidScroll() {
+        checkIsAtBottom()
+    }
+    
+    private func checkIsAtBottom() {
         let padding: CGFloat = 16
         isAtBottom = contentOffset.y + frame.height + padding >= contentSize.height
     }

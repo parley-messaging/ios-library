@@ -12,6 +12,7 @@
 - When selecting or sending an image that will fail to upload, an alert will be shown with the relevant error.
 - When an image inside the chat contains an error, the error message will be shown in the chat.
 - Resolved some memory leaks.
+- Fixed an issue that could cause quick replies to show invisible, but taking up space.
 
 ## 3.9.0 - Released 17 Jan 2024
 
