@@ -10,7 +10,7 @@ final class MessagesTableView: UITableView {
         }
     }
     
-    internal enum ScrollPosition {
+    enum ScrollPosition {
         case top
         case bottom
     }
