@@ -15,6 +15,14 @@
 "parley_photo_access_denied_title" = "Photo access";
 "parley_photo_access_denied_body" = "We need access to your photos. Go to settings and give the application access to your photos.";
 
+"parley_message_meta_failed_to_send" = "Sending failed";
+"parley_message_meta_media_too_large" = "Photo is too large";
+
+"parley_send_failed_title" = "Failed";
+"parley_send_failed_body_selecting_image" = "The photo cannot be sent.";
+"parley_send_failed_body_media_invalid" = "Photo cannot be processed.";
+"parley_send_failed_body_media_too_large" = "The photo is too large to send.";
+
 // MARK: Message Compose View
 "parley_type_message" = "Type a message...";
 

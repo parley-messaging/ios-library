@@ -1,11 +1,3 @@
-//
-//  Gif.swift
-//  SwiftGif
-//
-//  Created by Arne Bahlo on 07.06.14.
-//  Copyright (c) 2014 Arne Bahlo. All rights reserved.
-//
-
 import UIKit
 import ImageIO
 
@@ -20,7 +12,6 @@ extension UIImageView {
         }
     }
 
-    @available(iOS 9.0, *)
     public func loadGif(asset: String) {
         DispatchQueue.global().async {
             let image = UIImage.gif(asset: asset)
@@ -29,7 +20,6 @@ extension UIImageView {
             }
         }
     }
-
 }
 
 extension UIImage {
@@ -77,7 +67,6 @@ extension UIImage {
         return gif(data: imageData)
     }
 
-    @available(iOS 9.0, *)
     public class func gif(asset: String) -> UIImage? {
         // Create source from assets catalog
         guard let dataAsset = NSDataAsset(name: asset) else {
@@ -216,7 +205,6 @@ extension UIImage {
             }
         }
 
-        // Heyhey
         let animation = UIImage.animatedImage(with: frames,
             duration: Double(duration) / 1000.0)
 

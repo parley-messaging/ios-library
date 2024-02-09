@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/bmoliveira/MarkdownKit.git",
         "state": {
           "branch": null,
-          "revision": "828e99602285c9547ceb01a014bf2d0bd7bc545e",
-          "version": "1.7.0"
+          "revision": "5056f3305d3499f44d8815530d560b87082e0cf5",
+          "version": "1.7.1"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/ashleymills/Reachability.swift.git",
         "state": {
           "branch": null,
-          "revision": "c01bbdf2d633cf049ae1ed1a68a2020a8bda32e2",
-          "version": "5.1.0"
+          "revision": "c01127cb51f591045696128effe43c16840d08bf",
+          "version": "5.2.0"
         }
       }
     ]

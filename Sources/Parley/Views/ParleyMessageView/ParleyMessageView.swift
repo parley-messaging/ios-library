@@ -56,6 +56,8 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var imageMetaTimeLabel: UILabel!
     @IBOutlet weak var imageMetaStatusImageView: UIImageView!
     
+    @IBOutlet weak var imageFailureMessageLabel: UILabel!
+    
     // Name
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -149,10 +151,12 @@ class ParleyMessageView: UIView {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
 
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
+        ])
     }
     
     internal func set(message: Message, time: Date? = nil) {
@@ -254,14 +258,33 @@ class ParleyMessageView: UIView {
     private func renderMeta(forcedTime: Date? = nil) {
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
             displayMeta = .message
+            imageFailureMessageLabel.isHidden = true
         } else {
             displayMeta = .image
+            renderImageFailure()
         }
         
         imageMetaStackView.isHidden = displayMeta != .image
         metaView.isHidden = displayMeta != .message
         
         renderMetaTime(forcedTime: forcedTime)
+    }
+    
+    private func renderImageFailure() {
+        imageFailureMessageLabel.textColor = appearance?.imageInnerColor
+        imageFailureMessageLabel.font = appearance?.timeFont
+        
+        if let failureMessage = formattedFailureMessage() {
+            imageFailureMessageLabel.text = failureMessage
+            imageFailureMessageLabel.isHidden = false
+        } else {
+            imageFailureMessageLabel.isHidden = true
+        }
+    }
+    
+    private func formattedFailureMessage() -> String? {
+        guard let type = message.responseInfoType else { return nil }
+        return MediaUploadNotificationErrorKind(rawValue: type)?.formattedMessage
     }
     
     private func renderMetaTime(forcedTime: Date?) {
@@ -366,6 +389,14 @@ class ParleyMessageView: UIView {
     }
     
     private func addImageMetaGradient() {
+        if formattedFailureMessage() != nil {
+            imageImageView.layer.insertSublayer(generateImageFullWidthGradient(), at: .zero)
+        } else {
+            imageImageView.layer.insertSublayer(generateImageTimeGradient(), at: .zero)
+        }
+    }
+    
+    private func generateImageTimeGradient() -> CAGradientLayer {
         let gradient = CAGradientLayer()
         gradient.startPoint = CGPoint(x: 1, y: 1)
         gradient.endPoint = CGPoint(x: 0, y: 0.45)
@@ -384,7 +415,27 @@ class ParleyMessageView: UIView {
             height: height
         )
         
-        imageImageView.layer.insertSublayer(gradient, at: 0)
+        return gradient
+    }
+    
+    private func generateImageFullWidthGradient() -> CAGradientLayer {
+        let gradient = CAGradientLayer()
+        gradient.startPoint = CGPoint(x: 0.5, y: .zero)
+        gradient.endPoint = CGPoint(x: 0.5, y: 1)
+        gradient.type = .axial
+        gradient.colors = [
+            appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor,
+            appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor
+        ]
+        let width = imageImageView.frame.width
+        let height = imageMetaStackView.frame.height + metaBottomLayoutConstraint.constant + 40
+        gradient.frame = CGRect(
+            x: imageImageView.frame.width - width,
+            y: imageImageView.frame.height - height,
+            width: width,
+            height: height
+        )
+        return gradient
     }
     
     private func renderButtons() {
