@@ -169,6 +169,7 @@ public class ParleyView: UIView {
             } else {
                 messagesTableView.keyboardDismissMode = .onDrag
             }
+            updateSuggestionsAlpha()
         }
     }
 
@@ -442,7 +443,7 @@ extension ParleyView: ParleyDelegate {
             
             DispatchQueue.main.async { [weak self] in
                 self?.messagesTableView.scroll(to: .bottom, animated: false)
-                self?.updateSuggestionsAlpha()
+                self?.updateSuggestionsAlpha() // For VoiceOver
             }
         }
     }
