@@ -4,8 +4,10 @@
 "identifier_customer_identification_placeholder" = "Klant identificatie (optioneel)";
 "identifier_start" = "Chat starten";
 
-"identifier_error_title" = "Foutieve identificatie code";
-"identifier_error_body" = "Je hebt een foutieve identificatie code ingevoerd. Probeer opnieuw.";
+"identifier_error_invalid_title" = "Foutieve identificatie code";
+"identifier_error_invalid_body" = "Je hebt een foutieve identificatie code ingevoerd. Probeer opnieuw.";
+"identifier_error_start_title" = "Er is een fout opgetreden";
+"identifier_error_start_body" = "De chat kan niet worden gestart, door de volgende reden: %@ (%@).";
 
 "general_ok" = "Oke";
 

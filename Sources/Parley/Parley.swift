@@ -169,7 +169,7 @@ public class Parley {
             } else {
                 self.state = .failed
 
-                onFailure?((error as NSError).code, (error as NSError).localizedDescription)
+                onFailure?((error as NSError).code, error.getFormattedMessage())
             }
         }
 
@@ -244,7 +244,7 @@ public class Parley {
             DeviceRepository().register({ _ in
                 onSuccess?()
             }) { error in
-                onFailure?((error as NSError).code, (error as NSError).localizedDescription)
+                onFailure?((error as NSError).code, error.getFormattedMessage())
             }
         }
     }

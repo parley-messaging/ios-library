@@ -4,8 +4,10 @@
 "identifier_customer_identification_placeholder" = "Customer identification (optional)";
 "identifier_start" = "Start chat";
 
-"identifier_error_title" = "Incorrect identification code";
-"identifier_error_body" = "You have entered an incorrect identification code. Try again.";
+"identifier_error_invalid_title" = "Incorrect identification code";
+"identifier_error_invalid_body" = "You have entered an incorrect identification code. Try again.";
+"identifier_error_start_title" = "An error has occurred";
+"identifier_error_start_body" = "The chat cannot be started, due to the following reason: %@ (%@)";
 
 "general_ok" = "Ok";
 
