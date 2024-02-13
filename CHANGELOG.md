@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.9.1 - Upcoming
+## 3.9.1 - Released 13 Feb 2024
 
 - Parley now returns the formatted error message of the backend when an error occurs when configuring or registering the device.
 - When selecting or sending an image that will fail to upload, an alert will be shown with the relevant error.
