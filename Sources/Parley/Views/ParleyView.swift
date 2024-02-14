@@ -569,14 +569,8 @@ extension ParleyView: UITableViewDelegate {
         
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
-
-        let contentHeight = scrollView.contentSize.height
-        let insetHeight = scrollView.contentInset.top + scrollView.contentInset.bottom
-
-        let position = Int(scrollY + height)
-        let positionTop = Int(contentHeight + insetHeight)
         
-        if ((positionTop - 5)...(positionTop + 5)).contains(position),
+        if scrollY < height / 2,
            let lastMessageId = getMessagesManager().getOldestMessage()?.id {
             Parley.shared.loadMoreMessages(lastMessageId)
         }
