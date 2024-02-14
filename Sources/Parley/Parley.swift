@@ -39,7 +39,7 @@ public class Parley {
     internal var uniqueDeviceIdentifier: String?
 
     internal var network: ParleyNetwork = ParleyNetwork()
-    internal weak var dataSource: ParleyDataSource? {
+    internal var dataSource: ParleyDataSource? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }

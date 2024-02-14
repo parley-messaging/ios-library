@@ -67,11 +67,11 @@ class IdentifierViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if (Self.kOfflineMessagingEnabled) {
-            setParleyNetworkConfiguration()
+        setParleyNetworkConfiguration()
+        if Self.kOfflineMessagingEnabled {
+            self.setOfflineMessagingEnabled()
         }
-        self.setOfflineMessagingEnabled()
-        
+
         self.setNeedsStatusBarAppearanceUpdate()
     }
     
