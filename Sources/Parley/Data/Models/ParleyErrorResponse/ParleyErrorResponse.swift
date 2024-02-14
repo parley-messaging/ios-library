@@ -11,7 +11,7 @@ struct ParleyErrorResponse: Error, Codable {
     }
     
     struct Metadata: Codable {
-        let values: [String: String]
+//        let values: [String: Any]
         let method: String
         let duration: Double
     }
