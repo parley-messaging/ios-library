@@ -617,14 +617,14 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
     
     func failedToSelectImage() {
-        let title = NSLocalizedString("parley_send_failed_title", comment: "")
-        let message = NSLocalizedString("parley_send_failed_body_selecting_image", comment: "")
+        let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
+        let message = NSLocalizedString("parley_send_failed_body_selecting_image", bundle: .current, comment: "")
         presentInformationalAlert(title: title, message: message)
     }
     
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = NSLocalizedString("general_ok", comment: "")
+        let okMessage = NSLocalizedString("parley_ok", bundle: .current, comment: "")
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -645,15 +645,15 @@ extension ParleyView: ParleyComposeViewDelegate {
         }
         
         guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-            let title = NSLocalizedString("parley_send_failed_title", comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_invalid", comment: "")
+            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
+            let message = NSLocalizedString("parley_send_failed_body_media_invalid", bundle: .current, comment: "")
             presentInformationalAlert(title: title, message: message)
             return
         }
         
         guard !mediaModel.isLargerThan(size: 10) else {
-            let title = NSLocalizedString("parley_send_failed_title", comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_too_large", comment: "")
+            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
+            let message = NSLocalizedString("parley_send_failed_body_media_too_large", bundle: .current, comment: "")
             presentInformationalAlert(title: title, message: message)
             return
         }
