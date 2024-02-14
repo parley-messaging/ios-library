@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.9.2 - Upcoming
+
+- Fixed taking pictures not sending (regression by 3.9.1)
+- Fixed an issue where small image messages were not taking the full width.
+- Fixed an issue causing some texts to display wrong.
+- Fixed an issue causing loading more triggering too early and inconsistently.
+- Fixed an issue where the chat wouldn't scroll fully to the bottom directly when opening the chat.
+
 ## 3.9.1 - Released 13 Feb 2024
 
 - Parley now returns the formatted error message of the backend when an error occurs when configuring or registering the device.
