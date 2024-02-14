@@ -63,7 +63,8 @@ public class Message: Codable, Equatable {
     }
 
     internal var hasButtons: Bool {
-        buttons?.isEmpty == false
+        guard let buttons else { return false }
+        return !buttons.isEmpty
     }
 
     var buttons: [MessageButton]?
