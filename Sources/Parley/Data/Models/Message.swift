@@ -63,7 +63,7 @@ public class Message: Codable, Equatable {
     }
 
     internal var hasButtons: Bool {
-        (buttons?.count ?? 0) > 0
+        buttons?.isEmpty == false
     }
 
     var buttons: [MessageButton]?
