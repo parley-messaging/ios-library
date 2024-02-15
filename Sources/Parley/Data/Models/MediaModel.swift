@@ -14,7 +14,7 @@ struct MediaModel: Codable {
         
         switch type {
         case .png, .jpg:
-            guard let jpegData = image.jpegData(compressionQuality: 1) else { return nil }
+            guard let jpegData = Self.convertToJpegData(image) else { return nil }
             self.image = jpegData
         case .gif:
             self.image = data
@@ -35,5 +35,9 @@ struct MediaModel: Codable {
     func isLargerThan(size: Int) -> Bool {
         let sizeInMB = size * 1024 * 1024
         return image.count > sizeInMB
+    }
+    
+    static func convertToJpegData(_ image: UIImage) -> Data? {
+        image.jpegData(compressionQuality: 1)
     }
 }

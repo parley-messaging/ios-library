@@ -3,8 +3,8 @@ import UIKit
 
 final class MessageTableViewCell: UITableViewCell {
     
-    @IBOutlet weak var messageView: UIView!
-    @IBOutlet weak var parleyMessageView: ParleyMessageView!
+    @IBOutlet private weak var messageView: UIView!
+    @IBOutlet private weak var parleyMessageView: ParleyMessageView!
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
@@ -15,12 +15,14 @@ final class MessageTableViewCell: UITableViewCell {
         }
     }
     
-    @IBOutlet weak var leftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var leftAlignLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var rightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var rightAlignLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var leftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var leftAlignLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var rightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var rightAlignLayoutConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var collectionViewHeightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var collectionViewHeightLayoutConstraint: NSLayoutConstraint!
+    
+    private var messageWidthConstraint: NSLayoutConstraint?
     
     weak var delegate: MessageTableViewCellDelegate? {
         didSet {
@@ -39,7 +41,7 @@ final class MessageTableViewCell: UITableViewCell {
     private var messages: (messages: [Message], time: Date?)?
     
     func render(_ message: Message) {
-        if message.hasMedium || message.title != nil || message.message != nil || message.buttons?.count ?? 0 > 0 {
+        if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             self.messageView.isHidden = false
 
             self.parleyMessageView.set(message: message)
@@ -54,9 +56,7 @@ final class MessageTableViewCell: UITableViewCell {
             
             let maxSize = messages.map { message -> CGSize in
                 MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
-            }
-            .sorted(by: {$0.height > $1.height})
-            .first ?? .zero
+            }.max(by: { $0.height > $1.height }) ?? .zero
 
             if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
                 flowLayout.estimatedItemSize = maxSize

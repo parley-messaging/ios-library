@@ -82,14 +82,10 @@ final class MessageCollectionViewCell: UICollectionViewCell {
 
             totalHeight += appearance.imageInsets?.top ?? 0
             totalHeight += appearance.imageInsets?.bottom ?? 0
-        } else {
-            // No image
-            if let name = message.agent?.name, appearance.name {
-                totalHeight += appearance.nameInsets?.top ?? 0
-                totalHeight += appearance.nameInsets?.bottom ?? 0
-
-                totalHeight += name.height(withConstrainedWidth: contentWidth, font: appearance.nameFont)
-            }
+        } else if let name = message.agent?.name, appearance.name {
+            totalHeight += appearance.nameInsets?.top ?? 0
+            totalHeight += appearance.nameInsets?.bottom ?? 0
+            totalHeight += name.height(withConstrainedWidth: contentWidth, font: appearance.nameFont)
         }
 
         if let title = message.title {
@@ -142,6 +138,6 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         }
         
         totalHeight += 4
-        return CGSize(width: appearance.width, height: totalHeight)
+        return CGSize(width: balloonWidth, height: totalHeight)
     }
 }

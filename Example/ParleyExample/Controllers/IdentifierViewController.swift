@@ -67,9 +67,11 @@ class IdentifierViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.setOfflineMessagingEnabled()
         
+        if Self.kOfflineMessagingEnabled {
+            self.setOfflineMessagingEnabled()
+        }
+
         self.setNeedsStatusBarAppearanceUpdate()
     }
     

@@ -44,7 +44,7 @@ public final class Parley {
     private(set) var eventRemoteService: EventRemoteService!
     private(set) var messageRepository: MessageRepository!
     private(set) var messagesManager: MessagesManager!
-    private(set) weak var dataSource: ParleyDataSource? {
+    private(set) var dataSource: ParleyDataSource? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
@@ -431,7 +431,7 @@ public final class Parley {
     private func handleMessage(_ userInfo: [String: Any]) {
         guard let id = userInfo["id"] as? Int else { return }
         guard let typeId = userInfo["typeId"] as? Int else { return }
-        guard let body = userInfo["body"] as? String else { return }
+        let body = userInfo["body"] as? String
 
         let message = Message()
         message.id = id

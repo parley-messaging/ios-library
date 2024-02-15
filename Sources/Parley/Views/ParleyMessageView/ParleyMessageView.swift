@@ -38,6 +38,7 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var imageLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var imageMinimumWidthConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var imageActivityIndicatorView: UIActivityIndicatorView!
     
@@ -127,6 +128,8 @@ final class ParleyMessageView: UIView {
     }
     /// Can be set to private when target is iOS 13 or higher.
     private(set) var message: Message!
+    private static let minimumImageWidth: CGFloat = 5
+    private static let maximumImageWidth: CGFloat = 500
     
     
     // MARK: - View
@@ -187,6 +190,7 @@ final class ParleyMessageView: UIView {
         }
         
         if let image = message.image {
+            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
             imageImageView.image = image
@@ -194,9 +198,9 @@ final class ParleyMessageView: UIView {
             imageActivityIndicatorView.isHidden = true
             imageActivityIndicatorView.stopAnimating()
             
-
             renderGradients()
         } else if message.hasMedium {
+            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
             findImageRequest?.cancelRequest()
@@ -231,6 +235,7 @@ final class ParleyMessageView: UIView {
                 print("Failed to render image for message \(message.id)")
             }
         } else {
+            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
             imageHolderView.isHidden = true
             
             imageImageView.image = nil
