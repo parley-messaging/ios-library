@@ -22,7 +22,7 @@ final class DeviceTests: XCTestCase {
     }
 
     func testDecodeEncode() throws {
-        let expectedResult = makeDevice()
+        let expectedResult = createDevice()
 
         let decodedSut = try decoder.decode(Device.self, from: Data(deviceString.utf8))
         let encodedSut = try encoder.encode(decodedSut)
@@ -31,7 +31,7 @@ final class DeviceTests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
 
-    private func makeDevice() -> Device {
+    private func createDevice() -> Device {
         Device(
             pushToken: pushToken,
             pushType: .fcm,

@@ -1,6 +1,6 @@
 import UIKit
 
-internal class ParleySuggestionsView: UIView {
+final class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var contentView: UIView! {
         didSet {
@@ -35,7 +35,7 @@ internal class ParleySuggestionsView: UIView {
     
     private var suggestions: [String]?
     
-    internal func render(_ suggestions: [String]) {
+    func render(_ suggestions: [String]) {
         self.suggestions = suggestions
         
         let maxHeight = getMaxHeight()

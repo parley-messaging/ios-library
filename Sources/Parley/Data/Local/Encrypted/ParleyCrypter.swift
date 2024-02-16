@@ -2,7 +2,7 @@ import CommonCrypto
 import Foundation
 import Security
 
-internal class ParleyCrypter {
+class ParleyCrypter {
     
     enum Error: Swift.Error {
         

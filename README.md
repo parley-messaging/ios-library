@@ -24,8 +24,8 @@ Empty | Conversation
 ## Requirements
 
 - iOS 12.0+
-- Xcode 14+
-- Swift 5+
+- Xcode 15+
+- Swift 5.9+
 
 **Firebase**
 
@@ -131,7 +131,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        if UIApplication.shared.applicationState == .active {
+        if UIApplication.applicationState == .active {
             completionHandler([]) // Do not show notifications when app is in foreground
         } else {
             completionHandler([.alert, .sound])
@@ -169,16 +169,16 @@ Parley allows the usage of advanced configurations, such as specifying the netwo
 
 ### Network
 
-The network configuration can be set by setting a `ParleyNetwork` with the `Parley.setNetwork(_ network: ParleyNetwork)` method.
+The network configuration can be set by setting a `ParleyNetwork` with the `Parley.configure(_ network: ParleyNetwork)` method.
 
 ```swift
-let network = ParleyNetwork(
+let network = ParleyNetworkConfig(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.6/",
     apiVersion: .v1_6 // Must correspond to the same version in the path
 )
 
-Parley.setNetwork(network)
+Parley.configure("appSecret", network: network)
 ```
 
 *Don't forget to add the right certificate to the project.*
@@ -194,14 +194,14 @@ let headers: [String: String] = [
     "X-Custom-Header": "Custom header value"
 ]
 
-let network = ParleyNetwork(
+let network = ParleyNetworkConfig(
     url: "https://api.parley.nu/",
     path: "clientApi/v1.6/",
     apiVersion: .v1_6,
     headers: headers
 )
 
-Parley.setNetwork(network)
+Parley.configure("appSecret", network: network)
 ```
 
 ### User information

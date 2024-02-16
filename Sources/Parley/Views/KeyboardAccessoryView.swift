@@ -11,7 +11,7 @@ extension KeyboardAccessoryViewDelegate {
     func keyboardDidShow(_ frame: CGRect) { }
 }
 
-class KeyboardAccessoryView: UIView {
+final class KeyboardAccessoryView: UIView {
     
     weak var delegate: KeyboardAccessoryViewDelegate?
     private var kvoContext: UInt8 = 1

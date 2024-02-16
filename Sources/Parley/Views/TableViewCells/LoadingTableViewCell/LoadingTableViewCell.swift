@@ -1,6 +1,6 @@
 import UIKit
 
-internal class LoadingTableViewCell: UITableViewCell {
+final class LoadingTableViewCell: UITableViewCell {
     
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     
@@ -9,7 +9,7 @@ internal class LoadingTableViewCell: UITableViewCell {
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var rightLayoutConstraint: NSLayoutConstraint!
     
-    internal var appearance = LoadingTableViewCellAppearance() {
+    var appearance = LoadingTableViewCellAppearance() {
         didSet {
             self.apply(self.appearance)
         }
@@ -21,11 +21,11 @@ internal class LoadingTableViewCell: UITableViewCell {
         self.apply(self.appearance)
     }
     
-    internal func startAnimating() {
+    func startAnimating() {
         self.activityIndicatorView.startAnimating()
     }
     
-    internal func stopAnimating() {
+    func stopAnimating() {
         self.activityIndicatorView.stopAnimating()
     }
     

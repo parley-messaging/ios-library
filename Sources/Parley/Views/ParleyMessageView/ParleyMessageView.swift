@@ -1,7 +1,7 @@
 import UIKit
-import Alamofire
+import Foundation
 
-class ParleyMessageView: UIView {
+final class ParleyMessageView: UIView {
     
     enum Display {
         case hidden
@@ -108,7 +108,8 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var findImageRequest: DataRequest?
+    private var findImageRequest: RequestCancelable?
+    private var messageRepository: MessageRepository = Parley.shared.messageRepository
     
     // Helpers
     private var displayName: Display = .message
@@ -116,10 +117,10 @@ class ParleyMessageView: UIView {
     private var displayTitle: Display = .hidden
     
     // Delegate
-    internal weak var delegate: ParleyMessageViewDelegate?
+    weak var delegate: ParleyMessageViewDelegate?
     
     // MARK: - Appearance
-    internal var appearance: ParleyMessageViewAppearance? {
+    var appearance: ParleyMessageViewAppearance? {
         didSet {
             guard let appearance = appearance else { return }
             apply(appearance)
@@ -162,7 +163,7 @@ class ParleyMessageView: UIView {
         ])
     }
     
-    internal func set(message: Message, time: Date? = nil) {
+    func set(message: Message, time: Date? = nil) {
         self.message = message
         render(forcedTime: time)
     }
@@ -202,7 +203,7 @@ class ParleyMessageView: UIView {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
-            findImageRequest?.cancel()
+            findImageRequest?.cancelRequest()
             
             imageActivityIndicatorView.isHidden = false
             imageActivityIndicatorView.startAnimating()
@@ -227,9 +228,9 @@ class ParleyMessageView: UIView {
             
             if let media = message.media, let mediaIdUrl = URL(string: media.id) {
                 let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
+                findImageRequest = messageRepository.find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
             } else if let id = message.id {
-                findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
+                findImageRequest = messageRepository.findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
             } else {
                 print("Failed to render image for message \(message.id)")
             }

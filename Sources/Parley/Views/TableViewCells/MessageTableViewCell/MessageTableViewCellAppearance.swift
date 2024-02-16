@@ -3,7 +3,6 @@ import UIKit
 public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
     
     public enum Align {
-        
         case left
         case right
     }
@@ -12,7 +11,7 @@ public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
     
     public var carousel: MessageCollectionViewCellAppearance?
     
-    internal static func agent() -> MessageTableViewCellAppearance {
+    static func agent() -> MessageTableViewCellAppearance {
         let appearance = MessageTableViewCellAppearance()
         appearance.align = .left
         appearance.carousel = MessageCollectionViewCellAppearance.agent()
@@ -31,7 +30,7 @@ public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
         return appearance
     }
     
-    internal static func user() -> MessageTableViewCellAppearance {
+    static func user() -> MessageTableViewCellAppearance {
         let appearance = MessageTableViewCellAppearance()
         appearance.align = .right
         appearance.carousel = MessageCollectionViewCellAppearance.user()

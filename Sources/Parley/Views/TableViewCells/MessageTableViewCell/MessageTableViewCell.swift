@@ -1,7 +1,7 @@
-import Alamofire
+import Foundation
 import UIKit
 
-internal class MessageTableViewCell: UITableViewCell {
+final class MessageTableViewCell: UITableViewCell {
     
     @IBOutlet private weak var messageView: UIView!
     @IBOutlet private weak var parleyMessageView: ParleyMessageView!
@@ -24,13 +24,13 @@ internal class MessageTableViewCell: UITableViewCell {
     
     private var messageWidthConstraint: NSLayoutConstraint?
     
-    internal weak var delegate: MessageTableViewCellDelegate? {
+    weak var delegate: MessageTableViewCellDelegate? {
         didSet {
             self.parleyMessageView.delegate = self.delegate
         }
     }
     
-    internal var appearance: MessageTableViewCellAppearance? {
+    var appearance: MessageTableViewCellAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
             
@@ -40,7 +40,7 @@ internal class MessageTableViewCell: UITableViewCell {
     
     private var messages: (messages: [Message], time: Date?)?
     
-    internal func render(_ message: Message) {
+    func render(_ message: Message) {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             self.messageView.isHidden = false
 

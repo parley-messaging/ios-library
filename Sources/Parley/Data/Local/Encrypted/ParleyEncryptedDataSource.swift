@@ -117,7 +117,6 @@ extension ParleyEncryptedDataSource: ParleyMessageDataSource {
         }
 
         return messages
-    
     }
     
     public func save(_ messages: [Message]) {

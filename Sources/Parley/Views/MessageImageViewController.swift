@@ -1,12 +1,23 @@
 import UIKit
 
-internal class MessageImageViewController: UIViewController {
+final class MessageImageViewController: UIViewController {
     
     private var scrollView = UIScrollView()
     private var imageView = UIImageView()
     private var activityIndicatorView = UIActivityIndicatorView()
     
     var message: Message?
+    
+    private let messageRepository: MessageRepository
+    
+    init(messageRepository: MessageRepository) {
+        self.messageRepository = messageRepository
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,10 +101,10 @@ internal class MessageImageViewController: UIViewController {
             
             if let media = message?.media, let mediaIdUrl = URL(string: media.id) {
                 let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                MessageRepository()
+                messageRepository
                     .find(media: url, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
             } else {
-                MessageRepository()
+                messageRepository
                     .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
             }
         } else {

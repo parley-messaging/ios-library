@@ -11,6 +11,8 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ChatViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
+		9229A7DF2B6BAAC000864ED2 /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = 9229A7DE2B6BAAC000864ED2 /* Parley */; };
+		9229A7E12B6BAAC000864ED2 /* ParleyNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = 9229A7E02B6BAAC000864ED2 /* ParleyNetwork */; };
 		F844F57122DCBB3B00E705AE /* IdentifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */; };
 		F844F57B22DCC10D00E705AE /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F844F57A22DCC10D00E705AE /* Colors.xcassets */; };
 		F844F58422DCC2E500E705AE /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F844F57C22DCC2E400E705AE /* Montserrat-SemiBold.ttf */; };
@@ -32,7 +34,6 @@
 		F8F61B4022BA600000F9A51E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3F22BA600000F9A51E /* Main.storyboard */; };
 		F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */; };
 		FA33D8DD2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */; };
-		FA66165C2B580EBF00B957CA /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165B2B580EBF00B957CA /* Parley */; };
 		FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165E2B58102D00B957CA /* FirebaseMessaging */; };
 		FA6FF0A72892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA6FF0A52892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer */; };
 /* End PBXBuildFile section */
@@ -78,7 +79,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */,
-				FA66165C2B580EBF00B957CA /* Parley in Frameworks */,
+				9229A7DF2B6BAAC000864ED2 /* Parley in Frameworks */,
+				9229A7E12B6BAAC000864ED2 /* ParleyNetwork in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,8 +222,9 @@
 			);
 			name = ParleyExample;
 			packageProductDependencies = (
-				FA66165B2B580EBF00B957CA /* Parley */,
 				FA66165E2B58102D00B957CA /* FirebaseMessaging */,
+				9229A7DE2B6BAAC000864ED2 /* Parley */,
+				9229A7E02B6BAAC000864ED2 /* ParleyNetwork */,
 			);
 			productName = Parley;
 			productReference = 607FACD01AFB9204008FA782 /* ParleyExample.app */;
@@ -265,8 +268,8 @@
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
-				FA66165A2B580EBF00B957CA /* XCLocalSwiftPackageReference ".." */,
 				FA66165D2B58102D00B957CA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				9229A7DD2B6BAAC000864ED2 /* XCLocalSwiftPackageReference ".." */,
 			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
@@ -613,7 +616,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		FA66165A2B580EBF00B957CA /* XCLocalSwiftPackageReference ".." */ = {
+		9229A7DD2B6BAAC000864ED2 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
@@ -631,9 +634,13 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA66165B2B580EBF00B957CA /* Parley */ = {
+		9229A7DE2B6BAAC000864ED2 /* Parley */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Parley;
+		};
+		9229A7E02B6BAAC000864ED2 /* ParleyNetwork */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ParleyNetwork;
 		};
 		FA66165E2B58102D00B957CA /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;

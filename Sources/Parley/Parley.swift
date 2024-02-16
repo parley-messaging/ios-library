@@ -2,7 +2,7 @@ import Reachability
 import Foundation
 import UIKit
 
-public class Parley {
+public final class Parley {
 
     enum State {
         case unconfigured
@@ -11,9 +11,9 @@ public class Parley {
         case failed
     }
 
-    internal static let shared = Parley()
+    static let shared = Parley()
 
-    internal var state: State = .unconfigured {
+    private(set) var state: State = .unconfigured {
         didSet {
             self.delegate?.didChangeState(self.state)
         }
@@ -35,27 +35,31 @@ public class Parley {
         }
     }
 
-    internal var secret: String?
-    internal var uniqueDeviceIdentifier: String?
+    private(set) var secret: String?
+    private(set) var uniqueDeviceIdentifier: String?
 
-    internal var network: ParleyNetwork = ParleyNetwork()
-    internal var dataSource: ParleyDataSource? {
+    private(set) var remote: ParleyRemote!
+    private(set) var networkConfig: ParleyNetworkConfig!
+    private(set) var deviceRepository: DeviceRepository!
+    private(set) var eventRemoteService: EventRemoteService!
+    private(set) var messageRepository: MessageRepository!
+    private(set) var messagesManager: MessagesManager!
+    private(set) var dataSource: ParleyDataSource? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
 
-    internal var pushToken: String? = nil
-    internal var pushType: Device.PushType? = nil
-    internal var pushEnabled: Bool = false
+    private(set) var pushToken: String? = nil
+    private(set) var pushType: Device.PushType? = nil
+    private(set) var pushEnabled: Bool = false
     
-    internal var referrer: String? = nil
+    private(set) var referrer: String? = nil
 
-    internal var userAuthorization: String?
-    internal var userAdditionalInformation: [String: String]?
-    private let notificationService = NotificationService()
+    private(set) var userAuthorization: String?
+    private(set) var userAdditionalInformation: [String: String]?
 
-    internal weak var delegate: ParleyDelegate? {
+    weak var delegate: ParleyDelegate? {
         didSet {
             if self.delegate == nil { return }
 
@@ -69,16 +73,13 @@ public class Parley {
         }
     }
 
-    internal let messagesManager = MessagesManager()
-
-    internal var agentIsTyping = false
+    private(set) var agentIsTyping = false
     private var agentStopTypingTimer: Timer?
 
     private var userStartTypingDate: Date?
     private var userStopTypingTimer: Timer?
 
-    init() {
-        ParleyRemote.refresh(self.network)
+    private init() {
         addObservers()
         setupReachability()
     }
@@ -88,7 +89,25 @@ public class Parley {
         reachability?.stopNotifier()
     }
 
+    private func initialize(networkConfig: ParleyNetworkConfig, networkSession: ParleyNetworkSession) {
+        let remote = ParleyRemote(
+            networkConfig: networkConfig,
+            networkSession: networkSession,
+            dataSource: self.dataSource,
+            createSecret: { [weak self] in self?.secret },
+            createUniqueDeviceIdentifier: { [weak self] in self?.uniqueDeviceIdentifier },
+            createUserAuthorizationToken: { [weak self] in self?.userAuthorization }
+        )
+        self.networkConfig = networkConfig
+        self.deviceRepository = DeviceRepository(remote: remote)
+        self.eventRemoteService = EventRemoteService(remote: remote)
+        self.messageRepository = MessageRepository(remote: remote)
+        self.messagesManager = MessagesManager(dataSource: self.dataSource)
+        self.remote = remote
+    }
+
     // MARK: Reachability
+
     private func setupReachability() {
         self.reachability = try? Reachability()
         self.reachability?.whenReachable = { [weak self] _ in
@@ -103,6 +122,7 @@ public class Parley {
     }
 
     // MARK: Observers
+
     private func addObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -126,8 +146,19 @@ public class Parley {
     }
 
     // MARK: Configure
-    private func configure(_ secret: String, uniqueDeviceIdentifier: String?, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+
+    private func configure(
+        _ secret: String,
+        uniqueDeviceIdentifier: String?,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil,
+        clearCache: Bool = false
+    ) {
         debugPrint("Parley.\(#function)")
+
+        if clearCache {
+            clearCacheWhenNeeded(secret: secret)
+        }
 
         self.state = .unconfigured
 
@@ -146,7 +177,7 @@ public class Parley {
         if self.isCachingEnabled() {
             self.dataSource?.set(self.secret, forKey: kParleyCacheKeySecret)
             self.dataSource?.set(self.userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
-            
+
             if self.state == .unconfigured {
                 self.messagesManager.loadCachedData()
 
@@ -173,40 +204,45 @@ public class Parley {
             }
         }
 
-        DeviceRepository().register({ [weak self, messagesManager, weak delegate] _ in
-            guard let self = self else { return }
-            let onSecondSuccess: () -> () = { [weak self] in
-                delegate?.didReceiveMessages()
+        deviceRepository.register(
+            device: makeDeviceData(),
+            onSuccess: { [weak self] _ in
+                guard let self = self else { return }
+                let onSecondSuccess: () -> () = { [weak self] in
+                    guard let self = self else { return }
+                    self.delegate?.didReceiveMessages()
 
-                let pendingMessages = Array(messagesManager.pendingMessages.reversed())
-                self?.send(pendingMessages)
+                    let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
+                    self.send(pendingMessages)
 
-                self?.isLoading = false
+                    self.isLoading = false
 
-                self?.state = .configured
+                    self.state = .configured
 
-                onSuccess?()
-            }
+                    onSuccess?()
+                }
 
-            if let lastMessage = self.messagesManager.lastSentMessage, let id = lastMessage.id {
-                MessageRepository().findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
-                    messagesManager?.handle(messageCollection, .after)
+                if let lastMessage = self.messagesManager.lastSentMessage, let id = lastMessage.id {
+                    messageRepository.findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
+                        messagesManager?.handle(messageCollection, .after)
 
-                    onSecondSuccess()
-                }, onFailure: onFailure)
-            } else {
-                MessageRepository().findAll(onSuccess: { [weak messagesManager] messageCollection in
-                    messagesManager?.handle(messageCollection, .all)
+                        onSecondSuccess()
+                    }, onFailure: onFailure)
+                } else {
+                    messageRepository.findAll(onSuccess: { [weak messagesManager] messageCollection in
+                        messagesManager?.handle(messageCollection, .all)
 
-                    onSecondSuccess()
-                }, onFailure: onFailure)
-            }
-        }, onFailure)
+                        onSecondSuccess()
+                    }, onFailure: onFailure)
+                }
+            },
+            onFailure: onFailure
+        )
     }
     
-    private func reconfigure(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        Parley.shared.clearChat()
-        Parley.shared.configure(onSuccess: onSuccess, onFailure: onFailure)
+    private func reconfigure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+        clearChat()
+        configure(onSuccess: onSuccess, onFailure: onFailure)
     }
     
     private func clearChat() {
@@ -222,6 +258,12 @@ public class Parley {
         return code == 13
     }
     
+    // MARK: Caching
+
+    func isCachingEnabled() -> Bool {
+        return self.dataSource != nil
+    }
+
     private func clearCacheWhenNeeded(secret: String) {
         if let cachedSecret = self.dataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
             return
@@ -232,31 +274,43 @@ public class Parley {
         self.clearMessages()
     }
     
+
     private func clearMessages() {
-        self.messagesManager.clear()
-        self.dataSource?.clear()
+        messagesManager.clear()
+        dataSource?.clear()
         delegate?.didReceiveMessages()
     }
-    
+
     // MARK: Devices
-    private func registerDevice(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    private func registerDevice(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         if self.state == .configuring || self.state == .configured {
-            DeviceRepository().register({ _ in
+            deviceRepository.register(device: makeDeviceData(), onSuccess: { _ in
                 onSuccess?()
-            }) { error in
+            }, onFailure: { error in
                 onFailure?((error as NSError).code, error.getFormattedMessage())
-            }
+            })
         }
     }
 
+    private func makeDeviceData() -> Device {
+        Device(
+            pushToken: pushToken,
+            pushType: pushType,
+            pushEnabled: pushEnabled,
+            userAdditionalInformation: userAdditionalInformation,
+            referrer: referrer
+        )
+    }
+
     // MARK: Messages
-    internal func loadMoreMessages(_ lastMessageId: Int) {
-        if !self.reachable || self.isLoading || !self.messagesManager.canLoadMore()  {
+
+    func loadMoreMessages(_ lastMessageId: Int) {
+        guard self.reachable || !self.isLoading || self.messagesManager.canLoadMore() else {
             return
         }
 
         self.isLoading = true
-        MessageRepository().findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
+        messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
             self?.isLoading = false
 
             self?.messagesManager.handle(messageCollection, .before)
@@ -268,25 +322,16 @@ public class Parley {
     }
 
     private func send(_ messages: [Message]) {
-        if let message = messages.first {
-            send(message, isNewMessage: false, onNext: { [weak self] in
-                self?.send(Array(messages.dropFirst()))
-            })
+        guard let message = messages.first else {
+            return
         }
+        send(message, isNewMessage: false, onNext: { [weak self] in
+            self?.send(Array(messages.dropFirst()))
+        })
     }
 
-    internal func send(_ text: String, silent: Bool = false) {
-        let message = Message()
-        message.message = text
-        message.type = silent ? .systemMessageUser : .user
-        message.status = .pending
-        message.time = Date()
-
-        self.send(message, isNewMessage: true)
-    }
-    
     @available(*, deprecated)
-    internal func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
+    func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
         let message = Message()
         message.type = .user
         message.imageURL = imageUrl
@@ -298,15 +343,34 @@ public class Parley {
         self.send(message, isNewMessage: true)
     }
     
-    internal func upload(media: MediaModel, displayedImage: UIImage?) {
+    func upload(media: MediaModel, displayedImage: UIImage?) {
         let message = media.createMessage(status: .pending)
         message.image = media.type == .gif ? UIImage.gif(data: media.image) : displayedImage
         send(message, isNewMessage: true, onNext: nil)
     }
 
-    internal func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
+    /**
+     Send a message to Parley.
+
+     - Note: Call after chat is configured.
+
+     - Parameters:
+       - text: The message to sent
+       - silent: Indicates if the message needs to be sent silently. The message will not be shown when `silent=true`.
+     */
+    func send(_ text: String, silent: Bool = false) {
+        let message = Message()
+        message.message = text
+        message.type = silent ? .systemMessageUser : .user
+        message.status = .pending
+        message.time = Date()
+
+        self.send(message, isNewMessage: true)
+    }
+
+    func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
         message.referrer = self.referrer
-        
+
         if isNewMessage {
             let indexPaths = messagesManager.add(message)
             delegate?.willSend(indexPaths)
@@ -315,7 +379,7 @@ public class Parley {
         }
 
         guard self.reachable else { return }
-        
+
         func onSuccess(message: Message) {
             message.status = .success
             message.mediaSendRequest = nil
@@ -326,7 +390,7 @@ public class Parley {
 
             onNext?()
         }
-        
+
         func onError(error: Error) {
             if let parleyError = error as? ParleyErrorResponse {
                 message.responseInfoType = parleyError.notifications.first?.message
@@ -340,30 +404,31 @@ public class Parley {
 
             onNext?()
         }
-        
+
         if let mediaSendRequest = message.mediaSendRequest, mediaSendRequest.hasUploaded == false {
-            MessageRepository()
-                .upload(
-                    imageData: mediaSendRequest.image,
-                    imageType: mediaSendRequest.type,
-                    fileName: mediaSendRequest.filename) { [weak self] result in
-                        switch result {
-                        case .success(let response):
-                            message.media = MediaObject(id: response.media, description: nil)
-                            message.status = .pending
-                            message.mediaSendRequest?.hasUploaded = true
-                            self?.send(message, isNewMessage: false, onNext: nil)
-                        case .failure(let error):
-                            onError(error: error)
-                        }
-                    }
+            messageRepository.upload(
+                imageData: mediaSendRequest.image,
+                imageType: mediaSendRequest.type,
+                fileName: mediaSendRequest.filename
+            ) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    message.media = MediaObject(id: response.media, description: nil)
+                    message.status = .pending
+                    message.mediaSendRequest?.hasUploaded = true
+                    self?.send(message, isNewMessage: false, onNext: nil)
+                case .failure(let error):
+                    onError(error: error)
+                }
+            }
         } else {
-            MessageRepository().store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
+            messageRepository.store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
         }
     }
 
     // MARK: Remote messages
-    internal func handleMessage(_ userInfo: [String: Any]) {
+
+    private func handleMessage(_ userInfo: [String: Any]) {
         guard let id = userInfo["id"] as? Int else { return }
         guard let typeId = userInfo["typeId"] as? Int else { return }
         let body = userInfo["body"] as? String
@@ -377,21 +442,24 @@ public class Parley {
         if self.isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
-            MessageRepository().find(id, onSuccess: { [weak delegate, messagesManager] message in
+            messageRepository.find(id, onSuccess: { [weak self] message in
+                guard let self else { return }
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
                 delegate?.didStopTyping()
 
-                let indexPaths = messagesManager.add(message)
+                let indexPaths = self.messagesManager.add(message)
                 delegate?.didReceiveMessage(indexPaths)
-            }) { [weak delegate, messagesManager] error in
+            }) { [weak self] error in
+                guard let self else { return }
+
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
                 delegate?.didStopTyping()
 
-                let indexPaths = messagesManager.add(message)
+                let indexPaths = self.messagesManager.add(message)
                 delegate?.didReceiveMessage(indexPaths)
             }
         } else {
@@ -402,7 +470,7 @@ public class Parley {
         }
     }
 
-    internal func handleEvent(_ event: String?) {
+    private func handleEvent(_ event: String?) {
         switch event {
         case kParleyEventStartTyping?:
             agentStartTyping()
@@ -414,11 +482,12 @@ public class Parley {
     }
 
     // MARK: isTyping
-    internal func userStartTyping() {
-        if !self.reachable { return }
+
+    func userStartTyping() {
+        guard self.reachable else { return }
 
         if self.userStartTypingDate == nil || Date().timeIntervalSince1970 - self.userStartTypingDate!.timeIntervalSince1970 > kParleyEventStartTypingTriggerAfter {
-            EventRemoteService().fire(kParleyEventStartTyping, onSuccess: {}, onFailure: { _ in })
+            eventRemoteService.fire(kParleyEventStartTyping, onSuccess: {}, onFailure: { _ in })
 
             self.userStartTypingDate = Date()
         }
@@ -427,7 +496,7 @@ public class Parley {
         self.userStopTypingTimer = Timer.scheduledTimer(withTimeInterval: kParleyEventStopTypingTriggerAfter, repeats: false) { (timer) in
             if !self.reachable { return }
 
-            EventRemoteService().fire(kParleyEventStopTyping, onSuccess: {}, onFailure: { _ in })
+            self.eventRemoteService.fire(kParleyEventStopTyping, onSuccess: {}, onFailure: { _ in })
 
             self.userStartTypingDate = nil
             self.userStopTypingTimer = nil
@@ -450,7 +519,7 @@ public class Parley {
     }
 
     private func agentStopTyping() {
-        if !self.agentIsTyping { return }
+        guard self.agentIsTyping else { return }
 
         self.agentIsTyping = false
 
@@ -459,11 +528,6 @@ public class Parley {
 
         self.delegate?.didStopTyping()
     }
-
-    // MARK: Caching
-    internal func isCachingEnabled() -> Bool {
-        return self.dataSource != nil
-    }
 }
 
 extension Parley {
@@ -471,9 +535,10 @@ extension Parley {
     /**
      Handle remote message.
 
-     - Parameter userInfo: Remote message data.
+     - Parameters:
+       - userInfo: Remote message data.
 
-     - Returns: `true` if Parley handled this payload, `false` otherwise
+     - Returns: `true` if Parley handled this payload, `false` otherwise.
      */
     public static func handle(_ userInfo: [AnyHashable: Any]) -> Bool {
         if shared.secret == nil {
@@ -499,22 +564,10 @@ extension Parley {
     }
 
     /**
-     Set custom network settings.
-
-     - Note: Method must be called before `Parley.configure(_ secret: String)`.
-
-     - Parameter network: ParleyNetwork instance
-    */
-    public static func setNetwork(_ network: ParleyNetwork) {
-        shared.network = network
-
-        ParleyRemote.refresh(network)
-    }
-
-    /**
      Enable offline messaging.
 
-     - Parameter dataSource: ParleyDataSource instance
+     - Parameters:
+       - dataSource: ParleyDataSource instance
      */
     public static func enableOfflineMessaging(_ dataSource: ParleyDataSource) {
         shared.dataSource = dataSource
@@ -526,76 +579,96 @@ extension Parley {
      - Note: The `clear()` method will be called on the current instance to prevent unused data on the device.
      */
     public static func disableOfflineMessaging() {
-        if let dataSource = shared.dataSource {
-            dataSource.clear()
-        }
-
+        shared.dataSource?.clear()
         shared.dataSource = nil
     }
 
     /**
-     Set the users Firebase Cloud Messaging token.
+      Set the users Firebase Cloud Messaging token.
 
-     - Note: Method must be called before `Parley.configure(_ secret: String)`.
+      - Note: Method must be called before `Parley.configure(_ secret: String)`.
 
-     - Parameter fcmToken: The Firebase Cloud Messaging token
-     - Parameter pushType: The push type (default `fcm`)
-     - Parameter onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-     - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
+      - Parameters:
+        - fcmToken: The Firebase Cloud Messaging token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
     @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
-    public static func setFcmToken(_ fcmToken: String, pushType: Device.PushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func setFcmToken(
+        _ fcmToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
         setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
     }
-    
+
     /**
-     Set the push token of the user.
+      Set the push token of the user.
 
-     - Note: Method must be called before `Parley.configure(_ secret: String)`.
+      - Note: Method must be called before `Parley.configure(_ secret: String)`.
 
-     - Parameter pushToken: The push token
-     - Parameter pushType: The push type (default `fcm`)
-     - Parameter onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-     - Parameter onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
-    public static func setPushToken(_ pushToken: String, pushType: Device.PushType = .fcm, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+      - Parameters:
+        - pushToken: The push token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushToken(
+        _ pushToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
         if shared.pushToken == pushToken { return }
 
         shared.pushToken = pushToken
         shared.pushType = pushType
 
-        Parley.shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
     }
 
     /**
-     Set whether push is enabled by the user.
+      Set whether push is enabled by the user.
 
-     - Parameter enabled: Indication if application's push is enabled.
-     - Parameter onSuccess: Execution block when pushEnabled is updated (only called when Parley is configuring/configured).
-     - Parameter onFailure: Execution block when pushEnabled can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-    */
-    public static func setPushEnabled(_ enabled: Bool, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        if shared.pushEnabled == enabled { return }
+      - Parameters:
+        - enabled: Indication if application's push is enabled.
+        - onSuccess: Execution block when pushEnabled is updated (only called when Parley is configuring/configured).
+        - onFailure: Execution block when pushEnabled can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushEnabled(
+        _ enabled: Bool,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        guard shared.pushEnabled != enabled else { return }
 
         shared.pushEnabled = enabled
 
         shared.delegate?.didChangePushEnabled(enabled)
 
-        Parley.shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
     }
 
     /**
-     Set user information.
+     Set user information to authorize the user.
 
-     - Parameter authorization: Authorization of the user.
-     - Parameter additionalInformation: Additional information of the user.
-     - Parameter onSuccess: Execution block when user information is set (only called when Parley is configuring/configured).
-     - Parameter onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     - Parameters:
+       - authorization: Authorization of the user.
+       - additionalInformation: Additional information of the user.
+       - onSuccess: Execution block when user information is set (only called when Parley is configuring/configured).
+       - onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public static func setUserInformation(_ authorization: String, additionalInformation: [String:String]?=nil, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func setUserInformation(
+        _ authorization: String,
+        additionalInformation: [String : String]? = nil,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
         shared.userAuthorization = authorization
         shared.userAdditionalInformation = additionalInformation
-        
+
         if shared.state == .configured {
             shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
         }
@@ -604,55 +677,79 @@ extension Parley {
     /**
      Clear user information.
 
-     - Parameter onSuccess: Execution block when user information is cleared (only called when Parley is configuring/configured).
-     - Parameter onFailure: Execution block when user information is can not be cleared (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     - Parameters:
+       - onSuccess: Execution block when user information is cleared (only called when Parley is configuring/configured).
+       - onFailure: Execution block when user information is can not be cleared (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public static func clearUserInformation(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func clearUserInformation(
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        
+
         if shared.state == .configured {
             shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
         }
     }
 
     /**
-     Configure Parley Messaging.
-     
+     Configure Parley Messaging with clearing the cache
+
      The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
      a random UUID that will be stored in the user defaults. When providing a unique device
      ID to this configure method, it is not stored by Parley and only kept for the current instance
      of Parley. Client applications are responsible for storing it and providing Parley with the
      same ID. This gives client applications the flexibility to change the ID if required (for
      example when another user is logged-in to the app).
-     
-     _Note: calling `Parley.configure()` twice is unsupported, make sure to call `Parley.configure()` only once for the lifecycle of Parley._
 
-     - Parameter secret: Application secret of your Parley instance.
-     - Parameter uniqueDeviceIdentifier: The device identifier to use for device registration.
-     - Parameter onSuccess: Execution block when Parley is configured.
-     - Parameter onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-     - Parameter code: HTTP Status Code.
-     - Parameter message: Description what went wrong.
+     - Note: calling `Parley.configure()` twice is unsupported, make sure to call `Parley.configure()` only once for the lifecycle of Parley.shared._
+
+     - Parameters:
+       - secret: Application secret of your Parley instance.
+       - uniqueDeviceIdentifier: The device identifier to use for device registration.
+       - networkConfig: The configuration for the network.
+       - networkSession: The network session that will handle all http traffic.
+       - onSuccess: Execution block when Parley is configured.
+       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+       - code: HTTP Status Code.
+       - message: Description what went wrong.
      */
-    public static func configure(_ secret: String, uniqueDeviceIdentifier: String? = nil, onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
-        shared.clearCacheWhenNeeded(secret: secret)
-        
-        shared.configure(secret, uniqueDeviceIdentifier: uniqueDeviceIdentifier, onSuccess: onSuccess, onFailure: onFailure)
+    public static func configure(
+        _ secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkConfig: ParleyNetworkConfig,
+        networkSession: ParleyNetworkSession,
+        onSuccess: (() -> ())? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+    ) {
+        shared.initialize(networkConfig: networkConfig, networkSession: networkSession)
+
+        shared.configure(
+            secret,
+            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+            onSuccess: onSuccess,
+            onFailure: onFailure,
+            clearCache: true
+        )
     }
-    
+
     /**
      Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
-     
+
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
-     
-     __Note__: Requires calling the `configure()` method again to use Parley.
+
+     - Parameters:
+       - onSuccess: Called when the device is correctly registered.
+       - onFailure: Called when configuring of the device did result in a error.
+
+     - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func reset(onSuccess: (()->())? = nil, onFailure: ((_ code: Int, _ message: String)->())? = nil) {
+    public static func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        
-        Parley.shared.registerDevice(onSuccess: {
+
+        shared.registerDevice(onSuccess: {
             shared.secret = nil
             onSuccess?()
         }, onFailure: { code, message in
@@ -662,23 +759,25 @@ extension Parley {
 
         shared.clearChat()
     }
-    
+
     /**
      Send a message to Parley.
-     
+
      - Note: Call after chat is configured.
-     
-     - Parameter message: The message to sent
-     - Parameter silent: Indicates if the message needs to be sent silently. The message will not be shown when `silent=true`.
+
+     - Parameters:
+       - message: The message to sent
+       - silent: Indicates if the message needs to be sent silently. The message will not be shown to the user when `silent=true`.
      */
     public static func send(_ message: String, silent: Bool = false) {
         shared.send(message, silent: silent)
     }
-    
-    /*
+
+    /**
      Set referrer.
-     
-     - Parameter referrer: The referrer
+
+     - Parameters:
+       - referrer: Referrer
      */
     public static func setReferrer(_ referrer: String) {
         shared.referrer = referrer

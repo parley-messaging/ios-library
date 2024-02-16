@@ -4,7 +4,7 @@ public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
     
     public var width: CGFloat = 250
     
-    internal static func agent() -> MessageCollectionViewCellAppearance {
+    static func agent() -> MessageCollectionViewCellAppearance {
         let appearance = MessageCollectionViewCellAppearance()
         
         let edgeInsets = UIEdgeInsets(top: 21, left: 23, bottom: 21, right: 21)
@@ -21,7 +21,7 @@ public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
         return appearance
     }
     
-    internal static func user() -> MessageCollectionViewCellAppearance {
+    static func user() -> MessageCollectionViewCellAppearance {
         let appearance = MessageCollectionViewCellAppearance()
         
         let edgeInsets = UIEdgeInsets(top: 21, left: 21, bottom: 21, right: 23)

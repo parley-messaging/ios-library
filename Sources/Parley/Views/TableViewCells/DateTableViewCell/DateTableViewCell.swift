@@ -1,6 +1,6 @@
 import UIKit
 
-internal class DateTableViewCell: UITableViewCell {
+final class DateTableViewCell: UITableViewCell {
     
     @IBOutlet weak var timeView: UIView!
     @IBOutlet weak var timeLabel: UILabel!
@@ -10,19 +10,19 @@ internal class DateTableViewCell: UITableViewCell {
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var rightLayoutConstraint: NSLayoutConstraint!
     
-    internal var appearance = DateTableViewCellAppearance() {
+    var appearance = DateTableViewCellAppearance() {
         didSet {
             self.apply(self.appearance)
         }
     }
     
-    override public func awakeFromNib() {
+    override func awakeFromNib() {
         super.awakeFromNib()
         
         self.apply(self.appearance)
     }
     
-    internal func render(_ message: Message) {
+    func render(_ message: Message) {
         self.timeLabel.text = message.time?.asDate()
     }
     

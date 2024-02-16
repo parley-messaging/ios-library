@@ -1,34 +1,33 @@
 import UIKit
 
-public struct ParleyNetwork {
-        
-    let url: String
-    let path: String
-    let headers: [String: String]
-    var apiVersion: ApiVersion = .v1_6
-    
-    internal var absoluteURL: URL {
-        guard var url = URL(string: self.url) else {
+public struct ParleyNetworkConfig {
+    public let url: String
+    package let path: String
+    package let headers: [String: String]
+    package var apiVersion: ApiVersion = .v1_6
+
+    package var absoluteURL: URL {
+        guard var url = URL(string: url) else {
             fatalError("Invalid URL passed to ParleyNetwork")
         }
         url.appendPathComponent(path)
         return url
     }
-    
-    init () {
-        self.url = kParleyNetworkUrl
-        self.path = kParleyNetworkPath
-        self.headers = [:]
+
+    package init() {
+        url = kParleyNetworkUrl
+        path = kParleyNetworkPath
+        headers = [:]
     }
-    
+
     @available(*, deprecated, message: "Please specify your apiVersion.")
     public init(url: String, path: String, headers: [String:String] = [:]) {
         self.url = url
         self.path = path
         self.headers = headers
-        self.apiVersion = .v1_6
+        apiVersion = .v1_6
     }
-    
+
     public init(url: String, path: String, apiVersion: ApiVersion = .v1_6, headers: [String:String] = [:]) {
         self.url = url
         self.path = path

@@ -1,6 +1,6 @@
 import UIKit
 
-internal class InfoTableViewCell: UITableViewCell {
+final class InfoTableViewCell: UITableViewCell {
     
     @IBOutlet weak var infoTextView: ParleyTextView! {
         didSet {
@@ -13,19 +13,19 @@ internal class InfoTableViewCell: UITableViewCell {
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var rightLayoutConstraint: NSLayoutConstraint!
     
-    internal var appearance = InfoTableViewCellAppearance() {
+    var appearance = InfoTableViewCellAppearance() {
         didSet {
             self.apply(self.appearance)
         }
     }
     
-    override public func awakeFromNib() {
+    override func awakeFromNib() {
         super.awakeFromNib()
         
         self.apply(self.appearance)
     }
     
-    internal func render(_ message: Message) {
+    func render(_ message: Message) {
         self.infoTextView.textAlignment = .center
         
         self.infoTextView.markdownText = message.message
