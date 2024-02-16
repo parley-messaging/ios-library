@@ -361,10 +361,25 @@ extension ParleyComposeView: KeyboardAccessoryViewDelegate {
 extension ParleyComposeView: UIImagePickerControllerDelegate {
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        guard let imageURL = info[.imageURL] as? URL, let asset = info[.phAsset] as? PHAsset else {
+        
+        func dismissFailedToSelect() {
             picker.dismiss(animated: true, completion: { [weak self] in
                 self?.delegate?.failedToSelectImage()
             })
+        }
+        
+        guard let imageURL = info[.imageURL] as? URL, let asset = info[.phAsset] as? PHAsset else {
+            // Image has been taken on device, therefore we can convert it to JPEG since you cannot take a GIF image directly.
+            guard
+                let fakeURL = URL(string: "tmp://fake/image/path/image.jpg"),
+                let image = info[.originalImage] as? UIImage,
+                let jpegData = MediaModel.convertToJpegData(image)
+            else { dismissFailedToSelect() ; return }
+            
+            picker.dismiss(animated: true, completion: { [weak self] in
+                self?.delegate?.send(image: image, with: jpegData, url: fakeURL)
+            })
+            
             return
         }
         
@@ -372,15 +387,10 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
         options.isNetworkAccessAllowed = true
             
         PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] (data, _, _, _) in
-            if let data, let image = UIImage(data: data) {
-                picker.dismiss(animated: true, completion: {
-                    self?.delegate?.send(image: image, with: data, url: imageURL)
-                })
-            } else {
-                picker.dismiss(animated: true, completion: {
-                    self?.delegate?.failedToSelectImage()
-                })
-            }
+            guard let data, let image = UIImage(data: data) else { dismissFailedToSelect() ; return }
+            picker.dismiss(animated: true, completion: {
+                self?.delegate?.send(image: image, with: data, url: imageURL)
+            })
         }
     }
     
