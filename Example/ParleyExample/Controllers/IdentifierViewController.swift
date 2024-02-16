@@ -100,8 +100,8 @@ class IdentifierViewController: UIViewController {
         
         return ParleyNetworkConfig(
             url: "https://api.parley.nu/",
-            path: "clientApi/v1.6",
-            apiVersion: .v1_6,
+            path: "clientApi/v1.7",
+            apiVersion: .v1_7,
             headers: headers
         )
     }

@@ -1,18 +1,20 @@
 # Changelog
 
 ## Upcoming
+
 - Split up Parley package to `Parley` and `ParleyNetwork`. You can now use Parley with your own http network layer. To do so you can implement `ParleyNetworkSession`.
 - Update Reachability to 5.2.0 (from 5.1.0)
 - Move configuring network settings to the `Parley.configure` function to make the setup order more clear.
 - Rename `ParleyNetwork` to `ParleyNetworkConfig` to better represent what the struct does.
 
-## 3.9.2 - Upcoming
+## 3.9.2 - 16 Feb 2024
 
 - Fixed taking pictures not sending (regression by 3.9.1).
 - Fixed an issue where small image messages were not taking the full width.
 - Fixed an issue causing some texts to display wrong.
 - Fixed an issue causing loading more triggering too early and inconsistently.
 - Fixed an issue where the chat wouldn't scroll fully to the bottom directly when opening the chat.
+- Added support for client API 1.7.
 - Removed an unneeded guard statement when handling push messages.
 
 ## 3.9.1 - Released 13 Feb 2024
