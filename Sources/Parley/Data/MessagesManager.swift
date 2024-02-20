@@ -15,7 +15,7 @@ final class MessagesManager {
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
-    private weak var dataSource: ParleyDataSource?
+    private weak var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?
 
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
@@ -47,7 +47,7 @@ final class MessagesManager {
         })
     }
 
-    init(dataSource: ParleyDataSource?) {
+    init(dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?) {
         self.dataSource = dataSource
     }
 

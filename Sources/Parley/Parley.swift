@@ -44,7 +44,7 @@ public final class Parley {
     private(set) var eventRemoteService: EventRemoteService!
     private(set) var messageRepository: MessageRepository!
     private(set) var messagesManager: MessagesManager!
-    private(set) var dataSource: ParleyDataSource? {
+    private(set) var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
@@ -558,7 +558,7 @@ extension Parley {
      - Parameters:
        - dataSource: ParleyDataSource instance
      */
-    public static func enableOfflineMessaging(_ dataSource: ParleyDataSource) {
+    public static func enableOfflineMessaging(_ dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)) {
         shared.dataSource = dataSource
     }
 

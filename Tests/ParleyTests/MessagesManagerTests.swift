@@ -11,7 +11,7 @@ final class MessagesManagerTests: XCTestCase {
     private let MESSAGE_STICKY_TEXT = "Sticky message";
     
     private var messagesManager: MessagesManager!
-    private var dataSourceMock: ParleyDataSource!
+    private var dataSourceMock: (ParleyMessageDataSource & ParleyKeyValueDataSource)!
     
     override func setUp() {
         dataSourceMock = ParleyDataSourceMock()

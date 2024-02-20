@@ -1,7 +1,7 @@
 import Foundation
 @testable import Parley
 
-final class ParleyDataSourceMock: ParleyDataSource {
+final class ParleyDataSourceMock: ParleyMessageDataSource, ParleyKeyValueDataSource {
 
     private var messages = [Message]()
     private var dataDict = [String: Any]()
