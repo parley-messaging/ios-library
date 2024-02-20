@@ -49,6 +49,10 @@ public final class Parley {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
+    
+    private(set) lazy var imageRepository: ImageRepository = {
+        ImageRepository(remote: remote)
+    }()
 
     private(set) var pushToken: String? = nil
     private(set) var pushType: Device.PushType? = nil
@@ -322,31 +326,29 @@ public final class Parley {
     }
 
     private func send(_ messages: [Message]) {
-        guard let message = messages.first else {
-            return
-        }
+        guard let message = messages.first else { return }
         send(message, isNewMessage: false, onNext: { [weak self] in
             self?.send(Array(messages.dropFirst()))
         })
     }
-
-    @available(*, deprecated)
-    func send(_ imageUrl: URL, _ image: UIImage, _ imageData: Data? = nil) {
-        let message = Message()
-        message.type = .user
-        message.imageURL = imageUrl
-        message.image = image
-        message.imageData = imageData
-        message.status = .pending
-        message.time = Date()
-
-        self.send(message, isNewMessage: true)
-    }
     
-    func upload(media: MediaModel, displayedImage: UIImage?) {
+    internal func upload(media: MediaModel, displayedImage: UIImage?) {
+        let localImage = ParleyLocalImage.from(media: media)
         let message = media.createMessage(status: .pending)
-        message.image = media.type == .gif ? UIImage.gif(data: media.image) : displayedImage
-        send(message, isNewMessage: true, onNext: nil)
+        message.media = MediaObject(id: localImage.id)
+        
+        imageRepository.add(image: localImage)
+        addNewMessage(message)
+        
+        imageRepository.upload(image: localImage) { [weak self] result in
+            switch result {
+            case .success(let remoteImage):
+                message.media = MediaObject(id: remoteImage.id)
+                self?.send(message, isNewMessage: false, onNext: nil)
+            case .failure(let failure):
+                self?.failedToSend(message: message, error: failure)
+            }
+        }
     }
 
     /**
@@ -372,17 +374,13 @@ public final class Parley {
         message.referrer = self.referrer
 
         if isNewMessage {
-            let indexPaths = messagesManager.add(message)
-            delegate?.willSend(indexPaths)
-
-            userStopTypingTimer?.fire()
+            addNewMessage(message)
         }
 
         guard self.reachable else { return }
 
         func onSuccess(message: Message) {
             message.status = .success
-            message.mediaSendRequest = nil
             messagesManager.update(message)
             delegate?.didUpdate(message)
 
@@ -392,37 +390,28 @@ public final class Parley {
         }
 
         func onError(error: Error) {
-            if let parleyError = error as? ParleyErrorResponse {
-                message.responseInfoType = parleyError.notifications.first?.message
-            }
-            
-            if !isCachingEnabled() || !isOfflineError(error) {
-                message.status = .failed
-                messagesManager.update(message)
-                delegate?.didUpdate(message)
-            }
-
+            failedToSend(message: message, error: error)
             onNext?()
         }
-
-        if let mediaSendRequest = message.mediaSendRequest, mediaSendRequest.hasUploaded == false {
-            messageRepository.upload(
-                imageData: mediaSendRequest.image,
-                imageType: mediaSendRequest.type,
-                fileName: mediaSendRequest.filename
-            ) { [weak self] result in
-                switch result {
-                case .success(let response):
-                    message.media = MediaObject(id: response.media, description: nil)
-                    message.status = .pending
-                    message.mediaSendRequest?.hasUploaded = true
-                    self?.send(message, isNewMessage: false, onNext: nil)
-                case .failure(let error):
-                    onError(error: error)
-                }
-            }
-        } else {
-            messageRepository.store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
+        
+        messageRepository.store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
+    }
+    
+    private func addNewMessage(_ message: Message) {
+        let indexPaths = messagesManager.add(message)
+        delegate?.willSend(indexPaths)
+        userStopTypingTimer?.fire()
+    }
+    
+    private func failedToSend(message: Message, error: Error) {
+        if let parleyError = error as? ParleyErrorResponse {
+            message.responseInfoType = parleyError.notifications.first?.message
+        }
+        
+        if !isCachingEnabled() || !isOfflineError(error) {
+            message.status = .failed
+            messagesManager.update(message)
+            delegate?.didUpdate(message)
         }
     }
 
@@ -748,8 +737,9 @@ extension Parley {
     public static func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-
-        shared.registerDevice(onSuccess: {
+        shared.imageRepository.reset()
+        
+        Parley.shared.registerDevice(onSuccess: {
             shared.secret = nil
             onSuccess?()
         }, onFailure: { code, message in
@@ -781,5 +771,9 @@ extension Parley {
      */
     public static func setReferrer(_ referrer: String) {
         shared.referrer = referrer
+    }
+    
+    public static func setImageDataSource(_ dataSource: ParleyImageDataSource) {
+        shared.imageRepository.dataSource = dataSource
     }
 }

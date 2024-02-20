@@ -189,17 +189,29 @@ final class ParleyMessageView: UIView {
             imageImageView.corners = [.allCorners]
         }
         
-        if let image = message.image {
+        guard let mediaId = message?.media?.id else {
+            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
+            imageHolderView.isHidden = true
+            
+            imageImageView.image = nil
+            
+            imageActivityIndicatorView.isHidden = true
+            imageActivityIndicatorView.stopAnimating()
+            
+            return
+        }
+        
+        if let image = Parley.shared.imageRepository.getLocalImage(for: mediaId) {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
-            imageImageView.image = image
+            imageImageView.image = image.image
             
             imageActivityIndicatorView.isHidden = true
             imageActivityIndicatorView.stopAnimating()
             
             renderGradients()
-        } else if message.hasMedium {
+        } else {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
@@ -226,22 +238,14 @@ final class ParleyMessageView: UIView {
                 renderGradients()
             }
             
-            if let media = message.media, let mediaIdUrl = URL(string: media.id) {
-                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                findImageRequest = messageRepository.find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else if let id = message.id {
-                findImageRequest = messageRepository.findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else {
-                print("Failed to render image for message \(message.id)")
+            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { result in
+                switch result {
+                case .success(let displayModel):
+                    onFindSuccess(image: displayModel.image)
+                case .failure(let error):
+                    onFindError(error: error)
+                }
             }
-        } else {
-            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
-            imageHolderView.isHidden = true
-            
-            imageImageView.image = nil
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
         }
     }
     

@@ -56,33 +56,16 @@ final class MessageRemoteService {
         onFailure: @escaping (_ error: Error) -> ()
     ) {
         DispatchQueue.global().async { [weak self] in
-            if let imageURL = message.imageURL, let imageData = message.imageData, message.media == nil { // Deprecated
-                self?.remote.execute(path: "messages", multipartFormData: { multipartFormData in
-                    let type = ParleyImageType.map(from: imageURL)
-                    multipartFormData.add(
-                        key: "image",
-                        fileName: imageURL.lastPathComponent,
-                        fileMimeType: type.mimeType,
-                        fileData: imageData
-                    )
-                }, onSuccess: { (savedMessage: Message) in
+            self?.remote.execute(
+                .post,
+                path: "messages",
+                parameters: try? self?.codableHelper.toDictionary(message),
+                onSuccess: { (savedMessage: Message) in
                     message.id = savedMessage.id
-                    message.imageData = nil
-
                     onSuccess(message)
-                }, onFailure: onFailure)
-            } else {
-                self?.remote.execute(
-                    .post,
-                    path: "messages",
-                    parameters: try? self?.codableHelper.toDictionary(message),
-                    onSuccess: { (savedMessage: Message) in
-                        message.id = savedMessage.id
-                        onSuccess(message)
-                    },
-                    onFailure: onFailure
-                )
-            }
+                },
+                onFailure: onFailure
+            )
         }
     }
 
@@ -101,23 +84,8 @@ final class MessageRemoteService {
             result: completion
         )
     }
-
-    @available(*, deprecated)
-    @discardableResult
-    func findImage(
-        _ id: Int,
-        onSuccess: @escaping (_ message: UIImage) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancelable? {
-        remote.execute(.get, path: "images/\(id)", onSuccess: onSuccess, onFailure: onFailure)
-    }
-
-    @discardableResult
-    func findMedia(
-        _ id: String,
-        onSuccess: @escaping (_ message: UIImage) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancelable? {
-        remote.execute(.get, path: "media/\(id)", onSuccess: onSuccess, onFailure: onFailure)
+    
+    internal func findMedia(_ id: String, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
+        remote.execute(.get, path: "media/\(id)", result: result)
     }
 }

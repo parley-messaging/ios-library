@@ -50,18 +50,12 @@ public final class Message: Codable, Equatable {
     var message: String?
     var responseInfoType: String?
     
-    @available(*, deprecated, message: "Please use 'media' instead of 'image'.")
-    var image: UIImage?
-    var imageURL: URL?
-    var imageData: Data?
-
     var media: MediaObject?
-    var mediaSendRequest: MediaModel?
-
+   
     var hasMedium: Bool {
-        imageURL != nil || imageData != nil || media != nil || image != nil
+        media != nil
     }
-
+    
     var hasButtons: Bool {
         guard let buttons else { return false }
         return !buttons.isEmpty
@@ -97,11 +91,7 @@ public final class Message: Codable, Equatable {
         case title
         case message
         case responseInfoType
-        case image
-        case imageURL
-        case imageData
         case media
-        case mediaSendRequest
         case buttons
         case carousel
         case quickReplies
@@ -135,8 +125,6 @@ public final class Message: Codable, Equatable {
             message = nil
         }
         responseInfoType = try values.decodeIfPresent(String.self, forKey: .responseInfoType)
-        imageURL = try values.decodeIfPresent(URL.self, forKey: .image)
-        mediaSendRequest = try values.decodeIfPresent(MediaModel.self, forKey: .mediaSendRequest)
         media = try values.decodeIfPresent(MediaObject.self, forKey: .media)
         buttons = try values.decodeIfPresent([MessageButton].self, forKey: .buttons)
         carousel = try values.decodeIfPresent([Message].self, forKey: .carousel)
@@ -158,8 +146,6 @@ public final class Message: Codable, Equatable {
         try container.encodeIfPresent(title, forKey: .title)
         try container.encodeIfPresent(message, forKey: .message)
         try container.encodeIfPresent(responseInfoType, forKey: .responseInfoType)
-        try container.encodeIfPresent(imageURL, forKey: .imageURL)
-        try container.encodeIfPresent(mediaSendRequest, forKey: .mediaSendRequest)
         try container.encodeIfPresent(media, forKey: .media)
         try container.encodeIfPresent(buttons, forKey: .buttons)
         try container.encodeIfPresent(carousel, forKey: .carousel)
@@ -179,8 +165,6 @@ public final class Message: Codable, Equatable {
         case .date, .info, .agent, .user:
             return (title == nil &&
                     message == nil &&
-                    imageURL == nil &&
-                    image == nil &&
                     buttons?.count ?? 0 == 0 &&
                     carousel?.count ?? 0 == 0 &&
                     media == nil)

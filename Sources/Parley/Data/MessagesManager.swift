@@ -57,14 +57,6 @@ final class MessagesManager {
         if let cachedMessages = dataSource?.all() {
             originalMessages.append(contentsOf: cachedMessages.sorted(by: <))
         }
-
-        // Attach media as image if needed. Used when messages with media have a pending state which may be send at a
-        // later moment.
-        pendingMessages.filter({ $0.mediaSendRequest != nil }).forEach { message in
-            if let data = message.mediaSendRequest?.image {
-                message.image = UIImage(data: data)
-            }
-        }
         
         self.stickyMessage = nil
         self.welcomeMessage = dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
@@ -295,7 +287,6 @@ private extension MessagesManager {
         agentMessage_fullMessageWithActions.type = .agent
         agentMessage_fullMessageWithActions.title = "Welcome"
         agentMessage_fullMessageWithActions.message = "Here are some quick actions for more information about *Parley*"
-        agentMessage_fullMessageWithActions.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
         agentMessage_fullMessageWithActions.buttons = [
             createButton("Open app", "open-app://parley.nu"),
             createButton("Call us", "call://+31362022080"),
@@ -307,7 +298,6 @@ private extension MessagesManager {
         agentMessage_messageWithCarouselSmall.type = .agent
         agentMessage_messageWithCarouselSmall.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
         agentMessage_messageWithCarouselSmall.message = "Here are some quick actions for more information about *Parley*"
-        agentMessage_messageWithCarouselSmall.imageURL = URL(string: "https://www.tracebuzz.com/assets/images/parley-blog.jpg")
         agentMessage_messageWithCarouselSmall.buttons = [
             createButton("Home page", "https://www.parley.nu/")
         ]
@@ -328,7 +318,6 @@ private extension MessagesManager {
         agentMessage_messageWithCarouselImages.id = 2
         agentMessage_messageWithCarouselImages.type = .agent
         agentMessage_messageWithCarouselImages.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-        agentMessage_messageWithCarouselImages.imageURL = URL(string: "https://parley.nu/images/tab6.png")
         agentMessage_messageWithCarouselImages.buttons = [
             createButton("Home page", "https://www.parley.nu/")
         ]
@@ -352,9 +341,6 @@ private extension MessagesManager {
         m.type = .agent
         m.title = title
         m.message = message
-        if let image = image {
-            m.imageURL = URL(string: image)
-        }
         m.buttons = buttons
         return m
     }

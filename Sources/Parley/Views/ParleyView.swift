@@ -636,11 +636,6 @@ extension ParleyView: ParleyComposeViewDelegate {
     }
     
     func send(image: UIImage, with data: Data, url: URL) {
-        guard Parley.shared.networkConfig.apiVersion.isUsingMedia else {
-            Parley.shared.send(url, image, data)
-            return
-        }
-        
         guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
             let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
             let message = NSLocalizedString("parley_send_failed_body_media_invalid", bundle: .current, comment: "")

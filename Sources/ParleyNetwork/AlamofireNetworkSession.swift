@@ -32,7 +32,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         method: HTTPRequestMethod,
         parameters: [String : Any]?,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, Error>) -> Void
+        completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
     ) -> RequestCancelable {
         let dataRequest = session.request(
             url,
@@ -42,7 +42,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
             headers: HTTPHeaders(headers)
         ).response { response in
             guard let statusCode = response.response?.statusCode else {
-                completion(.failure(HTTPResponseError.dataMissing))
+                completion(.failure(HTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                 return
             }
             switch response.result {
@@ -53,44 +53,18 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                     headers: response.response?.headers.dictionary ?? [:]
                 )))
             case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-
-        return dataRequest
-    }
-
-    @discardableResult
-    func requestImage(
-        _ url: URL,
-        method: HTTPRequestMethod,
-        parameters: [String: Any]?,
-        headers: [String: String],
-        completion: @escaping (_ result: Result<HTTPImageResponse, Error>) -> Void
-    ) -> RequestCancelable {
-        let dataRequest = session.request(
-            url,
-            method: Alamofire.HTTPMethod(method),
-            parameters: parameters,
-            encoding: encoding,
-            headers: HTTPHeaders(headers)
-        ).responseImage { responseImage in
-            guard let statusCode = responseImage.response?.statusCode else {
-                completion(.failure(HTTPResponseError.dataMissing))
-                return
-            }
-            switch responseImage.result {
-            case .success(let image):
-                completion(.success(HTTPImageResponse(
-                    body: responseImage.data,
-                    image: image,
+                guard let data = response.data else { return }
+                let headers = response.response?.headers.dictionary
+                let responseError = HTTPErrorResponse(
                     statusCode: statusCode,
-                    headers: responseImage.response?.headers.dictionary ?? [:]
-                )))
-            case .failure(let error):
-                completion(.failure(error))
+                    headers: headers,
+                    data: response.data,
+                    error: error
+                )
+                completion(.failure(responseError))
             }
         }
+
         return dataRequest
     }
 
@@ -99,12 +73,12 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         to url: URL,
         method: HTTPRequestMethod,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, Error>) -> Void
+        completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
     ) -> RequestCancelable {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
             .response { response in
                 guard let statusCode = response.response?.statusCode else {
-                    completion(.failure(HTTPResponseError.dataMissing))
+                    completion(.failure(HTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                     return
                 }
                 switch response.result {
@@ -115,7 +89,14 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                         headers: response.response?.headers.dictionary ?? [:]
                     )))
                 case .failure(let error):
-                    completion(.failure(error))
+                    let headers = response.response?.headers.dictionary
+                    let responseError = HTTPErrorResponse(
+                        statusCode: statusCode,
+                        headers: headers,
+                        data: response.data,
+                        error: error
+                    )
+                    completion(.failure(responseError))
                 }
             }
     }

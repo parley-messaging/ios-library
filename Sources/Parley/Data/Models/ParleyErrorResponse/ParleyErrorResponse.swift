@@ -3,7 +3,7 @@ import Foundation
 struct ParleyErrorResponse: Error, Codable {
     let status: String
     let notifications: [Notification]
-    let metadata: Metadata
+    let metadata: Metadata?
     
     struct Notification: Codable {
         let type: String
