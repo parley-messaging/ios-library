@@ -17,6 +17,7 @@ let kParleyEventStartTypingTriggerAfter = 20.0
 let kParleyEventStopTypingTriggerAfter = 15.0
 
 let kParleyCacheDirectory = "parley"
+let kParleyCacheImagesDirectory = "parley_images"
 let kParleyCacheKeyMessageInfo = "info_message"
 let kParleyCacheKeyPaging = "paging"
 let kParleyCacheKeyMessages = "messages"

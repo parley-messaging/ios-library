@@ -1,19 +1,12 @@
 import Foundation
 
-public struct ParleyLocalImage: Codable, Identifiable {
+public struct ParleyLocalImage: Codable, Identifiable, Equatable {
     public let id: String
     var data: Data
     let type: ParleyImageType
-    let filename: String
-    
-    init(data: Data, type: ParleyImageType) {
-        self.data = data
-        self.type = type
-        self.id = UUID().uuidString
-        self.filename = id
-    }
+    var filename: String { id }
     
     static func from(media: MediaModel) -> ParleyLocalImage {
-        ParleyLocalImage(data: media.data, type: media.type)
+        ParleyLocalImage(id: UUID().uuidString, data: media.data, type: media.type)
     }
 }
