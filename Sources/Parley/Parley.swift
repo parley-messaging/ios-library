@@ -51,7 +51,7 @@ public final class Parley {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
-    
+ 
     private(set) var pushToken: String? = nil
     private(set) var pushType: Device.PushType? = nil
     private(set) var pushEnabled: Bool = false

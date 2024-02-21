@@ -205,8 +205,6 @@ final class ParleyRemote {
 
     // MARK: - Image
 
-    let imageCache = NSCache<NSString, UIImage>()
-
     @discardableResult
     func execute(
         _ method: HTTPRequestMethod,
@@ -233,7 +231,6 @@ final class ParleyRemote {
                 }
             }
         })
-        
         
         return request
     }
