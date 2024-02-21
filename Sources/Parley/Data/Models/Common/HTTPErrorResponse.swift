@@ -17,4 +17,8 @@ public struct HTTPErrorResponse: Error {
         self.data = data
         self.error = error
     }
+    
+    var isOfflineError: Bool {
+        statusCode == nil && headers == nil && data == nil
+    }
 }

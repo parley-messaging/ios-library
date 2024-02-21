@@ -44,16 +44,14 @@ public final class Parley {
     private(set) var eventRemoteService: EventRemoteService!
     private(set) var messageRepository: MessageRepository!
     private(set) var messagesManager: MessagesManager!
+    private(set) var imageDataSource: ParleyImageDataSource?
+    private(set) var imageRepository: ImageRepository!
     private(set) var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)? {
         didSet {
             reachable ? delegate?.reachable() : delegate?.unreachable()
         }
     }
     
-    private(set) lazy var imageRepository: ImageRepository = {
-        ImageRepository(remote: remote)
-    }()
-
     private(set) var pushToken: String? = nil
     private(set) var pushType: Device.PushType? = nil
     private(set) var pushEnabled: Bool = false
@@ -108,6 +106,8 @@ public final class Parley {
         self.messageRepository = MessageRepository(remote: remote)
         self.messagesManager = MessagesManager(dataSource: self.dataSource)
         self.remote = remote
+        self.imageRepository = ImageRepository(remote: remote)
+        self.imageRepository.dataSource = imageDataSource
     }
 
     // MARK: Reachability
@@ -211,12 +211,12 @@ public final class Parley {
         deviceRepository.register(
             device: makeDeviceData(),
             onSuccess: { [weak self] _ in
-                guard let self = self else { return }
+                guard let self else { return }
                 let onSecondSuccess: () -> () = { [weak self] in
-                    guard let self = self else { return }
+                    guard let self else { return }
                     self.delegate?.didReceiveMessages()
 
-                    let pendingMessages = Array(self.messagesManager.pendingMessages.reversed())
+                    let pendingMessages = Array(self.messagesManager.pendingMessages)
                     self.send(pendingMessages)
 
                     self.isLoading = false
@@ -255,7 +255,11 @@ public final class Parley {
     }
 
     private func isOfflineError(_ error: Error) -> Bool {
-        return isOfflineErrorCode((error as NSError).code)
+        if let httpError = error as? HTTPErrorResponse {
+            return httpError.isOfflineError
+        } else {
+            return isOfflineErrorCode((error as NSError).code)
+        }
     }
 
     private func isOfflineErrorCode(_ code: Int) -> Bool {
@@ -337,13 +341,14 @@ public final class Parley {
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id)
         
-        imageRepository.add(image: localImage)
+        imageRepository.store(image: localImage)
         addNewMessage(message)
         
         imageRepository.upload(image: localImage) { [weak self] result in
             switch result {
             case .success(let remoteImage):
                 message.media = MediaObject(id: remoteImage.id)
+                self?.messagesManager.update(message)
                 self?.send(message, isNewMessage: false, onNext: nil)
             case .failure(let failure):
                 self?.failedToSend(message: message, error: failure)
@@ -570,6 +575,9 @@ extension Parley {
     public static func disableOfflineMessaging() {
         shared.dataSource?.clear()
         shared.dataSource = nil
+        shared.imageDataSource?.clear()
+        shared.imageDataSource = nil
+        shared.imageRepository.dataSource = nil
     }
 
     /**
@@ -774,6 +782,6 @@ extension Parley {
     }
     
     public static func setImageDataSource(_ dataSource: ParleyImageDataSource) {
-        shared.imageRepository.dataSource = dataSource
+        shared.imageDataSource = dataSource
     }
 }

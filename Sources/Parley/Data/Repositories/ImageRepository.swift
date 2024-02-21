@@ -2,30 +2,30 @@ import Foundation
 
 class ImageRepository {
     
-    enum ParleyImageRepositoryError: Error {
+    enum ImageRepositoryError: Error {
         case unableToConvertImageData
         case invalidRemoteURL
     }
     
     weak var dataSource: ParleyImageDataSource?
     private var messageRemoteService: MessageRemoteService
-    private var imageCache: [String: ParleyImageDisplayModel]
+    private var imageCache: [String: ImageDisplayModel]
     
     init(remote: ParleyRemote) {
         self.messageRemoteService = MessageRemoteService(remote: remote)
-        self.imageCache = [String: ParleyImageDisplayModel]()
+        self.imageCache = [String: ImageDisplayModel]()
     }
     
-    func add(image: ParleyLocalImage) {
-        imageCache[image.id] = .from(local: image)
+    func store(image: ParleyLocalImage) {
+        dataSource?.save(image: image)
     }
     
-    func getLocalImage(for imageId: ParleyLocalImage.ID) -> ParleyImageDisplayModel? {
+    func getLocalImage(for imageId: ParleyLocalImage.ID) -> ImageDisplayModel? {
         guard let image = dataSource?.image(id: imageId) else { return nil }
         return .from(local: image)
     }
     
-    func getImage(for imageId: String, result: @escaping ((Result<ParleyImageDisplayModel, Error>) -> Void)) {
+    func getImage(for imageId: String, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
         if let data = getLocalImage(for: imageId) {
             result(.success(data))
         } else {
@@ -33,14 +33,14 @@ class ImageRepository {
         }
     }
     
-    func getRemoteImage(for imageId: RemoteImage.ID, result: @escaping ((Result<ParleyImageDisplayModel, Error>) -> Void)) {
+    func getRemoteImage(for imageId: RemoteImage.ID, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
         if let cachedImage = imageCache[imageId] {
             result(.success(cachedImage))
             return
         }
         
         guard let mediaIdUrl = URL(string: imageId) else {
-            result(.failure(ParleyImageRepositoryError.invalidRemoteURL))
+            result(.failure(ImageRepositoryError.invalidRemoteURL))
             return
         }
         
@@ -48,8 +48,8 @@ class ImageRepository {
         messageRemoteService.findMedia(url) { [weak self] imageResult in
             do {
                 let image = try imageResult.get()
-                guard let displayModel = ParleyImageDisplayModel.from(remote: image) else {
-                    throw ParleyImageRepositoryError.unableToConvertImageData
+                guard let displayModel = ImageDisplayModel.from(remote: image) else {
+                    throw ImageRepositoryError.unableToConvertImageData
                 }
                 self?.imageCache[imageId] = displayModel
                 result(.success(displayModel))
@@ -69,7 +69,8 @@ class ImageRepository {
                 let mediaResponse = try imageResult.get()
                 let remoteImage = RemoteImage(id: mediaResponse.media, type: localImage.type)
                 
-                self?.moveCachedImage(from: localImage.id, to: remoteImage.id)
+                self?.dataSource?.delete(id: localImage.id)
+                self?.imageCache[remoteImage.id] = .from(local: localImage)
                 
                 result(.success(remoteImage))
             } catch {
@@ -80,15 +81,6 @@ class ImageRepository {
     
     func reset() {
         imageCache.removeAll()
-    }
-}
-
-private extension ImageRepository {
-    
-    func moveCachedImage(from localImageId: ParleyLocalImage.ID, to remoteImageId: RemoteImage.ID) {
-        if let image = imageCache[localImageId] {
-            imageCache[localImageId] = nil
-            imageCache[remoteImageId] = image
-        }
+        dataSource?.clear()
     }
 }

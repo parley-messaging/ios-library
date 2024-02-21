@@ -1,6 +1,6 @@
 import UIKit
 
-struct ParleyImageDisplayModel: Hashable {
+struct ImageDisplayModel: Hashable {
     let image: UIImage
     let type: ParleyImageType
     
@@ -18,10 +18,10 @@ struct ParleyImageDisplayModel: Hashable {
     }
     
     static func from(local image: ParleyLocalImage) -> Self? {
-        ParleyImageDisplayModel(data: image.data, type: image.type)
+        ImageDisplayModel(data: image.data, type: image.type)
     }
     
     static func from(remote image: ParleyImageNetworkModel) -> Self? {
-        ParleyImageDisplayModel(data: image.data, type: image.type)
+        ImageDisplayModel(data: image.data, type: image.type)
     }
 }

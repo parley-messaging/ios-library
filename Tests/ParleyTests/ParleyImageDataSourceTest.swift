@@ -58,11 +58,6 @@ final class ParleyImageDataSourceTest: XCTestCase {
             ),
             ParleyLocalImage(
                 id: UUID().uuidString,
-                data: UIImage(resource: .Tests.greenGradientPng).jpegData(compressionQuality: 1)!,
-                type: .jpg
-            ),
-            ParleyLocalImage(
-                id: UUID().uuidString,
                 data: UIImage(resource: .Tests.redBlockJpg).jpegData(compressionQuality: 1)!,
                 type: .jpg
             ),

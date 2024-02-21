@@ -119,9 +119,14 @@ class IdentifierViewController: UIViewController {
     }
     
     private func setOfflineMessagingEnabled() {
-        if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {
-            Parley.enableOfflineMessaging(dataSource)
-        }
+        guard 
+            let key = "1234567890123456".data(using: .utf8),
+            let dataSource = try? ParleyEncryptedDataSource(key: key),
+            let imageDataSource = try? ParleyEncryptedImageDataSource(key: key)
+        else { return }
+        
+        Parley.enableOfflineMessaging(dataSource)
+        Parley.setImageDataSource(imageDataSource)
     }
     
     // MARK: Actions
@@ -132,11 +137,11 @@ class IdentifierViewController: UIViewController {
     @IBAction func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-            Parley.reset(onSuccess: { [weak self] in
-                self?.startChatDemo()
-            }, onFailure: { _, _ in
-                print("Failed to reset Parley")
-            })
+//            Parley.reset(onSuccess: { [weak self] in
+                self.startChatDemo()
+//            }, onFailure: { _, _ in
+//                print("Failed to reset Parley")
+//            })
         } else {
             startChatDemo()
         }

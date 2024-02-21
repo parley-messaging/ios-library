@@ -30,40 +30,26 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
     
     public func all() -> [ParleyLocalImage] {
-        let urls = urls()
-        
-        var images = [ParleyLocalImage]()
-        images.reserveCapacity(urls.count)
-        
-        for url in urls {
-            guard 
-                let data = fileManager.contents(atPath: url.path),
-                let decryptedData = try? crypter.decrypt(data)
-            else { continue }
-            
-            var splitFilename = url.lastPathComponent.split(separator: ".")
-            let fileName = String(splitFilename.removeFirst())
-            let type = String(splitFilename.removeLast())
-            guard let imageType = ParleyImageType(rawValue: type) else { continue }
-            
-            let localImage = ParleyLocalImage(id: fileName, data: decryptedData, type: imageType)
-            images.append(localImage)
-        }
-        
-        return images
+        urls().compactMap(obtainLocalImage(from:))
     }
     
     public func image(id: ParleyLocalImage.ID) -> ParleyLocalImage? {
-        let urls = urls()
-        
+        guard let url = urls().first(where: { $0.lastPathComponent.contains(id) }) else { return nil }
+        return obtainLocalImage(from: url)
+    }
+    
+    private func obtainLocalImage(from url: URL) -> ParleyLocalImage? {
         guard
-            let url = urls.first(where: { $0.lastPathComponent.contains(id) }),
-            let data = fileManager.contents(atPath: url.path)
+            let data = fileManager.contents(atPath: url.path),
+            let decryptedData = try? crypter.decrypt(data)
         else { return nil }
         
-        guard let decryptedImageData = try? crypter.decrypt(data) else { return nil }
+        var splitFilename = url.lastPathComponent.split(separator: ".")
+        let fileName = String(splitFilename.removeFirst())
+        let type = String(splitFilename.removeLast())
+        guard let imageType = ParleyImageType(rawValue: type) else { return nil }
         
-        return ParleyLocalImage(id: id, data: decryptedImageData, type: .jpg)
+        return ParleyLocalImage(id: fileName, data: decryptedData, type: imageType)
     }
     
     public func save(images: [ParleyLocalImage]) {
