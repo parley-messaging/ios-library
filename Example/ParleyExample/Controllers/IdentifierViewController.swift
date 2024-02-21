@@ -137,11 +137,11 @@ class IdentifierViewController: UIViewController {
     @IBAction func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-//            Parley.reset(onSuccess: { [weak self] in
-                self.startChatDemo()
-//            }, onFailure: { _, _ in
-//                print("Failed to reset Parley")
-//            })
+            Parley.reset(onSuccess: { [weak self] in
+                self?.startChatDemo()
+            }, onFailure: { _, _ in
+                print("Failed to reset Parley")
+            })
         } else {
             startChatDemo()
         }
