@@ -581,27 +581,6 @@ extension Parley {
     }
 
     /**
-      Set the users Firebase Cloud Messaging token.
-
-      - Note: Method must be called before `Parley.configure(_ secret: String)`.
-
-      - Parameters:
-        - fcmToken: The Firebase Cloud Messaging token
-        - pushType: The push type (default `fcm`)
-        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-     */
-    @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
-    public static func setFcmToken(
-        _ fcmToken: String,
-        pushType: Device.PushType = .fcm,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
-    ) {
-        setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
-    }
-
-    /**
       Set the push token of the user.
 
       - Note: Method must be called before `Parley.configure(_ secret: String)`.
