@@ -69,7 +69,7 @@ class ImageRepository {
                 let mediaResponse = try imageResult.get()
                 let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
                 
-                self?.dataSource?.delete(id: localImage.id)
+                self?.move(storedImage, to: remoteImage.id)
                 self?.imageCache[remoteImage.id] = .from(stored: storedImage)
                 
                 result(.success(remoteImage))
@@ -82,5 +82,15 @@ class ImageRepository {
     func reset() {
         imageCache.removeAll()
         dataSource?.clear()
+    }
+}
+
+private extension ImageRepository {
+    
+    func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
+        if let data = dataSource?.image(id: local.id) {
+            dataSource?.delete(id: local.id)
+            dataSource?.save(image: ParleyStoredImage(id: remoteId, data: local.data, type: local.type))
+        }
     }
 }
