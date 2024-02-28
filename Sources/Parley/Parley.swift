@@ -558,7 +558,8 @@ extension Parley {
      Enable offline messaging.
 
      - Parameters:
-       - dataSource: ParleyDataSource instance
+       - messageDataSource: ParleyMessageDataSource instance
+       - keyValueDataSource: ParleyKeyValueDataSource instance
      */
     public static func enableOfflineMessaging(
         messageDataSource: ParleyMessageDataSource,
