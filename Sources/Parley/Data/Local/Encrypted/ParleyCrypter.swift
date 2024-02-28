@@ -7,7 +7,11 @@ class ParleyCrypter {
         case failedToEncrypt
     }
     
-    private let key = SymmetricKey(size: .bits256)
+    private let key: SymmetricKey
+    
+    init(key: String, size: SymmetricKeySize = .bits128) throws {
+        self.key = try SymmetricKey(key: key, size: size)
+    }
     
     func encrypt(_ data: Data) throws -> Data {
         guard let encrypted = try AES.GCM.seal(data, using: key).combined else {
