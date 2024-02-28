@@ -579,6 +579,7 @@ extension Parley {
     public static func disableOfflineMessaging() {
         shared.messageDataSource?.clear()
         shared.messageDataSource = nil
+        shared.keyValueDataSource = nil
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
         shared.imageRepository.dataSource = nil
