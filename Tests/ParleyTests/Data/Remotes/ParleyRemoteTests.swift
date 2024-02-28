@@ -6,7 +6,6 @@ final class ParleyRemoteTests: XCTestCase {
 
     private var sut: ParleyRemote!
     private var parleyNetworkSessionSpy: ParleyNetworkSessionSpy!
-    private var dataSourceMock: ParleyDataSourceMock!
     private var networkConfig: ParleyNetworkConfig!
     private var createSecretMock: (() -> String?)!
     private var createUniqueDeviceIdentifierMock: (() -> String?)!
@@ -18,7 +17,6 @@ final class ParleyRemoteTests: XCTestCase {
         parleyNetworkSessionSpy.uploadDataToMethodHeadersReturnValue = RequestCancelableStub()
         parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
 
-        dataSourceMock = ParleyDataSourceMock()
         networkConfig = ParleyNetworkConfig(
             url: "https://api.parley.nu/",
             path: "/example",
@@ -30,7 +28,6 @@ final class ParleyRemoteTests: XCTestCase {
         sut = ParleyRemote(
             networkConfig: networkConfig,
             networkSession: parleyNetworkSessionSpy,
-            dataSource: dataSourceMock,
             createSecret: createSecretMock,
             createUniqueDeviceIdentifier: createUniqueDeviceIdentifierMock,
             createUserAuthorizationToken: createUserAuthorizationTokenMock
@@ -39,7 +36,6 @@ final class ParleyRemoteTests: XCTestCase {
 
     override func tearDownWithError() throws {
         parleyNetworkSessionSpy = nil
-        dataSourceMock = nil
         createSecretMock = nil
         networkConfig = nil
         createSecretMock = nil

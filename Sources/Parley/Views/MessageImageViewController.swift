@@ -75,7 +75,7 @@ final class MessageImageViewController: UIViewController {
             dismiss(animated: true, completion: nil) ; return
         }
         
-        if let image = Parley.shared.imageRepository.getLocalImage(for: mediaId) {
+        if let image = Parley.shared.imageRepository.getStoredImage(for: mediaId) {
             imageView.image = image.image
             
             imageView.sizeToFit()

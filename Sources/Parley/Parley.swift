@@ -46,11 +46,8 @@ public final class Parley {
     private(set) var messagesManager: MessagesManager!
     private(set) var imageDataSource: ParleyImageDataSource?
     private(set) var imageRepository: ImageRepository!
-    private(set) var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)? {
-        didSet {
-            reachable ? delegate?.reachable() : delegate?.unreachable()
-        }
-    }
+    private(set) var messageDataSource: ParleyMessageDataSource?
+    private(set) var keyValueDataSource: ParleyKeyValueDataSource?
  
     private(set) var pushToken: String? = nil
     private(set) var pushType: Device.PushType? = nil
@@ -95,7 +92,6 @@ public final class Parley {
         let remote = ParleyRemote(
             networkConfig: networkConfig,
             networkSession: networkSession,
-            dataSource: self.dataSource,
             createSecret: { [weak self] in self?.secret },
             createUniqueDeviceIdentifier: { [weak self] in self?.uniqueDeviceIdentifier },
             createUserAuthorizationToken: { [weak self] in self?.userAuthorization }
@@ -104,7 +100,7 @@ public final class Parley {
         self.deviceRepository = DeviceRepository(remote: remote)
         self.eventRemoteService = EventRemoteService(remote: remote)
         self.messageRepository = MessageRepository(remote: remote)
-        self.messagesManager = MessagesManager(dataSource: self.dataSource)
+        self.messagesManager = MessagesManager(messageDataSource: messageDataSource, keyValueDataSource: keyValueDataSource)
         self.remote = remote
         self.imageRepository = ImageRepository(remote: remote)
         self.imageRepository.dataSource = imageDataSource
@@ -179,8 +175,8 @@ public final class Parley {
         self.isLoading = true
 
         if self.isCachingEnabled() {
-            self.dataSource?.set(self.secret, forKey: kParleyCacheKeySecret)
-            self.dataSource?.set(self.userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
+            self.keyValueDataSource?.set(self.secret, forKey: kParleyCacheKeySecret)
+            self.keyValueDataSource?.set(self.userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
 
             if self.state == .unconfigured {
                 self.messagesManager.loadCachedData()
@@ -269,11 +265,11 @@ public final class Parley {
     // MARK: Caching
 
     func isCachingEnabled() -> Bool {
-        return self.dataSource != nil
+        return self.messageDataSource != nil
     }
 
     private func clearCacheWhenNeeded(secret: String) {
-        if let cachedSecret = self.dataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
+        if let cachedSecret = self.keyValueDataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
             return
         } else if let currentSecret = self.secret, currentSecret == secret {
             return
@@ -285,7 +281,8 @@ public final class Parley {
 
     private func clearMessages() {
         messagesManager.clear()
-        dataSource?.clear()
+        messageDataSource?.clear()
+        keyValueDataSource?.clear() // MARK: ??
         delegate?.didReceiveMessages()
     }
 
@@ -563,8 +560,14 @@ extension Parley {
      - Parameters:
        - dataSource: ParleyDataSource instance
      */
-    public static func enableOfflineMessaging(_ dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)) {
-        shared.dataSource = dataSource
+    public static func enableOfflineMessaging(
+        messageDataSource: ParleyMessageDataSource,
+        keyValueDataSource: ParleyKeyValueDataSource
+    ) {
+        shared.messageDataSource = messageDataSource
+        shared.keyValueDataSource = keyValueDataSource
+        
+        shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
 
     /**
@@ -573,11 +576,13 @@ extension Parley {
      - Note: The `clear()` method will be called on the current instance to prevent unused data on the device.
      */
     public static func disableOfflineMessaging() {
-        shared.dataSource?.clear()
-        shared.dataSource = nil
+        shared.messageDataSource?.clear()
+        shared.messageDataSource = nil
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
         shared.imageRepository.dataSource = nil
+        
+        shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
 
     /**

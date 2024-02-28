@@ -200,7 +200,7 @@ final class ParleyMessageView: UIView {
             return
         }
         
-        if let image = Parley.shared.imageRepository.getLocalImage(for: mediaId) {
+        if let image = Parley.shared.imageRepository.getStoredImage(for: mediaId) {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
