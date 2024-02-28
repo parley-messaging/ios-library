@@ -113,7 +113,7 @@ final class MessageImageViewController: UIViewController {
     }
     
     private func setupActivityIndicatorView() {
-        self.activityIndicatorView.style = .white
+        self.activityIndicatorView.style = .medium
         self.activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(self.activityIndicatorView)

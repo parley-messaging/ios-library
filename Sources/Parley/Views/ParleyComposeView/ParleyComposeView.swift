@@ -338,7 +338,7 @@ extension ParleyComposeView: UITextViewDelegate {
 extension ParleyComposeView: KeyboardAccessoryViewDelegate {
     
     func keyboardFrameChanged(_ frame: CGRect) {
-        if let keyWindow = UIApplication.shared.keyWindow {
+        if let keyWindow = UIApplication.shared.windows.first(where: \.isKeyWindow) {
             let yFromBottom = keyWindow.bounds.height - self.convert(keyWindow.frame, to: nil).origin.y - self.frame.size.height
             
             let bottom = keyWindow.bounds.height - frame.origin.y - yFromBottom
