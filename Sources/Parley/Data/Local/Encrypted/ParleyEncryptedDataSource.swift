@@ -6,9 +6,8 @@ public class ParleyEncryptedDataSource: ParleyDataSource {
     private let crypter: ParleyCrypter
     private let destination: URL
     
-    public init (key: Data) throws {
+    public init(key: Data) throws {
         self.crypter = try ParleyCrypter(key: key)
-        
         self.destination = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(kParleyCacheDirectory)
         try? FileManager.default.createDirectory(at: self.destination, withIntermediateDirectories: true, attributes: nil)
     }
@@ -97,41 +96,15 @@ extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
 extension ParleyEncryptedDataSource: ParleyMessageDataSource {
     
     public func all() -> [Message]? {
-        guard let jsonData = self.data(forKey: kParleyCacheKeyMessages),
-              let messages = try? CodableHelper.shared.decode([Message].self, from: jsonData)
-        else {
-            return nil
-        }
-
-        messages.forEach { message in
-            if message.type == .user, message.status == .pending, let uuid = message.uuid, let imageData = self.data(forKey: uuid), let imageUrl = message.imageURL {
-                message.imageData = imageData
-                
-                switch ParleyImageType.map(from: imageUrl) {
-                case .gif:
-                    message.image = UIImage.gif(data: imageData)
-                default:
-                    message.image = UIImage(data: imageData)
-                }
-            }
-        }
-
+        guard 
+            let jsonData = self.data(forKey: kParleyCacheKeyMessages),
+            let messages = try? CodableHelper.shared.decode([Message].self, from: jsonData)
+        else { return nil }
         return messages
     }
     
     public func save(_ messages: [Message]) {
-        messages.forEach { message in
-            if let uuid = message.uuid, message.type == .user, message.imageURL != nil {
-                if message.status == .pending, let imageData = message.imageData {
-                    self.set(imageData, forKey: uuid)
-                } else {
-                    self.removeObject(forKey: uuid)
-                }
-            }
-        }
-        
         let messages = try? CodableHelper.shared.toJSONString(messages)
-        
         self.set(messages, forKey: kParleyCacheKeyMessages)
     }
     

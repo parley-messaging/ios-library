@@ -5,7 +5,7 @@ final class ParleyRemote {
 
     let networkSession: ParleyNetworkSession
     private var networkConfig: ParleyNetworkConfig
-    private weak var dataSource: ParleyDataSource?
+    private weak var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?
     private let createSecret: () -> String?
     private let createUniqueDeviceIdentifier: () -> String?
     private let createUserAuthorizationToken: () -> String?
@@ -15,7 +15,7 @@ final class ParleyRemote {
     init(
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession,
-        dataSource: ParleyDataSource?,
+        dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?,
         createSecret: @escaping () -> String?,
         createUniqueDeviceIdentifier: @escaping () -> String?,
         createUserAuthorizationToken: @escaping () -> String?
@@ -179,7 +179,7 @@ final class ParleyRemote {
     }
 
     private func handleResult<T: Codable>(
-        result: Result<HTTPDataResponse, Error>,
+        result: Result<HTTPDataResponse, HTTPErrorResponse>,
         keyPath: ParleyResponseKeyPath?,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
@@ -205,93 +205,39 @@ final class ParleyRemote {
 
     // MARK: - Image
 
-    let imageCache = NSCache<NSString, UIImage>()
-
     @discardableResult
     func execute(
         _ method: HTTPRequestMethod,
         path: String,
         parameters: [String: Any]? = nil,
-        onSuccess: @escaping (_ image: UIImage) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        result: @escaping (Result<ParleyImageNetworkModel, Error>) -> ()
     ) -> RequestCancelable? {
         let url = getUrl(path)
-
-        if let image = getImageFromCache(url.absoluteString) {
-            onSuccess(image)
-            return nil
-        }
-
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
 
-        let request = networkSession.requestImage(
-            url,
-            method: method,
-            parameters: parameters,
-            headers: createHeaders()
-        ) { result in
-            switch result {
+        let request = networkSession.request(url, method: .get, parameters: parameters, headers: createHeaders(), completion: { requestResult in
+            switch requestResult {
             case .success(let response):
-                do {
-                    let validatedResponse = try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
-                    if
-                        let contentType: String = validatedResponse
-                            .headers[HTTPHeaders.contentType.rawValue],
-                        contentType.contains(ParleyImageType.gif.mimeType), let data = response.body,
-                        let image = UIImage.gif(data: data)
-                    {
-                        self.setImage(url, image: image, data: data, isGif: true)
-
-                        onSuccess(image)
-                    } else if let data = response.body {
-                        self.setImage(url, image: response.image, data: data)
-                        onSuccess(response.image)
-                    }
-                } catch {
-                    if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
-                        onFailure(apiError)
-                    } else {
-                        onFailure(error)
-                    }
+                if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
+                    result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
+                } else if let data = response.body {
+                    result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
                 }
-            case .failure(let failure):
-                onFailure(failure)
+            case .failure(let error):
+                if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
+                    result(.failure(apiError))
+                } else {
+                    result(.failure(error))
+                }
             }
-        }
-
+        })
+        
         return request
     }
-
-    private func getImageFromCache(_ url: String) -> UIImage? {
-        guard
-            let key = url.data(using: .utf8)?.base64EncodedString(),
-            let gifKey = "\(url)\(ParleyImageType.gif.fileExtension)".data(using: .utf8)?.base64EncodedString() else
-        {
-            return nil
-        }
-
-        if let image = imageCache.object(forKey: key as NSString) {
-            return image
-        } else if let image = imageCache.object(forKey: gifKey as NSString) {
-            return image
-        }
-
-        if let data = dataSource?.data(forKey: key), let image = UIImage(data: data) {
-            return image
-        } else if let data = dataSource?.data(forKey: gifKey), let image = UIImage.gif(data: data) {
-            return image
-        }
-
-        return nil
-    }
-
-    private func setImage(_ url: URL, image: UIImage, data: Data, isGif: Bool = false) {
-        let suffix = isGif ? ParleyImageType.gif.fileExtension : ""
-        guard let key = "\(url.absoluteString)\(suffix)".data(using: .utf8)?.base64EncodedString() else { return }
-
-        imageCache.setObject(image, forKey: key as NSString)
-
-        dataSource?.set(data, forKey: key)
+    
+    static func responseContains(_ response: HTTPDataResponse, contentType: String) -> Bool {
+        guard let contentType = response.headers["Content-Type"] else { return false }
+        return contentType.contains(contentType)
     }
 
     private static func decodeBackendError(responseData: Data) -> ParleyErrorResponse? {

@@ -17,7 +17,6 @@ final class ParleyRemoteTests: XCTestCase {
         parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionReturnValue = RequestCancelableStub()
         parleyNetworkSessionSpy.uploadDataToMethodHeadersReturnValue = RequestCancelableStub()
         parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
-        parleyNetworkSessionSpy.requestImageMethodParametersHeadersCompletionReturnValue = RequestCancelableStub()
 
         dataSourceMock = ParleyDataSourceMock()
         networkConfig = ParleyNetworkConfig(
@@ -168,28 +167,6 @@ final class ParleyRemoteTests: XCTestCase {
         XCTAssertTrue(resultCalled)
     }
     
-    func testExecuteImageData() throws {
-        var onSuccessCalled = false
-        var onFailureCalled = false
-
-        sut.execute(
-            .get,
-            path: "image/path.png",
-            onSuccess: { (_: UIImage) in
-                onSuccessCalled = true
-            },
-            onFailure: { (_: Error) in
-                onFailureCalled = true
-            }
-        )
-
-        callRequestImageCompletion(response: ParleyResponse(data: [MediaResponse(media: "test")]))
-
-        wait { self.parleyNetworkSessionSpy.requestImageMethodParametersHeadersCompletionCalled }
-        XCTAssertTrue(onSuccessCalled)
-        XCTAssertFalse(onFailureCalled)
-    }
-
     // MARK: - MultipartFormData
 
     private func callRequestCompletion(response: Encodable) throws {
@@ -200,16 +177,6 @@ final class ParleyRemoteTests: XCTestCase {
     private func callUploadCompletion(response: Encodable) throws {
         let arguments = parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReceivedArguments
         try arguments?.completion(.success(createResponse(body: CodableHelper.shared.encode(response))))
-    }
-
-    private func callRequestImageCompletion(response: Encodable) {
-        let arguments = parleyNetworkSessionSpy.requestImageMethodParametersHeadersCompletionReceivedArguments
-        arguments?.completion(.success(HTTPImageResponse(
-            body: Data(),
-            image: UIImage(),
-            statusCode: 200,
-            headers: [:]
-        )))
     }
 
     private func createResponse(

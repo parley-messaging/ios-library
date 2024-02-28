@@ -30,17 +30,4 @@ final class MessageRepository {
     func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.store(message, onSuccess: onSuccess, onFailure: onFailure)
     }
-    
-    func upload(imageData: Data, imageType: ParleyImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
-        messageRemoteService.upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: completion)
-    }
-    
-    @available(*, deprecated)
-    @discardableResult func findImage(_ messageId: Int, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancelable? {
-        messageRemoteService.findImage(messageId, onSuccess: onSuccess, onFailure: onFailure)
-    }
-    
-    @discardableResult func find(media: String, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> RequestCancelable? {
-        messageRemoteService.findMedia(media, onSuccess: onSuccess, onFailure: onFailure)
-    }
 }

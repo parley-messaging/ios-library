@@ -1,4 +1,4 @@
-public protocol ParleyMessageDataSource: AnyObject {
+public protocol ParleyMessageDataSource: AnyObject, ParleyDataSource {
 
     func all() -> [Message]?
 

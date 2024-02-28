@@ -71,9 +71,12 @@ final class MessageImageViewController: UIViewController {
     
     private func setupImageView() {
         scrollView.addSubview(imageView)
+        guard let mediaId = message?.media?.id else { 
+            dismiss(animated: true, completion: nil) ; return
+        }
         
-        if let image = message?.image {
-            imageView.image = image
+        if let image = Parley.shared.imageRepository.getLocalImage(for: mediaId) {
+            imageView.image = image.image
             
             imageView.sizeToFit()
             imageView.isAccessibilityElement = true
@@ -81,13 +84,12 @@ final class MessageImageViewController: UIViewController {
             
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
-        } else if let id = message?.id {
+        } else {
             activityIndicatorView.isHidden = false
             activityIndicatorView.startAnimating()
             
             func onFindImageSuccess(image: UIImage) {
                 imageView.image = image
-                
                 imageView.sizeToFit()
                 adjustContentInset()
                 
@@ -99,16 +101,14 @@ final class MessageImageViewController: UIViewController {
                 dismiss(animated: true, completion: nil)
             }
             
-            if let media = message?.media, let mediaIdUrl = URL(string: media.id) {
-                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                messageRepository
-                    .find(media: url, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
-            } else {
-                messageRepository
-                    .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
+            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { result in
+                switch result {
+                case .success(let displayModel):
+                    onFindImageSuccess(image: displayModel.image)
+                case .failure(let error):
+                    onFindImageError(error: error)
+                }
             }
-        } else {
-            dismiss(animated: true, completion: nil)
         }
     }
     

@@ -108,7 +108,6 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var findImageRequest: RequestCancelable?
     private var messageRepository: MessageRepository = Parley.shared.messageRepository
     
     // Helpers
@@ -189,21 +188,31 @@ final class ParleyMessageView: UIView {
             imageImageView.corners = [.allCorners]
         }
         
-        if let image = message.image {
+        guard let mediaId = message?.media?.id else {
+            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
+            imageHolderView.isHidden = true
+            
+            imageImageView.image = nil
+            
+            imageActivityIndicatorView.isHidden = true
+            imageActivityIndicatorView.stopAnimating()
+            
+            return
+        }
+        
+        if let image = Parley.shared.imageRepository.getLocalImage(for: mediaId) {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
-            imageImageView.image = image
+            imageImageView.image = image.image
             
             imageActivityIndicatorView.isHidden = true
             imageActivityIndicatorView.stopAnimating()
             
             renderGradients()
-        } else if message.hasMedium {
+        } else {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
-            
-            findImageRequest?.cancelRequest()
             
             imageActivityIndicatorView.isHidden = false
             imageActivityIndicatorView.startAnimating()
@@ -226,22 +235,20 @@ final class ParleyMessageView: UIView {
                 renderGradients()
             }
             
-            if let media = message.media, let mediaIdUrl = URL(string: media.id) {
-                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                findImageRequest = messageRepository.find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else if let id = message.id {
-                findImageRequest = messageRepository.findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else {
-                print("Failed to render image for message \(message.id)")
+            let imageRequestForMessageId = message.id
+            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { [weak self] result in
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == self?.message?.id else { return }
+                
+                switch result {
+                case .success(let displayModel):
+                    onFindSuccess(image: displayModel.image)
+                case .failure(let error):
+                    onFindError(error: error)
+                }
             }
-        } else {
-            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
-            imageHolderView.isHidden = true
-            
-            imageImageView.image = nil
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
         }
     }
     
