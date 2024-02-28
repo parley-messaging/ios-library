@@ -5,17 +5,19 @@ public class ParleyEncryptedDataSource: ParleyDataSource {
     
     private let crypter: ParleyCrypter
     private let destination: URL
+    private let fileManager: FileManager
     
-    public init(key: Data) throws {
+    public init(key: String) throws {
         self.crypter = try ParleyCrypter(key: key)
-        self.destination = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(kParleyCacheDirectory)
-        try? FileManager.default.createDirectory(at: self.destination, withIntermediateDirectories: true, attributes: nil)
+        self.fileManager = FileManager.default
+        self.destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheDirectory)
+        try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
     }
     
     @discardableResult public func clear() -> Bool {
         do {
-            try FileManager.default.removeItem(at: self.destination)
-            try FileManager.default.createDirectory(at: self.destination, withIntermediateDirectories: true, attributes: nil)
+            try fileManager.removeItem(at: self.destination)
+            try fileManager.createDirectory(at: self.destination, withIntermediateDirectories: true, attributes: nil)
             
             return true
         } catch {
@@ -84,7 +86,7 @@ extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
         let destination = self.destination(forKey: key)
         
         do {
-            try FileManager.default.removeItem(at: destination)
+            try fileManager.removeItem(at: destination)
             
             return true
         } catch {
@@ -96,11 +98,8 @@ extension ParleyEncryptedDataSource: ParleyKeyValueDataSource {
 extension ParleyEncryptedDataSource: ParleyMessageDataSource {
     
     public func all() -> [Message]? {
-        guard 
-            let jsonData = self.data(forKey: kParleyCacheKeyMessages),
-            let messages = try? CodableHelper.shared.decode([Message].self, from: jsonData)
-        else { return nil }
-        return messages
+        guard  let jsonData = self.data(forKey: kParleyCacheKeyMessages) else { return nil }
+        return try? CodableHelper.shared.decode([Message].self, from: jsonData)
     }
     
     public func save(_ messages: [Message]) {
