@@ -118,15 +118,9 @@ class IdentifierViewController: UIViewController {
         Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
-    private func setOfflineMessagingEnabled() {
-        guard 
-            let key = "1234567890123456".data(using: .utf8),
-            let dataSource = try? ParleyEncryptedDataSource(key: key),
-            let imageDataSource = try? ParleyEncryptedImageDataSource(key: key)
-        else { return }
-        
-        Parley.enableOfflineMessaging(dataSource)
-        Parley.setImageDataSource(imageDataSource)
+    private func setOfflineMessagingEnabled() {        
+        Parley.enableOfflineMessaging(ParleyEncryptedDataSource())
+        Parley.setImageDataSource(ParleyEncryptedImageDataSource())
     }
     
     // MARK: Actions

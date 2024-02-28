@@ -12,8 +12,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
     }
     
     private lazy var dataSource: ParleyImageDataSource = {
-        let key = "6543210987654321".data(using: .utf8)!
-        return try! ParleyEncryptedImageDataSource(key: key)
+        return try! ParleyEncryptedImageDataSource()
     }()
     
     override func setUp() {

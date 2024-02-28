@@ -6,8 +6,8 @@ public class ParleyEncryptedImageDataSource {
     private let destination: URL
     private let fileManager: FileManager
     
-    public init (key: Data) throws {
-        self.crypter = try ParleyCrypter(key: key)
+    public init() throws {
+        self.crypter = ParleyCrypter()
         self.fileManager = .default
         self.destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheImagesDirectory)
         try? fileManager.createDirectory(at: destination, withIntermediateDirectories: true, attributes: nil)

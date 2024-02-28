@@ -6,8 +6,8 @@ public class ParleyEncryptedDataSource: ParleyDataSource {
     private let crypter: ParleyCrypter
     private let destination: URL
     
-    public init(key: Data) throws {
-        self.crypter = try ParleyCrypter(key: key)
+    public init() {
+        self.crypter = ParleyCrypter()
         self.destination = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(kParleyCacheDirectory)
         try? FileManager.default.createDirectory(at: self.destination, withIntermediateDirectories: true, attributes: nil)
     }
