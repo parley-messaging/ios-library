@@ -12,7 +12,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
     }
     
     private lazy var dataSource: ParleyImageDataSource = {
-        return try! ParleyEncryptedImageDataSource()
+        return try! ParleyEncryptedImageDataSource(key: "6543210987654321")
     }()
     
     override func setUp() {
@@ -34,7 +34,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
             XCTFail("Should exist") ; return
         }
         
-        let localImage = ParleyLocalImage(id: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(id: UUID().uuidString, data: imageData, type: .jpg)
         dataSource.save(image: localImage)
         
         guard let fetchedImage = dataSource.image(id: localImage.id) else {
@@ -50,12 +50,12 @@ final class ParleyImageDataSourceTest: XCTestCase {
     
     func testDataSource_shouldSaveArrayOfImages() {
         let images = [
-            ParleyLocalImage(
+            ParleyStoredImage(
                 id: UUID().uuidString,
                 data: UIImage(resource: .Tests.blueGradientPng).pngData()!,
                 type: .png
             ),
-            ParleyLocalImage(
+            ParleyStoredImage(
                 id: UUID().uuidString,
                 data: UIImage(resource: .Tests.redBlockJpg).jpegData(compressionQuality: 1)!,
                 type: .jpg
@@ -70,7 +70,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
     
     func testDataSource_shouldDeleteImage_AfterSavingImage() throws {
         let imageData = testImageData!
-        let localImage = ParleyLocalImage(id: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(id: UUID().uuidString, data: imageData, type: .jpg)
         dataSource.save(image: localImage)
         
         XCTAssertTrue(dataSource.delete(id: localImage.id))
