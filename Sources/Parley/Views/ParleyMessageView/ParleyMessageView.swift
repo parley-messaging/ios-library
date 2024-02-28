@@ -108,7 +108,6 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var findImageRequest: RequestCancelable?
     private var messageRepository: MessageRepository = Parley.shared.messageRepository
     
     // Helpers
@@ -215,8 +214,6 @@ final class ParleyMessageView: UIView {
             imageMinimumWidthConstraint.constant = Self.maximumImageWidth
             imageHolderView.isHidden = false
             
-            findImageRequest?.cancelRequest()
-            
             imageActivityIndicatorView.isHidden = false
             imageActivityIndicatorView.startAnimating()
             
@@ -238,7 +235,13 @@ final class ParleyMessageView: UIView {
                 renderGradients()
             }
             
-            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { result in
+            let imageRequestForMessageId = message.id
+            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { [weak self] result in
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == self?.message?.id else { return }
+                
                 switch result {
                 case .success(let displayModel):
                     onFindSuccess(image: displayModel.image)
