@@ -539,11 +539,12 @@ extension Parley {
             return false
         }
 
-        guard let data = (userInfo["parley"] as? String)?.data(using: .utf8) else { return false }
-
-        guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else { return false }
-        guard let messageType = json["type"] as? String else { return false }
-        guard let object = json["object"] as? [String: Any] else { return false }
+        guard 
+            let data = (userInfo["parley"] as? String)?.data(using: .utf8),
+            let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+            let messageType = json["type"] as? String,
+            let object = json["object"] as? [String: Any]
+        else { return false }
 
         switch messageType {
         case kParleyTypeMessage:
