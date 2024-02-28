@@ -238,7 +238,7 @@ Parley.clearUserInformation()
 
 ### Offline messaging
 
-Offline messaging can be enabled with the `Parley.enableOfflineMessaging(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES128 encryption.
+Offline messaging can be enabled with the `Parley.enableOfflineMessaging(_ dataSource: ParleyDataSource)` method. `ParleyDataSource` is a protocol that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES256 encryption.
 
 ```swift
 if let key = "1234567890123456".data(using: .utf8), let dataSource = try? ParleyEncryptedDataSource(key: key) {
