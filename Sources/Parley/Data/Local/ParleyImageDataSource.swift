@@ -2,13 +2,13 @@ import Foundation
 
 public protocol ParleyImageDataSource: AnyObject, ParleyDataSource {
 
-    func all() -> [ParleyLocalImage]
+    func all() -> [ParleyStoredImage]
     
-    func image(id: ParleyLocalImage.ID) -> ParleyLocalImage?
+    func image(id: ParleyStoredImage.ID) -> ParleyStoredImage?
 
-    func save(images: [ParleyLocalImage])
+    func save(images: [ParleyStoredImage])
 
-    func save(image: ParleyLocalImage)
+    func save(image: ParleyStoredImage)
     
-    func delete(id: ParleyLocalImage.ID) -> Bool
+    func delete(id: ParleyStoredImage.ID) -> Bool
 }

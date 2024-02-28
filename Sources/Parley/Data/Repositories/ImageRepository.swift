@@ -16,13 +16,13 @@ class ImageRepository {
         self.imageCache = [String: ImageDisplayModel]()
     }
     
-    func store(image: ParleyLocalImage) {
+    func store(image: ParleyStoredImage) {
         dataSource?.save(image: image)
     }
     
-    func getLocalImage(for imageId: ParleyLocalImage.ID) -> ImageDisplayModel? {
+    func getLocalImage(for imageId: ParleyStoredImage.ID) -> ImageDisplayModel? {
         guard let image = dataSource?.image(id: imageId) else { return nil }
-        return .from(local: image)
+        return .from(stored: image)
     }
     
     func getImage(for imageId: String, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
@@ -59,18 +59,18 @@ class ImageRepository {
         }
     }
     
-    func upload(image localImage: ParleyLocalImage, result: @escaping (Result<RemoteImage, Error>) -> Void) {
+    func upload(image storedImage: ParleyStoredImage, result: @escaping (Result<RemoteImage, Error>) -> Void) {
         messageRemoteService.upload(
-            imageData: localImage.data,
-            imageType: localImage.type,
-            fileName: localImage.filename
+            imageData: storedImage.data,
+            imageType: storedImage.type,
+            fileName: storedImage.filename
         ) { [weak self] imageResult in
             do {
                 let mediaResponse = try imageResult.get()
-                let remoteImage = RemoteImage(id: mediaResponse.media, type: localImage.type)
+                let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
                 
                 self?.dataSource?.delete(id: localImage.id)
-                self?.imageCache[remoteImage.id] = .from(local: localImage)
+                self?.imageCache[remoteImage.id] = .from(stored: storedImage)
                 
                 result(.success(remoteImage))
             } catch {

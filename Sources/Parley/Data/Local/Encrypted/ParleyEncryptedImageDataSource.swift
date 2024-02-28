@@ -28,16 +28,16 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
         }
     }
     
-    public func all() -> [ParleyLocalImage] {
+    public func all() -> [ParleyStoredImage] {
         urls().compactMap(obtainLocalImage(from:))
     }
     
-    public func image(id: ParleyLocalImage.ID) -> ParleyLocalImage? {
+    public func image(id: ParleyStoredImage.ID) -> ParleyStoredImage? {
         guard let url = urls().first(where: { $0.lastPathComponent.contains(id) }) else { return nil }
         return obtainLocalImage(from: url)
     }
     
-    private func obtainLocalImage(from url: URL) -> ParleyLocalImage? {
+    private func obtainLocalImage(from url: URL) -> ParleyStoredImage? {
         guard
             let data = fileManager.contents(atPath: url.path),
             let decryptedData = try? crypter.decrypt(data)
@@ -48,16 +48,16 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
         let type = String(splitFilename.removeLast())
         guard let imageType = ParleyImageType(rawValue: type) else { return nil }
         
-        return ParleyLocalImage(id: fileName, data: decryptedData, type: imageType)
+        return ParleyStoredImage(id: fileName, data: decryptedData, type: imageType)
     }
     
-    public func save(images: [ParleyLocalImage]) {
+    public func save(images: [ParleyStoredImage]) {
         for image in images {
             save(image: image)
         }
     }
     
-    public func save(image: ParleyLocalImage) {
+    public func save(image: ParleyStoredImage) {
         let path = [image.id, image.type.fileExtension].joined()
         let absoluteURL = destination.appendingPathComponent(path)
         
@@ -66,7 +66,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
         }
     }
     
-    public func delete(id: ParleyLocalImage.ID) -> Bool {
+    public func delete(id: ParleyStoredImage.ID) -> Bool {
         guard let url = urls().first(where: { $0.lastPathComponent.contains(id) }) else {
             return false
         }

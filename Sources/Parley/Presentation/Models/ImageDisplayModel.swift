@@ -17,7 +17,7 @@ struct ImageDisplayModel: Hashable {
         }
     }
     
-    static func from(local image: ParleyLocalImage) -> Self? {
+    static func from(stored image: ParleyStoredImage) -> Self? {
         ImageDisplayModel(data: image.data, type: image.type)
     }
     

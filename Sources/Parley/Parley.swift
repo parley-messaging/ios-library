@@ -337,7 +337,7 @@ public final class Parley {
     }
     
     internal func upload(media: MediaModel, displayedImage: UIImage?) {
-        let localImage = ParleyLocalImage.from(media: media)
+        let localImage = ParleyStoredImage.from(media: media)
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id)
         
