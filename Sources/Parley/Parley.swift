@@ -246,7 +246,7 @@ public final class Parley {
     }
     
     private func clearChat() {
-        clearMessages()
+        clearMessagesAndDataSources()
         state = .unconfigured
     }
 
@@ -275,14 +275,13 @@ public final class Parley {
             return
         }
         
-        self.clearMessages()
+        clearMessagesAndDataSources()
     }
     
-
-    private func clearMessages() {
+    private func clearMessagesAndDataSources() {
         messagesManager.clear()
         messageDataSource?.clear()
-        keyValueDataSource?.clear() // MARK: ??
+        keyValueDataSource?.clear()
         delegate?.didReceiveMessages()
     }
 
