@@ -135,7 +135,7 @@ final class MessageImageViewController: UIViewController {
     private func addDismissButton() {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        let image = UIImage(named: "ic_close", in: .current, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
+        let image = UIImage(named: "ic_close", in: .module, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
         button.setImage(image, for: .normal)
         button.tintColor = .white
         button.isAccessibilityElement = true

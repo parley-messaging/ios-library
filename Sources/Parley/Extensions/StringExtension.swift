@@ -34,6 +34,6 @@ extension String {
     }
     
     var localized: String {
-        NSLocalizedString(self, bundle: Bundle.current, comment: "")
+        NSLocalizedString(self, bundle: .module, comment: "")
     }
 }
