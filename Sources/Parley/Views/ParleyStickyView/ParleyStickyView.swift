@@ -48,7 +48,7 @@ final class ParleyStickyView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyStickyView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyStickyView", owner: self, options: nil)
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)

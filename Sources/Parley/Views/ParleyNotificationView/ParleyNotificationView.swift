@@ -42,7 +42,7 @@ final class ParleyNotificationView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyNotificationView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyNotificationView", owner: self, options: nil)
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)

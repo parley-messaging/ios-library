@@ -8,7 +8,7 @@ final class MessageTableViewCell: UITableViewCell {
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: Bundle.current)
+            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: .module)
             self.collectionView.register(messageCollectionViewCell, forCellWithReuseIdentifier: "MessageCollectionViewCell")
             
             self.collectionView.dataSource = self

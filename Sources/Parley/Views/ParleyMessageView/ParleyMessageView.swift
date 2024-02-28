@@ -149,7 +149,7 @@ final class ParleyMessageView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyMessageView", owner: self, options: nil)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -320,14 +320,14 @@ final class ParleyMessageView: UIView {
             
             switch message.status {
             case .failed:
-                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .pending:
-                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .success:
-                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             }
         } else {
             imageMetaStatusImageView.isHidden = true

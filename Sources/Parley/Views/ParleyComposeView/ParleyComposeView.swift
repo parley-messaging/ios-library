@@ -134,7 +134,7 @@ public class ParleyComposeView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyComposeView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyComposeView", owner: self, options: nil)
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)

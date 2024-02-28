@@ -121,7 +121,7 @@ public class ParleyView: UIView {
     }
 
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyView", owner: self, options: nil)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -175,7 +175,7 @@ public class ParleyView: UIView {
     }
 
     private func registerNibCell(_ nibName: String) {
-        let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
+        let tableViewCellNib = UINib(nibName: nibName, bundle: .module)
         messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
     
