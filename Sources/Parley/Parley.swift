@@ -559,13 +559,16 @@ extension Parley {
      - Parameters:
        - messageDataSource: ParleyMessageDataSource instance
        - keyValueDataSource: ParleyKeyValueDataSource instance
+       - imageDataSource: ParleyImageDataSource instance
      */
     public static func enableOfflineMessaging(
         messageDataSource: ParleyMessageDataSource,
-        keyValueDataSource: ParleyKeyValueDataSource
+        keyValueDataSource: ParleyKeyValueDataSource,
+        imageDataSource: ParleyImageDataSource
     ) {
         shared.messageDataSource = messageDataSource
         shared.keyValueDataSource = keyValueDataSource
+        shared.imageDataSource = imageDataSource
         
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
@@ -785,9 +788,5 @@ extension Parley {
      */
     public static func setReferrer(_ referrer: String) {
         shared.referrer = referrer
-    }
-    
-    public static func setImageDataSource(_ dataSource: ParleyImageDataSource) {
-        shared.imageDataSource = dataSource
     }
 }
