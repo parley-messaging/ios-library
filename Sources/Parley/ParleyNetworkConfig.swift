@@ -4,7 +4,7 @@ public struct ParleyNetworkConfig {
     public let url: String
     package let path: String
     package let headers: [String: String]
-    package var apiVersion: ApiVersion = .v1_6
+    package var apiVersion: ApiVersion
 
     package var absoluteURL: URL {
         guard var url = URL(string: url) else {
@@ -18,9 +18,10 @@ public struct ParleyNetworkConfig {
         url = kParleyNetworkUrl
         path = kParleyNetworkPath
         headers = [:]
+        apiVersion = .v1_7
     }
 
-    public init(url: String, path: String, apiVersion: ApiVersion = .v1_6, headers: [String:String] = [:]) {
+    public init(url: String, path: String, apiVersion: ApiVersion, headers: [String:String] = [:]) {
         self.url = url
         self.path = path
         self.apiVersion = apiVersion
