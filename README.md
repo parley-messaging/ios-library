@@ -238,13 +238,26 @@ Parley.clearUserInformation()
 
 ### Offline messaging
 
-Both `ParleyMessageDataSource`, `ParleyKeyValueDataSource` are protocols that can be used to create your own (secure) data source. In addition to this, Parley provides an encrypted data source called `ParleyEncryptedDataSource` which uses AES128 encryption.
+To enable offline messaging, you will have to provide the `ParleyMessageDataSource`, `ParleyKeyValueDataSource` and `ParleyImageDataSource` datasources. These are interfaces you can implement yourself, or use Parley's implementations.
+
+Parley provides AES Encrypted implementations, you will have to construct the `ParleyCrypter` with a key, you are free to specify the key size yourself.
+Then you can construct each of the dataSources with the `ParleyCrypter`. Optionally, you can specify the `FileManager` and `Directory` for each datasource.
+When specifying the directory, it is highly recommended to have different directories for each datasource, not doing so would result in two or more datasources working in the same directory, this could cause overwritten or deleted files.
+
 
 ```swift
 do {
     let key = "1234567890123456"
-    Parley.enableOfflineMessaging(try ParleyEncryptedDataSource(key: key))
-    Parley.setImageDataSource(try ParleyEncryptedImageDataSource(key: key))
+    let crypter = try ParleyCrypter(key: key, size: .bits128)
+    let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(crypter: crypter, directory: .default, fileManager: .default)
+    let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(crypter: crypter, directory: .default, fileManager: .default)
+    let imageDataSource = try ParleyEncryptedImageDataSource(crypter: crypter, directory: .default, fileManager: .default)
+    
+    Parley.enableOfflineMessaging(
+        messageDataSource: parleyMessageDataSource,
+        keyValueDataSource: parleyKeyValueDataSource,
+        imageDataSource: imageDataSource
+    )
 } catch {
     print(error)
 }

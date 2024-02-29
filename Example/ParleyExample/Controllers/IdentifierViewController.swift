@@ -5,7 +5,8 @@ import Firebase
 
 class IdentifierViewController: UIViewController {
 
-    private static let kOfflineMessagingEnabled = true // Disable offline messaging in the demo app to show error messages as an alert before opening the chat
+    /// Disable offline messaging in the demo app to show error messages as an alert before opening the chat
+    private static let kOfflineMessagingEnabled = true
 
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
@@ -61,7 +62,7 @@ class IdentifierViewController: UIViewController {
         return .lightContent
     }
     
-    /// Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret` can change, which is the case for this demo app. Single app implementations don't need to reset Parley before configuring.
+    /// > Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret` can change, which is the case for this demo app. Single app implementations don't need to reset Parley before configuring.
     private var alreadyConfiguredParley = false
     
     // MARK: Lifecycle
@@ -121,8 +122,16 @@ class IdentifierViewController: UIViewController {
     private func setOfflineMessagingEnabled() {
         do {
             let key = "1234567890123456"
-            Parley.enableOfflineMessaging(try ParleyEncryptedDataSource(key: key))
-            Parley.setImageDataSource(try ParleyEncryptedImageDataSource(key: key))
+            let crypter = try ParleyCrypter(key: key, size: .bits128)
+            let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(crypter: crypter, directory: .default, fileManager: .default)
+            let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(crypter: crypter, directory: .default, fileManager: .default)
+            let imageDataSource = try ParleyEncryptedImageDataSource(crypter: crypter, directory: .default, fileManager: .default)
+            
+            Parley.enableOfflineMessaging(
+                messageDataSource: parleyMessageDataSource,
+                keyValueDataSource: parleyKeyValueDataSource,
+                imageDataSource: imageDataSource
+            )
         } catch {
             print(error)
         }

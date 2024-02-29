@@ -13,12 +13,12 @@ final class ParleyInMemoryKeyValueDataSource: ParleyKeyValueDataSource {
         dataDict[key] as? Data
     }
     
-    func set(_ string: String?, forKey key: String) -> Bool {
+    func set(_ string: String, forKey key: String) -> Bool {
         dataDict[key] = string
         return true
     }
     
-    func set(_ data: Data?, forKey key: String) -> Bool {
+    func set(_ data: Data, forKey key: String) -> Bool {
         dataDict[key] = data
         return true
     }

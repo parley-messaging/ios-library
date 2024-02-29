@@ -2,15 +2,32 @@ import Foundation
 
 public class ParleyEncryptedImageDataSource {
     
-    private let crypter: ParleyCrypter
-    private let destination: URL
-    private let fileManager: FileManager
+    private let store: ParleyEncryptedStore
     
-    public init(key: String) throws {
-        self.crypter = try ParleyCrypter(key: key)
-        self.fileManager = .default
-        self.destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheImagesDirectory)
-        try fileManager.createDirectory(at: destination, withIntermediateDirectories: true, attributes: nil)
+    public enum Directory {
+        case `default`
+        case custom(String)
+        
+        var path: String {
+            switch self {
+            case .default:
+                return kParleyCacheImagesDirectory
+            case .custom(let string):
+                return string
+            }
+        }
+    }
+    
+    public init(
+        crypter: ParleyCrypter,
+        directory: Directory = .default,
+        fileManager: FileManager = .default
+    ) throws {
+        self.store = try ParleyEncryptedStore(
+            crypter: crypter,
+            directory: directory.path,
+            fileManager: fileManager
+        )
     }
 }
 
@@ -18,8 +35,8 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     
     public func clear() -> Bool {
         do {
-            for url in urls() {
-                try fileManager.removeItem(at: url)
+            for url in getFiles() {
+                try store.fileManager.removeItem(at: url)
             }
             return true
         } catch {
@@ -29,26 +46,26 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
     
     public func all() -> [ParleyStoredImage] {
-        urls().compactMap(obtainLocalImage(from:))
+        getFiles().compactMap(obtainStoredImage(from:))
     }
     
     public func image(id: ParleyStoredImage.ID) -> ParleyStoredImage? {
-        guard let url = urls().first(where: { $0.lastPathComponent.contains(id) }) else { return nil }
-        return obtainLocalImage(from: url)
+        guard let url = getFiles().first(where: { $0.lastPathComponent.contains(id) }) else { return nil }
+        return obtainStoredImage(from: url)
     }
     
-    private func obtainLocalImage(from url: URL) -> ParleyStoredImage? {
+    private func obtainStoredImage(from url: URL) -> ParleyStoredImage? {
         guard
-            let data = fileManager.contents(atPath: url.path),
-            let decryptedData = try? crypter.decrypt(data)
+            let decryptedData = getDecryptedStoredImageData(url: url),
+            let file = ParleyStoredImage.FilePath.decode(url: url)
         else { return nil }
         
-        var splitFilename = url.lastPathComponent.split(separator: ".")
-        let fileName = String(splitFilename.removeFirst())
-        let type = String(splitFilename.removeLast())
-        guard let imageType = ParleyImageType(rawValue: type) else { return nil }
-        
-        return ParleyStoredImage(id: fileName, data: decryptedData, type: imageType)
+        return ParleyStoredImage(id: file.name, data: decryptedData, type: file.type)
+    }
+    
+    private func getDecryptedStoredImageData(url: URL) -> Data? {
+        guard let data = store.fileManager.contents(atPath: url.path) else { return nil }
+        return try? store.crypter.decrypt(data)
     }
     
     public func save(images: [ParleyStoredImage]) {
@@ -58,21 +75,26 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
     
     public func save(image: ParleyStoredImage) {
-        let path = [image.id, image.type.fileExtension].joined()
-        let absoluteURL = destination.appendingPathComponent(path)
+        let path = ParleyStoredImage.FilePath.create(image: image)
+        let absoluteURL = store.destination.appendingPathComponent(path)
         
-        if let encryptedImageData = try? crypter.encrypt(image.data) {
-            fileManager.createFile(atPath: absoluteURL.path, contents: encryptedImageData)
+        if let encryptedImageData = try? store.crypter.encrypt(image.data) {
+            store.fileManager.createFile(atPath: absoluteURL.path, contents: encryptedImageData)
         }
     }
     
     public func delete(id: ParleyStoredImage.ID) -> Bool {
-        guard let url = urls().first(where: { $0.lastPathComponent.contains(id) }) else {
-            return false
-        }
-        
+        guard let url = findUrlForStoredImage(id: id) else { return false }
+        return removeItem(at: url)
+    }
+    
+    private func findUrlForStoredImage(id: ParleyStoredImage.ID) -> URL? {
+        getFiles().first(where: { $0.lastPathComponent.contains(id) })
+    }
+    
+    private func removeItem(at url: URL) -> Bool {
         do {
-            try fileManager.removeItem(at: url)
+            try store.fileManager.removeItem(at: url)
             return true
         } catch {
             return false
@@ -82,8 +104,8 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
 
 private extension ParleyEncryptedImageDataSource {
     
-    func urls() -> [URL] {
-        guard let urls = try? fileManager.contentsOfDirectory(at: destination, includingPropertiesForKeys: [
+    func getFiles() -> [URL] {
+        guard let urls = try? store.fileManager.contentsOfDirectory(at: store.destination, includingPropertiesForKeys: [
             .isRegularFileKey
         ]) else { return [URL]() }
 

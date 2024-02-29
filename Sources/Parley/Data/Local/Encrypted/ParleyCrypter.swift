@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-class ParleyCrypter {
+public class ParleyCrypter {
     
     enum ParleyCrypterError: Error {
         case failedToEncrypt
@@ -9,7 +9,7 @@ class ParleyCrypter {
     
     private let key: SymmetricKey
     
-    init(key: String, size: SymmetricKeySize = .bits128) throws {
+    public init(key: String, size: SymmetricKeySize = .bits128) throws {
         self.key = try SymmetricKey(key: key, size: size)
     }
     
