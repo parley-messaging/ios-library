@@ -10,17 +10,14 @@ class BaseViewController: UIViewController {
     func setupNavigationBar() {
         let titleAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .semibold)]
-        if #available(iOS 13, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(named: "primaryColor")
-            appearance.titleTextAttributes = titleAttributes
-            navigationController?.navigationBar.standardAppearance = appearance;
-            navigationController?.navigationBar.scrollEdgeAppearance =  navigationController?.navigationBar.standardAppearance
-        } else {
-            navigationController?.view.backgroundColor = UIColor(named: "primaryColor")
-            navigationController?.navigationBar.titleTextAttributes = titleAttributes
-        }
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .semibold)
+        ]
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(named: "primaryColor")
+        appearance.titleTextAttributes = titleAttributes
+        navigationController?.navigationBar.standardAppearance = appearance;
+        navigationController?.navigationBar.scrollEdgeAppearance =  navigationController?.navigationBar.standardAppearance
     }
 }

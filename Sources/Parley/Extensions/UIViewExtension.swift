@@ -3,7 +3,7 @@ import UIKit
 extension UIView {
     
     func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
-        var viewController = UIApplication.shared.keyWindow?.rootViewController
+        var viewController = UIApplication.shared.windows.first(where: \.isKeyWindow)?.rootViewController
         if viewController?.presentedViewController != nil {
             viewController = viewController?.presentedViewController
         }

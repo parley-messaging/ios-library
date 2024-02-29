@@ -21,12 +21,12 @@ public class ParleyView: UIView {
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
+            pushDisabledNotificationView.text = "parley_push_disabled".localized
         }
     }
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle.current, comment: "")
+            offlineNotificationView.text = "parley_notification_offline".localized
         }
     }
     @IBOutlet weak var stickyView: ParleyStickyView!
@@ -42,7 +42,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
-            composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
+            composeView.placeholder = "parley_type_message".localized
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self
@@ -121,7 +121,7 @@ public class ParleyView: UIView {
     }
 
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyView", owner: self, options: nil)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -175,7 +175,7 @@ public class ParleyView: UIView {
     }
 
     private func registerNibCell(_ nibName: String) {
-        let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
+        let tableViewCellNib = UINib(nibName: nibName, bundle: .module)
         messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
     
@@ -397,7 +397,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle.current, comment: "")
+            statusLabel.text = "parley_state_unconfigured".localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -419,7 +419,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle.current, comment: "")
+            statusLabel.text = "parley_state_failed".localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -613,14 +613,14 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
     
     func failedToSelectImage() {
-        let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-        let message = NSLocalizedString("parley_send_failed_body_selecting_image", bundle: .current, comment: "")
+        let title = "parley_send_failed_title".localized
+        let message = "parley_send_failed_body_selecting_image".localized
         presentInformationalAlert(title: title, message: message)
     }
     
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = NSLocalizedString("parley_ok", bundle: .current, comment: "")
+        let okMessage = "parley_ok".localized
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -637,15 +637,15 @@ extension ParleyView: ParleyComposeViewDelegate {
     
     func send(image: UIImage, with data: Data, url: URL) {
         guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_invalid", bundle: .current, comment: "")
+            let title = "parley_send_failed_title".localized
+            let message = "parley_send_failed_body_media_invalid".localized
             presentInformationalAlert(title: title, message: message)
             return
         }
         
         guard !mediaModel.isLargerThan(size: 10) else {
-            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_too_large", bundle: .current, comment: "")
+            let title = "parley_send_failed_title".localized
+            let message = "parley_send_failed_body_media_too_large".localized
             presentInformationalAlert(title: title, message: message)
             return
         }

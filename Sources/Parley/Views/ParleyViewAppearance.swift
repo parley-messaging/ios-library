@@ -23,10 +23,10 @@ public class ParleyViewAppearance {
     public var info = InfoTableViewCellAppearance()
     
     public init(fontRegularName: String? = nil, fontItalicName: String? = nil, fontBoldName: String? = nil) {
-        let offlineIcon = UIImage(named: "ic_error_no_connection", in: Bundle.current, compatibleWith: nil)!
+        let offlineIcon = UIImage(named: "ic_error_no_connection", in: .module, compatibleWith: nil)!
         self.offlineNotification = ParleyNotificationViewAppearance(icon: offlineIcon)
         
-        let pushDisabledIcon = UIImage(named: "ic_notification_important", in: Bundle.current, compatibleWith: nil)!
+        let pushDisabledIcon = UIImage(named: "ic_notification_important", in: .module, compatibleWith: nil)!
         self.pushDisabledNotification = ParleyNotificationViewAppearance(icon: pushDisabledIcon)
         
         if let fontRegularName = fontRegularName {

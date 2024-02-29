@@ -147,7 +147,6 @@ extension Message.Accessibility {
     ///  - message: A chat message to base the custom accessibility actions on.
     ///  - actionHandler: action handler for when a button has been activated.
     /// - Returns: An array of custom actions, nil if the message has no buttons.
-    @available(iOS 13, *)
     static func getAccessibilityCustomActions(
         for message: Message,
         actionHandler: @escaping ((_ message: Message, _ button: MessageButton) -> Void)

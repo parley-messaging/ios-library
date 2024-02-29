@@ -56,13 +56,11 @@ public class ParleyMessageViewAppearance {
     public var buttonInsets: UIEdgeInsets?
     
     public var buttonSeperatorColor: UIColor = UIColor(white:0.91, alpha:1.0)
-    @available(*, deprecated, message: "Button height is not being used anymore since version 3.3.0. Control the button styling via `buttonInsets` instead.")
-    public var buttonHeight: CGFloat = 40.0
     
     @ParleyScaledFont(textStyle: .headline) public var buttonFont = .systemFont(ofSize: 16)
     public var buttonColor: UIColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
     
     init() {
-        self.imagePlaceholder = UIImage(named: "placeholder", in: Bundle.current, compatibleWith: nil)!
+        self.imagePlaceholder = UIImage(named: "placeholder", in: .module, compatibleWith: nil)!
     }
 }

@@ -11,6 +11,6 @@ public class AgentTypingTableViewCellAppearance {
     
     init() {
         let edgeInsets = UIEdgeInsets(top: 21, left: 23, bottom: 21, right: 21)
-        self.backgroundImage = UIImage(named: "agent_balloon", in: Bundle.current, compatibleWith: nil)?.resizableImage(withCapInsets: edgeInsets)
+        self.backgroundImage = UIImage(named: "agent_balloon", in: .module, compatibleWith: nil)?.resizableImage(withCapInsets: edgeInsets)
     }
 }

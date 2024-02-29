@@ -30,16 +30,9 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         watchForVoiceOverDidChangeNotification(observer: self)
         accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
-        if #available(iOS 13, *) {
-            accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in
-                parleyMessageView?.delegate?.didSelect(button)
-            })
-        } else {
-            accessibilityCustomActions = message.getAccessibilityCustomActions(
-                target: self,
-                selector: #selector(messageCustomActionTriggered)
-            )
-        }
+        accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in
+            parleyMessageView?.delegate?.didSelect(button)
+        })
     }
     
     deinit {
@@ -49,14 +42,6 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
         // Disable drag interaction for VoiceOver.
         isUserInteractionEnabled = !isVoiceOverRunning
-    }
-    
-    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
-        guard
-            let message = parleyMessageView.message,
-            let button = message.buttons?.first(where: {$0.title == buttonTitle })
-        else { return }
-        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageCollectionViewCellAppearance) {

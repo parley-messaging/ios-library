@@ -551,11 +551,12 @@ extension Parley {
             return false
         }
 
-        guard let data = (userInfo["parley"] as? String)?.data(using: .utf8) else { return false }
-
-        guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else { return false }
-        guard let messageType = json["type"] as? String else { return false }
-        guard let object = json["object"] as? [String: Any] else { return false }
+        guard 
+            let data = (userInfo["parley"] as? String)?.data(using: .utf8),
+            let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+            let messageType = json["type"] as? String,
+            let object = json["object"] as? [String: Any]
+        else { return false }
 
         switch messageType {
         case kParleyTypeMessage:
@@ -603,27 +604,6 @@ extension Parley {
         shared.imageRepository.dataSource = nil
         
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
-    }
-
-    /**
-      Set the users Firebase Cloud Messaging token.
-
-      - Note: Method must be called before `Parley.configure(_ secret: String)`.
-
-      - Parameters:
-        - fcmToken: The Firebase Cloud Messaging token
-        - pushType: The push type (default `fcm`)
-        - onSuccess: Execution block when Firebase Cloud Messaging token is updated (only called when Parley is configuring/configured).
-        - onFailure: Execution block when Firebase Cloud Messaging token can not updated (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-     */
-    @available(*, deprecated, renamed: "setPushToken(_:pushType:onSuccess:onFailure:)")
-    public static func setFcmToken(
-        _ fcmToken: String,
-        pushType: Device.PushType = .fcm,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
-    ) {
-        setPushToken(fcmToken, pushType: pushType, onSuccess: onSuccess,onFailure: onFailure)
     }
 
     /**

@@ -80,18 +80,11 @@ final class MessageTableViewCell: UITableViewCell {
         messageView.isAccessibilityElement = true
         messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
-        if #available(iOS 13, *) {
-            messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
-                for: message,
-                actionHandler: { [weak self] message, button in
-                    self?.delegate?.didSelect(button)
-                })
-        } else {
-            messageView.accessibilityCustomActions = message.getAccessibilityCustomActions(
-                target: self,
-                selector: #selector(messageCustomActionTriggered)
-            )
-        }
+        messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
+            for: message,
+            actionHandler: { [weak self] message, button in
+                self?.delegate?.didSelect(button)
+            })
     }
     
     deinit {
@@ -101,14 +94,6 @@ final class MessageTableViewCell: UITableViewCell {
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
         // Disable drag interaction for VoiceOver.
         isUserInteractionEnabled = !isVoiceOverRunning
-    }
-    
-    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
-        guard
-            let message = messages?.messages.first(where: {$0.id == messageId}),
-            let button = message.buttons?.first(where: {$0.title == buttonTitle })
-        else { return }
-        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {
