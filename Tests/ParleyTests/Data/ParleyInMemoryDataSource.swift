@@ -1,38 +1,12 @@
 import Foundation
 @testable import Parley
 
-final class ParleyDataSourceMock: ParleyMessageDataSource, ParleyKeyValueDataSource {
+final class ParleyMessageDataSourceMock: ParleyMessageDataSource {
 
     private var messages = [Message]()
-    private var dataDict = [String: Any]()
     
     func clear() -> Bool {
         messages.removeAll()
-        return messages.isEmpty
-    }
-    
-    func string(forKey key: String) -> String? {
-        dataDict[key] as? String
-    }
-    
-    func data(forKey key: String) -> Data? {
-        dataDict[key] as? Data
-    }
-    
-    func set(_ string: String?, forKey key: String) -> Bool {
-        guard dataDict[key] == nil else { return false }
-        dataDict[key] = string
-        return true
-    }
-    
-    func set(_ data: Data?, forKey key: String) -> Bool {
-        guard dataDict[key] == nil else { return false }
-        dataDict[key] = data
-        return true
-    }
-    
-    func removeObject(forKey key: String) -> Bool {
-        dataDict[key] = nil
         return true
     }
     

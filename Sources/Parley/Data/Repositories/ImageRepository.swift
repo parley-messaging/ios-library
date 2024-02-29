@@ -20,13 +20,13 @@ class ImageRepository {
         dataSource?.save(image: image)
     }
     
-    func getLocalImage(for imageId: ParleyStoredImage.ID) -> ImageDisplayModel? {
+    func getStoredImage(for imageId: ParleyStoredImage.ID) -> ImageDisplayModel? {
         guard let image = dataSource?.image(id: imageId) else { return nil }
         return .from(stored: image)
     }
     
     func getImage(for imageId: String, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
-        if let data = getLocalImage(for: imageId) {
+        if let data = getStoredImage(for: imageId) {
             result(.success(data))
         } else {
             getRemoteImage(for: imageId, result: result)
@@ -52,6 +52,7 @@ class ImageRepository {
                     throw ImageRepositoryError.unableToConvertImageData
                 }
                 self?.imageCache[imageId] = displayModel
+                self?.dataSource?.save(image: ParleyStoredImage(id: imageId, data: image.data, type: image.type))
                 result(.success(displayModel))
             } catch {
                 result(.failure(error))

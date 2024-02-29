@@ -5,7 +5,6 @@ final class ParleyRemote {
 
     let networkSession: ParleyNetworkSession
     private var networkConfig: ParleyNetworkConfig
-    private weak var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?
     private let createSecret: () -> String?
     private let createUniqueDeviceIdentifier: () -> String?
     private let createUserAuthorizationToken: () -> String?
@@ -15,14 +14,12 @@ final class ParleyRemote {
     init(
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession,
-        dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?,
         createSecret: @escaping () -> String?,
         createUniqueDeviceIdentifier: @escaping () -> String?,
         createUserAuthorizationToken: @escaping () -> String?
     ) {
         self.networkConfig = networkConfig
         self.networkSession = networkSession
-        self.dataSource = dataSource
         self.createSecret = createSecret
         self.createUniqueDeviceIdentifier = createUniqueDeviceIdentifier
         self.createUserAuthorizationToken = createUserAuthorizationToken
