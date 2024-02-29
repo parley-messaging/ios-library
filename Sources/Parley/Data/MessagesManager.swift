@@ -15,7 +15,8 @@ final class MessagesManager {
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
-    private weak var dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?
+    private weak var messageDataSource: ParleyMessageDataSource?
+    private weak var keyValueDataSource: ParleyKeyValueDataSource?
 
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
@@ -47,21 +48,25 @@ final class MessagesManager {
         })
     }
 
-    init(dataSource: (ParleyMessageDataSource & ParleyKeyValueDataSource)?) {
-        self.dataSource = dataSource
+    init(
+        messageDataSource: ParleyMessageDataSource?,
+        keyValueDataSource: ParleyKeyValueDataSource?
+    ) {
+        self.messageDataSource = messageDataSource
+        self.keyValueDataSource = keyValueDataSource
     }
 
     func loadCachedData() {
         originalMessages.removeAll(keepingCapacity: true)
 
-        if let cachedMessages = dataSource?.all() {
+        if let cachedMessages = messageDataSource?.all() {
             originalMessages.append(contentsOf: cachedMessages.sorted(by: <))
         }
         
         self.stickyMessage = nil
-        self.welcomeMessage = dataSource?.string(forKey: kParleyCacheKeyMessageInfo)
+        self.welcomeMessage = keyValueDataSource?.string(forKey: kParleyCacheKeyMessageInfo)
         
-        if let cachedPagingData = dataSource?.data(forKey: kParleyCacheKeyPaging) {
+        if let cachedPagingData = keyValueDataSource?.data(forKey: kParleyCacheKeyPaging) {
             self.paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
         } else {
             self.paging = nil
@@ -92,16 +97,16 @@ final class MessagesManager {
             originalMessages.append(contentsOf: pendingMessages)
         }
 
-        dataSource?.save(originalMessages)
+        messageDataSource?.save(originalMessages)
 
         stickyMessage = messageCollection.stickyMessage
 
         welcomeMessage = messageCollection.welcomeMessage
-        dataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
 
         if handleType != .after {
             paging = messageCollection.paging
-            dataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
+            keyValueDataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
         }
 
         formatMessages()
@@ -128,7 +133,7 @@ final class MessagesManager {
         messages.insert(message, at: addIndex)
 
         originalMessages.append(message)
-        dataSource?.insert(message, at: 0)
+        messageDataSource?.insert(message, at: 0)
 
         return indexPaths
     }
@@ -167,7 +172,7 @@ final class MessagesManager {
         originalMessages[originalMessagesIndex] = message
         messages[messagesIndex] = message
 
-        dataSource?.update(message)
+        messageDataSource?.update(message)
     }
 
     /// Adds a typing indicator message
