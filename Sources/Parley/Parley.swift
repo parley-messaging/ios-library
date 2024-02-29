@@ -171,23 +171,23 @@ public final class Parley {
     private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         debugPrint("Parley.\(#function)")
 
-        if self.isLoading { return }
-        self.isLoading = true
+        if isLoading { return }
+        isLoading = true
 
-        if self.isCachingEnabled() {
-            self.keyValueDataSource?.set(self.secret, forKey: kParleyCacheKeySecret)
-            self.keyValueDataSource?.set(self.userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
+        if isCachingEnabled() {
+            updateSecretInDataSource()
+            updateUserAuthorizationInDataSource()
+            
+            if state == .unconfigured {
+                messagesManager.loadCachedData()
 
-            if self.state == .unconfigured {
-                self.messagesManager.loadCachedData()
-
-                self.state = .configured
+                state = .configured
             }
         } else {
-            if self.state == .unconfigured || self.state == .failed {
-                self.messagesManager.clear()
+            if state == .unconfigured || state == .failed {
+                messagesManager.clear()
 
-                self.state = .configuring
+                state = .configuring
             }
         }
 
@@ -238,6 +238,22 @@ public final class Parley {
             },
             onFailure: onFailure
         )
+    }
+    
+    private func updateSecretInDataSource() {
+        if let secret {
+            keyValueDataSource?.set(secret, forKey: kParleyCacheKeySecret)
+        } else {
+            keyValueDataSource?.removeObject(forKey: kParleyCacheKeySecret)
+        }
+    }
+    
+    private func updateUserAuthorizationInDataSource() {
+        if let userAuthorization {
+            keyValueDataSource?.set(userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
+        } else {
+            keyValueDataSource?.removeObject(forKey: kParleyCacheKeyUserAuthorization)
+        }
     }
     
     private func reconfigure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {

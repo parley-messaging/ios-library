@@ -102,11 +102,19 @@ final class MessagesManager {
         stickyMessage = messageCollection.stickyMessage
 
         welcomeMessage = messageCollection.welcomeMessage
-        keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        if let welcomeMessage = messageCollection.welcomeMessage {
+            keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        } else {
+            keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
+        }
 
         if handleType != .after {
             paging = messageCollection.paging
-            keyValueDataSource?.set(try? CodableHelper.shared.toJSONString(paging), forKey: kParleyCacheKeyPaging)
+            if let messages = try? CodableHelper.shared.toJSONString(paging) {
+                keyValueDataSource?.set(messages, forKey: kParleyCacheKeyPaging)
+            } else {
+                keyValueDataSource?.removeObject(forKey: kParleyCacheKeyPaging)
+            }
         }
 
         formatMessages()
