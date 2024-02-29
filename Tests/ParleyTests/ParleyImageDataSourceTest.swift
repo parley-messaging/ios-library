@@ -12,7 +12,8 @@ final class ParleyImageDataSourceTest: XCTestCase {
     }
     
     private lazy var dataSource: ParleyImageDataSource = {
-        return try! ParleyEncryptedImageDataSource(key: "6543210987654321")
+        let crypter = try! ParleyCrypter(key: "6543210987654321", size: .bits128)
+        return try! ParleyEncryptedImageDataSource(crypter: crypter, directory: .custom("parley_images_tests"))
     }()
     
     override func setUp() {
