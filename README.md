@@ -23,7 +23,7 @@ Empty | Conversation
 
 ## Requirements
 
-- iOS 12.0+
+- iOS 13.0+
 - Xcode 15+
 - Swift 5.9+
 
@@ -41,9 +41,17 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "3.9.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.0.x"))
 ]
 ```
+
+The modules that are available:
+
+- `Parley` **Required**: 
+  The core of Parley and is always needed.
+- `ParleyNetwork` **Optional**: 
+  This is a standard provided network implementation of Parley which uses Alamofire to handle network requests. 
+  When not including ParleyNetwork, you'll need to provide your own network implementation (see [Advanced](#advanced)). 
 
 ### Upgrading
 
@@ -167,41 +175,50 @@ When a certificate is going to expire you can safely transition by adding the ne
 
 Parley allows the usage of advanced configurations, such as specifying the network, specifying the user information or enabling offline messaging. In all use cases it is recommended to apply the advanced configurations before configuring the chat with `Parley.configure(_ secret: String)`.
 
-### Network
+### Network configuration
 
-The network configuration can be set by setting a `ParleyNetwork` with the `Parley.configure(_ network: ParleyNetwork)` method.
+The network configuration can be set by setting a `ParleyNetworkConfig` with the `Parley.configure(_ network: ParleyNetwork)` method.
 
 ```swift
-let network = ParleyNetworkConfig(
+let headers: [String: String] = [
+    "Custom-Header": "Custom header value"
+]
+let networkConfig = ParleyNetworkConfig(
     url: "https://api.parley.nu/",
-    path: "clientApi/v1.6/",
-    apiVersion: .v1_6 // Must correspond to the same version in the path
+    path: "clientApi/v1.7",
+    apiVersion: .v1_7,
+    headers: headers
 )
-
-Parley.configure("appSecret", network: network)
+Parley.configure("appSecret", networkConfig: networkConfig)
 ```
 
 *Don't forget to add the right certificate to the project.*
 
-**Custom headers**
+### Network layer
 
-Custom headers can be set by using the optional parameter `headers` in `ParleyNetwork`. The parameter accepts a `[String: String]` Dictionary.
+The standard `ParleyNetwork` implementation relies on Alamofire as a dependency which is included in the `ParleyNetwork` module.
 
-Note that the headers used by Parley itself cannot be overridden.
+Parley suppports providing a custom network layer, by doing so you can remove the `ParleyNetwork` module dependency and implement your own.
+
+Create your own network session by adhering to the `ParleyNetworkSession` protocol:
 
 ```swift
-let headers: [String: String] = [
-    "X-Custom-Header": "Custom header value"
-]
+class CustomNetworkSession : ParleyNetworkSession {
+    func request(_ url: URL, method: HTTPRequestMethod, parameters: [String : Any]?, headers: [String : String], completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void) -> RequestCancelable {
+        // ...
+    }
+    
+    func upload(data: Data, to url: URL, method: HTTPRequestMethod, headers: [String : String], completion: @escaping (Result<Parley.HTTPDataResponse, HTTPErrorResponse>) -> Void) -> RequestCancelable {
+        // ...
+    }
+}
+```
 
-let network = ParleyNetworkConfig(
-    url: "https://api.parley.nu/",
-    path: "clientApi/v1.6/",
-    apiVersion: .v1_6,
-    headers: headers
-)
+Next, configure Parley with the created network session:
 
-Parley.configure("appSecret", network: network)
+```swift
+let networkSession = CustomNetworkSession()
+Parley.configure("appSecret", networkConfig: networkConfig, networkSession: networkSession)
 ```
 
 ### User information
@@ -238,7 +255,7 @@ Parley.clearUserInformation()
 
 ### Offline messaging
 
-To enable offline messaging, you will have to provide the `ParleyMessageDataSource`, `ParleyKeyValueDataSource` and `ParleyImageDataSource` datasources. These are interfaces you can implement yourself, or use Parley's implementations.
+To enable offline messaging, you will have to provide the `ParleyMessageDataSource`, `ParleyKeyValueDataSource` and `ParleyImageDataSource` datasources. These are interfaces you can implement yourself, or use Parley's standard implementations.
 
 Parley provides AES Encrypted implementations, you will have to construct the `ParleyCrypter` with a key, you are free to specify the key size yourself.
 Then you can construct each of the dataSources with the `ParleyCrypter`. Optionally, you can specify the `FileManager` and `Directory` for each datasource.
