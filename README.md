@@ -51,7 +51,7 @@ The modules that are available:
   The core of Parley and is always needed.
 - `ParleyNetwork` **Optional**: 
   This is a standard provided network implementation of Parley which uses Alamofire to handle network requests. 
-  When not including ParleyNetwork, you'll need to provide your own network implementation (see [Advanced](#advanced)). 
+  When not including ParleyNetwork, you'll need to provide your own network implementation (see [Advanced - Network layer](#network-layer)). 
 
 ### Upgrading
 
