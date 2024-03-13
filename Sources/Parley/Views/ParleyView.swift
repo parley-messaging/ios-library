@@ -453,10 +453,10 @@ extension ParleyView: ParleyDelegate {
     func didChangePushEnabled(_ pushEnabled: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            if self.offlineNotificationView.isHidden == false { return }
-            pushEnabled ? self.pollingService.stopRefreshing() : self.pollingService.startRefreshing()
+            if offlineNotificationView.isHidden == false { return }
+            pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
             
-            self.pushDisabledNotificationView.hide(pushEnabled)
+            pushDisabledNotificationView.hide(pushEnabled)
         }
     }
 

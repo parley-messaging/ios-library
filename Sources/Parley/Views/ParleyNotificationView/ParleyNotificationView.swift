@@ -41,16 +41,15 @@ final class ParleyNotificationView: UIView {
     
     func show(_ show: Bool = true) {
         active = show
-        renderHidden()
-        
+        renderVisibility()
     }
     
     func hide(_ hide: Bool = true) {
         active = !hide
-        renderHidden()
+        renderVisibility()
     }
     
-    private func renderHidden() {
+    private func renderVisibility() {
         isHidden = !active || appearance?.show == false
     }
     
@@ -87,6 +86,6 @@ final class ParleyNotificationView: UIView {
         label.numberOfLines = .zero
         label.adjustsFontForContentSizeCategory = true
         
-        renderHidden()
+        renderVisibility()
     }
 }
