@@ -11,6 +11,8 @@ final class ParleyNotificationView: UIView {
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var label: UILabel!
     
+    private var active: Bool = true
+    
     var appearance: ParleyNotificationViewAppearance? {
         didSet {
             guard let appearance = appearance else { return }
@@ -35,6 +37,21 @@ final class ParleyNotificationView: UIView {
         super.init(coder: aDecoder)
         
         setup()
+    }
+    
+    func show(_ show: Bool = true) {
+        active = show
+        renderHidden()
+        
+    }
+    
+    func hide(_ hide: Bool = true) {
+        active = !hide
+        renderHidden()
+    }
+    
+    private func renderHidden() {
+        isHidden = !active || appearance?.show == false
     }
     
     private func setup() {
@@ -69,5 +86,7 @@ final class ParleyNotificationView: UIView {
         label.font = appearance.font
         label.numberOfLines = .zero
         label.adjustsFontForContentSizeCategory = true
+        
+        renderHidden()
     }
 }
