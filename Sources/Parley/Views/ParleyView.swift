@@ -452,25 +452,25 @@ extension ParleyView: ParleyDelegate {
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
         DispatchQueue.main.async { [weak self] in
-            guard let pollingService = self?.pollingService else { return }
-            if self?.offlineNotificationView.isHidden == false { return }
+            guard let self else { return }
+            if offlineNotificationView.isHidden == false { return }
             pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
             
-            self?.pushDisabledNotificationView.isHidden = pushEnabled
+            pushDisabledNotificationView.hide(pushEnabled)
         }
     }
 
     func reachable() {
-        pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
-        offlineNotificationView.isHidden = true
+        pushDisabledNotificationView.hide(Parley.shared.pushEnabled)
+        offlineNotificationView.hide()
 
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
     }
 
     func unreachable() {
-        pushDisabledNotificationView.isHidden = true
-        offlineNotificationView.isHidden = false
+        pushDisabledNotificationView.hide()
+        offlineNotificationView.show()
 
         composeView.isEnabled = Parley.shared.isCachingEnabled()
         suggestionsView.isEnabled = Parley.shared.isCachingEnabled()

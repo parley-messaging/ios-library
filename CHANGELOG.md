@@ -23,6 +23,7 @@ _What's changed?_
 - Move configuring network settings to the `Parley.configure` function to make the setup order more clear.
 - Rename `ParleyNetwork` to `ParleyNetworkConfig` to better represent what the struct does.
 - Removed support for Client API 1.0 to 1.5.
+- Added appearance option to hide the offline and push disabled notification views ([#73](https://github.com/parley-messaging/ios-library/issues/73)).
 
 ## 3.9.2 - 16 Feb 2024
 
