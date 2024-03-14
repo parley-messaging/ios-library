@@ -40,7 +40,6 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
             }
             return true
         } catch {
-            print(error)
             return false
         }
     }
