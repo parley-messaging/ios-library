@@ -66,16 +66,16 @@ final class ParleyRemote {
         keyPath: ParleyResponseKeyPath? = .data,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) {
+    ) -> any RequestCancelable {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
 
-        networkSession.request(
+        return networkSession.request(
             getUrl(path),
             method: method,
             parameters: parameters,
             headers: createHeaders()
-        ) { result in
-            self.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
+        ) { [weak self] result in
+            self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
         }
     }
 
@@ -233,8 +233,8 @@ final class ParleyRemote {
     }
     
     static func responseContains(_ response: HTTPDataResponse, contentType: String) -> Bool {
-        guard let contentType = response.headers["Content-Type"] else { return false }
-        return contentType.contains(contentType)
+        guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
+        return contentTypeHeader.contains(contentType)
     }
 
     private static func decodeBackendError(responseData: Data) -> ParleyErrorResponse? {

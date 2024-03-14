@@ -3,95 +3,122 @@ import Foundation
 class ImageRepository {
     
     enum ImageRepositoryError: Error {
-        case unableToConvertImageData
         case invalidRemoteURL
     }
     
     weak var dataSource: ParleyImageDataSource?
     private var messageRemoteService: MessageRemoteService
-    private var imageCache: [String: ImageDisplayModel]
     
     init(remote: ParleyRemote) {
         self.messageRemoteService = MessageRemoteService(remote: remote)
-        self.imageCache = [String: ImageDisplayModel]()
+    }
+}
+
+// MARK: Methods
+extension ImageRepository {
+    
+    func store(media: MediaModel) -> ParleyStoredImage {
+        let image = ParleyStoredImage.from(media: media)
+        store(image: image)
+        return image
     }
     
-    func store(image: ParleyStoredImage) {
-        dataSource?.save(image: image)
-    }
-    
-    func getStoredImage(for imageId: ParleyStoredImage.ID) -> ImageDisplayModel? {
-        guard let image = dataSource?.image(id: imageId) else { return nil }
-        return .from(stored: image)
-    }
-    
-    func getImage(for imageId: String, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
-        if let data = getStoredImage(for: imageId) {
-            result(.success(data))
+    func getStoredImage(for imageId: ParleyStoredImage.ID) -> ParleyStoredImage? {
+        if isLocalId(imageId: imageId) {
+            return dataSource?.image(id: imageId)
         } else {
-            getRemoteImage(for: imageId, result: result)
+            guard let filePath = ParleyStoredImage.FilePath.create(path: imageId) else { return nil }
+            return dataSource?.image(id: filePath.description)
         }
     }
     
-    func getRemoteImage(for imageId: RemoteImage.ID, result: @escaping ((Result<ImageDisplayModel, Error>) -> Void)) {
-        if let cachedImage = imageCache[imageId] {
-            result(.success(cachedImage))
-            return
+    func getRemoteImage(for imageId: RemoteImage.ID) async throws -> ParleyImageNetworkModel {
+        let mediaURL = try createMediaURL(path: imageId)
+        let networkImage = try await fetchMedia(url: mediaURL)
+        
+        await MainActor.run {
+            store(networkImage: networkImage, remotePath: imageId)
         }
         
-        guard let mediaIdUrl = URL(string: imageId) else {
-            result(.failure(ImageRepositoryError.invalidRemoteURL))
-            return
-        }
-        
-        let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-        messageRemoteService.findMedia(url) { [weak self] imageResult in
-            do {
-                let image = try imageResult.get()
-                guard let displayModel = ImageDisplayModel.from(remote: image) else {
-                    throw ImageRepositoryError.unableToConvertImageData
+        return networkImage
+    }
+    
+    func upload(image storedImage: ParleyStoredImage) async throws -> RemoteImage {
+        return try await withCheckedThrowingContinuation { continuation in
+            messageRemoteService.upload(
+                imageData: storedImage.data,
+                imageType: storedImage.type,
+                fileName: storedImage.filename
+            ) { [weak self] imageResult in
+                guard let self else { return }
+                do {
+                    let mediaResponse = try imageResult.get()
+                    let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
+                    
+                    move(storedImage, to: remoteImage.id)
+                    
+                    continuation.resume(returning: remoteImage)
+                } catch {
+                    continuation.resume(throwing: error)
                 }
-                self?.imageCache[imageId] = displayModel
-                self?.dataSource?.save(image: ParleyStoredImage(id: imageId, data: image.data, type: image.type))
-                result(.success(displayModel))
-            } catch {
-                result(.failure(error))
-            }
-        }
-    }
-    
-    func upload(image storedImage: ParleyStoredImage, result: @escaping (Result<RemoteImage, Error>) -> Void) {
-        messageRemoteService.upload(
-            imageData: storedImage.data,
-            imageType: storedImage.type,
-            fileName: storedImage.filename
-        ) { [weak self] imageResult in
-            do {
-                let mediaResponse = try imageResult.get()
-                let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
-                
-                self?.move(storedImage, to: remoteImage.id)
-                self?.imageCache[remoteImage.id] = .from(stored: storedImage)
-                
-                result(.success(remoteImage))
-            } catch {
-                result(.failure(error))
             }
         }
     }
     
     func reset() {
-        imageCache.removeAll()
         dataSource?.clear()
     }
 }
 
+// MARK: Privates
 private extension ImageRepository {
     
-    func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
-        if let data = dataSource?.image(id: local.id) {
-            dataSource?.delete(id: local.id)
-            dataSource?.save(image: ParleyStoredImage(id: remoteId, data: local.data, type: local.type))
+    func isLocalId(imageId: ParleyStoredImage.ID) -> Bool {
+        guard let url = URL(string: imageId) else { return true }
+        return url.pathComponents.count == 1
+    }
+    
+    func createMediaURL(path: String) throws -> URL {
+        if let mediaIdUrl = URL(string: path) {
+            return mediaIdUrl
+        } else {
+            throw ImageRepositoryError.invalidRemoteURL
         }
+    }
+    
+    func fetchMedia(url: URL) async throws -> ParleyImageNetworkModel {
+        return try await withCheckedThrowingContinuation { continuation in
+            let remotePath = getRemoteFetchPath(url: url)
+            messageRemoteService.findMedia(remotePath, result: { result in
+                continuation.resume(with: result)
+            })
+        }
+    }
+    
+    func getRemoteFetchPath(url: URL) -> String {
+        url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
+    }
+    
+    func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
+        guard
+            let storedImage = dataSource?.image(id: local.id),
+            let filePath = ParleyStoredImage.FilePath.create(path: remoteId)
+        else { return }
+        
+        dataSource?.delete(id: storedImage.id)
+        storeImage(data: storedImage.data, path: filePath)
+    }
+    
+    func store(networkImage: ParleyImageNetworkModel, remotePath: String) {
+        guard let filePath = ParleyStoredImage.FilePath.create(path: remotePath) else { return }
+        storeImage(data: networkImage.data, path: filePath)
+    }
+    
+    func storeImage(data: Data, path: ParleyStoredImage.FilePath) {
+        store(image: ParleyStoredImage(filename: path.name, data: data, type: path.type))
+    }
+    
+    func store(image: ParleyStoredImage) {
+        dataSource?.save(image: image)
     }
 }

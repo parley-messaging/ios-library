@@ -60,7 +60,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
             let file = ParleyStoredImage.FilePath.decode(url: url)
         else { return nil }
         
-        return ParleyStoredImage(id: file.name, data: decryptedData, type: file.type)
+        return ParleyStoredImage(filename: file.name, data: decryptedData, type: file.type)
     }
     
     private func getDecryptedStoredImageData(url: URL) -> Data? {

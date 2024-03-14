@@ -21,7 +21,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     }
     
     func render(_ message: Message, time: Date?) {
-        parleyMessageView.set(message: message, time: time)
+        parleyMessageView.set(message: message, forcedTime: time)
         setupAccessibilityOptions(for: message)
     }
     

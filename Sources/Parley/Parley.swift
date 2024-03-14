@@ -46,6 +46,7 @@ public final class Parley {
     private(set) var messagesManager: MessagesManager!
     private(set) var imageDataSource: ParleyImageDataSource?
     private(set) var imageRepository: ImageRepository!
+    private(set) var imageLoader: ImageLoader!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
  
@@ -104,6 +105,7 @@ public final class Parley {
         self.remote = remote
         self.imageRepository = ImageRepository(remote: remote)
         self.imageRepository.dataSource = imageDataSource
+        self.imageLoader = ImageLoader(imageRepository: imageRepository)
     }
 
     // MARK: Reachability
@@ -210,14 +212,14 @@ public final class Parley {
                 guard let self else { return }
                 let onSecondSuccess: () -> () = { [weak self] in
                     guard let self else { return }
-                    self.delegate?.didReceiveMessages()
+                    delegate?.didReceiveMessages()
 
-                    let pendingMessages = Array(self.messagesManager.pendingMessages)
-                    self.send(pendingMessages)
+                    let pendingMessages = self.messagesManager.pendingMessages
+                    send(pendingMessages)
 
-                    self.isLoading = false
+                    isLoading = false
 
-                    self.state = .configured
+                    state = .configured
 
                     onSuccess?()
                 }
@@ -332,39 +334,51 @@ public final class Parley {
         self.isLoading = true
         messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
             self?.isLoading = false
-
-            self?.messagesManager.handle(messageCollection, .before)
-
-            self?.delegate?.didReceiveMessages()
-        }, onFailure: { [weak self] (error) in
+            DispatchQueue.global().async {
+                self?.messagesManager.handle(messageCollection, .before)
+                DispatchQueue.main.async {
+                    self?.delegate?.didReceiveMessages()
+                }
+            }
+        }, onFailure: { [weak self] _ in
             self?.isLoading = false
         })
     }
 
-    private func send(_ messages: [Message]) {
-        guard let message = messages.first else { return }
-        send(message, isNewMessage: false, onNext: { [weak self] in
-            self?.send(Array(messages.dropFirst()))
-        })
+    func send(_ messages: [Message]) {
+        Task {
+            for message in messages {
+                await uploadAvailableMedia(message)
+                await send(message, isNewMessage: false)
+            }
+        }
     }
     
-    internal func upload(media: MediaModel, displayedImage: UIImage?) {
-        let localImage = ParleyStoredImage.from(media: media)
+    func uploadAvailableMedia(_ message: Message) async {
+        guard
+            let media = message.media,
+            let image = imageRepository.getStoredImage(for: media.id)
+        else { return }
+        
+        await upload(image: image, message: message)
+    }
+    
+    @MainActor internal func upload(media: MediaModel) async {
+        let localImage = imageRepository.store(media: media)
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id)
-        
-        imageRepository.store(image: localImage)
         addNewMessage(message)
-        
-        imageRepository.upload(image: localImage) { [weak self] result in
-            switch result {
-            case .success(let remoteImage):
-                message.media = MediaObject(id: remoteImage.id)
-                self?.messagesManager.update(message)
-                self?.send(message, isNewMessage: false, onNext: nil)
-            case .failure(let failure):
-                self?.failedToSend(message: message, error: failure)
-            }
+        await upload(image: localImage, message: message)
+    }
+    
+    func upload(image: ParleyStoredImage, message: Message) async {
+        do {
+            let remoteImage = try await imageRepository.upload(image: image)
+            message.media = MediaObject(id: remoteImage.id)
+            messagesManager.update(message)
+            await send(message, isNewMessage: false)
+        } catch {
+            failedToSend(message: message, error: error)
         }
     }
 
@@ -384,10 +398,12 @@ public final class Parley {
         message.status = .pending
         message.time = Date()
 
-        self.send(message, isNewMessage: true)
+        Task {
+            await send(message, isNewMessage: true)
+        }
     }
 
-    func send(_ message: Message, isNewMessage: Bool, onNext: (() -> ())? = nil) {
+    func send(_ message: Message, isNewMessage: Bool) async {
         message.referrer = self.referrer
 
         if isNewMessage {
@@ -395,29 +411,31 @@ public final class Parley {
         }
 
         guard self.reachable else { return }
-
-        func onSuccess(message: Message) {
-            message.status = .success
-            messagesManager.update(message)
-            delegate?.didUpdate(message)
-
-            delegate?.didSent(message)
-
-            onNext?()
-        }
-
-        func onError(error: Error) {
-            failedToSend(message: message, error: error)
-            onNext?()
-        }
         
-        messageRepository.store(message, onSuccess: onSuccess(message:), onFailure: onError(error:))
+        return await withCheckedContinuation { continuation in
+            messageRepository.store(message) { [weak self] message in
+                self?.handleMessageSent(message)
+                continuation.resume()
+            } onFailure: { [weak self] error in
+                self?.failedToSend(message: message, error: error)
+                continuation.resume()
+            }
+        }
+    }
+    
+    private func handleMessageSent(_ message: Message) {
+        message.status = .success
+        messagesManager.update(message)
+        delegate?.didUpdate(message)
+        delegate?.didSent(message)
     }
     
     private func addNewMessage(_ message: Message) {
-        let indexPaths = messagesManager.add(message)
-        delegate?.willSend(indexPaths)
         userStopTypingTimer?.fire()
+        let indexPaths = messagesManager.add(message)
+        Task { @MainActor in
+            delegate?.willSend(indexPaths)
+        }
     }
     
     private func failedToSend(message: Message, error: Error) {

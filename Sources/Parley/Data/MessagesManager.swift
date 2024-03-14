@@ -83,7 +83,6 @@ final class MessagesManager {
             return true
         }
 
-
         switch handleType {
         case .before:
             originalMessages.insert(contentsOf: newMessages, at: .zero)
@@ -98,16 +97,9 @@ final class MessagesManager {
         }
 
         messageDataSource?.save(originalMessages)
-
         stickyMessage = messageCollection.stickyMessage
-
-        welcomeMessage = messageCollection.welcomeMessage
-        if let welcomeMessage = messageCollection.welcomeMessage {
-            keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
-        } else {
-            keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
-        }
-
+        updateWelcomeMessage(messageCollection.welcomeMessage)
+        
         if handleType != .after {
             paging = messageCollection.paging
             if let messages = try? CodableHelper.shared.toJSONString(paging) {
@@ -118,6 +110,15 @@ final class MessagesManager {
         }
 
         formatMessages()
+    }
+    
+    private func updateWelcomeMessage(_ message: String?) {
+        welcomeMessage = message
+        if let welcomeMessage = message {
+            keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+        } else {
+            keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
+        }
     }
 
     func add(_ message: Message) -> [IndexPath] {

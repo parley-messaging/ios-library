@@ -108,7 +108,8 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var messageRepository: MessageRepository = Parley.shared.messageRepository
+    private let messageRepository: MessageRepository = Parley.shared.messageRepository
+    private let imageLoader: ImageLoader = Parley.shared.imageLoader
     
     // Helpers
     private var displayName: Display = .message
@@ -125,8 +126,8 @@ final class ParleyMessageView: UIView {
             apply(appearance)
         }
     }
-    /// Can be set to private when target is iOS 13 or higher.
-    private(set) var message: Message!
+    private var message: Message!
+    private var time: Date?
     private static let minimumImageWidth: CGFloat = 5
     private static let maximumImageWidth: CGFloat = 500
     
@@ -146,6 +147,7 @@ final class ParleyMessageView: UIView {
     
     private func setup() {
         loadXib()
+        imageActivityIndicatorView.hidesWhenStopped = true
     }
     
     private func loadXib() {
@@ -162,14 +164,15 @@ final class ParleyMessageView: UIView {
         ])
     }
     
-    func set(message: Message, time: Date? = nil) {
+    func set(message: Message, forcedTime: Date?) {
         self.message = message
-        render(forcedTime: time)
+        self.time = forcedTime
+        render()
     }
     
-    func render(forcedTime: Date?) {
+    func render() {
         renderName()
-        renderMeta(forcedTime: forcedTime)
+        renderMeta()
         renderMetaStatus()
         
         renderTitle()
@@ -181,77 +184,6 @@ final class ParleyMessageView: UIView {
     }
     
     // MARK: - Render
-    private func renderImage() {
-        if displayTitle == .message || message.message != nil || message.hasButtons {
-            imageImageView.corners = [.topLeft, .topRight]
-        } else {
-            imageImageView.corners = [.allCorners]
-        }
-        
-        guard let mediaId = message?.media?.id else {
-            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
-            imageHolderView.isHidden = true
-            
-            imageImageView.image = nil
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
-            
-            return
-        }
-        
-        if let image = Parley.shared.imageRepository.getStoredImage(for: mediaId) {
-            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
-            imageHolderView.isHidden = false
-            
-            imageImageView.image = image.image
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
-            
-            renderGradients()
-        } else {
-            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
-            imageHolderView.isHidden = false
-            
-            imageActivityIndicatorView.isHidden = false
-            imageActivityIndicatorView.startAnimating()
-            
-            imageImageView.image = appearance?.imagePlaceholder
-
-            func onFindSuccess(image: UIImage) {
-                imageActivityIndicatorView.isHidden = true
-                imageActivityIndicatorView.stopAnimating()
-                
-                imageImageView.image = image
-                
-                renderGradients()
-            }
-            
-            func onFindError(error: Error) {
-                imageActivityIndicatorView.isHidden = true
-                imageActivityIndicatorView.stopAnimating()
-                
-                renderGradients()
-            }
-            
-            let imageRequestForMessageId = message.id
-            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { [weak self] result in
-                // Check if the Message ID of the requested image is the same as the message of the current cell.
-                // During cell reuse, the ongoing request could callback on another cell.
-                // This check prevents it from applying that image (or display it's failure).
-                guard imageRequestForMessageId == self?.message?.id else { return }
-                
-                switch result {
-                case .success(let displayModel):
-                    onFindSuccess(image: displayModel.image)
-                case .failure(let error):
-                    onFindError(error: error)
-                }
-            }
-        }
-    }
-    
     private func renderName() {
         if self.message.agent?.name == nil || !(self.appearance?.name == true) {
             displayName = .hidden
@@ -268,7 +200,7 @@ final class ParleyMessageView: UIView {
         nameView.isHidden = displayName != .message
     }
     
-    private func renderMeta(forcedTime: Date? = nil) {
+    private func renderMeta() {
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
             displayMeta = .message
             imageFailureMessageLabel.isHidden = true
@@ -280,7 +212,7 @@ final class ParleyMessageView: UIView {
         imageMetaStackView.isHidden = displayMeta != .image
         metaView.isHidden = displayMeta != .message
         
-        renderMetaTime(forcedTime: forcedTime)
+        renderMetaTime()
     }
     
     private func renderImageFailure() {
@@ -300,8 +232,8 @@ final class ParleyMessageView: UIView {
         return MediaUploadNotificationErrorKind(rawValue: type)?.formattedMessage
     }
     
-    private func renderMetaTime(forcedTime: Date?) {
-        let time = (forcedTime ?? message.time)?.asTime() ?? ""
+    private func renderMetaTime() {
+        let time = (time ?? message.time)?.asTime() ?? ""
         
         imageMetaTimeLabel.text = time
         timeLabel.text = time
@@ -366,6 +298,71 @@ final class ParleyMessageView: UIView {
             
             messageTextView.markdownText = nil
         }
+    }
+    
+    private func renderImage() {
+        renderImageCorners()
+        setImageWidth()
+        
+        if let mediaId = message.media?.id {
+            displayImageLoading()
+            loadImage(id: mediaId)
+        } else {
+            hideImage()
+        }
+    }
+    
+    private func renderImageCorners() {
+        if displayTitle == .message || message.message != nil || message.hasButtons {
+            imageImageView.corners = [.topLeft, .topRight]
+        } else {
+            imageImageView.corners = [.allCorners]
+        }
+    }
+    
+    private func setImageWidth() {
+        imageMinimumWidthConstraint.constant = Self.minimumImageWidth
+    }
+    
+    private func hideImage() {
+        imageHolderView.isHidden = true
+        imageImageView.image = nil
+        imageActivityIndicatorView.stopAnimating()
+    }
+    
+    @MainActor
+    private func displayImageLoading() {
+        imageHolderView.isHidden = false
+        imageActivityIndicatorView.startAnimating()
+        imageImageView.image = appearance?.imagePlaceholder
+    }
+    
+    private func loadImage(id: String) {
+        let imageRequestForMessageId = message.id
+        Task {
+            do {
+                let image = try await imageLoader.load(id: id)
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == message.id else { return }
+                display(image: image.image)
+            } catch {
+                displayFailedLoadingImage()
+            }
+        }
+    }
+    
+    @MainActor private func display(image: UIImage) {
+        imageHolderView.isHidden = false
+        imageActivityIndicatorView.stopAnimating()
+        imageImageView.image = image
+        renderGradients()
+    }
+    
+    @MainActor private func displayFailedLoadingImage() {
+        imageActivityIndicatorView.stopAnimating()
+        renderGradients()
     }
     
     // Gradient

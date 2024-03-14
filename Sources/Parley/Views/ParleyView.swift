@@ -58,6 +58,7 @@ public class ParleyView: UIView {
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
+    private var isAlreadyAtTop = false
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -572,9 +573,16 @@ extension ParleyView: UITableViewDelegate {
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
         
-        if scrollY < height / 2,
-           let lastMessageId = getMessagesManager().getOldestMessage()?.id {
+        if scrollY < height / 2 {
+            guard 
+                !isAlreadyAtTop,
+                let lastMessageId = getMessagesManager().getOldestMessage()?.id
+            else { return }
+            
+            isAlreadyAtTop = true
             Parley.shared.loadMoreMessages(lastMessageId)
+        } else {
+            isAlreadyAtTop = false
         }
         
         updateSuggestionsAlpha()
@@ -604,7 +612,9 @@ extension ParleyView: UITableViewDelegate {
 
         let message = getMessagesManager().messages[indexPath.row]
         if message.status == .failed && message.type == .user {
-            Parley.shared.send(message, isNewMessage: false)
+            Task {
+                await Parley.shared.send(message, isNewMessage: false)
+            }
         }
     }
 }
@@ -618,6 +628,7 @@ extension ParleyView: ParleyComposeViewDelegate {
         presentInformationalAlert(title: title, message: message)
     }
     
+    @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okMessage = "parley_ok".localized
@@ -636,21 +647,23 @@ extension ParleyView: ParleyComposeViewDelegate {
     }
     
     func send(image: UIImage, with data: Data, url: URL) {
-        guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-            let title = "parley_send_failed_title".localized
-            let message = "parley_send_failed_body_media_invalid".localized
-            presentInformationalAlert(title: title, message: message)
-            return
+        Task { @MainActor in
+            guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
+                let title = "parley_send_failed_title".localized
+                let message = "parley_send_failed_body_media_invalid".localized
+                presentInformationalAlert(title: title, message: message)
+                return
+            }
+            
+            guard !mediaModel.isLargerThan(size: 10) else {
+                let title = "parley_send_failed_title".localized
+                let message = "parley_send_failed_body_media_too_large".localized
+                presentInformationalAlert(title: title, message: message)
+                return
+            }
+            
+            await Parley.shared.upload(media: mediaModel)
         }
-        
-        guard !mediaModel.isLargerThan(size: 10) else {
-            let title = "parley_send_failed_title".localized
-            let message = "parley_send_failed_body_media_too_large".localized
-            presentInformationalAlert(title: title, message: message)
-            return
-        }
-        
-        Parley.shared.upload(media: mediaModel, displayedImage: image)
     }
 }
 
