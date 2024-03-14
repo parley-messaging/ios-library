@@ -364,8 +364,10 @@ Parley provides a `ParleyViewAppearance` that can be set on the `ParleyView` to 
 
 ```swift
 let appearance = ParleyViewAppearance(fontRegularName: "Montserrat-Regular", fontItalicName: "Montserrat-Italic", fontBoldName: "Montserrat-Bold")
+appearance.offlineNotification.show = true
+appearance.pushDisabledNotification.show = true
 
-self.parleyView.appearance = appearance
+parleyView.appearance = appearance
 ```
 
 #### Examples
