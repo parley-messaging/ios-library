@@ -25,7 +25,7 @@ public protocol ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         parameters: [String: Any]?,
         headers: [String: String],
-        completion: @escaping (_ result: Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable
 
     @discardableResult
@@ -34,6 +34,6 @@ public protocol ParleyNetworkSession {
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @escaping (_ result: Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable
 }

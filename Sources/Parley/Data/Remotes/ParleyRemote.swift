@@ -176,7 +176,7 @@ final class ParleyRemote {
     }
 
     private func handleResult<T: Codable>(
-        result: Result<HTTPDataResponse, ParleyHTTPErrorResponse>,
+        result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>,
         keyPath: ParleyResponseKeyPath?,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
@@ -232,7 +232,7 @@ final class ParleyRemote {
         return request
     }
     
-    static func responseContains(_ response: HTTPDataResponse, contentType: String) -> Bool {
+    static func responseContains(_ response: ParleyHTTPDataResponse, contentType: String) -> Bool {
         guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
         return contentTypeHeader.contains(contentType)
     }

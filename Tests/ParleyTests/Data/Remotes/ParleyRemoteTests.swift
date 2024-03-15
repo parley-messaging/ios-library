@@ -179,7 +179,7 @@ final class ParleyRemoteTests: XCTestCase {
         body: Data = Data(),
         statusCode: Int = 200,
         headers: [String: String] = [:]
-    ) -> HTTPDataResponse {
-        HTTPDataResponse(body: body, statusCode: statusCode, headers: headers)
+    ) -> ParleyHTTPDataResponse {
+        ParleyHTTPDataResponse(body: body, statusCode: statusCode, headers: headers)
     }
 }

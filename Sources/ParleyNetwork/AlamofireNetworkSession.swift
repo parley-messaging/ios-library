@@ -32,7 +32,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         parameters: [String : Any]?,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable {
         let dataRequest = session.request(
             url,
@@ -47,7 +47,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
             }
             switch response.result {
             case .success(let data):
-                completion(.success(HTTPDataResponse(
+                completion(.success(ParleyHTTPDataResponse(
                     body: data,
                     statusCode: statusCode,
                     headers: response.response?.headers.dictionary ?? [:]
@@ -73,7 +73,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
             .response { response in
@@ -83,7 +83,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                 }
                 switch response.result {
                 case .success(let data):
-                    completion(.success(HTTPDataResponse(
+                    completion(.success(ParleyHTTPDataResponse(
                         body: data,
                         statusCode: statusCode,
                         headers: response.response?.headers.dictionary ?? [:]
