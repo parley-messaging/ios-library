@@ -33,7 +33,7 @@ extension MediaModel {
     /// Returns wether the file is larger than a specified size in MB
     /// - Parameter size: Size in megabytes
     func isLargerThan(size: Int) -> Bool {
-        let sizeInMB = size * 1024 * 1024
+        let sizeInMB = size * 1000 * 1000
         return data.count > sizeInMB
     }
     

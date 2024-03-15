@@ -9,6 +9,7 @@ final class MessageImageViewController: UIViewController {
     var message: Message?
     
     private let messageRepository: MessageRepository
+    private let imageLoader: ImageLoader = Parley.shared.imageLoader
     
     init(messageRepository: MessageRepository) {
         self.messageRepository = messageRepository
@@ -75,41 +76,34 @@ final class MessageImageViewController: UIViewController {
             dismiss(animated: true, completion: nil) ; return
         }
         
-        if let image = Parley.shared.imageRepository.getStoredImage(for: mediaId) {
-            imageView.image = image.image
-            
-            imageView.sizeToFit()
-            imageView.isAccessibilityElement = true
-            adjustContentInset()
-            
-            activityIndicatorView.isHidden = true
-            activityIndicatorView.stopAnimating()
-        } else {
-            activityIndicatorView.isHidden = false
-            activityIndicatorView.startAnimating()
-            
-            func onFindImageSuccess(image: UIImage) {
-                imageView.image = image
-                imageView.sizeToFit()
-                adjustContentInset()
-                
-                activityIndicatorView.isHidden = true
-                activityIndicatorView.stopAnimating()
-            }
-            
-            func onFindImageError(error: Error) {
-                dismiss(animated: true, completion: nil)
-            }
-            
-            Parley.shared.imageRepository.getRemoteImage(for: mediaId) { result in
-                switch result {
-                case .success(let displayModel):
-                    onFindImageSuccess(image: displayModel.image)
-                case .failure(let error):
-                    onFindImageError(error: error)
-                }
+        displayImageLoading()
+        loadImage(id: mediaId)
+    }
+    
+    private func displayImageLoading() {
+        activityIndicatorView.startAnimating()
+    }
+    
+    private func loadImage(id: String) {
+        Task {
+            do {
+                let image = try await imageLoader.load(id: id)
+                display(image: image.image)
+            } catch {
+                displayFailedLoadingImage()
             }
         }
+    }
+    
+    @MainActor private func display(image: UIImage) {
+        imageView.image = image
+        imageView.sizeToFit()
+        adjustContentInset()
+        activityIndicatorView.stopAnimating()
+    }
+    
+    @MainActor private func displayFailedLoadingImage() {
+        dismiss(animated: true, completion: nil)
     }
     
     private func setupActivityIndicatorView() {

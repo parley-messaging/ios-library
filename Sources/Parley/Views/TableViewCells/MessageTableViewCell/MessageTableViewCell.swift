@@ -44,12 +44,12 @@ final class MessageTableViewCell: UITableViewCell {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             self.messageView.isHidden = false
 
-            self.parleyMessageView.set(message: message)
+            self.parleyMessageView.set(message: message, forcedTime: nil)
         } else {
             self.messageView.isHidden = true
         }
 
-        if let messages = message.carousel, messages.count > 0 {
+        if let messages = message.carousel, !messages.isEmpty {
             self.messages = (messages, message.time)
             
             collectionView.isHidden = false
