@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0 - Upcoming
+## 4.0.0 - Released 15 Mar 2024
 
 ### Upgrading:
 
@@ -25,7 +25,7 @@ _What's changed?_
 - Removed support for Client API 1.0 to 1.5.
 - Added appearance option to hide the offline and push disabled notification views ([#73](https://github.com/parley-messaging/ios-library/issues/73)).
 
-## 3.9.2 - 16 Feb 2024
+## 3.9.2 - Released 16 Feb 2024
 
 - Fixed taking pictures not sending (regression by 3.9.1).
 - Fixed an issue where small image messages were not taking the full width.
