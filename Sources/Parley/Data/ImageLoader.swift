@@ -30,6 +30,11 @@ actor ImageLoader {
             return try await fetchFromRemote(id: id)
         }
     }
+    
+    func reset() {
+        imageCache.removeAll()
+        clearRequests()
+    }
 }
 
 private extension ImageLoader {
@@ -60,5 +65,12 @@ private extension ImageLoader {
         
         requests[id] = request
         return request
+    }
+
+    private func clearRequests() {
+        for (_, task) in requests {
+            task.cancel()
+        }
+        requests.removeAll()
     }
 }

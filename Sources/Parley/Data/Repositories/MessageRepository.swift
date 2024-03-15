@@ -27,7 +27,13 @@ final class MessageRepository {
         messageRemoteService.findAfter(id, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        messageRemoteService.store(message, onSuccess: onSuccess, onFailure: onFailure)
+    func store(_ message: Message) async throws -> Message {
+        return try await withCheckedThrowingContinuation { continuation in
+            messageRemoteService.store(message) { message in
+                continuation.resume(returning: message)
+            } onFailure: { error in
+                continuation.resume(throwing: error)
+            }
+        }
     }
 }

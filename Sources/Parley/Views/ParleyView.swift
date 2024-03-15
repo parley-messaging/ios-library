@@ -662,7 +662,7 @@ extension ParleyView: ParleyComposeViewDelegate {
                 return
             }
             
-            await Parley.shared.upload(media: mediaModel)
+            await Parley.shared.sendNewMessageWithMedia(mediaModel)
         }
     }
 }
