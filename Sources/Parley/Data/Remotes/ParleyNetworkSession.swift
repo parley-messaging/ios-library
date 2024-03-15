@@ -22,18 +22,18 @@ public protocol ParleyNetworkSession {
     @discardableResult
     func request(
         _ url: URL,
-        method: HTTPRequestMethod,
+        method: ParleyHTTPRequestMethod,
         parameters: [String: Any]?,
         headers: [String: String],
-        completion: @escaping (_ result: Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
-    ) -> RequestCancelable
+        completion: @escaping (_ result: Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) -> ParleyRequestCancelable
 
     @discardableResult
     func upload(
         data: Data,
         to url: URL,
-        method: HTTPRequestMethod,
+        method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @escaping (_ result: Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
-    ) -> RequestCancelable
+        completion: @escaping (_ result: Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) -> ParleyRequestCancelable
 }

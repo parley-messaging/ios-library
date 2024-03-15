@@ -29,11 +29,11 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
 
     func request(
         _ url: URL,
-        method: HTTPRequestMethod,
+        method: ParleyHTTPRequestMethod,
         parameters: [String : Any]?,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
-    ) -> RequestCancelable {
+        completion: @escaping (Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) -> ParleyRequestCancelable {
         let dataRequest = session.request(
             url,
             method: Alamofire.HTTPMethod(method),
@@ -42,7 +42,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
             headers: HTTPHeaders(headers)
         ).response { response in
             guard let statusCode = response.response?.statusCode else {
-                completion(.failure(HTTPErrorResponse(error: HTTPResponseError.dataMissing)))
+                completion(.failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                 return
             }
             switch response.result {
@@ -55,7 +55,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
             case .failure(let error):
                 guard let data = response.data else { return }
                 let headers = response.response?.headers.dictionary
-                let responseError = HTTPErrorResponse(
+                let responseError = ParleyHTTPErrorResponse(
                     statusCode: statusCode,
                     headers: headers,
                     data: response.data,
@@ -71,14 +71,14 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
     func upload(
         data: Data,
         to url: URL,
-        method: HTTPRequestMethod,
+        method: ParleyHTTPRequestMethod,
         headers: [String : String],
-        completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void
-    ) -> RequestCancelable {
+        completion: @escaping (Result<HTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) -> ParleyRequestCancelable {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
             .response { response in
                 guard let statusCode = response.response?.statusCode else {
-                    completion(.failure(HTTPErrorResponse(error: HTTPResponseError.dataMissing)))
+                    completion(.failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                     return
                 }
                 switch response.result {
@@ -90,7 +90,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                     )))
                 case .failure(let error):
                     let headers = response.response?.headers.dictionary
-                    let responseError = HTTPErrorResponse(
+                    let responseError = ParleyHTTPErrorResponse(
                         statusCode: statusCode,
                         headers: headers,
                         data: response.data,

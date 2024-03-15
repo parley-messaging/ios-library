@@ -267,7 +267,7 @@ public final class Parley {
     }
 
     private func isOfflineError(_ error: Error) -> Bool {
-        if let httpError = error as? HTTPErrorResponse {
+        if let httpError = error as? ParleyHTTPErrorResponse {
             return httpError.isOfflineError
         } else {
             return isOfflineErrorCode((error as NSError).code)

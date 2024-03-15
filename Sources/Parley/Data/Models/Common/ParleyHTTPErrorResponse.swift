@@ -1,6 +1,6 @@
 import Foundation
 
-public struct HTTPErrorResponse: Error {
+public struct ParleyHTTPErrorResponse: Error {
     public let statusCode: Int?
     public let headers: [String: String]?
     public let data: Data?

@@ -204,11 +204,11 @@ Create your own network session by adhering to the `ParleyNetworkSession` protoc
 
 ```swift
 class CustomNetworkSession : ParleyNetworkSession {
-    func request(_ url: URL, method: HTTPRequestMethod, parameters: [String : Any]?, headers: [String : String], completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void) -> RequestCancelable {
+    func request(_ url: URL, method: HTTPRequestMethod, parameters: [String : Any]?, headers: [String : String], completion: @escaping (Result<HTTPDataResponse, HTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
         // ...
     }
     
-    func upload(data: Data, to url: URL, method: HTTPRequestMethod, headers: [String : String], completion: @escaping (Result<Parley.HTTPDataResponse, HTTPErrorResponse>) -> Void) -> RequestCancelable {
+    func upload(data: Data, to url: URL, method: HTTPRequestMethod, headers: [String : String], completion: @escaping (Result<Parley.HTTPDataResponse, HTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
         // ...
     }
 }

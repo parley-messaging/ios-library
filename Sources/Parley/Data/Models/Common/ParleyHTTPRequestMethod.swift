@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents an HTTP request method.
-public enum HTTPRequestMethod: String, Codable {
+public enum ParleyHTTPRequestMethod: String, Codable {
     case get = "GET"
     case head = "HEAD"
     case post = "POST"
