@@ -1,7 +1,7 @@
 import MarkdownKit
 import UIKit
 
-class ParleyTextView: UITextView {
+final class ParleyTextView: UITextView {
     
     var markdownText: String? {
         didSet {

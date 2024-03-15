@@ -78,7 +78,7 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var textViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var textViewBackgroundViewTrailingConstraint: NSLayoutConstraint!
     
-    var bottomLayoutConstraint: NSLayoutConstraint!
+    private var bottomLayoutConstraint: NSLayoutConstraint!
     
     var appearance: ParleyComposeViewAppearance = ParleyComposeViewAppearance() {
         didSet {
@@ -134,7 +134,7 @@ public class ParleyComposeView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyComposeView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyComposeView", owner: self, options: nil)
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -249,23 +249,23 @@ public class ParleyComposeView: UIView {
             popoverController.permittedArrowDirections = [.left, .down]
         }
         
-        alertController.title = NSLocalizedString("parley_photo", bundle: Bundle.current, comment: "")
+        alertController.title = "parley_photo".localized
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_select_photo", bundle: Bundle.current, comment: ""),
+            title: "parley_select_photo".localized,
             style: .default,
             handler: { [weak self] action in
                 self?.showImagePickerController(.photoLibrary)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_take_photo", bundle: Bundle.current, comment: ""),
+            title: "parley_take_photo".localized,
             style: .default,
             handler: { [weak self] action in
                 self?.showImagePickerController(.camera)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_cancel", bundle: Bundle.current, comment: ""),
+            title: "parley_cancel".localized,
             style: .cancel
         ))
         
@@ -282,13 +282,13 @@ public class ParleyComposeView: UIView {
     
     private func showPhotoAccessDeniedAlertController() {
         let alertController = UIAlertController(
-            title: NSLocalizedString("parley_photo_access_denied_title", bundle: Bundle.current, comment: ""),
-            message: NSLocalizedString("parley_photo_access_denied_body", bundle: Bundle.current, comment: ""),
+            title: "parley_photo_access_denied_title".localized,
+            message: "parley_photo_access_denied_body".localized,
             preferredStyle: .alert
         )
         
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("parley_ok", bundle: Bundle.current, comment: ""),
+            title: "parley_ok".localized,
             style: .cancel
         ))
         
@@ -338,7 +338,7 @@ extension ParleyComposeView: UITextViewDelegate {
 extension ParleyComposeView: KeyboardAccessoryViewDelegate {
     
     func keyboardFrameChanged(_ frame: CGRect) {
-        if let keyWindow = UIApplication.shared.keyWindow {
+        if let keyWindow = UIApplication.shared.windows.first(where: \.isKeyWindow) {
             let yFromBottom = keyWindow.bounds.height - self.convert(keyWindow.frame, to: nil).origin.y - self.frame.size.height
             
             let bottom = keyWindow.bounds.height - frame.origin.y - yFromBottom

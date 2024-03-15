@@ -1,14 +1,14 @@
-import Alamofire
+import Foundation
 import UIKit
 
-internal class MessageTableViewCell: UITableViewCell {
+final class MessageTableViewCell: UITableViewCell {
     
     @IBOutlet private weak var messageView: UIView!
     @IBOutlet private weak var parleyMessageView: ParleyMessageView!
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: Bundle.current)
+            let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: .module)
             self.collectionView.register(messageCollectionViewCell, forCellWithReuseIdentifier: "MessageCollectionViewCell")
             
             self.collectionView.dataSource = self
@@ -24,13 +24,13 @@ internal class MessageTableViewCell: UITableViewCell {
     
     private var messageWidthConstraint: NSLayoutConstraint?
     
-    internal weak var delegate: MessageTableViewCellDelegate? {
+    weak var delegate: MessageTableViewCellDelegate? {
         didSet {
             self.parleyMessageView.delegate = self.delegate
         }
     }
     
-    internal var appearance: MessageTableViewCellAppearance? {
+    var appearance: MessageTableViewCellAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
             
@@ -40,16 +40,16 @@ internal class MessageTableViewCell: UITableViewCell {
     
     private var messages: (messages: [Message], time: Date?)?
     
-    internal func render(_ message: Message) {
+    func render(_ message: Message) {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             self.messageView.isHidden = false
 
-            self.parleyMessageView.set(message: message)
+            self.parleyMessageView.set(message: message, forcedTime: nil)
         } else {
             self.messageView.isHidden = true
         }
 
-        if let messages = message.carousel, messages.count > 0 {
+        if let messages = message.carousel, !messages.isEmpty {
             self.messages = (messages, message.time)
             
             collectionView.isHidden = false
@@ -80,18 +80,11 @@ internal class MessageTableViewCell: UITableViewCell {
         messageView.isAccessibilityElement = true
         messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
-        if #available(iOS 13, *) {
-            messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
-                for: message,
-                actionHandler: { [weak self] message, button in
-                    self?.delegate?.didSelect(button)
-                })
-        } else {
-            messageView.accessibilityCustomActions = message.getAccessibilityCustomActions(
-                target: self,
-                selector: #selector(messageCustomActionTriggered)
-            )
-        }
+        messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
+            for: message,
+            actionHandler: { [weak self] message, button in
+                self?.delegate?.didSelect(button)
+            })
     }
     
     deinit {
@@ -101,14 +94,6 @@ internal class MessageTableViewCell: UITableViewCell {
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
         // Disable drag interaction for VoiceOver.
         isUserInteractionEnabled = !isVoiceOverRunning
-    }
-    
-    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
-        guard
-            let message = messages?.messages.first(where: {$0.id == messageId}),
-            let button = message.buttons?.first(where: {$0.title == buttonTitle })
-        else { return }
-        parleyMessageView.delegate?.didSelect(button)
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {

@@ -1,18 +1,18 @@
 import UIKit
 
-class MessageCollectionViewCell: UICollectionViewCell {
+final class MessageCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var parleyMessageView: ParleyMessageView!
     
     @IBOutlet weak var widthLayoutConstraint: NSLayoutConstraint!
     
-    internal weak var delegate: MessageTableViewCellDelegate? {
+    weak var delegate: MessageTableViewCellDelegate? {
         didSet {
             self.parleyMessageView.delegate = self.delegate
         }
     }
     
-    internal var appearance: MessageCollectionViewCellAppearance? {
+    var appearance: MessageCollectionViewCellAppearance? {
         didSet {
             guard let appearance = self.appearance else { return }
             
@@ -20,8 +20,8 @@ class MessageCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    internal func render(_ message: Message, time: Date?) {
-        parleyMessageView.set(message: message, time: time)
+    func render(_ message: Message, time: Date?) {
+        parleyMessageView.set(message: message, forcedTime: time)
         setupAccessibilityOptions(for: message)
     }
     
@@ -30,16 +30,9 @@ class MessageCollectionViewCell: UICollectionViewCell {
         watchForVoiceOverDidChangeNotification(observer: self)
         accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
         
-        if #available(iOS 13, *) {
-            accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in
-                parleyMessageView?.delegate?.didSelect(button)
-            })
-        } else {
-            accessibilityCustomActions = message.getAccessibilityCustomActions(
-                target: self,
-                selector: #selector(messageCustomActionTriggered)
-            )
-        }
+        accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(for: message, actionHandler: { [weak parleyMessageView] message, button in
+            parleyMessageView?.delegate?.didSelect(button)
+        })
     }
     
     deinit {
@@ -51,21 +44,13 @@ class MessageCollectionViewCell: UICollectionViewCell {
         isUserInteractionEnabled = !isVoiceOverRunning
     }
     
-    @objc private func messageCustomActionTriggered(_ messageId: Int, buttonTitle: String) {
-        guard
-            let message = parleyMessageView.message,
-            let button = message.buttons?.first(where: {$0.title == buttonTitle })
-        else { return }
-        parleyMessageView.delegate?.didSelect(button)
-    }
-    
     private func apply(_ appearance: MessageCollectionViewCellAppearance) {
         self.parleyMessageView.appearance = appearance
         
         self.widthLayoutConstraint.constant = CGFloat(appearance.width)
     }
     
-    internal static func calculateSize(_ appearance: MessageCollectionViewCellAppearance, _ message: Message) -> CGSize {
+    static func calculateSize(_ appearance: MessageCollectionViewCellAppearance, _ message: Message) -> CGSize {
         let balloonWidth: CGFloat = appearance.width
         var contentWidth = balloonWidth
         contentWidth -= appearance.balloonContentInsets?.left ?? 0

@@ -5,10 +5,14 @@ class ChatViewController: BaseViewController {
     
     @IBOutlet weak var parleyView: ParleyView! {
         didSet {
-            self.parleyView.appearance = ParleyViewAppearance(fontRegularName: "Montserrat-Regular", fontItalicName: "Montserrat-Italic", fontBoldName: "Montserrat-Bold")
-            self.parleyView.imagesEnabled = true
+            let appearance = ParleyViewAppearance(fontRegularName: "Montserrat-Regular", fontItalicName: "Montserrat-Italic", fontBoldName: "Montserrat-Bold")
+            appearance.offlineNotification.show = true
+            appearance.pushDisabledNotification.show = true
+            parleyView.appearance = appearance
+
+            parleyView.imagesEnabled = true
             
-            self.parleyView.delegate = self
+            parleyView.delegate = self
         }
     }
     

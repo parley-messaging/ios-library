@@ -6,7 +6,7 @@ final class DeviceTests: XCTestCase {
 
     private let pushToken = "YrViSfynsb3eB72Yd7gNfZ_"
     private lazy var deviceString = "{\"pushEnabled\":true,\"pushType\":6,\"type\":2,\"version\":" +
-        "\"3.1.3\",\"pushToken\":\"\(pushToken)\"}"
+        "\"4.0.0\",\"pushToken\":\"\(pushToken)\"}"
 
     private var decoder: JSONDecoder!
     private var encoder: JSONEncoder!
@@ -22,7 +22,7 @@ final class DeviceTests: XCTestCase {
     }
 
     func testDecodeEncode() throws {
-        let expectedResult = makeDevice()
+        let expectedResult = createDevice()
 
         let decodedSut = try decoder.decode(Device.self, from: Data(deviceString.utf8))
         let encodedSut = try encoder.encode(decodedSut)
@@ -31,7 +31,7 @@ final class DeviceTests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
 
-    private func makeDevice() -> Device {
+    private func createDevice() -> Device {
         Device(
             pushToken: pushToken,
             pushType: .fcm,

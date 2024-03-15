@@ -1,4 +1,4 @@
-let kParleyVersion = "3.1.3"
+let kParleyVersion = "4.0.0"
 
 let kParleyMessageMaxCount = 5000
 
@@ -17,6 +17,8 @@ let kParleyEventStartTypingTriggerAfter = 20.0
 let kParleyEventStopTypingTriggerAfter = 15.0
 
 let kParleyCacheDirectory = "parley"
+let kParleyCacheImagesDirectory = "parley_images"
+let kParleyCacheMessagesDirectory = "parley_messages"
 let kParleyCacheKeyMessageInfo = "info_message"
 let kParleyCacheKeyPaging = "paging"
 let kParleyCacheKeyMessages = "messages"

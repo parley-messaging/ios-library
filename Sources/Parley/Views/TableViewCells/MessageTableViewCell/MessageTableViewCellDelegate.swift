@@ -1,4 +1,4 @@
-internal protocol MessageTableViewCellDelegate: ParleyMessageViewDelegate {
+protocol MessageTableViewCellDelegate: ParleyMessageViewDelegate {
     
     //
 }

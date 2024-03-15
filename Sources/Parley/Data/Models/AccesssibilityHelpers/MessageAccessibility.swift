@@ -4,9 +4,9 @@ import UIKit
 // MARK: - Accessibility - Accessibility Label
 extension Message {
 
-    internal struct Accessibility {
+    struct Accessibility {
         
-        static internal func getAccessibilityLabelDescription(for message: Message) -> String? {
+        static func getAccessibilityLabelDescription(for message: Message) -> String? {
             guard message.type != .date else { return nil }
             return [
                 createAccessibilityLabelForMessageType(message),
@@ -102,7 +102,7 @@ extension Message {
 // MARK: - Accessibility - Accessibility Announcement
 extension Message.Accessibility {
     
-    static internal func getAccessibilityAnnouncement(for message: Message) -> String? {
+    static func getAccessibilityAnnouncement(for message: Message) -> String? {
         let messageArray: [String?]
         
         switch message.type {
@@ -143,10 +143,11 @@ extension Message.Accessibility {
 extension Message.Accessibility {
     
     /// Gets accessibility custom actions for buttons of the message, and provides a action handler when a button is activated.
-    /// - Parameter actionHandler: action handler for when a button has been activated.
+    /// - Parameters:
+    ///  - message: A chat message to base the custom accessibility actions on.
+    ///  - actionHandler: action handler for when a button has been activated.
     /// - Returns: An array of custom actions, nil if the message has no buttons.
-    @available(iOS 13, *)
-    static internal func getAccessibilityCustomActions(
+    static func getAccessibilityCustomActions(
         for message: Message,
         actionHandler: @escaping ((_ message: Message, _ button: MessageButton) -> Void)
     ) -> [UIAccessibilityCustomAction]? {

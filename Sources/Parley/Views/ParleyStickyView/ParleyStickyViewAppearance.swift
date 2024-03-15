@@ -15,6 +15,6 @@ public class ParleyStickyViewAppearance {
     @ParleyScaledFont(textStyle: .body) public var boldFont = .boldSystemFont(ofSize: 13)
     
     init() {
-        self.icon = UIImage(named: "ic_error_outline", in: Bundle.current, compatibleWith: nil)!
+        self.icon = UIImage(named: "ic_error_outline", in: .module, compatibleWith: nil)!
     }
 }

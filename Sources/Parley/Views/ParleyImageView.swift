@@ -1,15 +1,15 @@
 import UIKit
 
-public class ParleyImageView: UIImageView {
+final class ParleyImageView: UIImageView {
     
-    public var corners: UIRectCorner = [.allCorners] {
+    var corners: UIRectCorner = [.allCorners] {
         didSet {
             if let radius = self.cornerRadius {
                 self.roundCorners(corners: self.corners, radius: radius)
             }
         }
     }
-    public var cornerRadius: CGFloat? {
+    var cornerRadius: CGFloat? {
         didSet {
             if let radius = self.cornerRadius {
                 self.roundCorners(corners: self.corners, radius: radius)
@@ -17,7 +17,7 @@ public class ParleyImageView: UIImageView {
         }
     }
     
-    public override func layoutSubviews() {
+    override func layoutSubviews() {
         super.layoutSubviews()
         
         if let radius = self.cornerRadius {

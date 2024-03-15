@@ -1,6 +1,6 @@
 import UIKit
 
-public class ParleyNotificationView: UIView {
+final class ParleyNotificationView: UIView {
     
     @IBOutlet private var contentView: UIView! {
         didSet {
@@ -10,6 +10,8 @@ public class ParleyNotificationView: UIView {
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var label: UILabel!
+    
+    private var active: Bool = true
     
     var appearance: ParleyNotificationViewAppearance? {
         didSet {
@@ -37,12 +39,26 @@ public class ParleyNotificationView: UIView {
         setup()
     }
     
+    func show(_ show: Bool = true) {
+        active = show
+        renderVisibility()
+    }
+    
+    func hide(_ hide: Bool = true) {
+        active = !hide
+        renderVisibility()
+    }
+    
+    private func renderVisibility() {
+        isHidden = !active || appearance?.show == false
+    }
+    
     private func setup() {
         loadXib()
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyNotificationView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyNotificationView", owner: self, options: nil)
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -69,5 +85,7 @@ public class ParleyNotificationView: UIView {
         label.font = appearance.font
         label.numberOfLines = .zero
         label.adjustsFontForContentSizeCategory = true
+        
+        renderVisibility()
     }
 }

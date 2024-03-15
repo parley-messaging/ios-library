@@ -1,5 +1,30 @@
 # Changelog
 
+## 4.0.0 - Upcoming
+
+### Upgrading:
+
+**IMPORTANT**: With Parley 4.0.0 there are a few breaking changes. Migrating can be done easily with a few changes.
+
+_What's changed?_
+
+- In Parley 3.9.2 and lower Parley provided a network implementation which uses the Alamofire dependency. Therefore the dependency to Alamofire was attached to the project by Parley.
+- In Parley 4.0.0 and higher the network implementation is separated from the core. Resulting in the modules: `Parley` (required) and `ParleyNetwork` (optional). This enables using your own network implementation and prevents requiring the use of dependencies that the standard Parley implementation uses. When providing your own network implementation, there is no need to import `ParleyNetwork` to your project. For more information, see [Advanced - Network layer](README.md#network-layer).
+- In Parley 4.0.0 some deprecated methods have been removed which used default values for their parameters for backwards compatibility. These were deprecated for a while already, and similar methods are available under the same name. Provide the required parameters now when facing this.
+- In Parley 4.0.0 the Parley datasource required to enabling offline messaging has been split up to different datasources. Each datasource has its own responsibility now, rather than one datasource doing everything. All datasources are required to enable offline messaging. Parley still provides standard implementations for enabling offline messaging. See [Advanced - Offline messaging](README.md#offline-messaging) for the new implementation.
+- In Parley 4.0.0 the `ParleyNetwork` to configure the network configuration (base url, path, api version and headers) has been renamed to `ParleyNetworkConfig`. The underlying structure remained the same.
+- In Parley 4.0.0 the `Parley.setNetwork` method has been removed. Pass the new `ParleyNetworkConfig` to the `Parley.configure()` method.
+- In Parley 4.0.0 support for the Parley Client API version 1.0 to 1.5 has been dropped. Please update to a newer version when using 1.5 or lower, for the available versions, see [Version lifetime](https://developers.parley.nu/docs/version-lifetime).
+
+### Changes:
+
+- Split up Parley package to `Parley` and `ParleyNetwork`. You can now use Parley with your own http network layer. To do so you can implement `ParleyNetworkSession`.
+- Update Reachability to 5.2.0 (from 5.1.0)
+- Move configuring network settings to the `Parley.configure` function to make the setup order more clear.
+- Rename `ParleyNetwork` to `ParleyNetworkConfig` to better represent what the struct does.
+- Removed support for Client API 1.0 to 1.5.
+- Added appearance option to hide the offline and push disabled notification views ([#73](https://github.com/parley-messaging/ios-library/issues/73)).
+
 ## 3.9.2 - 16 Feb 2024
 
 - Fixed taking pictures not sending (regression by 3.9.1).
@@ -20,7 +45,7 @@
 
 ## 3.9.0 - Released 17 Jan 2024
 
-- Parley now uses codables for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
+- Parley now uses `Codable` for mapping the models (instead of ObjectMapper). This change is backwards compatible. Existing chats remain unaffected and will continue to work.
 - Updated Alamofire to 5.8.1 (from 5.4.1).
 - Updated AlamofireImage to 4.3.0 (from 4.1.0).
 - Removed ObjectMapper dependency.

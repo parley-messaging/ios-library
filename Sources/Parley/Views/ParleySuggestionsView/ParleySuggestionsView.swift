@@ -1,6 +1,6 @@
 import UIKit
 
-internal class ParleySuggestionsView: UIView {
+final class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var contentView: UIView! {
         didSet {
@@ -10,7 +10,7 @@ internal class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let suggestionCollectionViewCell = UINib(nibName: "SuggestionCollectionViewCell", bundle: Bundle.current)
+            let suggestionCollectionViewCell = UINib(nibName: "SuggestionCollectionViewCell", bundle: .module)
             self.collectionView.register(suggestionCollectionViewCell, forCellWithReuseIdentifier: "SuggestionCollectionViewCell")
             
             self.collectionView.dataSource = self
@@ -35,7 +35,7 @@ internal class ParleySuggestionsView: UIView {
     
     private var suggestions: [String]?
     
-    internal func render(_ suggestions: [String]) {
+    func render(_ suggestions: [String]) {
         self.suggestions = suggestions
         
         let maxHeight = getMaxHeight()
@@ -82,7 +82,7 @@ internal class ParleySuggestionsView: UIView {
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleySuggestionsView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleySuggestionsView", owner: self, options: nil)
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.contentView)

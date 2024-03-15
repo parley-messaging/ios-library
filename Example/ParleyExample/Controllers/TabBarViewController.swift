@@ -14,12 +14,9 @@ class TabBarViewController: UITabBarController {
         self.tabBar.items?[0].title = NSLocalizedString("chat_title", comment: "")
         self.tabBar.items?[1].title = NSLocalizedString("documentation_title", comment: "")
         
-        if #available(iOS 13.0, *) {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .white
-            
-            self.tabBar.standardAppearance = appearance
-        }
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        self.tabBar.standardAppearance = appearance
     }
 }

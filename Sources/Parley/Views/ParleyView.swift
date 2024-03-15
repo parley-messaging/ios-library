@@ -21,12 +21,12 @@ public class ParleyView: UIView {
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            pushDisabledNotificationView.text = NSLocalizedString("parley_push_disabled", bundle: Bundle.current, comment: "")
+            pushDisabledNotificationView.text = "parley_push_disabled".localized
         }
     }
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            offlineNotificationView.text = NSLocalizedString("parley_notification_offline", bundle: Bundle.current, comment: "")
+            offlineNotificationView.text = "parley_notification_offline".localized
         }
     }
     @IBOutlet weak var stickyView: ParleyStickyView!
@@ -42,7 +42,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
-            composeView.placeholder = NSLocalizedString("parley_type_message", bundle: Bundle.current, comment: "")
+            composeView.placeholder = "parley_type_message".localized
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self
@@ -52,11 +52,13 @@ public class ParleyView: UIView {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
     private let notificationService = NotificationService()
+    private var messageRepository: MessageRepository = MessageRepository(remote: Parley.shared.remote)
     private var pollingService: PollingServiceProtocol = PollingService()
     
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
+    private var isAlreadyAtTop = false
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -120,7 +122,7 @@ public class ParleyView: UIView {
     }
 
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyView", owner: self, options: nil)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -174,7 +176,7 @@ public class ParleyView: UIView {
     }
 
     private func registerNibCell(_ nibName: String) {
-        let tableViewCellNib = UINib(nibName: nibName, bundle: Bundle.current)
+        let tableViewCellNib = UINib(nibName: nibName, bundle: .module)
         messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
     
@@ -212,7 +214,8 @@ public class ParleyView: UIView {
     }
     
     /// Gets the notification height for the specified vertical position based on the current appearance.
-    /// - Parameter position: Vertical position
+    /// - Parameters:
+    ///  - position: Vertical position
     /// - Returns: Vertical height, `0` if the current appearance is not the
     private func getNotificationsHeight(for position: ParleyPositionVertical) -> CGFloat {
         guard appearance.notificationsPosition == position else { return .zero }
@@ -395,7 +398,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = NSLocalizedString("parley_state_unconfigured", bundle: Bundle.current, comment: "")
+            statusLabel.text = "parley_state_unconfigured".localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -417,7 +420,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = NSLocalizedString("parley_state_failed", bundle: Bundle.current, comment: "")
+            statusLabel.text = "parley_state_failed".localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -450,25 +453,25 @@ extension ParleyView: ParleyDelegate {
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
         DispatchQueue.main.async { [weak self] in
-            guard let pollingService = self?.pollingService else { return }
-            if self?.offlineNotificationView.isHidden == false { return }
+            guard let self else { return }
+            if offlineNotificationView.isHidden == false { return }
             pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
             
-            self?.pushDisabledNotificationView.isHidden = pushEnabled
+            pushDisabledNotificationView.hide(pushEnabled)
         }
     }
 
     func reachable() {
-        pushDisabledNotificationView.isHidden = Parley.shared.pushEnabled
-        offlineNotificationView.isHidden = true
+        pushDisabledNotificationView.hide(Parley.shared.pushEnabled)
+        offlineNotificationView.hide()
 
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
     }
 
     func unreachable() {
-        pushDisabledNotificationView.isHidden = true
-        offlineNotificationView.isHidden = false
+        pushDisabledNotificationView.hide()
+        offlineNotificationView.show()
 
         composeView.isEnabled = Parley.shared.isCachingEnabled()
         suggestionsView.isEnabled = Parley.shared.isCachingEnabled()
@@ -570,9 +573,16 @@ extension ParleyView: UITableViewDelegate {
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
         
-        if scrollY < height / 2,
-           let lastMessageId = getMessagesManager().getOldestMessage()?.id {
+        if scrollY < height / 2 {
+            guard 
+                !isAlreadyAtTop,
+                let lastMessageId = getMessagesManager().getOldestMessage()?.id
+            else { return }
+            
+            isAlreadyAtTop = true
             Parley.shared.loadMoreMessages(lastMessageId)
+        } else {
+            isAlreadyAtTop = false
         }
         
         updateSuggestionsAlpha()
@@ -602,7 +612,9 @@ extension ParleyView: UITableViewDelegate {
 
         let message = getMessagesManager().messages[indexPath.row]
         if message.status == .failed && message.type == .user {
-            Parley.shared.send(message, isNewMessage: false)
+            Task {
+                await Parley.shared.send(message, isNewMessage: false)
+            }
         }
     }
 }
@@ -611,14 +623,15 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
     
     func failedToSelectImage() {
-        let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-        let message = NSLocalizedString("parley_send_failed_body_selecting_image", bundle: .current, comment: "")
+        let title = "parley_send_failed_title".localized
+        let message = "parley_send_failed_body_selecting_image".localized
         presentInformationalAlert(title: title, message: message)
     }
     
+    @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = NSLocalizedString("parley_ok", bundle: .current, comment: "")
+        let okMessage = "parley_ok".localized
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -634,25 +647,23 @@ extension ParleyView: ParleyComposeViewDelegate {
     }
     
     func send(image: UIImage, with data: Data, url: URL) {
-        guard Parley.shared.network.apiVersion.isUsingMedia else {
-            Parley.shared.send(url, image, data) ; return
+        Task { @MainActor in
+            guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
+                let title = "parley_send_failed_title".localized
+                let message = "parley_send_failed_body_media_invalid".localized
+                presentInformationalAlert(title: title, message: message)
+                return
+            }
+            
+            guard !mediaModel.isLargerThan(size: 10) else {
+                let title = "parley_send_failed_title".localized
+                let message = "parley_send_failed_body_media_too_large".localized
+                presentInformationalAlert(title: title, message: message)
+                return
+            }
+            
+            await Parley.shared.sendNewMessageWithMedia(mediaModel)
         }
-        
-        guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_invalid", bundle: .current, comment: "")
-            presentInformationalAlert(title: title, message: message)
-            return
-        }
-        
-        guard !mediaModel.isLargerThan(size: 10) else {
-            let title = NSLocalizedString("parley_send_failed_title", bundle: .current, comment: "")
-            let message = NSLocalizedString("parley_send_failed_body_media_too_large", bundle: .current, comment: "")
-            presentInformationalAlert(title: title, message: message)
-            return
-        }
-        
-        Parley.shared.upload(media: mediaModel, displayedImage: image)
     }
 }
 
@@ -660,7 +671,7 @@ extension ParleyView: ParleyComposeViewDelegate {
 extension ParleyView: MessageTableViewCellDelegate {
     
     func didSelectImage(from message: Message) {
-        let imageViewController = MessageImageViewController()
+        let imageViewController = MessageImageViewController(messageRepository: messageRepository)
         imageViewController.modalPresentationStyle = .overFullScreen
         imageViewController.modalTransitionStyle = .crossDissolve
         imageViewController.message = message
@@ -678,9 +689,7 @@ extension ParleyView: MessageTableViewCellDelegate {
             guard let url = URL(string: payload) else { return }
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         case .reply:
-            Parley.send(payload)
-        case .none:
-            break
+            Parley.shared.send(payload)
         }
     }
 }
@@ -694,7 +703,7 @@ extension ParleyView: ParleySuggestionsViewDelegate {
 }
 
 // MARK: - Accessibility
-internal extension ParleyView {
+extension ParleyView {
     
     // MARK: VoiceOver
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {

@@ -1,7 +1,7 @@
 import UIKit
-import Alamofire
+import Foundation
 
-class ParleyMessageView: UIView {
+final class ParleyMessageView: UIView {
     
     enum Display {
         case hidden
@@ -108,7 +108,8 @@ class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private var findImageRequest: DataRequest?
+    private let messageRepository: MessageRepository = Parley.shared.messageRepository
+    private let imageLoader: ImageLoader = Parley.shared.imageLoader
     
     // Helpers
     private var displayName: Display = .message
@@ -116,17 +117,17 @@ class ParleyMessageView: UIView {
     private var displayTitle: Display = .hidden
     
     // Delegate
-    internal weak var delegate: ParleyMessageViewDelegate?
+    weak var delegate: ParleyMessageViewDelegate?
     
     // MARK: - Appearance
-    internal var appearance: ParleyMessageViewAppearance? {
+    var appearance: ParleyMessageViewAppearance? {
         didSet {
             guard let appearance = appearance else { return }
             apply(appearance)
         }
     }
-    /// Can be set to private when target is iOS 13 or higher.
-    private(set) var message: Message!
+    private var message: Message!
+    private var time: Date?
     private static let minimumImageWidth: CGFloat = 5
     private static let maximumImageWidth: CGFloat = 500
     
@@ -146,10 +147,11 @@ class ParleyMessageView: UIView {
     
     private func setup() {
         loadXib()
+        imageActivityIndicatorView.hidesWhenStopped = true
     }
     
     private func loadXib() {
-        Bundle.current.loadNibNamed("ParleyMessageView", owner: self, options: nil)
+        Bundle.module.loadNibNamed("ParleyMessageView", owner: self, options: nil)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
@@ -162,14 +164,15 @@ class ParleyMessageView: UIView {
         ])
     }
     
-    internal func set(message: Message, time: Date? = nil) {
+    func set(message: Message, forcedTime: Date?) {
         self.message = message
-        render(forcedTime: time)
+        self.time = forcedTime
+        render()
     }
     
-    func render(forcedTime: Date?) {
+    func render() {
         renderName()
-        renderMeta(forcedTime: forcedTime)
+        renderMeta()
         renderMetaStatus()
         
         renderTitle()
@@ -181,69 +184,6 @@ class ParleyMessageView: UIView {
     }
     
     // MARK: - Render
-    private func renderImage() {
-        if displayTitle == .message || message.message != nil || message.hasButtons {
-            imageImageView.corners = [.topLeft, .topRight]
-        } else {
-            imageImageView.corners = [.allCorners]
-        }
-        
-        if let image = message.image {
-            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
-            imageHolderView.isHidden = false
-            
-            imageImageView.image = image
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
-            
-            renderGradients()
-        } else if message.hasMedium {
-            imageMinimumWidthConstraint.constant = Self.maximumImageWidth
-            imageHolderView.isHidden = false
-            
-            findImageRequest?.cancel()
-            
-            imageActivityIndicatorView.isHidden = false
-            imageActivityIndicatorView.startAnimating()
-            
-            imageImageView.image = appearance?.imagePlaceholder
-
-            func onFindSuccess(image: UIImage) {
-                imageActivityIndicatorView.isHidden = true
-                imageActivityIndicatorView.stopAnimating()
-                
-                imageImageView.image = image
-                
-                renderGradients()
-            }
-            
-            func onFindError(error: Error) {
-                imageActivityIndicatorView.isHidden = true
-                imageActivityIndicatorView.stopAnimating()
-                
-                renderGradients()
-            }
-            
-            if let media = message.media, let mediaIdUrl = URL(string: media.id) {
-                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                findImageRequest = MessageRepository().find(media: url, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else if let id = message.id {
-                findImageRequest = MessageRepository().findImage(id, onSuccess: onFindSuccess(image:), onFailure: onFindError(error:))
-            } else {
-                print("Failed to render image for message \(message.id)")
-            }
-        } else {
-            imageMinimumWidthConstraint.constant = Self.minimumImageWidth
-            imageHolderView.isHidden = true
-            
-            imageImageView.image = nil
-            
-            imageActivityIndicatorView.isHidden = true
-            imageActivityIndicatorView.stopAnimating()
-        }
-    }
-    
     private func renderName() {
         if self.message.agent?.name == nil || !(self.appearance?.name == true) {
             displayName = .hidden
@@ -260,7 +200,7 @@ class ParleyMessageView: UIView {
         nameView.isHidden = displayName != .message
     }
     
-    private func renderMeta(forcedTime: Date? = nil) {
+    private func renderMeta() {
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
             displayMeta = .message
             imageFailureMessageLabel.isHidden = true
@@ -272,7 +212,7 @@ class ParleyMessageView: UIView {
         imageMetaStackView.isHidden = displayMeta != .image
         metaView.isHidden = displayMeta != .message
         
-        renderMetaTime(forcedTime: forcedTime)
+        renderMetaTime()
     }
     
     private func renderImageFailure() {
@@ -292,8 +232,8 @@ class ParleyMessageView: UIView {
         return MediaUploadNotificationErrorKind(rawValue: type)?.formattedMessage
     }
     
-    private func renderMetaTime(forcedTime: Date?) {
-        let time = (forcedTime ?? message.time)?.asTime() ?? ""
+    private func renderMetaTime() {
+        let time = (time ?? message.time)?.asTime() ?? ""
         
         imageMetaTimeLabel.text = time
         timeLabel.text = time
@@ -312,14 +252,14 @@ class ParleyMessageView: UIView {
             
             switch message.status {
             case .failed:
-                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_close", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .pending:
-                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_clock", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             case .success:
-                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_tick", in: Bundle.current, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                statusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             }
         } else {
             imageMetaStatusImageView.isHidden = true
@@ -358,6 +298,71 @@ class ParleyMessageView: UIView {
             
             messageTextView.markdownText = nil
         }
+    }
+    
+    private func renderImage() {
+        renderImageCorners()
+        setImageWidth()
+        
+        if let mediaId = message.media?.id {
+            displayImageLoading()
+            loadImage(id: mediaId)
+        } else {
+            hideImage()
+        }
+    }
+    
+    private func renderImageCorners() {
+        if displayTitle == .message || message.message != nil || message.hasButtons {
+            imageImageView.corners = [.topLeft, .topRight]
+        } else {
+            imageImageView.corners = [.allCorners]
+        }
+    }
+    
+    private func setImageWidth() {
+        imageMinimumWidthConstraint.constant = Self.minimumImageWidth
+    }
+    
+    private func hideImage() {
+        imageHolderView.isHidden = true
+        imageImageView.image = nil
+        imageActivityIndicatorView.stopAnimating()
+    }
+    
+    @MainActor
+    private func displayImageLoading() {
+        imageHolderView.isHidden = false
+        imageActivityIndicatorView.startAnimating()
+        imageImageView.image = appearance?.imagePlaceholder
+    }
+    
+    private func loadImage(id: String) {
+        let imageRequestForMessageId = message.id
+        Task {
+            do {
+                let image = try await imageLoader.load(id: id)
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == message.id else { return }
+                display(image: image.image)
+            } catch {
+                displayFailedLoadingImage()
+            }
+        }
+    }
+    
+    @MainActor private func display(image: UIImage) {
+        imageHolderView.isHidden = false
+        imageActivityIndicatorView.stopAnimating()
+        imageImageView.image = image
+        renderGradients()
+    }
+    
+    @MainActor private func displayFailedLoadingImage() {
+        imageActivityIndicatorView.stopAnimating()
+        renderGradients()
     }
     
     // Gradient

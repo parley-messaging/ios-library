@@ -1,12 +1,24 @@
 import UIKit
 
-internal class MessageImageViewController: UIViewController {
+final class MessageImageViewController: UIViewController {
     
     private var scrollView = UIScrollView()
     private var imageView = UIImageView()
     private var activityIndicatorView = UIActivityIndicatorView()
     
     var message: Message?
+    
+    private let messageRepository: MessageRepository
+    private let imageLoader: ImageLoader = Parley.shared.imageLoader
+    
+    init(messageRepository: MessageRepository) {
+        self.messageRepository = messageRepository
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,49 +72,42 @@ internal class MessageImageViewController: UIViewController {
     
     private func setupImageView() {
         scrollView.addSubview(imageView)
+        guard let mediaId = message?.media?.id else { 
+            dismiss(animated: true, completion: nil) ; return
+        }
         
-        if let image = message?.image {
-            imageView.image = image
-            
-            imageView.sizeToFit()
-            imageView.isAccessibilityElement = true
-            adjustContentInset()
-            
-            activityIndicatorView.isHidden = true
-            activityIndicatorView.stopAnimating()
-        } else if let id = message?.id {
-            activityIndicatorView.isHidden = false
-            activityIndicatorView.startAnimating()
-            
-            func onFindImageSuccess(image: UIImage) {
-                imageView.image = image
-                
-                imageView.sizeToFit()
-                adjustContentInset()
-                
-                activityIndicatorView.isHidden = true
-                activityIndicatorView.stopAnimating()
+        displayImageLoading()
+        loadImage(id: mediaId)
+    }
+    
+    private func displayImageLoading() {
+        activityIndicatorView.startAnimating()
+    }
+    
+    private func loadImage(id: String) {
+        Task {
+            do {
+                let image = try await imageLoader.load(id: id)
+                display(image: image.image)
+            } catch {
+                displayFailedLoadingImage()
             }
-            
-            func onFindImageError(error: Error) {
-                dismiss(animated: true, completion: nil)
-            }
-            
-            if let media = message?.media, let mediaIdUrl = URL(string: media.id) {
-                let url = mediaIdUrl.pathComponents.dropFirst().dropFirst().joined(separator: "/")
-                MessageRepository()
-                    .find(media: url, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
-            } else {
-                MessageRepository()
-                    .findImage(id, onSuccess: onFindImageSuccess(image:), onFailure: onFindImageError(error:))
-            }
-        } else {
-            dismiss(animated: true, completion: nil)
         }
     }
     
+    @MainActor private func display(image: UIImage) {
+        imageView.image = image
+        imageView.sizeToFit()
+        adjustContentInset()
+        activityIndicatorView.stopAnimating()
+    }
+    
+    @MainActor private func displayFailedLoadingImage() {
+        dismiss(animated: true, completion: nil)
+    }
+    
     private func setupActivityIndicatorView() {
-        self.activityIndicatorView.style = .white
+        self.activityIndicatorView.style = .medium
         self.activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(self.activityIndicatorView)
@@ -124,7 +129,7 @@ internal class MessageImageViewController: UIViewController {
     private func addDismissButton() {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        let image = UIImage(named: "ic_close", in: .current, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
+        let image = UIImage(named: "ic_close", in: .module, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
         button.setImage(image, for: .normal)
         button.tintColor = .white
         button.isAccessibilityElement = true

@@ -1,40 +1,39 @@
-import Alamofire
+import Foundation
 import UIKit
 
-internal class MessageRepository {
+final class MessageRepository {
     
-    private let messageRemoteService = MessageRemoteService()
+    private let remote: ParleyRemote
+    private let messageRemoteService: MessageRemoteService
     
-    internal func find(_ id: Int, onSuccess: @escaping (_ message: Message)->(), onFailure: @escaping (_ error: Error)->()) {
+    init(remote: ParleyRemote) {
+        self.remote = remote
+        self.messageRemoteService = MessageRemoteService(remote: remote)
+    }
+    
+    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.find(id, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func findAll(onSuccess: @escaping (_ messageCollection: MessageCollection)->(), onFailure: @escaping (_ error: Error)->()) {
+    func findAll(onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.findAll(onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func findBefore(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection)->(), onFailure: @escaping (_ error: Error)->()) {
+    func findBefore(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.findBefore(id, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func findAfter(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection)->(), onFailure: @escaping (_ error: Error)->()) {
+    func findAfter(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
         messageRemoteService.findAfter(id, onSuccess: onSuccess, onFailure: onFailure)
     }
     
-    internal func store(_ message: Message, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        messageRemoteService.store(message, onSuccess: onSuccess, onFailure: onFailure)
-    }
-    
-    internal func upload(imageData: Data, imageType: ParleyImageType, fileName: String, completion: @escaping ((Result<MediaResponse, Error>) -> ())) {
-        messageRemoteService.upload(imageData: imageData, imageType: imageType, fileName: fileName, completion: completion)
-    }
-    
-    @available(*, deprecated)
-    @discardableResult internal func findImage(_ messageId: Int, onSuccess: @escaping (_ message: UIImage)->(), onFailure: @escaping (_ error: Error)->()) -> DataRequest? {
-        messageRemoteService.findImage(messageId, onSuccess: onSuccess, onFailure: onFailure)
-    }
-    
-    @discardableResult internal func find(media: String, onSuccess: @escaping (_ message: UIImage) -> (), onFailure: @escaping (_ error: Error) -> ()) -> DataRequest? {
-        messageRemoteService.findMedia(media, onSuccess: onSuccess, onFailure: onFailure)
+    func store(_ message: Message) async throws -> Message {
+        return try await withCheckedThrowingContinuation { continuation in
+            messageRemoteService.store(message) { message in
+                continuation.resume(returning: message)
+            } onFailure: { error in
+                continuation.resume(throwing: error)
+            }
+        }
     }
 }
