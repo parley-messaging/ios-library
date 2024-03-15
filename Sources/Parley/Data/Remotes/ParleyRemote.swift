@@ -60,13 +60,13 @@ final class ParleyRemote {
     // MARK: - Execute request
 
     func execute<T: Codable>(
-        _ method: HTTPRequestMethod,
+        _ method: ParleyHTTPRequestMethod,
         path: String,
         parameters: [String: Any]? = nil,
         keyPath: ParleyResponseKeyPath? = .data,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) -> any RequestCancelable {
+    ) -> any ParleyRequestCancelable {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
 
         return networkSession.request(
@@ -80,7 +80,7 @@ final class ParleyRemote {
     }
 
     func execute(
-        _ method: HTTPRequestMethod,
+        _ method: ParleyHTTPRequestMethod,
         path: String,
         parameters: [String: Any]? = nil,
         onSuccess: @escaping () -> (),
@@ -115,7 +115,7 @@ final class ParleyRemote {
     // MARK: - MultipartFormData
 
     func execute<T: Codable>(
-        _ method: HTTPRequestMethod = .post,
+        _ method: ParleyHTTPRequestMethod = .post,
         path: String,
         multipartFormData: @escaping (inout MultipartFormData) -> Void,
         keyPath: ParleyResponseKeyPath? = .data,
@@ -141,7 +141,7 @@ final class ParleyRemote {
     }
 
     func execute<T: Codable>(
-        _ method: HTTPRequestMethod = .post,
+        _ method: ParleyHTTPRequestMethod = .post,
         path: String,
         imageData: Data,
         name: String,
@@ -176,7 +176,7 @@ final class ParleyRemote {
     }
 
     private func handleResult<T: Codable>(
-        result: Result<HTTPDataResponse, HTTPErrorResponse>,
+        result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>,
         keyPath: ParleyResponseKeyPath?,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
@@ -204,11 +204,11 @@ final class ParleyRemote {
 
     @discardableResult
     func execute(
-        _ method: HTTPRequestMethod,
+        _ method: ParleyHTTPRequestMethod,
         path: String,
         parameters: [String: Any]? = nil,
         result: @escaping (Result<ParleyImageNetworkModel, Error>) -> ()
-    ) -> RequestCancelable? {
+    ) -> ParleyRequestCancelable? {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
 
@@ -232,7 +232,7 @@ final class ParleyRemote {
         return request
     }
     
-    static func responseContains(_ response: HTTPDataResponse, contentType: String) -> Bool {
+    static func responseContains(_ response: ParleyHTTPDataResponse, contentType: String) -> Bool {
         guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
         return contentTypeHeader.contains(contentType)
     }

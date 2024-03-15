@@ -26,7 +26,7 @@ final class MessageRemoteService {
         _ id: Int,
         onSuccess: @escaping (_ messageCollection: MessageCollection) -> (),
         onFailure: @escaping (_ error: Error) -> ()
-    ) -> RequestCancelable {
+    ) -> ParleyRequestCancelable {
         remote.execute(
             .get,
             path: "messages/before:\(id)",

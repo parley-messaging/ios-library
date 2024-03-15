@@ -35,7 +35,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
             XCTFail("Should exist") ; return
         }
         
-        let localImage = ParleyStoredImage(id: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
         dataSource.save(image: localImage)
         
         guard let fetchedImage = dataSource.image(id: localImage.id) else {
@@ -52,12 +52,12 @@ final class ParleyImageDataSourceTest: XCTestCase {
     func testDataSource_shouldSaveArrayOfImages() {
         let images = [
             ParleyStoredImage(
-                id: UUID().uuidString,
+                filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.blueGradientPng).pngData()!,
                 type: .png
             ),
             ParleyStoredImage(
-                id: UUID().uuidString,
+                filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.redBlockJpg).jpegData(compressionQuality: 1)!,
                 type: .jpg
             ),
@@ -71,7 +71,7 @@ final class ParleyImageDataSourceTest: XCTestCase {
     
     func testDataSource_shouldDeleteImage_AfterSavingImage() throws {
         let imageData = testImageData!
-        let localImage = ParleyStoredImage(id: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
         dataSource.save(image: localImage)
         
         XCTAssertTrue(dataSource.delete(id: localImage.id))

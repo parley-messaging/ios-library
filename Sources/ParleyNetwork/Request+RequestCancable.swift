@@ -2,7 +2,7 @@ import Alamofire
 import Foundation
 import Parley
 
-extension Request: RequestCancelable {
+extension Request: ParleyRequestCancelable {
     public func cancelRequest() {
         cancel()
     }

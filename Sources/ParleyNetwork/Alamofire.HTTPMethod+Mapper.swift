@@ -1,9 +1,9 @@
 import Foundation
 import Alamofire
-import enum Parley.HTTPRequestMethod
+import enum Parley.ParleyHTTPRequestMethod
 
 extension Alamofire.HTTPMethod {
-    init(_ httpMethod: HTTPRequestMethod) {
+    init(_ httpMethod: ParleyHTTPRequestMethod) {
         switch httpMethod {
         case .delete:
             self = .delete
