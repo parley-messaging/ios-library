@@ -18,20 +18,6 @@ struct CodableHelper {
         return result
     }
 
-    /// Converting object to post-able dictionary
-    func toDictionary<T>(_ value: T) throws -> [String: Any] where T: Encodable {
-        let data = try encoder.encode(value)
-        let object = try JSONSerialization.jsonObject(with: data)
-        guard let json = object as? [String: Any] else {
-            let context = DecodingError.Context(
-                codingPath: [],
-                debugDescription: "Deserialized object is not a dictionary"
-            )
-            throw DecodingError.typeMismatch(type(of: object), context)
-        }
-        return json
-    }
-
     func encode<T>(_ value: T) throws -> Data where T: Encodable {
         try encoder.encode(value)
     }

@@ -22,6 +22,7 @@ final class MessageRemoteService {
         remote.execute(.get, path: "messages", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
     }
 
+    @discardableResult
     func findBefore(
         _ id: Int,
         onSuccess: @escaping (_ messageCollection: MessageCollection) -> (),
@@ -56,10 +57,11 @@ final class MessageRemoteService {
         onFailure: @escaping (_ error: Error) -> ()
     ) {
         DispatchQueue.global().async { [weak self] in
-            self?.remote.execute(
+            guard let self else { return }
+            remote.execute(
                 .post,
                 path: "messages",
-                parameters: try? self?.codableHelper.toDictionary(message),
+                body: message,
                 onSuccess: { (savedMessage: Message) in
                     message.id = savedMessage.id
                     onSuccess(message)
@@ -84,7 +86,7 @@ final class MessageRemoteService {
             result: completion
         )
     }
-    
+
     internal func findMedia(_ id: String, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
         remote.execute(.get, path: "media/\(id)", result: result)
     }

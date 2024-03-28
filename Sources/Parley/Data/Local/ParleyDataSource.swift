@@ -1,5 +1,5 @@
 public protocol ParleyDataSource: AnyObject {
-    
-    @discardableResult 
+
+    @discardableResult
     func clear() -> Bool
 }

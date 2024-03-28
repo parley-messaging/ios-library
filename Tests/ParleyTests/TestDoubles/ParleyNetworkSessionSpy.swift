@@ -4,37 +4,36 @@ import Foundation
 public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
 
     public init(
-        requestMethodParametersHeadersCompletionReturnValue: ParleyRequestCancelable? = nil,
-        uploadDataToMethodHeadersCompletionReturnValue: ParleyRequestCancelable? = nil,
-        uploadDataToMethodHeadersReturnValue: ParleyRequestCancelable? = nil
+        requestDataMethodHeadersCompletionReturnValue: ParleyRequestCancelable? = nil,
+        uploadDataToMethodHeadersCompletionReturnValue: ParleyRequestCancelable? = nil
     ) {
-        self.requestMethodParametersHeadersCompletionReturnValue = requestMethodParametersHeadersCompletionReturnValue
+        self.requestDataMethodHeadersCompletionReturnValue = requestDataMethodHeadersCompletionReturnValue
         self.uploadDataToMethodHeadersCompletionReturnValue = uploadDataToMethodHeadersCompletionReturnValue
-        self.uploadDataToMethodHeadersReturnValue = uploadDataToMethodHeadersReturnValue
     }
 
     // MARK: - request
 
-    public var requestMethodParametersHeadersCompletionCallsCount = 0
-    public var requestMethodParametersHeadersCompletionCalled: Bool {
-        return requestMethodParametersHeadersCompletionCallsCount > 0
+    public var requestDataMethodHeadersCompletionCallsCount = 0
+    public var requestDataMethodHeadersCompletionCalled: Bool {
+        return requestDataMethodHeadersCompletionCallsCount > 0
     }
-    public var requestMethodParametersHeadersCompletionReceivedArguments: (url: URL, method: ParleyHTTPRequestMethod, parameters: [String: Any]?, headers: [String: String], completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)?
-    public var requestMethodParametersHeadersCompletionReceivedInvocations: [(url: URL, method: ParleyHTTPRequestMethod, parameters: [String: Any]?, headers: [String: String], completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)] = []
-    public var requestMethodParametersHeadersCompletionReturnValue: ParleyRequestCancelable!
-    public var requestMethodParametersHeadersCompletionClosure: ((URL, ParleyHTTPRequestMethod, [String: Any]?, [String: String], @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable)?
+    public var requestDataMethodHeadersCompletionReceivedArguments: (url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String: String], completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)?
+    public var requestDataMethodHeadersCompletionReceivedInvocations: [(url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String: String], completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)] = []
+    public var requestDataMethodHeadersCompletionReturnValue: ParleyRequestCancelable!
+    public var requestDataMethodHeadersCompletionClosure: ((URL, Data?, ParleyHTTPRequestMethod, [String: String], @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable)?
 
     @discardableResult
-    public func request(_ url: URL, method: ParleyHTTPRequestMethod, parameters: [String: Any]?, headers: [String: String], completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
-        requestMethodParametersHeadersCompletionCallsCount += 1
-        requestMethodParametersHeadersCompletionReceivedArguments = (url: url, method: method, parameters: parameters, headers: headers, completion: completion)
-        requestMethodParametersHeadersCompletionReceivedInvocations.append((url: url, method: method, parameters: parameters, headers: headers, completion: completion))
-        if let requestMethodParametersHeadersCompletionClosure = requestMethodParametersHeadersCompletionClosure {
-            return requestMethodParametersHeadersCompletionClosure(url, method, parameters, headers, completion)
+    public func request(_ url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String: String], completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
+        requestDataMethodHeadersCompletionCallsCount += 1
+        requestDataMethodHeadersCompletionReceivedArguments = (url: url, data: data, method: method, headers: headers, completion: completion)
+        requestDataMethodHeadersCompletionReceivedInvocations.append((url: url, data: data, method: method, headers: headers, completion: completion))
+        if let requestDataMethodHeadersCompletionClosure = requestDataMethodHeadersCompletionClosure {
+            return requestDataMethodHeadersCompletionClosure(url, data, method, headers, completion)
         } else {
-            return requestMethodParametersHeadersCompletionReturnValue
+            return requestDataMethodHeadersCompletionReturnValue
         }
     }
+
     // MARK: - upload
 
     public var uploadDataToMethodHeadersCompletionCallsCount = 0
@@ -55,29 +54,6 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
             return uploadDataToMethodHeadersCompletionClosure(data, url, method, headers, completion)
         } else {
             return uploadDataToMethodHeadersCompletionReturnValue
-        }
-    }
-
-    // MARK: - upload
-
-    public var uploadDataToMethodHeadersCallsCount = 0
-    public var uploadDataToMethodHeadersCalled: Bool {
-        return uploadDataToMethodHeadersCallsCount > 0
-    }
-    public var uploadDataToMethodHeadersReceivedArguments: (data: Data, url: URL, method: ParleyHTTPRequestMethod, headers: [String: String])?
-    public var uploadDataToMethodHeadersReceivedInvocations: [(data: Data, url: URL, method: ParleyHTTPRequestMethod, headers: [String: String])] = []
-    public var uploadDataToMethodHeadersReturnValue: ParleyRequestCancelable!
-    public var uploadDataToMethodHeadersClosure: ((Data, URL, ParleyHTTPRequestMethod, [String: String]) -> ParleyRequestCancelable)?
-
-    @discardableResult
-    public func upload(data: Data, to url: URL, method: ParleyHTTPRequestMethod, headers: [String: String]) -> ParleyRequestCancelable {
-        uploadDataToMethodHeadersCallsCount += 1
-        uploadDataToMethodHeadersReceivedArguments = (data: data, url: url, method: method, headers: headers)
-        uploadDataToMethodHeadersReceivedInvocations.append((data: data, url: url, method: method, headers: headers))
-        if let uploadDataToMethodHeadersClosure = uploadDataToMethodHeadersClosure {
-            return uploadDataToMethodHeadersClosure(data, url, method, headers)
-        } else {
-            return uploadDataToMethodHeadersReturnValue
         }
     }
 

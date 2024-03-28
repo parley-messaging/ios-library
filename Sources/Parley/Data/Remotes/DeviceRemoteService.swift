@@ -16,7 +16,7 @@ final class DeviceRemoteService {
         remote.execute(
             .post,
             path: "devices",
-            parameters: try? CodableHelper.shared.toDictionary(device),
+            body: device,
             onSuccess: onSuccess,
             onFailure: onFailure
         )

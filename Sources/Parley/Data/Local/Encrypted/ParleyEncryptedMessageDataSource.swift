@@ -1,13 +1,13 @@
 import Foundation
 
 public class ParleyEncryptedMessageDataSource {
-    
+
     private let store: ParleyEncryptedStore
-    
+
     public enum Directory {
         case `default`
         case custom(String)
-        
+
         var path: String {
             switch self {
             case .default:
@@ -32,16 +32,16 @@ public class ParleyEncryptedMessageDataSource {
 }
 
 extension ParleyEncryptedMessageDataSource: ParleyMessageDataSource {
-    
+
     public func clear() -> Bool {
         store.clear()
     }
-    
+
     public func all() -> [Message]? {
         guard let jsonData = store.data(forKey: kParleyCacheKeyMessages) else { return nil }
         return try? CodableHelper.shared.decode([Message].self, from: jsonData)
     }
-    
+
     public func save(_ messages: [Message]) {
         if let messages = try? CodableHelper.shared.toJSONString(messages) {
             store.set(messages, forKey: kParleyCacheKeyMessages)

@@ -25,7 +25,7 @@ final class AlamofireHTTParleyConfigureTestsPMethodTests: XCTestCase {
             networkConfig: ParleyNetworkConfig(
                 url: url,
                 path: path,
-                apiVersion: .v1_6, 
+                apiVersion: .v1_7,
                 headers: headers
             )
         )

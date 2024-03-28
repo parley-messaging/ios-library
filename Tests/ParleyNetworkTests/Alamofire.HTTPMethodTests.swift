@@ -1,9 +1,9 @@
+import Alamofire
 import Foundation
 import Parley
-import XCTest
-import Alamofire
-@testable import ParleyNetwork
 import enum Parley.ParleyHTTPRequestMethod
+import XCTest
+@testable import ParleyNetwork
 
 final class AlamofireHTTPMethodTests: XCTestCase {
     func testMappings() {

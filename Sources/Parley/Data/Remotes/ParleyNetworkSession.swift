@@ -6,7 +6,7 @@ import UIKit
 /// > Warning: By implementing this protocol you are responsible for SSL pinning
 /// and other security related features that `Alamofire` will
 /// provide out of the box.
-/// 
+///
 /// By default the Parley SDK does use the `Alamofire` library to make
 /// network requests. You can also use your own network layer. To do
 /// so implement this protocol and register this with the following code:
@@ -22,8 +22,8 @@ public protocol ParleyNetworkSession {
     @discardableResult
     func request(
         _ url: URL,
+        data: Data?,
         method: ParleyHTTPRequestMethod,
-        parameters: [String: Any]?,
         headers: [String: String],
         completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable
