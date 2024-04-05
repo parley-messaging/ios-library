@@ -6,7 +6,7 @@ final class DeviceTests: XCTestCase {
 
     private let pushToken = "YrViSfynsb3eB72Yd7gNfZ_"
     private lazy var deviceString = "{\"pushEnabled\":true,\"pushType\":6,\"type\":2,\"version\":" +
-        "\"4.0.0\",\"pushToken\":\"\(pushToken)\"}"
+        "\"\(kParleyVersion)\",\"pushToken\":\"\(pushToken)\"}"
 
     private var decoder: JSONDecoder!
     private var encoder: JSONEncoder!

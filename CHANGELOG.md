@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.0.1 - Released 5 Apr 2024
+
+### Upgrading:
+
+**IMPORTANT**: With Parley 4.0.1 the `ParleyNetworkSession` has the `parameters` method changed to `data`. 
+
+- This is only a small breaking change syntax-wise when implementing your own `ParleyNetworkSession`.
+- The content of `data` should be put as the body of the request (the request content type is `application/json`, so if needed, it may be encoded as JSON in the body).
+- Check out Parley's standard `AlamofireNetworkSession` to see how this is could be implemented.
+
+### Changes:
+
+- Updated `ParleyNetworkSession` protocol: Changed `parameters` to `data` to correctly reflect the intended usage.
+
 ## 4.0.0 - Released 15 Mar 2024
 
 ### Upgrading:
