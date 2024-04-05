@@ -204,7 +204,7 @@ Create your own network session by adhering to the `ParleyNetworkSession` protoc
 
 ```swift
 class CustomNetworkSession : ParleyNetworkSession {
-    func request(_ url: URL, method: ParleyHTTPRequestMethod, parameters: [String : Any]?, headers: [String : String], completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
+    func request(_ url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String : String], completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void) -> ParleyRequestCancelable {
         // ...
     }
     
