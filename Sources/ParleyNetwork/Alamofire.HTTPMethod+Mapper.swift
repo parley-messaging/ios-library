@@ -1,5 +1,5 @@
-import Foundation
 import Alamofire
+import Foundation
 import enum Parley.ParleyHTTPRequestMethod
 
 extension Alamofire.HTTPMethod {

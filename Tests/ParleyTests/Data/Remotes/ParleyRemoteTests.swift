@@ -13,14 +13,14 @@ final class ParleyRemoteTests: XCTestCase {
 
     override func setUpWithError() throws {
         parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionReturnValue = RequestCancelableStub()
-        parleyNetworkSessionSpy.uploadDataToMethodHeadersReturnValue = RequestCancelableStub()
+        parleyNetworkSessionSpy.requestDataMethodHeadersCompletionReturnValue = RequestCancelableStub()
+        parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
         parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
 
         networkConfig = ParleyNetworkConfig(
             url: "https://api.parley.nu/",
             path: "/example",
-            apiVersion: .v1_6
+            apiVersion: .v1_7
         )
         createSecretMock = { "secret" }
         createUniqueDeviceIdentifierMock = { "id" }
@@ -51,7 +51,6 @@ final class ParleyRemoteTests: XCTestCase {
         sut.execute(
             .get,
             path: "path",
-            parameters: [:],
             keyPath: .none,
             onSuccess: { (items: [MediaResponse]) in
                 XCTAssertEqual(items.count, 1)
@@ -64,7 +63,7 @@ final class ParleyRemoteTests: XCTestCase {
 
         try callRequestCompletion(response: [MediaResponse(media: "test")])
 
-        wait { self.parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionCalled }
+        wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertTrue(onSuccessCalled)
         XCTAssertFalse(onFailureCalled)
     }
@@ -76,7 +75,6 @@ final class ParleyRemoteTests: XCTestCase {
         sut.execute(
             .get,
             path: "path",
-            parameters: [:],
             keyPath: .none,
             onSuccess: { (_: [MediaResponse]) in
                 onSuccessCalled = true
@@ -88,7 +86,7 @@ final class ParleyRemoteTests: XCTestCase {
 
         try callRequestCompletion(response: ["test"])
 
-        wait { self.parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionCalled }
+        wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertFalse(onSuccessCalled)
         XCTAssertTrue(onFailureCalled)
     }
@@ -110,7 +108,7 @@ final class ParleyRemoteTests: XCTestCase {
 
         try callRequestCompletion(response: ["test"])
 
-        wait { self.parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionCalled }
+        wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertTrue(onSuccessCalled)
         XCTAssertFalse(onFailureCalled)
     }
@@ -162,11 +160,11 @@ final class ParleyRemoteTests: XCTestCase {
         wait { self.parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionCalled }
         XCTAssertTrue(resultCalled)
     }
-    
+
     // MARK: - MultipartFormData
 
     private func callRequestCompletion(response: Encodable) throws {
-        let arguments = parleyNetworkSessionSpy.requestMethodParametersHeadersCompletionReceivedArguments
+        let arguments = parleyNetworkSessionSpy.requestDataMethodHeadersCompletionReceivedArguments
         try arguments?.completion(.success(createResponse(body: CodableHelper.shared.encode(response))))
     }
 

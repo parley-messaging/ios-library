@@ -62,7 +62,7 @@ private extension ImageLoader {
             }
             return image
         }
-        
+
         requests[id] = request
         return request
     }

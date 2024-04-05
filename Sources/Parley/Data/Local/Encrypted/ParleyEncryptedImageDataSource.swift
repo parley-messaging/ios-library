@@ -1,13 +1,13 @@
 import Foundation
 
 public class ParleyEncryptedImageDataSource {
-    
+
     private let store: ParleyEncryptedStore
-    
+
     public enum Directory {
         case `default`
         case custom(String)
-        
+
         var path: String {
             switch self {
             case .default:
@@ -32,7 +32,7 @@ public class ParleyEncryptedImageDataSource {
 }
 
 extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
-    
+
     public func clear() -> Bool {
         do {
             for url in getFiles() {

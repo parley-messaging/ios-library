@@ -30,10 +30,11 @@ final class ParleyRemote {
         guard let secret = createSecret() else {
             fatalError("ParleyRemote: Secret is not set")
         }
-        headers["x-iris-identification"] = "\(secret):\(getDeviceId())"
+        headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(getDeviceId())"
+        headers[HTTPHeaders.contentType.rawValue] = "application/json; charset=utf-8"
 
         if let userAuthorization = createUserAuthorizationToken() {
-            headers["Authorization"] = userAuthorization
+            headers[HTTPHeaders.authorization.rawValue] = userAuthorization
         }
 
         return headers
@@ -59,39 +60,47 @@ final class ParleyRemote {
 
     // MARK: - Execute request
 
+    @discardableResult
     func execute<T: Codable>(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        parameters: [String: Any]? = nil,
+        body: Encodable? = nil,
         keyPath: ParleyResponseKeyPath? = .data,
         onSuccess: @escaping (_ item: T) -> (),
         onFailure: @escaping (_ error: Error) -> ()
     ) -> any ParleyRequestCancelable {
-        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
+        let bodyData = mapBodyToData(body: body)
 
         return networkSession.request(
             getUrl(path),
+            data: bodyData,
             method: method,
-            parameters: parameters,
             headers: createHeaders()
         ) { [weak self] result in
             self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
         }
     }
 
+    private func mapBodyToData(body: Encodable?) -> Data? {
+        guard let body else {
+            return nil
+        }
+
+        return try? JSONEncoder().encode(body)
+    }
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        parameters: [String: Any]? = nil,
         onSuccess: @escaping () -> (),
         onFailure: @escaping (_ error: Error) -> ()
     ) {
-        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
 
         networkSession.request(
             getUrl(path),
+            data: nil,
             method: method,
-            parameters: parameters,
             headers: createHeaders()
         ) { result in
             switch result {
@@ -107,7 +116,7 @@ final class ParleyRemote {
                     }
                 }
             case .failure(let error):
-                    onFailure(error)
+                onFailure(error)
             }
         }
     }
@@ -206,32 +215,37 @@ final class ParleyRemote {
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        parameters: [String: Any]? = nil,
         result: @escaping (Result<ParleyImageNetworkModel, Error>) -> ()
     ) -> ParleyRequestCancelable? {
         let url = getUrl(path)
-        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(parameters ?? [:])")
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
 
-        let request = networkSession.request(url, method: .get, parameters: parameters, headers: createHeaders(), completion: { requestResult in
-            switch requestResult {
-            case .success(let response):
-                if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
-                    result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
-                } else if let data = response.body {
-                    result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
-                }
-            case .failure(let error):
-                if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
-                    result(.failure(apiError))
-                } else {
-                    result(.failure(error))
+        let request = networkSession.request(
+            url,
+            data: nil,
+            method: .get,
+            headers: createHeaders(),
+            completion: { requestResult in
+                switch requestResult {
+                case .success(let response):
+                    if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
+                        result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
+                    } else if let data = response.body {
+                        result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
+                    }
+                case .failure(let error):
+                    if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
+                        result(.failure(apiError))
+                    } else {
+                        result(.failure(error))
+                    }
                 }
             }
-        })
-        
+        )
+
         return request
     }
-    
+
     static func responseContains(_ response: ParleyHTTPDataResponse, contentType: String) -> Bool {
         guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
         return contentTypeHeader.contains(contentType)

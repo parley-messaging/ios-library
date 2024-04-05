@@ -5,7 +5,7 @@ public struct ParleyHTTPErrorResponse: Error {
     public let headers: [String: String]?
     public let data: Data?
     public let error: Error
-    
+
     public init(
         statusCode: Int? = nil,
         headers: [String : String]? = nil,
@@ -17,7 +17,7 @@ public struct ParleyHTTPErrorResponse: Error {
         self.data = data
         self.error = error
     }
-    
+
     var isOfflineError: Bool {
         statusCode == nil && headers == nil && data == nil
     }

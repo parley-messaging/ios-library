@@ -23,24 +23,24 @@ public struct ParleyStoredImage: Codable {
             type: media.type
         )
     }
-    
+
     struct FilePath: Codable, CustomStringConvertible {
         let name: String
         let type: ParleyImageType
-        
+
         var description: String {
             [name, type.fileExtension].joined().replacingOccurrences(of: "/", with: "_")
         }
-        
+
         package init(name: String, type: ParleyImageType) {
             self.name = name
             self.type = type
         }
-        
+
         static func create(image: ParleyStoredImage) -> String {
             FilePath(name: image.filename, type: image.type).description
         }
-        
+
         static func create(path: String) -> FilePath? {
             if let url = URL(string: path) {
                 return Self.decode(url: url)
@@ -48,14 +48,14 @@ public struct ParleyStoredImage: Codable {
                 return nil
             }
         }
-        
+
         static func decode(url: URL) -> FilePath? {
             var splitFilename = url.lastPathComponent.split(separator: ".")
             guard splitFilename.count >= 2 else { return nil }
-            
+
             let type = String(splitFilename.removeLast())
             let fileName = String(splitFilename.removeLast())
-            
+
             guard let imageType = ParleyImageType(rawValue: type) else { return nil }
             return FilePath(name: fileName, type: imageType)
         }
@@ -63,7 +63,7 @@ public struct ParleyStoredImage: Codable {
 }
 
 extension ParleyStoredImage: Identifiable {
-    
+
     public var id: String { filename }
 }
 

@@ -42,7 +42,8 @@ extension ParleyEncryptedStore {
             return nil
         }
     }
-    
+
+    @discardableResult
     public func set(_ string: String, forKey key: String) -> Bool {
         guard let data = string.data(using: .utf8) else { return false }
         return set(data, forKey: key)

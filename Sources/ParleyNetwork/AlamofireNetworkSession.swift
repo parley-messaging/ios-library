@@ -6,7 +6,6 @@ import UIKit
 
 final class AlamofireNetworkSession: ParleyNetworkSession {
 
-    private let encoding = URLEncoding(boolEncoding: URLEncoding.BoolEncoding.literal)
     private let networkConfig: ParleyNetworkConfig
     private let session: Session
 
@@ -29,18 +28,17 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
 
     func request(
         _ url: URL,
+        data: Data?,
         method: ParleyHTTPRequestMethod,
-        parameters: [String : Any]?,
         headers: [String : String],
         completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable {
-        let dataRequest = session.request(
-            url,
-            method: Alamofire.HTTPMethod(method),
-            parameters: parameters,
-            encoding: encoding,
-            headers: HTTPHeaders(headers)
-        ).response { response in
+        var request = URLRequest(url: url)
+        request.method = Alamofire.HTTPMethod(method)
+        request.headers = HTTPHeaders(headers)
+        request.httpBody = data
+
+        let dataRequest = session.request(request).response { response in
             guard let statusCode = response.response?.statusCode else {
                 completion(.failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                 return
@@ -53,7 +51,6 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                     headers: response.response?.headers.dictionary ?? [:]
                 )))
             case .failure(let error):
-                guard let data = response.data else { return }
                 let headers = response.response?.headers.dictionary
                 let responseError = ParleyHTTPErrorResponse(
                     statusCode: statusCode,

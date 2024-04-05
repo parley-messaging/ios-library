@@ -7,7 +7,7 @@ public protocol ParleyKeyValueDataSource: AnyObject, ParleyDataSource {
 
     @discardableResult
     func set(_ string: String, forKey key: String) -> Bool
-    
+
     @discardableResult
     func set(_ data: Data, forKey key: String) -> Bool
 

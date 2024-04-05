@@ -49,13 +49,13 @@ public final class Message: Codable, Equatable {
     var title: String?
     var message: String?
     var responseInfoType: String?
-    
+
     var media: MediaObject?
-   
+
     var hasMedium: Bool {
         media != nil
     }
-    
+
     var hasButtons: Bool {
         guard let buttons else { return false }
         return !buttons.isEmpty
@@ -134,7 +134,7 @@ public final class Message: Codable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(id, forKey: .id)
         try container.encodeIfPresent(uuid, forKey: .uuid)
         if let time {
             try container.encode(Int(time.timeIntervalSince1970), forKey: .time)

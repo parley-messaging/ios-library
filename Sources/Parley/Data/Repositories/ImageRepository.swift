@@ -31,18 +31,18 @@ extension ImageRepository {
             return dataSource?.image(id: filePath.description)
         }
     }
-    
+
     func getRemoteImage(for imageId: RemoteImage.ID) async throws -> ParleyImageNetworkModel {
         let mediaURL = try createMediaURL(path: imageId)
         let networkImage = try await fetchMedia(url: mediaURL)
-        
+
         await MainActor.run {
             store(networkImage: networkImage, remotePath: imageId)
         }
-        
+
         return networkImage
     }
-    
+
     func upload(image storedImage: ParleyStoredImage) async throws -> RemoteImage {
         return try await withCheckedThrowingContinuation { continuation in
             messageRemoteService.upload(
@@ -54,9 +54,9 @@ extension ImageRepository {
                 do {
                     let mediaResponse = try imageResult.get()
                     let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
-                    
+
                     move(storedImage, to: remoteImage.id)
-                    
+
                     continuation.resume(returning: remoteImage)
                 } catch {
                     continuation.resume(throwing: error)

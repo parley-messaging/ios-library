@@ -295,7 +295,7 @@ public final class Parley {
     }
     
     private func clearMessagesAndDataSources() {
-        messagesManager.clear()
+        messagesManager?.clear()
         messageDataSource?.clear()
         keyValueDataSource?.clear()
         delegate?.didReceiveMessages()
@@ -304,7 +304,7 @@ public final class Parley {
     // MARK: Devices
     private func registerDevice(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         if self.state == .configuring || self.state == .configured {
-            deviceRepository.register(device: makeDeviceData(), onSuccess: { _ in
+            deviceRepository?.register(device: makeDeviceData(), onSuccess: { _ in
                 onSuccess?()
             }, onFailure: { error in
                 onFailure?((error as NSError).code, error.getFormattedMessage())
@@ -357,13 +357,13 @@ public final class Parley {
     
     private func sendPendingMessage(message: Message) async {
         do {
-            let messages = try await ensureMediaUploadedIfAvailable(message)
-            await send(message, isNewMessage: false)
+            let updatedMessage = try await ensureMediaUploadedIfAvailable(message)
+            await send(updatedMessage, isNewMessage: false)
         } catch {
             await failedToSend(message: message, error: error)
         }
     }
-    
+
     private func ensureMediaUploadedIfAvailable(_ message: Message) async throws -> Message {
         guard let storedImage = getStoredMedia(for: message) else { return message }
         return try await upload(storedImage: storedImage, message: message)
@@ -776,14 +776,14 @@ extension Parley {
      */
     public static func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
         Task {
-            await shared.imageLoader.reset()
+            await shared.imageLoader?.reset()
         }
         
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository.reset()
-        
-        Parley.shared.registerDevice(onSuccess: {
+        shared.imageRepository?.reset()
+
+        shared.registerDevice(onSuccess: {
             shared.secret = nil
             onSuccess?()
         }, onFailure: { code, message in
