@@ -310,6 +310,7 @@ public class ParleyView: UIView {
     private func apply(_ appearance: ParleyViewAppearance) {
         backgroundColor = appearance.backgroundColor
 
+        activityIndicatorView.color = appearance.loaderTintColor
         statusLabel.textColor = appearance.textColor
 
         pushDisabledNotificationView.appearance = appearance.pushDisabledNotification

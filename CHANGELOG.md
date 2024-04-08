@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2 - Released 8 Apr 2024
+
+- Added `ParleyViewAppearance.loaderTintColor` to tint the loading indicator of the chat.
+
 ## 4.0.1 - Released 5 Apr 2024
 
 ### Upgrading:
