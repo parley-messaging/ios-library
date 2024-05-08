@@ -50,6 +50,7 @@ public final class Parley {
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
  
+    private(set) var alwaysEnablePolling: Bool = false
     private(set) var pushToken: String? = nil
     private(set) var pushType: Device.PushType? = nil
     private(set) var pushEnabled: Bool = false
@@ -815,5 +816,15 @@ extension Parley {
      */
     public static func setReferrer(_ referrer: String) {
         shared.referrer = referrer
+    }
+    
+    /**
+     Always enable polling of messages even when the push permission is granted.
+
+     - Parameters:
+       - enabled: Boolean that indicates if `alwaysEnablePolling` should be enabled.
+     */
+    public static func setAlwaysEnablePolling(_ enabled: Bool) {
+        shared.alwaysEnablePolling = enabled
     }
 }
