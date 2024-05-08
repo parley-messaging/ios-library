@@ -122,7 +122,7 @@ final class ParleyMessageView: UIView {
     // MARK: - Appearance
     var appearance: ParleyMessageViewAppearance? {
         didSet {
-            guard let appearance = appearance else { return }
+            guard let appearance else { return }
             apply(appearance)
         }
     }
@@ -314,10 +314,24 @@ final class ParleyMessageView: UIView {
     
     private func renderImageCorners() {
         if displayTitle == .message || message.message != nil || message.hasButtons {
-            imageImageView.corners = [.topLeft, .topRight]
+            imageImageView.corners = filterOutCornersIfNecessary(neededCorners: appearance?.imageCorners)
         } else {
-            imageImageView.corners = [.allCorners]
+            imageImageView.corners = appearance?.imageCorners ?? [.allCorners]
         }
+    }
+    
+    private func filterOutCornersIfNecessary(neededCorners: UIRectCorner?) -> UIRectCorner {
+        guard let neededCorners else {
+            return [.topLeft, .topRight]
+        }
+        var filteredCorners: UIRectCorner = []
+        if neededCorners.contains(.topLeft) {
+            filteredCorners.insert(.topLeft)
+        }
+        if neededCorners.contains(.topRight) {
+            filteredCorners.insert(.topRight)
+        }
+        return filteredCorners
     }
     
     private func setImageWidth() {
@@ -520,7 +534,7 @@ final class ParleyMessageView: UIView {
         imageBottomLayoutConstraint.constant = appearance.imageInsets?.bottom ?? 0
         
         imageImageView.cornerRadius = CGFloat(appearance.imageCornerRadius)
-        imageImageView.corners = [.allCorners]
+        imageImageView.corners = appearance.imageCorners
         
         imageActivityIndicatorView.color = appearance.imageLoaderTintColor
         
