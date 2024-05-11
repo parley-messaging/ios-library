@@ -632,8 +632,7 @@ extension ParleyView: ParleyComposeViewDelegate {
     @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = "parley_ok".localized
-        alert.addAction(UIAlertAction(title: okMessage, style: .default))
+        alert.addAction(.ok)
         present(alert, animated: true)
     }
 
