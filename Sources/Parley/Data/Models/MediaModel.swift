@@ -1,4 +1,5 @@
 import UIKit
+import UniformTypeIdentifiers
 
 struct MediaModel: Codable {
     let data: Data
@@ -16,6 +17,21 @@ struct MediaModel: Codable {
             self.data = jpegData
         case .gif:
             self.data = data
+        }
+    }
+    
+    @available(iOS 14.0, *)
+    init?(image: UIImage, data: Data, fileName: String, type: UTType) {
+        self.filename = fileName
+        
+        switch type {
+        case .gif:
+            self.data = data
+            self.type = .gif
+        default:
+            guard let jpegData = Self.convertToJpegData(image) else { return nil }
+            self.data = jpegData
+            self.type = .jpg
         }
     }
 }

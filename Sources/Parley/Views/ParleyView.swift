@@ -1,4 +1,5 @@
 import UIKit
+import UniformTypeIdentifiers
 
 public class ParleyView: UIView {
 
@@ -59,6 +60,8 @@ public class ParleyView: UIView {
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
+    
+    private static let maximumImageSizeInMegabytes = 10
 
     public var appearance = ParleyViewAppearance() {
         didSet {
@@ -649,21 +652,45 @@ extension ParleyView: ParleyComposeViewDelegate {
     func send(image: UIImage, with data: Data, url: URL) {
         Task { @MainActor in
             guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-                let title = "parley_send_failed_title".localized
-                let message = "parley_send_failed_body_media_invalid".localized
-                presentInformationalAlert(title: title, message: message)
-                return
+                presentInvalidMediaAlert() ; return
             }
             
-            guard !mediaModel.isLargerThan(size: 10) else {
-                let title = "parley_send_failed_title".localized
-                let message = "parley_send_failed_body_media_too_large".localized
-                presentInformationalAlert(title: title, message: message)
-                return
-            }
-            
-            await Parley.shared.sendNewMessageWithMedia(mediaModel)
+            await send(media: mediaModel)
         }
+    }
+    
+    @available(iOS 14.0, *)
+    func send(image: UIImage, data: Data, fileName: String, type: UTType) {
+        Task { @MainActor in
+            guard let mediaModel = MediaModel(image: image, data: data, fileName: fileName, type: type) else {
+                presentInvalidMediaAlert() ; return
+            }
+            
+            await send(media: mediaModel)
+        }
+    }
+    
+    @MainActor
+    private func send(media: MediaModel) async {
+        guard !media.isLargerThan(size: Self.maximumImageSizeInMegabytes) else {
+            presentImageToLargeAlert() ; return
+        }
+        
+        await Parley.shared.sendNewMessageWithMedia(media)
+    }
+    
+    @MainActor
+    private func presentInvalidMediaAlert() {
+        let title = "parley_send_failed_title".localized
+        let message = "parley_send_failed_body_media_invalid".localized
+        presentInformationalAlert(title: title, message: message)
+    }
+    
+    @MainActor
+    private func presentImageToLargeAlert() {
+        let title = "parley_send_failed_title".localized
+        let message = "parley_send_failed_body_media_too_large".localized
+        presentInformationalAlert(title: title, message: message)
     }
 }
 
