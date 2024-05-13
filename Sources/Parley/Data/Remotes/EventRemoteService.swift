@@ -8,7 +8,7 @@ final class EventRemoteService {
         self.remote = remote
     }
 
-    func fire(_ name: String, onSuccess: @escaping () -> (), onFailure: @escaping (_ error: Error) -> ()) {
-        remote.execute(.post, path: "services/event/\(name)", onSuccess: onSuccess, onFailure: onFailure)
+    func fire(_ name: UserTypingEvent, onSuccess: @escaping () -> (), onFailure: @escaping (_ error: Error) -> ()) {
+        remote.execute(.post, path: "services/event/\(name.rawValue)", onSuccess: onSuccess, onFailure: onFailure)
     }
 }

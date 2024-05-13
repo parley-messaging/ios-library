@@ -1,28 +1,24 @@
 import Foundation
 
 class ImageRepository {
-    
+
     enum ImageRepositoryError: Error {
         case invalidRemoteURL
     }
-    
+
     weak var dataSource: ParleyImageDataSource?
     private var messageRemoteService: MessageRemoteService
-    
-    init(remote: ParleyRemote) {
-        self.messageRemoteService = MessageRemoteService(remote: remote)
-    }
-}
 
-// MARK: Methods
-extension ImageRepository {
-    
+    init(messageRemoteService: MessageRemoteService) {
+        self.messageRemoteService = messageRemoteService
+    }
+
     func store(media: MediaModel) -> ParleyStoredImage {
         let image = ParleyStoredImage.from(media: media)
         store(image: image)
         return image
     }
-    
+
     func getStoredImage(for imageId: ParleyStoredImage.ID) -> ParleyStoredImage? {
         if isLocalId(imageId: imageId) {
             return dataSource?.image(id: imageId)
@@ -64,29 +60,29 @@ extension ImageRepository {
             }
         }
     }
-    
+
     func reset() {
         dataSource?.clear()
     }
 }
 
 // MARK: Privates
-private extension ImageRepository {
-    
-    func isLocalId(imageId: ParleyStoredImage.ID) -> Bool {
+extension ImageRepository {
+
+    private func isLocalId(imageId: ParleyStoredImage.ID) -> Bool {
         guard let url = URL(string: imageId) else { return true }
         return url.pathComponents.count == 1
     }
-    
-    func createMediaURL(path: String) throws -> URL {
+
+    private func createMediaURL(path: String) throws -> URL {
         if let mediaIdUrl = URL(string: path) {
             return mediaIdUrl
         } else {
             throw ImageRepositoryError.invalidRemoteURL
         }
     }
-    
-    func fetchMedia(url: URL) async throws -> ParleyImageNetworkModel {
+
+    private func fetchMedia(url: URL) async throws -> ParleyImageNetworkModel {
         return try await withCheckedThrowingContinuation { continuation in
             let remotePath = getRemoteFetchPath(url: url)
             messageRemoteService.findMedia(remotePath, result: { result in
@@ -94,31 +90,30 @@ private extension ImageRepository {
             })
         }
     }
-    
-    func getRemoteFetchPath(url: URL) -> String {
+
+    private func getRemoteFetchPath(url: URL) -> String {
         url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
     }
-    
-    func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
+
+    private func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
         guard
             let storedImage = dataSource?.image(id: local.id),
-            let filePath = ParleyStoredImage.FilePath.create(path: remoteId)
-        else { return }
-        
+            let filePath = ParleyStoredImage.FilePath.create(path: remoteId) else { return }
+
         dataSource?.delete(id: storedImage.id)
         storeImage(data: storedImage.data, path: filePath)
     }
-    
-    func store(networkImage: ParleyImageNetworkModel, remotePath: String) {
+
+    private func store(networkImage: ParleyImageNetworkModel, remotePath: String) {
         guard let filePath = ParleyStoredImage.FilePath.create(path: remotePath) else { return }
         storeImage(data: networkImage.data, path: filePath)
     }
-    
-    func storeImage(data: Data, path: ParleyStoredImage.FilePath) {
+
+    private func storeImage(data: Data, path: ParleyStoredImage.FilePath) {
         store(image: ParleyStoredImage(filename: path.name, data: data, type: path.type))
     }
-    
-    func store(image: ParleyStoredImage) {
+
+    private func store(image: ParleyStoredImage) {
         dataSource?.save(image: image)
     }
 }

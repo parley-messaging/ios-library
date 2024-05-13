@@ -4,11 +4,9 @@ import UIKit
 final class MessageRemoteService {
 
     private let remote: ParleyRemote
-    private let codableHelper: CodableHelper
 
-    init(remote: ParleyRemote, codableHelper: CodableHelper = .shared) {
+    init(remote: ParleyRemote) {
         self.remote = remote
-        self.codableHelper = codableHelper
     }
 
     func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
@@ -87,7 +85,7 @@ final class MessageRemoteService {
         )
     }
 
-    internal func findMedia(_ id: String, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
+    func findMedia(_ id: String, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
         remote.execute(.get, path: "media/\(id)", result: result)
     }
 }

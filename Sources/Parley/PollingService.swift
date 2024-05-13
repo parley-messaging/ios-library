@@ -18,7 +18,7 @@ final class PollingService: PollingServiceProtocol {
     
     private var timer: Timer?
     weak var delegate: ParleyDelegate?
-    private let messageRepository = MessageRepository(remote: Parley.shared.remote)
+    private let messageRepository = Parley.shared.messageRepository
     private let messagesManager = Parley.shared.messagesManager
     
     private var loopRepeated: Int = 0 {
@@ -65,7 +65,7 @@ final class PollingService: PollingServiceProtocol {
     }
     
     private func refreshFeed() {
-        guard let id = messagesManager?.lastSentMessage?.id, timer?.isValid == true else { return }
+        guard let messageRepository, let id = messagesManager?.lastSentMessage?.id, timer?.isValid == true else { return }
         messageRepository.findAfter(id, onSuccess: { [weak self, weak delegate, weak messagesManager] messageCollection in
             guard !messageCollection.messages.isEmpty else {
                 self?.loopRepeated += 1

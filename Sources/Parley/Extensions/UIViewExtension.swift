@@ -10,7 +10,7 @@ extension UIView {
         if let navigationController = viewController as? UINavigationController {
             viewController = navigationController.viewControllers.last
         }
-        
+
         viewController?.present(viewControllerToPresent, animated: true, completion: nil)
     }
     
@@ -21,7 +21,7 @@ extension UIView {
             name: UIAccessibility.voiceOverStatusDidChangeNotification,
             object: nil
         )
-        
+
         // Run callback function immediately
         voiceOverDidChangeNotificationCallback()
     }
@@ -29,7 +29,7 @@ extension UIView {
     @objc private func voiceOverDidChangeNotificationCallback() {
         voiceOverDidChange(isVoiceOverRunning: UIAccessibility.isVoiceOverRunning)
     }
-    
+
     /// Called when VoiceOver status changed.
     /// - Important: Call `watchForVoiceOverDidChangeNotification(observer:)` to get callbacks.
     @objc func voiceOverDidChange(isVoiceOverRunning: Bool) { }
