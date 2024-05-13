@@ -56,6 +56,7 @@ final class ParleyMessageView: UIView {
     
     @IBOutlet weak var imageMetaTimeLabel: UILabel!
     @IBOutlet weak var imageMetaStatusImageView: UIImageView!
+    @IBOutlet weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
     
     @IBOutlet weak var imageFailureMessageLabel: UILabel!
     
@@ -97,6 +98,7 @@ final class ParleyMessageView: UIView {
     
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var statusImageView: UIImageView!
+    @IBOutlet weak var statusImageViewWidth: NSLayoutConstraint!
     
     // Buttons
     @IBOutlet weak var buttonsView: UIView!
@@ -211,7 +213,6 @@ final class ParleyMessageView: UIView {
         
         imageMetaStackView.isHidden = displayMeta != .image
         metaView.isHidden = displayMeta != .message
-        
         renderMetaTime()
     }
     
@@ -265,6 +266,9 @@ final class ParleyMessageView: UIView {
             imageMetaStatusImageView.isHidden = true
             statusImageView.isHidden = true
         }
+        
+        statusImageViewWidth.constant = timeLabel.intrinsicContentSize.height
+        imageMetaStatusImageViewWidth.constant = imageMetaTimeLabel.intrinsicContentSize.height
     }
     
     private func renderTitle() {
