@@ -1,0 +1,14 @@
+version: 2
+enable-beta-ecosystems: true
+updates:
+  - package-ecosystem: "swift"
+    directory: "/"
+    commit-message:
+      prefix: "Swift packages:"
+    schedule:
+      interval: "weekly"
+      time: "02:00"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
