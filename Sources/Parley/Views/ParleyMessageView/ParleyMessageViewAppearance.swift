@@ -11,6 +11,7 @@ public class ParleyMessageViewAppearance {
     
     // Image
     public var imageCornerRadius: Float = 20
+    public var imageCorners: UIRectCorner = [.allCorners]
     public var imagePlaceholder: UIImage
     public var imageLoaderTintColor: UIColor = UIColor(white:0, alpha:0.8)
     
