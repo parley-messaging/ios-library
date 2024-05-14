@@ -325,10 +325,10 @@ final class ParleyMessageView: UIView {
             return [.topLeft, .topRight]
         }
         var filteredCorners: UIRectCorner = []
-        if neededCorners.contains(.topLeft) {
+        if neededCorners.contains(.topLeft) || neededCorners.contains(.allCorners) {
             filteredCorners.insert(.topLeft)
         }
-        if neededCorners.contains(.topRight) {
+        if neededCorners.contains(.topRight) || neededCorners.contains(.allCorners) {
             filteredCorners.insert(.topRight)
         }
         return filteredCorners
