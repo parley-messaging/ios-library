@@ -100,10 +100,12 @@ public final class Parley {
         self.networkConfig = networkConfig
         self.deviceRepository = DeviceRepository(remote: remote)
         self.eventRemoteService = EventRemoteService(remote: remote)
-        self.messageRepository = MessageRepository(remote: remote)
         self.messagesManager = MessagesManager(messageDataSource: messageDataSource, keyValueDataSource: keyValueDataSource)
         self.remote = remote
-        self.imageRepository = ImageRepository(remote: remote)
+        
+        let messageRemoteService = MessageRemoteService(remote: self.remote)
+        self.imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
+        self.messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
         self.imageRepository.dataSource = imageDataSource
         self.imageLoader = ImageLoader(imageRepository: imageRepository)
     }
@@ -462,8 +464,13 @@ public final class Parley {
     // MARK: Remote messages
 
     private func handleMessage(_ userInfo: [String: Any]) {
-        guard let id = userInfo["id"] as? Int else { return }
-        guard let typeId = userInfo["typeId"] as? Int else { return }
+        guard
+            let id = userInfo["id"] as? Int,
+            let typeId = userInfo["typeId"] as? Int else
+        {
+            return
+        }
+
         let body = userInfo["body"] as? String
 
         let message = Message()
@@ -475,16 +482,16 @@ public final class Parley {
         if self.isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
-            messageRepository.find(id, onSuccess: { [weak self] message in
+            messageRepository.find(id, onSuccess: { [weak self] storedMessage in
                 guard let self else { return }
-                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
+                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: storedMessage) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
                 delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
+                let indexPaths = self.messagesManager.add(storedMessage)
                 delegate?.didReceiveMessage(indexPaths)
-            }) { [weak self] error in
+            }) { [weak self] _ in
                 guard let self else { return }
 
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
@@ -504,13 +511,14 @@ public final class Parley {
     }
 
     private func handleEvent(_ event: String?) {
-        switch event {
-        case kParleyEventStartTyping?:
+        guard let event, let typeEvent = UserTypingEvent(rawValue: event) else {
+            return
+        }
+        switch typeEvent {
+        case .startTyping:
             agentStartTyping()
-        case kParleyEventStopTyping?:
+        case .stopTyping:
             agentStopTyping()
-        default:
-            break
         }
     }
 
@@ -520,7 +528,7 @@ public final class Parley {
         guard self.reachable else { return }
 
         if self.userStartTypingDate == nil || Date().timeIntervalSince1970 - self.userStartTypingDate!.timeIntervalSince1970 > kParleyEventStartTypingTriggerAfter {
-            eventRemoteService.fire(kParleyEventStartTyping, onSuccess: {}, onFailure: { _ in })
+            eventRemoteService.fire(UserTypingEvent.startTyping, onSuccess: { }, onFailure: { _ in })
 
             self.userStartTypingDate = Date()
         }
@@ -529,7 +537,7 @@ public final class Parley {
         self.userStopTypingTimer = Timer.scheduledTimer(withTimeInterval: kParleyEventStopTypingTriggerAfter, repeats: false) { (timer) in
             if !self.reachable { return }
 
-            self.eventRemoteService.fire(kParleyEventStopTyping, onSuccess: {}, onFailure: { _ in })
+            self.eventRemoteService.fire(UserTypingEvent.stopTyping, onSuccess: { }, onFailure: { _ in })
 
             self.userStartTypingDate = nil
             self.userStopTypingTimer = nil
@@ -628,7 +636,7 @@ extension Parley {
         shared.keyValueDataSource = nil
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
-        shared.imageRepository.dataSource = nil
+        shared.imageRepository?.dataSource = nil
         
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }

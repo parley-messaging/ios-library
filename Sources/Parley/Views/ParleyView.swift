@@ -52,8 +52,8 @@ public class ParleyView: UIView {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
     private let notificationService = NotificationService()
-    private var messageRepository: MessageRepository = MessageRepository(remote: Parley.shared.remote)
-    private var pollingService: PollingServiceProtocol = PollingService()
+    private let messageRepository: MessageRepository = Parley.shared.messageRepository
+    private let pollingService: PollingServiceProtocol = PollingService()
     
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?

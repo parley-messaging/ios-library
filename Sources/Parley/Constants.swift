@@ -10,9 +10,6 @@ let kParleyUserDefaultDeviceUUID = "parley.device_uuid"
 let kParleyTypeMessage = "message"
 let kParleyTypeEvent = "event"
 
-let kParleyEventStartTyping = "startTyping"
-let kParleyEventStopTyping = "stopTyping"
-
 let kParleyEventStartTypingTriggerAfter = 20.0
 let kParleyEventStopTypingTriggerAfter = 15.0
 
