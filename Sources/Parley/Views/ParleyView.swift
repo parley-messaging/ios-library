@@ -116,7 +116,7 @@ public class ParleyView: UIView {
     private func setupPollingIfNecessary() {
         pollingService.delegate = self
         
-        if Parley.shared.alwaysEnablePolling {
+        if Parley.shared.alwaysPolling {
             pollingService.startRefreshing()
         } else {
             notificationService.notificationsEnabled() { [weak self] isEnabled in
