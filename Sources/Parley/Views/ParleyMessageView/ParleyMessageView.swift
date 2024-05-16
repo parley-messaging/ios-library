@@ -268,7 +268,10 @@ final class ParleyMessageView: UIView {
         }
         
         statusImageViewWidth.constant = timeLabel.intrinsicContentSize.height
+        metaBottomLayoutConstraint.constant -= metaStackView.frame.height - timeLabel.intrinsicContentSize.height
+        
         imageMetaStatusImageViewWidth.constant = imageMetaTimeLabel.intrinsicContentSize.height
+        imageMetaBottomLayoutConstraint.constant -= imageMetaStackView.frame.height - imageMetaTimeLabel.intrinsicContentSize.height
     }
     
     private func renderTitle() {
