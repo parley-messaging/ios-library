@@ -1,12 +1,12 @@
 import Foundation
 import UIKit
 
-public protocol ReusableView {
+protocol ReusableView {
     static var reuseIdentifier: String { get }
 }
 
 extension ReusableView {
-    public static var reuseIdentifier: String {
+    static var reuseIdentifier: String {
         String(describing: self)
     }
 }
