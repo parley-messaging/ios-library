@@ -695,8 +695,8 @@ extension Parley {
      - Parameters:
        - authorization: Authorization of the user.
        - additionalInformation: Additional information of the user.
-       - onSuccess: Execution block when user information is set (only called when Parley is configuring/configured).
-       - onFailure: Execution block when user information is can not be set (only called when Parley is configuring/configured). This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+       - onSuccess: Execution block when user information is set.
+       - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func setUserInformation(
         _ authorization: String,
@@ -709,6 +709,8 @@ extension Parley {
 
         if shared.state == .configured {
             shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+        } else {
+            onSuccess?()
         }
     }
 
