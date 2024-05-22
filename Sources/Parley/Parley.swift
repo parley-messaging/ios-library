@@ -802,16 +802,9 @@ extension Parley {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
         shared.imageRepository?.reset()
-
-        shared.registerDevice(onSuccess: {
-            shared.secret = nil
-            onSuccess?()
-        }, onFailure: { code, message in
-            shared.secret = nil
-            onFailure?(code, message)
-        })
-
+        shared.secret = nil
         shared.clearChat()
+        onSuccess?()
     }
 
     /**
