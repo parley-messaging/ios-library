@@ -64,18 +64,18 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var nameLabel: UILabel!
     
     @IBOutlet weak var nameTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var nameLeftLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var nameRightLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var nameBottomLayoutCostraint: NSLayoutConstraint!
+    @IBOutlet weak var nameLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var nameRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var nameBottomLayoutConstraint: NSLayoutConstraint!
     
     // Title
     @IBOutlet weak var titleView: UIView!
     @IBOutlet weak var titleLabel: UILabel!
     
     @IBOutlet weak var titleTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleLeftLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var titleRightLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var titleBottomLayoutCostraint: NSLayoutConstraint!
+    @IBOutlet weak var titleLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleBottomLayoutConstraint: NSLayoutConstraint!
     
     // Message
     @IBOutlet weak var messageView: UIView!
@@ -563,17 +563,17 @@ final class ParleyMessageView: UIView {
         nameLabel.font = appearance.nameFont
         
         nameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
-        nameLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
-        nameRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
-        nameBottomLayoutCostraint.constant = appearance.nameInsets?.bottom ?? 0
+        nameLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
+        nameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
+        nameBottomLayoutConstraint.constant = appearance.nameInsets?.bottom ?? 0
         
         // Title
         titleLabel.textColor = appearance.titleColor
         titleLabel.font = appearance.titleFont
         
-        titleLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
-        titleRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
-        titleBottomLayoutCostraint.constant = appearance.titleInsets?.bottom ?? 0
+        titleLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
+        titleRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
+        titleBottomLayoutConstraint.constant = appearance.titleInsets?.bottom ?? 0
         
         // Message
         messageTextView.textColor = appearance.messageColor

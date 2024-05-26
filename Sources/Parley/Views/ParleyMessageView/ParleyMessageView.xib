@@ -54,18 +54,18 @@
                 <outlet property="metaStackView" destination="OoS-tA-TUD" id="Sb1-Bv-WHj"/>
                 <outlet property="metaTopLayoutConstraint" destination="mu4-yw-upB" id="DYm-mN-4QV"/>
                 <outlet property="metaView" destination="ITI-5G-N0m" id="XWx-v8-T8n"/>
-                <outlet property="nameBottomLayoutCostraint" destination="7Jt-yy-WgR" id="56q-4j-BVG"/>
+                <outlet property="nameBottomLayoutConstraint" destination="7Jt-yy-WgR" id="56q-4j-BVG"/>
                 <outlet property="nameLabel" destination="Ohu-Kh-bQa" id="LNG-xf-zzI"/>
-                <outlet property="nameLeftLayoutCostraint" destination="crH-Uk-WBH" id="uOC-v1-Agm"/>
-                <outlet property="nameRightLayoutCostraint" destination="aFi-9f-wgi" id="nq4-Rn-rKz"/>
+                <outlet property="nameLeftLayoutConstraint" destination="crH-Uk-WBH" id="uOC-v1-Agm"/>
+                <outlet property="nameRightLayoutConstraint" destination="aFi-9f-wgi" id="nq4-Rn-rKz"/>
                 <outlet property="nameTopLayoutConstraint" destination="rFS-ox-C2w" id="6eN-Y1-LQh"/>
                 <outlet property="nameView" destination="Xpm-nr-AbH" id="NYy-on-jdq"/>
                 <outlet property="statusImageView" destination="aci-6q-TV9" id="sfT-H2-m7l"/>
                 <outlet property="timeLabel" destination="Huz-hJ-BRa" id="Npy-mZ-gDi"/>
-                <outlet property="titleBottomLayoutCostraint" destination="xK4-N2-CPX" id="8L7-hb-XDj"/>
+                <outlet property="titleBottomLayoutConstraint" destination="xK4-N2-CPX" id="8L7-hb-XDj"/>
                 <outlet property="titleLabel" destination="EWJ-Hy-X3o" id="Wf1-tp-wWP"/>
-                <outlet property="titleLeftLayoutCostraint" destination="NGU-cP-hf4" id="KKw-Cu-lTn"/>
-                <outlet property="titleRightLayoutCostraint" destination="BN8-mO-8GO" id="c3B-6n-Fzu"/>
+                <outlet property="titleLeftLayoutConstraint" destination="NGU-cP-hf4" id="KKw-Cu-lTn"/>
+                <outlet property="titleRightLayoutConstraint" destination="BN8-mO-8GO" id="c3B-6n-Fzu"/>
                 <outlet property="titleTopLayoutConstraint" destination="0hG-vO-jdK" id="uJb-qp-nOQ"/>
                 <outlet property="titleView" destination="eML-lV-ZyZ" id="gU9-Lo-r1L"/>
             </connections>
