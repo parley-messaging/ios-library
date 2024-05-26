@@ -1,7 +1,11 @@
 import Foundation
 
-actor ImageLoader {
-    
+protocol ImageLoaderProtocol {
+    func load(id: String) async throws -> ImageDisplayModel
+}
+
+actor ImageLoader: ImageLoaderProtocol {
+
     enum ImageLoaderError: Error {
         case unableToConvertImageData
         case deinitialized

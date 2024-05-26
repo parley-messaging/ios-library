@@ -237,7 +237,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ITI-5G-N0m" userLabel="Time view">
                                     <rect key="frame" x="0.0" y="798" width="414" height="16"/>
                                     <subviews>
-                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OoS-tA-TUD">
+                                        <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OoS-tA-TUD">
                                             <rect key="frame" x="319" y="0.0" width="95" height="16"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Message.time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Huz-hJ-BRa">
@@ -255,12 +255,12 @@
                                                 </imageView>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="bottom" secondItem="aci-6q-TV9" secondAttribute="bottom" id="4Pi-dr-qR0"/>
-                                                <constraint firstItem="aci-6q-TV9" firstAttribute="top" secondItem="OoS-tA-TUD" secondAttribute="top" id="6oC-pL-vXg"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="OoS-tA-TUD" secondAttribute="bottom" id="4Pi-dr-qR0"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="top" relation="greaterThanOrEqual" secondItem="OoS-tA-TUD" secondAttribute="top" id="6oC-pL-vXg"/>
                                                 <constraint firstItem="Huz-hJ-BRa" firstAttribute="top" secondItem="OoS-tA-TUD" secondAttribute="top" id="Z1A-om-Quv"/>
-                                                <constraint firstAttribute="bottom" secondItem="Huz-hJ-BRa" secondAttribute="bottom" id="f7G-Jf-DTa"/>
+                                                <constraint firstItem="Huz-hJ-BRa" firstAttribute="bottom" secondItem="OoS-tA-TUD" secondAttribute="bottom" id="f7G-Jf-DTa"/>
                                                 <constraint firstItem="Huz-hJ-BRa" firstAttribute="leading" secondItem="OoS-tA-TUD" secondAttribute="leading" id="rNy-ey-P7e"/>
-                                                <constraint firstAttribute="trailing" secondItem="aci-6q-TV9" secondAttribute="trailing" id="vc5-eJ-SCX"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="trailing" secondItem="OoS-tA-TUD" secondAttribute="trailing" id="vc5-eJ-SCX"/>
                                                 <constraint firstItem="aci-6q-TV9" firstAttribute="leading" secondItem="Huz-hJ-BRa" secondAttribute="trailing" id="zd3-ft-7UI"/>
                                             </constraints>
                                         </stackView>

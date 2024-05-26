@@ -108,9 +108,8 @@ final class ParleyMessageView: UIView {
     @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private let messageRepository: MessageRepository = Parley.shared.messageRepository
-    private let imageLoader: ImageLoader = Parley.shared.imageLoader
-    
+    private let imageLoader: ImageLoaderProtocol
+
     // Helpers
     private var displayName: Display = .message
     private var displayMeta: Display = .message
@@ -133,13 +132,17 @@ final class ParleyMessageView: UIView {
     
     
     // MARK: - View
-    override init(frame: CGRect) {
+    init(frame: CGRect, imageLoader: ImageLoaderProtocol = Parley.shared.imageLoader) {
+        self.imageLoader = imageLoader
+
         super.init(frame: frame)
 
         setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
+        imageLoader = Parley.shared.imageLoader
+
         super.init(coder: aDecoder)
 
         setup()
@@ -195,6 +198,7 @@ final class ParleyMessageView: UIView {
         
         imageNameLabel.text = message.agent?.name
         nameLabel.text = message.agent?.name
+        nameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameLabel.isHidden = displayName != .image
         nameView.isHidden = displayName != .message
