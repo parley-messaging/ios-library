@@ -69,12 +69,7 @@ final class ParleyStickyView: UIView {
             self.imageView.image = appearance.icon.withRenderingMode(.alwaysOriginal)
         }
         
-        self.textView.textColor = appearance.color
-        self.textView.tintColor = appearance.tintColor
-        
-        self.textView.regularFont = appearance.regularFont
-        self.textView.italicFont = appearance.italicFont
-        self.textView.boldFont = appearance.boldFont
+        self.textView.appearance = appearance.textViewAppearance
     
         self.textView.markdownText = self.text
         

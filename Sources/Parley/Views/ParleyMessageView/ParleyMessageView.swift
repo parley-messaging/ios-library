@@ -572,13 +572,8 @@ final class ParleyMessageView: UIView {
         titleBottomLayoutCostraint.constant = appearance.titleInsets?.bottom ?? 0
         
         // Message
-        messageTextView.textColor = appearance.messageColor
-        messageTextView.tintColor = appearance.messageTintColor
-        
-        messageTextView.regularFont = appearance.messageRegularFont
-        messageTextView.italicFont = appearance.messageItalicFont
-        messageTextView.boldFont = appearance.messageBoldFont
-        
+        messageTextView.appearance = appearance.messageTextViewAppearance
+
         messageTopLayoutConstraint.constant = appearance.messageInsets?.top ?? 0
         messageLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.messageInsets?.left ?? 0)
         messageBottomLayoutConstraint.constant = appearance.messageInsets?.bottom ?? 0

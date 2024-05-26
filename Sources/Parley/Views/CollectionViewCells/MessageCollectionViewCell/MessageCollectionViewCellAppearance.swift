@@ -32,7 +32,7 @@ public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
         appearance.balloonContentInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 2)
         appearance.balloonContentTextInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
         
-        appearance.messageColor = UIColor.white
+        appearance.messageTextViewAppearance.textColor = UIColor.white
         
         appearance.timeColor = UIColor(white: 1, alpha: 0.6)
         
