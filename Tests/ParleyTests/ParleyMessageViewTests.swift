@@ -123,7 +123,7 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithLoadingImage() throws {
+    func testWithLoadingImageForUser() throws {
         let imageLoader = ImageLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
@@ -142,9 +142,13 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
-    func testWithImageResult() throws {
+    func testWithImageResultForUser() throws {
         let imageLoader = ImageLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
@@ -165,9 +169,13 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
-    func testWithImageErrorResult() throws {
+    func testWithImageErrorResultForUser() throws {
         let imageLoader = ImageLoaderStub()
         imageLoader.error = .unableToConvertImageData
 
@@ -183,6 +191,84 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
+    }
+
+    func testWithLoadingImageForAgentWithoutTitleAndMessage() throws {
+        let imageLoader = ImageLoaderStub()
+
+        let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
+        let data = try XCTUnwrap(image.pngData())
+        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+
+        imageLoader.loadResult = model
+
+        let sut = makeSut(imageLoader: imageLoader)
+
+        sut.appearance = MessageCollectionViewCellAppearance.agent()
+        sut.set(
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            forcedTime: Self.dummyDate
+        )
+
+        let container = addToContainer(sut: sut)
+        assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
+    }
+
+    func testWithImageResultForAgentWithoutTitleAndMessage() throws {
+        let imageLoader = ImageLoaderStub()
+
+        let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
+        let data = try XCTUnwrap(image.pngData())
+        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+
+        imageLoader.loadResult = model
+
+        let sut = makeSut(imageLoader: imageLoader)
+
+        sut.appearance = MessageCollectionViewCellAppearance.agent()
+        sut.set(
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            forcedTime: Self.dummyDate
+        )
+
+        wait()
+
+        let container = addToContainer(sut: sut)
+        assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
+    }
+
+    func testWithImageErrorResultForAgentWithoutTitleAndMessage() throws {
+        let imageLoader = ImageLoaderStub()
+        imageLoader.error = .unableToConvertImageData
+
+        let sut = makeSut(imageLoader: imageLoader)
+
+        sut.appearance = MessageCollectionViewCellAppearance.agent()
+        sut.set(
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            forcedTime: Self.dummyDate
+        )
+
+        wait()
+
+        let container = addToContainer(sut: sut)
+        assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
     private func makeSut(imageLoader: ImageLoaderStub = ImageLoaderStub()) -> ParleyMessageView {
