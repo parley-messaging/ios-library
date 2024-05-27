@@ -55,7 +55,7 @@ final class ParleyTextView: UITextView {
             color: appearance.textColor
         )
 
-        parser.link.color = appearance.linkTintColor
+        parser.link.color = appearance.linkTintColor ?? tintColor
         parser.link.font = appearance.linkFont
         parser.italic.font = appearance.italicFont
         parser.bold.font = appearance.boldFont

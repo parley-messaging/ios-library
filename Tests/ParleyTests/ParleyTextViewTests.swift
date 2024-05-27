@@ -6,6 +6,7 @@ final class ParleyTextViewTest: XCTestCase {
     
     func testNormalTextWithDefaultStyle() {
         let sut = ParleyTextView(frame: .zero)
+        sut.backgroundColor = .lightGray
 
         sut.markdownText = "Hello World!"
 
@@ -14,6 +15,7 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testBoldTextWithDefaultStyle() {
         let sut = ParleyTextView(frame: .zero)
+        sut.backgroundColor = .lightGray
         
         sut.markdownText = "Hello **Bold** World!"
 
@@ -22,6 +24,7 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testItalicTextWithDefaultStyle() {
         let sut = ParleyTextView(frame: .zero)
+        sut.backgroundColor = .lightGray
         
         sut.markdownText = "Hello *Italic* World!"
 
@@ -30,7 +33,8 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testTextWithLinkWithDefaultStyle() {
         let sut = ParleyTextView(frame: .zero)
-
+        sut.backgroundColor = .lightGray
+        
         sut.markdownText = "Hello [Link](https://www.parley.io/) World!"
 
         assertSnapshot(matching: sut, as: .image)
@@ -38,13 +42,18 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testCombinationOfBoldAndItalicAndLinkStyleWithNonDefaultStyle() throws {
         let sut = ParleyTextView(frame: .zero)
+        sut.backgroundColor = .lightGray
+        
+        let appearance = ParleyTextViewAppearance()
+        
+        appearance.regularFont = try XCTUnwrap(UIFont(name: "Times New Roman", size: 13))
+        appearance.italicFont = .italicSystemFont(ofSize: 5)
+        appearance.boldFont = .systemFont(ofSize: 20, weight: .bold)
+        appearance.linkTintColor = .red
+        appearance.linkFont = .italicSystemFont(ofSize: 10)
 
-        sut.regularFont = try XCTUnwrap(UIFont(name: "Times New Roman", size: 13))
-        sut.italicFont = .italicSystemFont(ofSize: 5)
-        sut.boldFont = .systemFont(ofSize: 20, weight: .bold)
-        sut.tintColor = .red
-        sut.linkFont = .italicSystemFont(ofSize: 10)
-
+        sut.appearance = appearance
+        
         sut.markdownText = "Hello *Italic* and **Bold** and [Link](https://www.parley.io/) World!"
 
         assertSnapshot(matching: sut, as: .image)
@@ -52,13 +61,18 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testDynamicFontScalingDefaultStyle() {
         let sut = ParleyTextView(frame: .zero)
+        sut.backgroundColor = .lightGray
+        
+        let appearance = ParleyTextViewAppearance()
+        
+        appearance.regularFont = .systemFont(ofSize: 14)
+        appearance.italicFont = .italicSystemFont(ofSize: 5)
+        appearance.boldFont = .systemFont(ofSize: 20, weight: .bold)
+        appearance.linkTintColor = .red
+        appearance.linkFont = .italicSystemFont(ofSize: 10)
 
-        sut.regularFont = .systemFont(ofSize: 14)
-        sut.italicFont = .italicSystemFont(ofSize: 5)
-        sut.boldFont = .systemFont(ofSize: 20, weight: .bold)
-        sut.tintColor = .red
-        sut.linkFont = .italicSystemFont(ofSize: 10)
-
+        sut.appearance = appearance
+        
         sut.markdownText = "Hello *Italic* and **Bold** and [Link](https://www.parley.io/) World!"
 
         assertSnapshot(
@@ -69,7 +83,8 @@ final class ParleyTextViewTest: XCTestCase {
 
     func testTextIsMultining() {
         let sut = ParleyTextView(frame: .zero)
-
+        sut.backgroundColor = .lightGray
+        
         sut.markdownText = "Hello World!"
 
         sut.translatesAutoresizingMaskIntoConstraints = false
