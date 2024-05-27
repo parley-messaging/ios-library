@@ -1,12 +1,12 @@
 import UIKit
 
 public final class ParleyTextViewAppearance {
-    var paragraphStyle = NSMutableParagraphStyle()
-    var textColor: UIColor = .white
-    var linkTintColor: UIColor? = nil
+    public var paragraphStyle = NSMutableParagraphStyle()
+    public var textColor: UIColor = .white
+    public var linkTintColor: UIColor? = nil
 
-    @ParleyScaledFont(textStyle: .body) var regularFont = .systemFont(ofSize: 14)
-    @ParleyScaledFont(textStyle: .body) var italicFont = .italicSystemFont(ofSize: 14)
-    @ParleyScaledFont(textStyle: .body) var boldFont = .boldSystemFont(ofSize: 14)
-    @ParleyScaledFont(textStyle: .body) var linkFont = .systemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) public var regularFont = .systemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) public var italicFont = .italicSystemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) public var boldFont = .boldSystemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) public var linkFont = .systemFont(ofSize: 14)
 }
