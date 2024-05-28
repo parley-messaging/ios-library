@@ -164,8 +164,8 @@ Add a camera and photo library usage description to the `Info.plist` file.
 By default, Parley applies Public Key Pinning on every request executed to the chat api. The certificate(s) should be added to your project.
 
 You can use the certificates in this repository when using the default base url:
-- `/Example/ParleyExample/Supported Files/_.parley.nu_29-Jul-2023.cer` (Expires at: 29 Jul 2023)
 - `/Example/ParleyExample/Supported Files/_.parley.nu_26-Jun-2023.cer` (Expires at: 27 Jun 2024)
+- `/Example/ParleyExample/Supported Files/_.parley.nu_27-May-2024.cer` (Expires at: 28 Jul 2025)
 
 When a certificate is going to expire you can safely transition by adding the new `.cer` to the project. It is important to leave the old `.cer` in the app until after the new one is valid. In the next release the old certificate can be removed.
 
