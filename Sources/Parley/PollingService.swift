@@ -18,8 +18,8 @@ final class PollingService: PollingServiceProtocol {
     
     private var timer: Timer?
     weak var delegate: ParleyDelegate?
-    private let messageRepository = Parley.shared.messageRepository
-    private let messagesManager = Parley.shared.messagesManager
+    private lazy var messageRepository = Parley.shared.messageRepository
+    private lazy var messagesManager = Parley.shared.messagesManager
     
     private var loopRepeated: Int = 0 {
         didSet {
