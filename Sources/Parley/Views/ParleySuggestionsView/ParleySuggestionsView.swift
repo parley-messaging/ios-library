@@ -10,8 +10,8 @@ final class ParleySuggestionsView: UIView {
     
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
-            let suggestionCollectionViewCell = UINib(nibName: "SuggestionCollectionViewCell", bundle: .module)
-            self.collectionView.register(suggestionCollectionViewCell, forCellWithReuseIdentifier: "SuggestionCollectionViewCell")
+            let suggestionCollectionViewCell = UINib(nibName: SuggestionCollectionViewCell.reuseIdentifier, bundle: .module)
+            self.collectionView.register(suggestionCollectionViewCell, forCellWithReuseIdentifier: SuggestionCollectionViewCell.reuseIdentifier)
             
             self.collectionView.dataSource = self
             self.collectionView.delegate = self
@@ -95,18 +95,28 @@ final class ParleySuggestionsView: UIView {
 }
 
 extension ParleySuggestionsView: UICollectionViewDataSource {
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.suggestions?.count ?? 0
     }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let suggestionCollectionView = collectionView.dequeueReusableCell(withReuseIdentifier: "SuggestionCollectionViewCell", for: indexPath) as? SuggestionCollectionViewCell else { return UICollectionViewCell() }
-        guard let suggestion = self.suggestions?[indexPath.row] else { return UICollectionViewCell() }
-        
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        guard
+            let suggestionCollectionView = collectionView.dequeueReusableCell(
+                withReuseIdentifier: SuggestionCollectionViewCell.reuseIdentifier,
+                for: indexPath
+            ) as? SuggestionCollectionViewCell,
+            let suggestion = self.suggestions?[indexPath.row] else
+        {
+            return UICollectionViewCell()
+        }
+
         suggestionCollectionView.appearance = self.appearance.suggestion
         suggestionCollectionView.render(suggestion)
-        
+
         return suggestionCollectionView
     }
 }

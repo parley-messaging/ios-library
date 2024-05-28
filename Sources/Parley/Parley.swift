@@ -111,7 +111,7 @@ public final class Parley {
     // MARK: Reachability
 
     private func setupReachability() {
-        guard reachability != nil else {
+        guard reachability == nil else {
             return
         }
         reachability = try? Reachability()

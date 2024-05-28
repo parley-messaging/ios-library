@@ -46,7 +46,8 @@ let package = Package(
             dependencies: [
                 "Parley",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-            ]
+            ],
+            resources: [.process("Media.xcassets")]
         ),
         .testTarget(
             name: "ParleyNetworkTests",
