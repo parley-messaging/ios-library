@@ -33,9 +33,7 @@ final class MessageImageViewController: UIViewController {
         addDismissButton()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
+    private func updateScale() {
         let widthScale = 1 / self.imageView.frame.width * self.scrollView.bounds.width
         let heightScale = 1 / self.imageView.frame.height * self.scrollView.bounds.height
         
@@ -98,7 +96,7 @@ final class MessageImageViewController: UIViewController {
     @MainActor private func display(image: UIImage) {
         imageView.image = image
         imageView.sizeToFit()
-        adjustContentInset()
+        updateScale()
         activityIndicatorView.stopAnimating()
     }
     
@@ -124,7 +122,6 @@ final class MessageImageViewController: UIViewController {
         let horizontalInset = imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
         scrollView.contentInset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
     }
-    
     
     private func addDismissButton() {
         let button = UIButton()
