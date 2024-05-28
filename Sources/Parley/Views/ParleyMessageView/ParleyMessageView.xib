@@ -54,18 +54,18 @@
                 <outlet property="metaStackView" destination="OoS-tA-TUD" id="Sb1-Bv-WHj"/>
                 <outlet property="metaTopLayoutConstraint" destination="mu4-yw-upB" id="DYm-mN-4QV"/>
                 <outlet property="metaView" destination="ITI-5G-N0m" id="XWx-v8-T8n"/>
-                <outlet property="nameBottomLayoutCostraint" destination="7Jt-yy-WgR" id="56q-4j-BVG"/>
+                <outlet property="nameBottomLayoutConstraint" destination="7Jt-yy-WgR" id="56q-4j-BVG"/>
                 <outlet property="nameLabel" destination="Ohu-Kh-bQa" id="LNG-xf-zzI"/>
-                <outlet property="nameLeftLayoutCostraint" destination="crH-Uk-WBH" id="uOC-v1-Agm"/>
-                <outlet property="nameRightLayoutCostraint" destination="aFi-9f-wgi" id="nq4-Rn-rKz"/>
+                <outlet property="nameLeftLayoutConstraint" destination="crH-Uk-WBH" id="uOC-v1-Agm"/>
+                <outlet property="nameRightLayoutConstraint" destination="aFi-9f-wgi" id="nq4-Rn-rKz"/>
                 <outlet property="nameTopLayoutConstraint" destination="rFS-ox-C2w" id="6eN-Y1-LQh"/>
                 <outlet property="nameView" destination="Xpm-nr-AbH" id="NYy-on-jdq"/>
                 <outlet property="statusImageView" destination="aci-6q-TV9" id="sfT-H2-m7l"/>
                 <outlet property="timeLabel" destination="Huz-hJ-BRa" id="Npy-mZ-gDi"/>
-                <outlet property="titleBottomLayoutCostraint" destination="xK4-N2-CPX" id="8L7-hb-XDj"/>
+                <outlet property="titleBottomLayoutConstraint" destination="xK4-N2-CPX" id="8L7-hb-XDj"/>
                 <outlet property="titleLabel" destination="EWJ-Hy-X3o" id="Wf1-tp-wWP"/>
-                <outlet property="titleLeftLayoutCostraint" destination="NGU-cP-hf4" id="KKw-Cu-lTn"/>
-                <outlet property="titleRightLayoutCostraint" destination="BN8-mO-8GO" id="c3B-6n-Fzu"/>
+                <outlet property="titleLeftLayoutConstraint" destination="NGU-cP-hf4" id="KKw-Cu-lTn"/>
+                <outlet property="titleRightLayoutConstraint" destination="BN8-mO-8GO" id="c3B-6n-Fzu"/>
                 <outlet property="titleTopLayoutConstraint" destination="0hG-vO-jdK" id="uJb-qp-nOQ"/>
                 <outlet property="titleView" destination="eML-lV-ZyZ" id="gU9-Lo-r1L"/>
             </connections>
@@ -106,7 +106,7 @@
                                         <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="w5c-0H-UCF">
                                             <rect key="frame" x="197" y="70" width="20" height="20"/>
                                         </activityIndicatorView>
-                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DRT-G8-4y6">
+                                        <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DRT-G8-4y6">
                                             <rect key="frame" x="319" y="144" width="95" height="16"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Message.time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xuC-M3-D5e">
@@ -125,11 +125,11 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="xuC-M3-D5e" firstAttribute="top" secondItem="DRT-G8-4y6" secondAttribute="top" id="06F-j8-IEp"/>
-                                                <constraint firstAttribute="bottom" secondItem="xuC-M3-D5e" secondAttribute="bottom" id="07o-4b-OyD"/>
+                                                <constraint firstItem="xuC-M3-D5e" firstAttribute="bottom" secondItem="DRT-G8-4y6" secondAttribute="bottom" id="07o-4b-OyD"/>
                                                 <constraint firstItem="e3C-MF-EHD" firstAttribute="leading" secondItem="xuC-M3-D5e" secondAttribute="trailing" id="6Cx-hP-cRi"/>
-                                                <constraint firstItem="e3C-MF-EHD" firstAttribute="top" secondItem="DRT-G8-4y6" secondAttribute="top" id="KOd-oU-JJS"/>
-                                                <constraint firstAttribute="bottom" secondItem="e3C-MF-EHD" secondAttribute="bottom" id="hRB-bh-1nT"/>
-                                                <constraint firstAttribute="trailing" secondItem="e3C-MF-EHD" secondAttribute="trailing" id="kxK-Iq-Cxl"/>
+                                                <constraint firstItem="e3C-MF-EHD" firstAttribute="top" relation="greaterThanOrEqual" secondItem="DRT-G8-4y6" secondAttribute="top" id="KOd-oU-JJS"/>
+                                                <constraint firstItem="e3C-MF-EHD" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="DRT-G8-4y6" secondAttribute="bottom" id="hRB-bh-1nT"/>
+                                                <constraint firstItem="e3C-MF-EHD" firstAttribute="trailing" secondItem="DRT-G8-4y6" secondAttribute="trailing" id="kxK-Iq-Cxl"/>
                                                 <constraint firstItem="xuC-M3-D5e" firstAttribute="leading" secondItem="DRT-G8-4y6" secondAttribute="leading" id="pd2-9L-wrz"/>
                                             </constraints>
                                         </stackView>
@@ -237,7 +237,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ITI-5G-N0m" userLabel="Time view">
                                     <rect key="frame" x="0.0" y="798" width="414" height="16"/>
                                     <subviews>
-                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OoS-tA-TUD">
+                                        <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OoS-tA-TUD">
                                             <rect key="frame" x="319" y="0.0" width="95" height="16"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Message.time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Huz-hJ-BRa">
@@ -255,12 +255,12 @@
                                                 </imageView>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="bottom" secondItem="aci-6q-TV9" secondAttribute="bottom" id="4Pi-dr-qR0"/>
-                                                <constraint firstItem="aci-6q-TV9" firstAttribute="top" secondItem="OoS-tA-TUD" secondAttribute="top" id="6oC-pL-vXg"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="OoS-tA-TUD" secondAttribute="bottom" id="4Pi-dr-qR0"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="top" relation="greaterThanOrEqual" secondItem="OoS-tA-TUD" secondAttribute="top" id="6oC-pL-vXg"/>
                                                 <constraint firstItem="Huz-hJ-BRa" firstAttribute="top" secondItem="OoS-tA-TUD" secondAttribute="top" id="Z1A-om-Quv"/>
-                                                <constraint firstAttribute="bottom" secondItem="Huz-hJ-BRa" secondAttribute="bottom" id="f7G-Jf-DTa"/>
+                                                <constraint firstItem="Huz-hJ-BRa" firstAttribute="bottom" secondItem="OoS-tA-TUD" secondAttribute="bottom" id="f7G-Jf-DTa"/>
                                                 <constraint firstItem="Huz-hJ-BRa" firstAttribute="leading" secondItem="OoS-tA-TUD" secondAttribute="leading" id="rNy-ey-P7e"/>
-                                                <constraint firstAttribute="trailing" secondItem="aci-6q-TV9" secondAttribute="trailing" id="vc5-eJ-SCX"/>
+                                                <constraint firstItem="aci-6q-TV9" firstAttribute="trailing" secondItem="OoS-tA-TUD" secondAttribute="trailing" id="vc5-eJ-SCX"/>
                                                 <constraint firstItem="aci-6q-TV9" firstAttribute="leading" secondItem="Huz-hJ-BRa" secondAttribute="trailing" id="zd3-ft-7UI"/>
                                             </constraints>
                                         </stackView>

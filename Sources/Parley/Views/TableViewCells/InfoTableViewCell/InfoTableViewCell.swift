@@ -4,7 +4,7 @@ final class InfoTableViewCell: UITableViewCell {
     
     @IBOutlet weak var infoTextView: ParleyTextView! {
         didSet {
-            self.infoTextView.paragraphStyle.alignment = .center
+            self.infoTextView.appearance.paragraphStyle.alignment = .center
         }
     }
     
@@ -32,11 +32,7 @@ final class InfoTableViewCell: UITableViewCell {
     }
     
     private func apply(_ appearance: InfoTableViewCellAppearance) {
-        self.infoTextView.textColor = appearance.textColor
-        
-        self.infoTextView.regularFont = appearance.regularFont
-        self.infoTextView.italicFont = appearance.italicFont
-        self.infoTextView.boldFont = appearance.boldFont
+        self.infoTextView.appearance = appearance.textViewAppearance
         
         self.topLayoutConstraint.constant = appearance.contentInset?.top ?? 0
         self.leftLayoutConstraint.constant = appearance.contentInset?.left ?? 0

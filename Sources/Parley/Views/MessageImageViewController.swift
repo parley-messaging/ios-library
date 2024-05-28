@@ -9,7 +9,7 @@ final class MessageImageViewController: UIViewController {
     var message: Message?
     
     private let messageRepository: MessageRepository
-    private let imageLoader: ImageLoader = Parley.shared.imageLoader
+    private lazy var imageLoader: ImageLoader = Parley.shared.imageLoader
     
     init(messageRepository: MessageRepository) {
         self.messageRepository = messageRepository

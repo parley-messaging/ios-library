@@ -84,7 +84,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             totalHeight += appearance.messageInsets?.top ?? 0
             totalHeight += appearance.messageInsets?.bottom ?? 0
 
-            totalHeight += message.height(withConstrainedWidth: contentWidth, font: appearance.messageRegularFont)
+            totalHeight += message.height(withConstrainedWidth: contentWidth, font: appearance.messageTextViewAppearance.regularFont)
         }
 
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
