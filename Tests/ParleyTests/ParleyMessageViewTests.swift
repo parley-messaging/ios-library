@@ -108,7 +108,6 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testCustomBalloonImageUser() {
-        isRecording = true
         let sut = makeSut()
 
         let appearance = MessageCollectionViewCellAppearance.user()
