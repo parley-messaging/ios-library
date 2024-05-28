@@ -18,6 +18,7 @@
 - Added screenshot testing.
 - Fixed an issue with scaling of texts when using bigger/smaller font settings.
 - Updated SSL pinning certificates.
+- Fixed an issue with the image viewer not scaling images correctly.
 
 ## 4.0.2 - Released 8 Apr 2024
 
