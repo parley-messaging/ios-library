@@ -6,6 +6,7 @@
 - Added `Parley.setAlwaysPolling(enabled)` to be able to always enable polling. Default `false`, since the Parley refreshes the chat when needed via push notifications.
   Note: By default polling is only enabled when notification permissions are denied (unchanged compared to previous versions).
 - Added `ParleyMessageViewAppearance.imageCorners` to specify the rounding corners for images.
+- Updated SSL pinning certificates.
 
 ## 4.0.2 - Released 8 Apr 2024
 
