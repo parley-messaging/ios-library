@@ -1,11 +1,22 @@
 # Changelog
 
-## Upcoming
+## 4.1.0 - Released 28 May 2024
 
+**IMPORTANT**: With Parley 4.1.0 there is a minor breaking change with appearance. Migrating can be done easily by adjusting to the new `ParleyTextViewAppearance` in such cases.
+
+- Styling: `ParleyTextViewAppearance` has been introduced to be able to style the fonts and colors for text views used by Parley.
+- Styling: `MessageCollectionViewCellAppearance` now has `messageTextViewAppearance` (instead of just the `messageColor` attribute).
+- Styling: `ParleyMessageViewAppearance` now has `messageTextViewAppearance` (instead of just the `messageColor` and `messageTintColor` attribute).
+- Styling: `ParleyStickyViewAppearance` now has `textViewAppearance` (instead of just the `color` and `tintColor` attribute).
 - Preventing duplicate creation of some classes.
 - Added `Parley.setAlwaysPolling(enabled)` to be able to always enable polling. Default `false`, since the Parley refreshes the chat when needed via push notifications.
   Note: By default polling is only enabled when notification permissions are denied (unchanged compared to previous versions).
 - Added `ParleyMessageViewAppearance.imageCorners` to specify the rounding corners for images.
+- The `set` methods that have a callback always call their callback now (instead of only when Parley was configured).
+- Better type safety in cell usage.
+- Prevent initialization of some classes and observers while Parley wasn't using them yet (now they are created when used).
+- Added screenshot testing.
+- Fixed an issue with scaling of texts when using bigger/smaller font settings.
 - Updated SSL pinning certificates.
 
 ## 4.0.2 - Released 8 Apr 2024

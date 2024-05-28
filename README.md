@@ -41,7 +41,7 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.0.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.1.x"))
 ]
 ```
 
@@ -327,6 +327,14 @@ Requires calling the `configure()` method again to use Parley.
 
 ```swift
 Parley.reset()
+```
+
+### Always polling
+
+By default Parley shows messages directly when they are received via push notifications. Therefore Parley only enables polling when needed, which is when the user disabled notifications in their settings. This check could be ignored to always enable polling instead.
+
+```swift
+Parley.setAlwaysPolling(true)
 ```
 
 ## Customize
