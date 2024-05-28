@@ -16,6 +16,10 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
     func testDefaultUserMessageView() {
@@ -23,12 +27,16 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, agent: nil),
+            message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate
         )
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
     func testDefaultUserMessageViewWithShortMessage() {
@@ -36,12 +44,33 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: "Lo", agent: nil),
+            message: .makeTestData(title: nil, message: "Lo", agent: nil),
             forcedTime: Self.dummyDate
         )
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
+    }
+
+    func testDefaultAgentMessageViewWithShortMessage() {
+        let sut = makeSut()
+
+        sut.appearance = MessageCollectionViewCellAppearance.agent()
+        sut.set(
+            message: .makeTestData(message: "Lo"),
+            forcedTime: Self.dummyDate
+        )
+
+        let container = addToContainer(sut: sut)
+        assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
     func testDefaultUserMessageViewPendingStatus() {
@@ -49,12 +78,16 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: "Lo", status: .pending, agent: nil),
+            message: .makeTestData(title: nil, message: "Lo", status: .pending, agent: nil),
             forcedTime: Self.dummyDate
         )
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
     }
 
     func testDefaultUserMessageViewFailedStatus() {
@@ -62,61 +95,38 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: "Lo", status: .failed, agent: nil),
+            message: .makeTestData(title: nil, message: "Lo", status: .failed, agent: nil),
             forcedTime: Self.dummyDate
         )
 
         let container = addToContainer(sut: sut)
         assert(sut: container)
-    }
-
-    func testCustomBalloonImageUser() {
-        let sut = makeSut()
-
-        let appearance = MessageCollectionViewCellAppearance.user()
-
-        appearance.balloonImage = UIImage(named: "chat_bubble_user", in: .module, compatibleWith: nil)?
-            .resizableImage(withCapInsets: UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16))
-        appearance.balloonTintColor = .lightGray
-
-        sut.appearance = appearance
-
-        sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, agent: nil),
-            forcedTime: Self.dummyDate
-        )
-
-        let container = addToContainer(sut: sut)
-        assert(sut: container)
-    }
-
-    func testWithBiggerFontSizeAgent() {
-        let sut = makeSut()
-
-        sut.appearance = MessageCollectionViewCellAppearance.agent()
-
-        sut.set(
-            message: .makeTestData(message: Self.dummyMessageText),
-            forcedTime: Self.dummyDate
-        )
-
-        let container = addToContainer(sut: sut)
         assert(
             sut: container,
             traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
         )
     }
 
-    func testWithBiggerFontSizeUser() {
+    func testCustomBalloonImageUser() {
+        isRecording = true
         let sut = makeSut()
 
-        sut.appearance = MessageCollectionViewCellAppearance.user()
+        let appearance = MessageCollectionViewCellAppearance.user()
+
+        let edgeInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        appearance.balloonImage = UIImage(named: "chat_bubble_user", in: .module, compatibleWith: nil)?
+            .resizableImage(withCapInsets: edgeInsets)
+        appearance.balloonTintColor = .lightGray
+       
+        sut.appearance = appearance
+
         sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, agent: nil),
+            message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate
         )
 
         let container = addToContainer(sut: sut)
+        assert(sut: container)
         assert(
             sut: container,
             traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
@@ -136,7 +146,12 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, media: MediaObject(id: "identifier"), agent: nil),
+            message: .makeTestData(
+                title: nil,
+                message: Self.dummyMessageText,
+                media: MediaObject(id: "identifier"),
+                agent: nil
+            ),
             forcedTime: Self.dummyDate
         )
 
@@ -161,7 +176,12 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, media: MediaObject(id: "identifier"), agent: nil),
+            message: .makeTestData(
+                title: nil,
+                message: Self.dummyMessageText,
+                media: MediaObject(id: "identifier"),
+                agent: nil
+            ),
             forcedTime: Self.dummyDate
         )
 
@@ -183,7 +203,12 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.appearance = MessageCollectionViewCellAppearance.user()
         sut.set(
-            message: .makeTestData(message: Self.dummyMessageText, media: MediaObject(id: "identifier"), agent: nil),
+            message: .makeTestData(
+                title: nil,
+                message: Self.dummyMessageText,
+                media: MediaObject(id: "identifier"),
+                agent: nil
+            ),
             forcedTime: Self.dummyDate
         )
 
