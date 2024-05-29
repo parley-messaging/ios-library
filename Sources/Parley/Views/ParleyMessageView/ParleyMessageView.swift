@@ -544,6 +544,7 @@ final class ParleyMessageView: UIView {
         
         imageNameLabel.textColor = appearance.imageInnerColor
         imageNameLabel.font = appearance.nameFont
+        imageNameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
         imageNameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
