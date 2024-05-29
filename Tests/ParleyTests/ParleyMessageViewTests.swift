@@ -294,6 +294,39 @@ final class ParleyMessageViewTests: XCTestCase {
             traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
         )
     }
+    
+    func testWithWhiteImageResultForAgentWithoutTitleAndMessage() throws {
+        let imageLoader = ImageLoaderStub()
+
+        let image = try XCTUnwrap(UIImage(named: "white_image", in: .module, compatibleWith: nil))
+        let data = try XCTUnwrap(image.pngData())
+        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+
+        imageLoader.loadResult = model
+
+        let sut = makeSut(imageLoader: imageLoader)
+
+        sut.appearance = MessageCollectionViewCellAppearance.agent()
+        sut.set(
+            message: .makeTestData(
+                title: nil,
+                message: nil,
+                media: MediaObject(id: "identifier"),
+                agent: Agent(id: 1, name: "Longer Agent Name", avatar: nil)
+            ),
+            forcedTime: Self.dummyDate
+        )
+
+        wait()
+
+        let container = addToContainer(sut: sut)
+        assert(sut: container)
+        assert(
+            sut: container,
+            traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        )
+    }
+
 
     private func makeSut(imageLoader: ImageLoaderStub = ImageLoaderStub()) -> ParleyMessageView {
         ParleyMessageView(frame: .zero, imageLoader: imageLoader)
