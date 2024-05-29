@@ -32,8 +32,4 @@ extension String {
         
         self.append(string)
     }
-    
-    var localized: String {
-        NSLocalizedString(self, bundle: .module, comment: "")
-    }
 }

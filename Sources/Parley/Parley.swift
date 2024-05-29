@@ -48,6 +48,7 @@ public final class Parley {
     private(set) var imageLoader: ImageLoader!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
+    private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
 
     private(set) var alwaysPolling = false
     private(set) var pushToken: String? = nil
@@ -564,7 +565,10 @@ public final class Parley {
         })
 
         if agentReallyStartTyping {
-            UIAccessibility.post(notification: .announcement, argument: "parley_voice_over_announcement_agent_typing".localized)
+            UIAccessibility.post(
+                notification: .announcement,
+                argument: L10nKey.voiceOverAnnouncementAgentTyping.localized
+            )
             self.delegate?.didStartTyping()
         }
     }
@@ -600,13 +604,15 @@ extension Parley {
             let data = (userInfo["parley"] as? String)?.data(using: .utf8),
             let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
             let messageType = json["type"] as? String,
-            let object = json["object"] as? [String: Any]
-        else { return false }
+            let object = json["object"] as? [String: Any] else
+        {
+            return false
+        }
 
         switch messageType {
-        case kParleyTypeMessage:
+        case MessageTypeEvent.message.rawValue:
             shared.handleMessage(object)
-        case kParleyTypeEvent:
+        case MessageTypeEvent.event.rawValue:
             shared.handleEvent(object["name"] as? String)
         default:
             break
@@ -742,6 +748,16 @@ extension Parley {
         } else {
             onSuccess?()
         }
+    }
+    
+    /**
+     Set a ``LocalizationManager`` to be able to provide more localizations than provided by the SDK.
+
+     - Parameters:
+       - localizationManager: Manager to return localization string from a key.
+     */
+    public static func setLocalizationManager(_ localizationManager: LocalizationManager) {
+        shared.localizationManager = localizationManager
     }
 
     /**

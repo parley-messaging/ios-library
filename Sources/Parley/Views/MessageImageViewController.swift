@@ -130,7 +130,7 @@ final class MessageImageViewController: UIViewController {
         button.setImage(image, for: .normal)
         button.tintColor = .white
         button.isAccessibilityElement = true
-        button.accessibilityLabel = "parley_close".localized
+        button.accessibilityLabel = L10nKey.close.localized
         
         view.addSubview(button)
         
