@@ -7,9 +7,6 @@ let kParleyNetworkPath = "clientApi/v1.6"
 
 let kParleyUserDefaultDeviceUUID = "parley.device_uuid"
 
-let kParleyTypeMessage = "message"
-let kParleyTypeEvent = "event"
-
 let kParleyEventStartTypingTriggerAfter = 20.0
 let kParleyEventStopTypingTriggerAfter = 15.0
 

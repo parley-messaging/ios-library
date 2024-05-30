@@ -21,13 +21,13 @@ public class ParleyView: UIView {
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            pushDisabledNotificationView.text = "parley_push_disabled".localized
+            pushDisabledNotificationView.text = ParleyLocalizationKey.pushDisabled.localized
         }
     }
 
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            offlineNotificationView.text = "parley_notification_offline".localized
+            offlineNotificationView.text = ParleyLocalizationKey.notificationOffline.localized
         }
     }
 
@@ -45,7 +45,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
-            composeView.placeholder = "parley_type_message".localized
+            composeView.placeholder = ParleyLocalizationKey.typeMessage.localized
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self
@@ -134,7 +134,7 @@ public class ParleyView: UIView {
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
-        
+
         NSLayoutConstraint.activate([
             contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             contentView.topAnchor.constraint(equalTo: topAnchor),
@@ -415,7 +415,7 @@ extension ParleyView: ParleyDelegate {
         delegate?.didSentMessage()
         UIAccessibility.post(
             notification: .announcement,
-            argument: "parley_voice_over_announcement_sent_message".localized
+            argument: ParleyLocalizationKey.voiceOverAnnouncementSentMessage.localized
         )
     }
 
@@ -457,7 +457,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = "parley_state_unconfigured".localized
+            statusLabel.text = ParleyLocalizationKey.stateUnconfigured.localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -479,7 +479,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = "parley_state_failed".localized
+            statusLabel.text = ParleyLocalizationKey.stateFailed.localized
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -694,15 +694,15 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
 
     func failedToSelectImage() {
-        let title = "parley_send_failed_title".localized
-        let message = "parley_send_failed_body_selecting_image".localized
+        let title = ParleyLocalizationKey.sendFailedTitle.localized
+        let message = ParleyLocalizationKey.sendFailedBodySelectingImage.localized
         presentInformationalAlert(title: title, message: message)
     }
 
     @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = "parley_ok".localized
+        let okMessage = ParleyLocalizationKey.ok.localized
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -720,15 +720,15 @@ extension ParleyView: ParleyComposeViewDelegate {
     func send(image: UIImage, with data: Data, url: URL) {
         Task { @MainActor in
             guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
-                let title = "parley_send_failed_title".localized
-                let message = "parley_send_failed_body_media_invalid".localized
+                let title = ParleyLocalizationKey.sendFailedTitle.localized
+                let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized
                 presentInformationalAlert(title: title, message: message)
                 return
             }
 
             guard !mediaModel.isLargerThan(size: 10) else {
-                let title = "parley_send_failed_title".localized
-                let message = "parley_send_failed_body_media_too_large".localized
+                let title = ParleyLocalizationKey.sendFailedTitle.localized
+                let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
                 presentInformationalAlert(title: title, message: message)
                 return
             }

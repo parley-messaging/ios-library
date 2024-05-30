@@ -165,6 +165,7 @@ extension UIImage {
         let count = CGImageSourceGetCount(source)
         var images = [CGImage]()
         var delays = [Int]()
+        delays.reserveCapacity(count)
 
         // Fill arrays
         for index in 0..<count {
@@ -179,15 +180,7 @@ extension UIImage {
         }
 
         // Calculate full duration
-        let duration: Int = {
-            var sum = 0
-
-            for val: Int in delays {
-                sum += val
-            }
-
-            return sum
-        }()
+        let duration = delays.reduce(0, +)
 
         // Get frames
         let gcd = gcdForArray(delays)
@@ -211,5 +204,8 @@ extension UIImage {
 
         return animation
     }
-
+    
+    static func template(named name: String) -> UIImage? {
+        UIImage(named: name, in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+    }
 }
