@@ -134,43 +134,13 @@ public class ParleyView: UIView {
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
-
-        NSLayoutConstraint(
-            item: self,
-            attribute: .leading,
-            relatedBy: .equal,
-            toItem: contentView,
-            attribute: .leading,
-            multiplier: 1.0,
-            constant: 0
-        ).isActive = true
-        NSLayoutConstraint(
-            item: self,
-            attribute: .trailing,
-            relatedBy: .equal,
-            toItem: contentView,
-            attribute: .trailing,
-            multiplier: 1.0,
-            constant: 0
-        ).isActive = true
-        NSLayoutConstraint(
-            item: self,
-            attribute: .top,
-            relatedBy: .equal,
-            toItem: contentView,
-            attribute: .top,
-            multiplier: 1.0,
-            constant: 0
-        ).isActive = true
-        NSLayoutConstraint(
-            item: self,
-            attribute: .bottom,
-            relatedBy: .equal,
-            toItem: contentView,
-            attribute: .bottom,
-            multiplier: 1.0,
-            constant: 0
-        ).isActive = true
+        
+        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor),
+            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
     }
 
     private func getMessagesManager() -> MessagesManager {
