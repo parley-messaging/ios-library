@@ -18,8 +18,6 @@ extension NSItemProvider {
     
     @available(iOS 14.0, *)
     func loadImage() async throws -> LoadedImage {
-        throw NSItemProviderLoadImageError.failedToLoadDataRepresentation
-        
         if canLoadObject(ofClass: UIImage.self) {
             let image = try await loadUIImage()
             guard let typeIdentifier = image.cgImage?.utType as? String, let type = UTType(typeIdentifier) else {
