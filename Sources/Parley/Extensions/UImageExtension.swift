@@ -1,5 +1,5 @@
-import UIKit
 import ImageIO
+import UIKit
 
 extension UIImageView {
 
@@ -51,7 +51,7 @@ extension UIImage {
     }
 
     class func gif(name: String) -> UIImage? {
-        // Check for existance of gif
+        // Check for existence of gif
         guard let bundleURL = Bundle.main
           .url(forResource: name, withExtension: "gif") else {
             print("SwiftGif: This image named \"\(name)\" does not exist")
@@ -175,8 +175,7 @@ extension UIImage {
             }
 
             // At it's delay in cs
-            let delaySeconds = UIImage.delayForImageAtIndex(Int(index),
-                source: source)
+            let delaySeconds = UIImage.delayForImageAtIndex(Int(index), source: source)
             delays.append(Int(delaySeconds * 1000.0)) // Seconds to ms
         }
 
@@ -198,8 +197,10 @@ extension UIImage {
             }
         }
 
-        let animation = UIImage.animatedImage(with: frames,
-            duration: Double(duration) / 1000.0)
+        let animation = UIImage.animatedImage(
+            with: frames,
+            duration: Double(duration) / 1000.0
+        )
 
         return animation
     }

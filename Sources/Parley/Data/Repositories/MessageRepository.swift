@@ -3,12 +3,10 @@ import UIKit
 
 final class MessageRepository {
     
-    private let remote: ParleyRemote
     private let messageRemoteService: MessageRemoteService
     
-    init(remote: ParleyRemote) {
-        self.remote = remote
-        self.messageRemoteService = MessageRemoteService(remote: remote)
+    init(messageRemoteService: MessageRemoteService) {
+        self.messageRemoteService = messageRemoteService
     }
     
     func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {

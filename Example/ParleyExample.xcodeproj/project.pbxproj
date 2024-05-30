@@ -35,7 +35,7 @@
 		F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */; };
 		FA33D8DD2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */; };
 		FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165E2B58102D00B957CA /* FirebaseMessaging */; };
-		FA6FF0A72892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA6FF0A52892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer */; };
+		FABC187D2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer in Resources */ = {isa = PBXBuildFile; fileRef = FABC187C2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,7 +70,7 @@
 		F8F61B3F22BA600000F9A51E /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParleyCustomerAuthorization.swift; sourceTree = "<group>"; };
 		FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "_.parley.nu_26-Jun-2023.cer"; sourceTree = "<group>"; };
-		FA6FF0A52892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "_.parley.nu_29-Jul-2023.cer"; sourceTree = "<group>"; };
+		FABC187C2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "_.parley.nu_27-May-2024.cer"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,8 +136,8 @@
 				F844F58C22DCCAF900E705AE /* en.lproj */,
 				F844F58F22DCCAF900E705AE /* nl.lproj */,
 				F832646A22D34BCB0047041D /* Fonts */,
-				FA6FF0A52892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer */,
 				FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */,
+				FABC187C2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer */,
 				F8E9A41122BCD3F8004341BB /* GoogleService-Info.plist */,
 				607FACD41AFB9204008FA782 /* Info.plist */,
 				F85B841B22BBBB9B00A256A8 /* ParleyExample.entitlements */,
@@ -292,12 +292,12 @@
 				F844F59222DCCAF900E705AE /* Localizable.strings in Resources */,
 				F844F58522DCC2E500E705AE /* Montserrat-BoldItalic.ttf in Resources */,
 				F8F61B3E22BA5E3700F9A51E /* LaunchScreen.storyboard in Resources */,
+				FABC187D2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer in Resources */,
 				F8E9A41222BCD3F8004341BB /* GoogleService-Info.plist in Resources */,
 				F844F58B22DCC2E500E705AE /* Montserrat-Regular.ttf in Resources */,
 				F844F58A22DCC2E500E705AE /* Montserrat-SemiBoldItalic.ttf in Resources */,
 				F844F58622DCC2E500E705AE /* Montserrat-Bold.ttf in Resources */,
 				F844F59322DCCAF900E705AE /* Localizable.strings in Resources */,
-				FA6FF0A72892B01C00AB2DB2 /* _.parley.nu_29-Jul-2023.cer in Resources */,
 				F844F57B22DCC10D00E705AE /* Colors.xcassets in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 				F844F58922DCC2E500E705AE /* Montserrat-Medium.ttf in Resources */,
@@ -468,7 +468,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.2;
+				MARKETING_VERSION = 4.1.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"DEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = nu.parley;
@@ -495,7 +495,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.2;
+				MARKETING_VERSION = 4.1.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"RELEASE\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.webuildapps.tracebuzz.parleydemo;
@@ -579,7 +579,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.2;
+				MARKETING_VERSION = 4.1.0;
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"ALPHA\"";
 				PRODUCT_BUNDLE_IDENTIFIER = nu.parley;

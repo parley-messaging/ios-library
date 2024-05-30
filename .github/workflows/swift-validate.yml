@@ -1,0 +1,35 @@
+name: Swift build
+
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - '**'
+    paths:
+      - '**/*.swift'
+      - '.github/workflows/*.yml'
+  pull_request:
+    paths:
+      - '**/*.swift'
+      - '.github/workflows/*.yml'
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} with ${{ matrix.swift }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [macos-latest]
+        swift: ["5.10"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ matrix.swift }}
+      - uses: actions/checkout@v4
+      - name: Resolve packages
+        run: swift package resolve
+      - name: Build Package
+        env:
+          SWIFTPM_ENABLE_PLUGINS: 1
+        run: swift build -v

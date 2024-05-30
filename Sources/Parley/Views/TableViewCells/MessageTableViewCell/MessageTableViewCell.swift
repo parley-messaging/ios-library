@@ -127,20 +127,26 @@ final class MessageTableViewCell: UITableViewCell {
 }
 
 extension MessageTableViewCell: UICollectionViewDataSource {
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         messages?.messages.count ?? 0
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let messageCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "MessageCollectionViewCell", for: indexPath) as? MessageCollectionViewCell else { return UICollectionViewCell() }
+        guard let messageCollectionViewCell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: MessageCollectionViewCell.reuseIdentifier,
+                for: indexPath
+        ) as? MessageCollectionViewCell else {
+            return UICollectionViewCell()
+        }
 
         messageCollectionViewCell.delegate = self.delegate
         messageCollectionViewCell.appearance = self.appearance?.carousel
-        if let messages = self.messages {
+
+        if let messages {
             messageCollectionViewCell.render(messages.messages[indexPath.row], time: messages.time)
         }
-        
+
         return messageCollectionViewCell
     }
 }

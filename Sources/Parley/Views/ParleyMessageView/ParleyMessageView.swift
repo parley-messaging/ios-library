@@ -107,9 +107,8 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private let messageRepository: MessageRepository = Parley.shared.messageRepository
-    private let imageLoader: ImageLoader = Parley.shared.imageLoader
-    
+    private let imageLoader: ImageLoaderProtocol
+
     // Helpers
     private var displayName: Display = .message
     private var displayMeta: Display = .message
@@ -127,13 +126,17 @@ final class ParleyMessageView: UIView {
     
     
     // MARK: - View
-    override init(frame: CGRect) {
+    init(frame: CGRect, imageLoader: ImageLoaderProtocol = Parley.shared.imageLoader) {
+        self.imageLoader = imageLoader
+
         super.init(frame: frame)
 
         setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
+        imageLoader = Parley.shared.imageLoader
+
         super.init(coder: aDecoder)
 
         setup()
@@ -189,6 +192,7 @@ final class ParleyMessageView: UIView {
         
         imageNameLabel.text = message.agent?.name
         nameLabel.text = message.agent?.name
+        nameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameLabel.isHidden = displayName != .image
         nameView.isHidden = displayName != .message
@@ -316,10 +320,24 @@ final class ParleyMessageView: UIView {
     
     private func renderImageCorners() {
         if displayTitle == .message || message.message != nil || message.hasButtons {
-            imageImageView.corners = [.topLeft, .topRight]
+            imageImageView.corners = filterOutCornersIfNecessary(neededCorners: appearance?.imageCorners)
         } else {
-            imageImageView.corners = [.allCorners]
+            imageImageView.corners = appearance?.imageCorners ?? [.allCorners]
         }
+    }
+    
+    private func filterOutCornersIfNecessary(neededCorners: UIRectCorner?) -> UIRectCorner {
+        guard let neededCorners else {
+            return [.topLeft, .topRight]
+        }
+        var filteredCorners: UIRectCorner = []
+        if neededCorners.contains(.topLeft) || neededCorners.contains(.allCorners) {
+            filteredCorners.insert(.topLeft)
+        }
+        if neededCorners.contains(.topRight) || neededCorners.contains(.allCorners) {
+            filteredCorners.insert(.topRight)
+        }
+        return filteredCorners
     }
     
     private func setImageWidth() {
@@ -523,12 +541,13 @@ final class ParleyMessageView: UIView {
         imageBottomLayoutConstraint.constant = appearance.imageInsets?.bottom ?? 0
         
         imageImageView.cornerRadius = CGFloat(appearance.imageCornerRadius)
-        imageImageView.corners = [.allCorners]
+        imageImageView.corners = appearance.imageCorners
         
         imageActivityIndicatorView.color = appearance.imageLoaderTintColor
         
         imageNameLabel.textColor = appearance.imageInnerColor
         imageNameLabel.font = appearance.nameFont
+        imageNameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
         imageNameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
@@ -561,13 +580,8 @@ final class ParleyMessageView: UIView {
         titleBottomLayoutConstraint.constant = appearance.titleInsets?.bottom ?? 0
         
         // Message
-        messageTextView.textColor = appearance.messageColor
-        messageTextView.tintColor = appearance.messageTintColor
-        
-        messageTextView.regularFont = appearance.messageRegularFont
-        messageTextView.italicFont = appearance.messageItalicFont
-        messageTextView.boldFont = appearance.messageBoldFont
-        
+        messageTextView.appearance = appearance.messageTextViewAppearance
+
         messageTopLayoutConstraint.constant = appearance.messageInsets?.top ?? 0
         messageLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.messageInsets?.left ?? 0)
         messageBottomLayoutConstraint.constant = appearance.messageInsets?.bottom ?? 0
