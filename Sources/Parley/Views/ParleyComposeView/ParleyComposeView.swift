@@ -12,7 +12,7 @@ public class ParleyComposeView: UIView {
     
     @IBOutlet weak var cameraButton: UIButton! {
         didSet {
-            cameraButton.accessibilityLabel = "parley_voice_over_camera_button_label".localized
+            cameraButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
         }
     }
     @IBOutlet weak var textViewBackgroundView: UIView! {
@@ -36,7 +36,7 @@ public class ParleyComposeView: UIView {
             
             textView.accessibilityCustomActions = [
                 UIAccessibilityCustomAction(
-                    name: "parley_voice_over_dismiss_keyboard_action".localized,
+                    name: ParleyLocalizationKey.voiceOverDismissKeyboardAction.localized,
                     target: self,
                     selector: #selector(dismissKeyboard)
                 )
@@ -63,7 +63,7 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
             sendButton.layer.cornerRadius = sendButton.bounds.height / 2
-            sendButton.accessibilityLabel = "parley_voice_over_send_button_label".localized
+            sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized
             
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
                 let isEnabled = change.newValue
@@ -71,7 +71,7 @@ public class ParleyComposeView: UIView {
                 if isEnabled == true {
                     self?.sendButton.accessibilityHint = nil
                 } else {
-                    self?.sendButton.accessibilityHint = "parley_voice_over_send_button_disabled_hint".localized
+                    self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint.localized
                 }
             }
         }
@@ -235,22 +235,22 @@ public class ParleyComposeView: UIView {
             popoverController.permittedArrowDirections = [.left, .down]
         }
         
-        alertController.title = "parley_photo".localized
+        alertController.title = ParleyLocalizationKey.photo.localized
         alertController.addAction(UIAlertAction(
-            title: "parley_select_photo".localized,
+            title: ParleyLocalizationKey.selectPhoto.localized,
             style: .default,
             handler: { [weak self] action in
                 self?.selectPhoto()
         }))
         
         alertController.addAction(UIAlertAction(
-            title: "parley_take_photo".localized,
+            title: ParleyLocalizationKey.takePhoto.localized,
             style: .default,
             handler: { [weak self] action in
                 self?.takePhoto()
         }))
         
-        alertController.addAction(.cancel)
+        alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .default))
         
         present(alertController, animated: true, completion: nil)
     }
@@ -324,13 +324,13 @@ public class ParleyComposeView: UIView {
     
     private func showPhotoAccessDeniedAlertController() {
         let alertController = UIAlertController(
-            title: "parley_photo_access_denied_title".localized,
-            message: "parley_photo_access_denied_body".localized,
+            title: ParleyLocalizationKey.photoAccessDeniedTitle.localized,
+            message: ParleyLocalizationKey.photoAccessDeniedBody.localized,
             preferredStyle: .alert
         )
         
         alertController.addAction(UIAlertAction(
-            title: "parley_ok".localized,
+            title: ParleyLocalizationKey.ok.localized,
             style: .cancel
         ))
         
@@ -471,13 +471,13 @@ extension ParleyComposeView: PHPickerViewControllerDelegate {
     private func handleUnableToLoadImage(_ error: Error? = nil) async {
         await MainActor.run {
             let alertController = UIAlertController(
-                title: "parley_send_failed_title".localized,
-                message: "parley_send_failed_body_media_invalid".localized,
+                title: ParleyLocalizationKey.sendFailedTitle.localized,
+                message: ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized,
                 preferredStyle: .alert
             )
             
             alertController.addAction(UIAlertAction(
-                title: "parley_ok".localized,
+                title: ParleyLocalizationKey.ok.localized,
                 style: .cancel
             ))
             
