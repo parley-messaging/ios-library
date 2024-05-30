@@ -5,7 +5,7 @@ final class ParleyTextView: UITextView {
 
     var appearance = ParleyTextViewAppearance() {
         didSet {
-            regularFont = appearance.linkFont
+            linkFont = appearance.linkFont
             regularFont = appearance.regularFont
             italicFont = appearance.italicFont
             boldFont = appearance.boldFont
