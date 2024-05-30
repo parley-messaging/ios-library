@@ -1,5 +1,6 @@
 import Photos
 import UIKit
+import PhotosUI
 
 public class ParleyComposeView: UIView {
     
@@ -214,39 +215,18 @@ public class ParleyComposeView: UIView {
         }
     }
     
-    @IBAction func send(_ sender: UIButton) {
-        if let message = self.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
-            self.delegate?.send(message)
+    @IBAction private func send(_ sender: UIButton) {
+        if let message = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+            delegate?.send(message)
         }
         
-        self.textView.text = ""
-        self.textViewDidChange(self.textView)
+        textView.text = ""
+        textViewDidChange(textView)
     }
     
     // MARK: Image picker
-    @IBAction func presentImageActionSheet(_ sender: UIButton) {
-        switch PHPhotoLibrary.authorizationStatus() {
-        case .authorized:
-            break
-        case .notDetermined:
-            PHPhotoLibrary.requestAuthorization { _ in
-                DispatchQueue.main.async { [weak self] in
-                    self?.presentImageActionSheet(sender)
-                }
-            }
-            
-            return
-        default:
-            self.showPhotoAccessDeniedAlertController()
-            
-            return
-        }
-        
-        if !UIImagePickerController.isSourceTypeAvailable(.camera) {
-            self.showImagePickerController(.photoLibrary)
-
-            return
-        }
+    @IBAction private func presentImageActionSheet(_ sender: UIButton) {
+        guard isCameraAvailable() else { selectPhoto() ; return }
         
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         if let popoverController = alertController.popoverPresentationController {
@@ -260,30 +240,86 @@ public class ParleyComposeView: UIView {
             title: ParleyLocalizationKey.selectPhoto.localized,
             style: .default,
             handler: { [weak self] action in
-                self?.showImagePickerController(.photoLibrary)
+                self?.selectPhoto()
         }))
         
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.takePhoto.localized,
             style: .default,
             handler: { [weak self] action in
-                self?.showImagePickerController(.camera)
+                self?.takePhoto()
         }))
         
-        alertController.addAction(UIAlertAction(
-            title: ParleyLocalizationKey.cancel.localized,
-            style: .cancel
-        ))
+        alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .cancel))
         
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
     
-    private func showImagePickerController(_ sourceType: UIImagePickerController.SourceType) {
+    private func isCameraAvailable() -> Bool {
+        UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+    
+    private func selectPhoto() {
+        if #available(iOS 14.0, *) {
+            showImagePickerController()
+        } else {
+            Task {
+                var status = PHPhotoLibrary.authorizationStatus()
+                
+                if case .notDetermined = status {
+                    status = await requestPhotoLibraryAuthorization()
+                }
+                
+                await MainActor.run { [status] in
+                    if isPhotoLibraryAuthorized(status) {
+                        showImagePickerController()
+                    } else {
+                        showPhotoAccessDeniedAlertController()
+                    }
+                }
+            }
+        }
+    }
+    
+    @MainActor
+    private func requestPhotoLibraryAuthorization() async -> PHAuthorizationStatus {
+        return await withCheckedContinuation { continuation in
+            PHPhotoLibrary.requestAuthorization { [weak self] status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+    
+    private func isPhotoLibraryAuthorized(_ status: PHAuthorizationStatus) -> Bool {
+        switch status {
+        case .notDetermined, .denied, .restricted, .denied:
+            return false
+        case .authorized, .limited:
+            return true
+        }
+    }
+    
+    private func takePhoto() {
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
-        imagePickerController.sourceType = sourceType
-        
-        self.present(imagePickerController, animated: true, completion: nil)
+        imagePickerController.sourceType = .camera
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    private func showImagePickerController() {
+        if #available(iOS 14.0, *) {
+            var configuration = PHPickerConfiguration(photoLibrary: .shared())
+            configuration.selectionLimit = 1
+            configuration.filter = .images
+            let picker = PHPickerViewController(configuration: configuration)
+            picker.delegate = self
+            present(picker, animated: true)
+        } else {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.sourceType = .photoLibrary
+            present(imagePickerController, animated: true, completion: nil)
+        }
     }
     
     private func showPhotoAccessDeniedAlertController() {
@@ -298,7 +334,7 @@ public class ParleyComposeView: UIView {
             style: .cancel
         ))
         
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
 }
 
@@ -306,10 +342,10 @@ public class ParleyComposeView: UIView {
 extension ParleyComposeView: UITextViewDelegate {
     
     public func textViewDidChange(_ textView: UITextView) {
-        self.delegate?.didChange()
+        delegate?.didChange()
         
-        self.sendButton.isEnabled = !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        self.placeholderLabel.isHidden = !self.textView.text.isEmpty
+        sendButton.isEnabled = !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        placeholderLabel.isHidden = !self.textView.text.isEmpty
         
         let cgSize = CGSize(width: self.textView.frame.width, height: .greatestFiniteMagnitude)
         let sizeThatFits = self.textView.sizeThatFits(cgSize)
@@ -326,11 +362,11 @@ extension ParleyComposeView: UITextViewDelegate {
         
         textView.isScrollEnabled = height >= maxHeight
 
-        if self.textViewHeightConstraint.constant != height {
-            UIView.animate(withDuration: 0.1) {
-                self.textViewHeightConstraint.constant = height
-                
-                self.layoutIfNeeded()
+        if textViewHeightConstraint.constant != height {
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                guard let self else { return }
+                textViewHeightConstraint.constant = height
+                layoutIfNeeded()
             }
         }
     }
@@ -406,7 +442,46 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
 }
 
 // MARK: UINavigationControllerDelegate
-extension ParleyComposeView: UINavigationControllerDelegate {
+extension ParleyComposeView: UINavigationControllerDelegate { }
+
+@available(iOS 14.0, *)
+extension ParleyComposeView: PHPickerViewControllerDelegate {
     
-    //
+    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true) { [weak self] in
+            self?.handleDidPickImage(results: results)
+        }
+    }
+    
+    private func handleDidPickImage(results: [PHPickerResult]) {
+        guard !results.isEmpty else { return }
+        Task {
+            guard let itemProvider = results.first?.itemProvider else { await handleUnableToLoadImage() ; return }
+            let fileName = itemProvider.suggestedName ?? UUID().uuidString
+            
+            do {
+                let loadedImage = try await itemProvider.loadImage()
+                delegate?.send(image: loadedImage.image, data: loadedImage.data, fileName: fileName, type: loadedImage.type)
+            } catch {
+                await handleUnableToLoadImage(error)
+            }
+        }
+    }
+    
+    private func handleUnableToLoadImage(_ error: Error? = nil) async {
+        await MainActor.run {
+            let alertController = UIAlertController(
+                title: ParleyLocalizationKey.sendFailedTitle.localized,
+                message: ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized,
+                preferredStyle: .alert
+            )
+            
+            alertController.addAction(UIAlertAction(
+                title: ParleyLocalizationKey.ok.localized,
+                style: .cancel
+            ))
+            
+            present(alertController, animated: true, completion: nil)
+        }
+    }
 }
