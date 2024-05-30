@@ -23,19 +23,19 @@ extension Message {
             switch message.type {
             case .agent, .systemMessageAgent:
                 if let agentName = message.agent?.name {
-                    let format = L10nKey.voiceOverMessageFromAgentName.localized
+                    let format = ParleyLocalizationKey.voiceOverMessageFromAgentName.localized
                     return .localizedStringWithFormat(format, agentName)
                 } else {
-                    return L10nKey.voiceOverMessageFromAgent.localized
+                    return ParleyLocalizationKey.voiceOverMessageFromAgent.localized
                 }
             case .user, .systemMessageUser:
-                return L10nKey.voiceOverMessageFromYou.localized
+                return ParleyLocalizationKey.voiceOverMessageFromYou.localized
             case .loading:
-                return L10nKey.voiceOverMessageLoading.localized
+                return ParleyLocalizationKey.voiceOverMessageLoading.localized
             case .agentTyping:
-                return L10nKey.voiceOverMessageAgentIsTyping.localized
+                return ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized
             case .info, .auto:
-                return L10nKey.voiceOverMessageInformational.localized
+                return ParleyLocalizationKey.voiceOverMessageInformational.localized
             default:
                 return nil
             }
@@ -68,7 +68,7 @@ extension Message {
 
         static private func createMediumAttachedLabelIfAvailable(_ message: Message) -> String? {
             guard message.hasMedium else { return nil }
-            return L10nKey.voiceOverMessageMediaAttached.localized
+            return ParleyLocalizationKey.voiceOverMessageMediaAttached.localized
         }
 
         // MARK: Accessibility Label - Ending
@@ -83,9 +83,9 @@ extension Message {
         static private func createStatusLabelIfNeeded(_ message: Message) -> String? {
             switch message.status {
             case .failed:
-                return L10nKey.voiceOverMessageFailed.localized
+                return ParleyLocalizationKey.voiceOverMessageFailed.localized
             case .pending:
-                return L10nKey.voiceOverMessagePending.localized
+                return ParleyLocalizationKey.voiceOverMessagePending.localized
             case .success:
                 return nil
             }
@@ -93,7 +93,7 @@ extension Message {
 
         static private func createTimeLabelIfAvailable(_ message: Message) -> String? {
             guard let time = message.time else { return nil }
-            let format = L10nKey.voiceOverMessageTime.localized
+            let format = ParleyLocalizationKey.voiceOverMessageTime.localized
             return .localizedStringWithFormat(format, time.asTime())
         }
     }
@@ -108,17 +108,17 @@ extension Message.Accessibility {
         switch message.type {
         case .agent, .systemMessageAgent:
             if message.quickReplies?.isEmpty == false {
-                return L10nKey.voiceOverAnnouncementQuickRepliesReceived.localized
+                return ParleyLocalizationKey.voiceOverAnnouncementQuickRepliesReceived.localized
             } else {
                 messageArray = [
-                    L10nKey.voiceOverAnnouncementMessageReceived.localized,
+                    ParleyLocalizationKey.voiceOverAnnouncementMessageReceived.localized,
                     Self.getAccessibilityLabelDescription(for: message),
                     Self.createActionsAttachedLabelIfAvailable(message),
                 ]
             }
         case .info, .auto:
             messageArray = [
-                L10nKey.voiceOverAnnouncementInfoMessageReceived.localized,
+                ParleyLocalizationKey.voiceOverAnnouncementInfoMessageReceived.localized,
                 message.message,
             ]
         default:
@@ -135,7 +135,7 @@ extension Message.Accessibility {
 
     static private func createActionsAttachedLabelIfAvailable(_ message: Message) -> String? {
         guard message.hasButtons else { return nil }
-        return L10nKey.voiceOverMessageActionsAttached.localized
+        return ParleyLocalizationKey.voiceOverMessageActionsAttached.localized
     }
 }
 

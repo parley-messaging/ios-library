@@ -1,6 +1,6 @@
 import Foundation
 
-public enum L10nKey: String {
+public enum ParleyLocalizationKey: String {
     case cancel = "parley_cancel"
     case ok = "parley_ok"
     case stateFailed = "parley_state_failed"
@@ -57,7 +57,7 @@ public enum L10nKey: String {
     case voiceOverAnnouncementQuickRepliesReceived = "parley_voice_over_announcement_quick_replies_received"
 }
 
-extension L10nKey {
+extension ParleyLocalizationKey {
     var localized: String {
         Parley.shared.localizationManager.getLocalization(key: self)
     }

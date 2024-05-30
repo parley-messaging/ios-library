@@ -1,3 +1,3 @@
 public protocol LocalizationManager {
-    func getLocalization(key: L10nKey) -> String
+    func getLocalization(key: ParleyLocalizationKey) -> String
 }

@@ -11,7 +11,7 @@ public class ParleyComposeView: UIView {
     
     @IBOutlet weak var cameraButton: UIButton! {
         didSet {
-            cameraButton.accessibilityLabel = L10nKey.voiceOverCameraButtonLabel.localized
+            cameraButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
         }
     }
     @IBOutlet weak var textViewBackgroundView: UIView! {
@@ -35,7 +35,7 @@ public class ParleyComposeView: UIView {
             
             textView.accessibilityCustomActions = [
                 UIAccessibilityCustomAction(
-                    name: L10nKey.voiceOverDismissKeyboardAction.localized,
+                    name: ParleyLocalizationKey.voiceOverDismissKeyboardAction.localized,
                     target: self,
                     selector: #selector(dismissKeyboard)
                 )
@@ -61,7 +61,7 @@ public class ParleyComposeView: UIView {
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
             sendButton.layer.cornerRadius = sendButton.bounds.height / 2
-            sendButton.accessibilityLabel = L10nKey.voiceOverSendButtonLabel.localized
+            sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized
             
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
                 let isEnabled = change.newValue
@@ -69,7 +69,7 @@ public class ParleyComposeView: UIView {
                 if isEnabled == true {
                     self?.sendButton.accessibilityHint = nil
                 } else {
-                    self?.sendButton.accessibilityHint = L10nKey.voiceOverSendButtonDisabledHint.localized
+                    self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint.localized
                 }
             }
         }
@@ -249,23 +249,23 @@ public class ParleyComposeView: UIView {
             popoverController.permittedArrowDirections = [.left, .down]
         }
         
-        alertController.title = L10nKey.photo.localized
+        alertController.title = ParleyLocalizationKey.photo.localized
         alertController.addAction(UIAlertAction(
-            title: L10nKey.selectPhoto.localized,
+            title: ParleyLocalizationKey.selectPhoto.localized,
             style: .default,
             handler: { [weak self] action in
                 self?.showImagePickerController(.photoLibrary)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: L10nKey.takePhoto.localized,
+            title: ParleyLocalizationKey.takePhoto.localized,
             style: .default,
             handler: { [weak self] action in
                 self?.showImagePickerController(.camera)
         }))
         
         alertController.addAction(UIAlertAction(
-            title: L10nKey.cancel.localized,
+            title: ParleyLocalizationKey.cancel.localized,
             style: .cancel
         ))
         
@@ -282,13 +282,13 @@ public class ParleyComposeView: UIView {
     
     private func showPhotoAccessDeniedAlertController() {
         let alertController = UIAlertController(
-            title: L10nKey.photoAccessDeniedTitle.localized,
-            message: L10nKey.photoAccessDeniedBody.localized,
+            title: ParleyLocalizationKey.photoAccessDeniedTitle.localized,
+            message: ParleyLocalizationKey.photoAccessDeniedBody.localized,
             preferredStyle: .alert
         )
         
         alertController.addAction(UIAlertAction(
-            title: L10nKey.ok.localized,
+            title: ParleyLocalizationKey.ok.localized,
             style: .cancel
         ))
         

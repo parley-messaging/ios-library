@@ -567,7 +567,7 @@ public final class Parley {
         if agentReallyStartTyping {
             UIAccessibility.post(
                 notification: .announcement,
-                argument: L10nKey.voiceOverAnnouncementAgentTyping.localized
+                argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized
             )
             self.delegate?.didStartTyping()
         }
