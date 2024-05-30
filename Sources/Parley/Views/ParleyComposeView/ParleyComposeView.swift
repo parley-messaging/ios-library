@@ -49,7 +49,8 @@ public class ParleyComposeView: UIView {
         textView.resignFirstResponder()
     }
     
-    @IBOutlet weak var placeholderLabel: UILabel! {
+    @IBOutlet private weak var placeholderTopConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var placeholderLabel: UILabel! {
         didSet {
             placeholderLabel.isAccessibilityElement = false
             placeholderLabel.adjustsFontForContentSizeCategory = true
@@ -198,13 +199,18 @@ public class ParleyComposeView: UIView {
         // Needs extra time to render label in new font size.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.placeholderLabel.sizeToFit()
+            placeholderLabel.sizeToFit()
             
             if textView.text?.isEmpty == true {
-                self.textViewHeightConstraint.constant = max(23, self.placeholderLabel.bounds.height)
+                textViewHeightConstraint.constant = max(23, placeholderLabel.bounds.height)
             }
             
-            self.layoutIfNeeded()
+            let messageLineHeight = textView.font?.lineHeight ?? .zero
+            let placeholderLineHeight = placeholderLabel.font?.lineHeight ?? .zero
+            
+            placeholderTopConstraint.constant = messageLineHeight - placeholderLineHeight
+            
+            layoutIfNeeded()
         }
     }
     

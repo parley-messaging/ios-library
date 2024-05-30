@@ -97,7 +97,7 @@ final class MessageTableViewCell: UITableViewCell {
     }
     
     private func apply(_ appearance: MessageTableViewCellAppearance) {
-        self.parleyMessageView.appearance = appearance
+        self.parleyMessageView.apply(appearance)
         
         self.contentView.removeConstraints([
             self.leftLayoutConstraint,
