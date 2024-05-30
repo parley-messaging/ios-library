@@ -250,7 +250,7 @@ public class ParleyComposeView: UIView {
                 self?.takePhoto()
         }))
         
-        alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .default))
+        alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .cancel))
         
         present(alertController, animated: true, completion: nil)
     }
