@@ -820,12 +820,11 @@ extension Parley {
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Parameters:
-       - onSuccess: Called when the device is correctly registered.
-       - onFailure: Called when configuring of the device did result in a error.
+       - completion: Called when all data is cleared
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func resetUserData(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+    public static func purgeLocalMemory(completion: (() -> ())? = nil) {
         Task {
             await shared.imageLoader?.reset()
         }
@@ -835,7 +834,7 @@ extension Parley {
         shared.imageRepository?.reset()
         shared.secret = nil
         shared.clearChat()
-        onSuccess?()
+        completion?()
     }
 
     /**
