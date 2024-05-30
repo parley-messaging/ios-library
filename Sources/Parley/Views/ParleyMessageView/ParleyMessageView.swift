@@ -11,10 +11,10 @@ final class ParleyMessageView: UIView {
 
     // MARK: - IBOutlets
     
-    @IBOutlet weak var contentView: UIView!
+    @IBOutlet private weak var contentView: UIView!
     
     // Balloon
-    @IBOutlet weak var balloonImageView: UIImageView! {
+    @IBOutlet private weak var balloonImageView: UIImageView! {
         didSet {
             balloonImageView.isAccessibilityElement = false
             balloonImageView.accessibilityTraits = .none 
@@ -22,95 +22,93 @@ final class ParleyMessageView: UIView {
     }
 
     // Balloon content
-    @IBOutlet weak var balloonContentView: UIView!
+    @IBOutlet private weak var balloonContentView: UIView!
     
-    @IBOutlet weak var balloonContentTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var balloonContentLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var balloonContentRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var balloonContentBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var balloonContentTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var balloonContentLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var balloonContentRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var balloonContentBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    @IBOutlet weak var imageHolderView: UIView!
+    @IBOutlet private weak var imageHolderView: UIView!
     
-    @IBOutlet weak var imageImageView: ParleyImageView!
+    @IBOutlet private weak var imageImageView: ParleyImageView!
     
-    @IBOutlet weak var imageTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageBottomLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageMinimumWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMinimumWidthConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var imageActivityIndicatorView: UIActivityIndicatorView!
+    @IBOutlet private weak var imageActivityIndicatorView: UIActivityIndicatorView!
     
-    @IBOutlet weak var imageNameLabel: UILabel!
+    @IBOutlet private weak var imageNameLabel: UILabel!
     
-    @IBOutlet weak var imageNameTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageNameLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageNameRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageNameTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageNameLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageNameRightLayoutConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var imageMetaStackView: UIStackView!
+    @IBOutlet private weak var imageMetaLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaBottomLayoutConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var imageMetaLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageMetaRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var imageMetaBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaTimeLabel: UILabel!
+    @IBOutlet private weak var imageMetaStatusImageView: UIImageView!
+    @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
     
-    @IBOutlet weak var imageMetaTimeLabel: UILabel!
-    @IBOutlet weak var imageMetaStatusImageView: UIImageView!
-    
-    @IBOutlet weak var imageFailureMessageLabel: UILabel!
+    @IBOutlet private weak var imageFailureMessageLabel: UILabel!
     
     // Name
-    @IBOutlet weak var nameView: UIView!
-    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet private weak var nameView: UIView!
+    @IBOutlet private weak var nameLabel: UILabel!
     
-    @IBOutlet weak var nameTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var nameLeftLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var nameRightLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var nameBottomLayoutCostraint: NSLayoutConstraint!
+    @IBOutlet private weak var nameTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var nameLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var nameRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var nameBottomLayoutConstraint: NSLayoutConstraint!
     
     // Title
-    @IBOutlet weak var titleView: UIView!
-    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet private weak var titleView: UIView!
+    @IBOutlet private weak var titleLabel: UILabel!
     
-    @IBOutlet weak var titleTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleLeftLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var titleRightLayoutCostraint: NSLayoutConstraint!
-    @IBOutlet weak var titleBottomLayoutCostraint: NSLayoutConstraint!
+    @IBOutlet private weak var titleTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var titleLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var titleRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var titleBottomLayoutConstraint: NSLayoutConstraint!
     
     // Message
-    @IBOutlet weak var messageView: UIView!
-    @IBOutlet weak var messageTextView: ParleyTextView!
+    @IBOutlet private weak var messageView: UIView!
+    @IBOutlet private weak var messageTextView: ParleyTextView!
     
-    @IBOutlet weak var messageTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var messageLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var messageRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var messageBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messageTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messageLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messageRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var messageBottomLayoutConstraint: NSLayoutConstraint!
     
     // Meta
-    @IBOutlet weak var metaView: UIView!
-    @IBOutlet weak var metaStackView: UIStackView!
+    @IBOutlet private weak var metaView: UIView!
     
-    @IBOutlet weak var metaTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var metaLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var metaRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var metaBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var metaTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var metaLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var metaRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var metaBottomLayoutConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var timeLabel: UILabel!
-    @IBOutlet weak var statusImageView: UIImageView!
+    @IBOutlet private weak var timeLabel: UILabel!
+    @IBOutlet private weak var statusImageView: UIImageView!
+    @IBOutlet private weak var statusImageViewWidth: NSLayoutConstraint!
     
     // Buttons
-    @IBOutlet weak var buttonsView: UIView!
-    @IBOutlet weak var buttonsStackView: UIStackView!
+    @IBOutlet private weak var buttonsView: UIView!
+    @IBOutlet private weak var buttonsStackView: UIStackView!
     
-    @IBOutlet weak var buttonsTopLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var buttonsLeftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var buttonsRightLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var buttonsTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var buttonsLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var buttonsRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
     
     // Image
-    private let messageRepository: MessageRepository = Parley.shared.messageRepository
-    private let imageLoader: ImageLoader = Parley.shared.imageLoader
-    
+    private let imageLoader: ImageLoaderProtocol
+
     // Helpers
     private var displayName: Display = .message
     private var displayMeta: Display = .message
@@ -120,12 +118,7 @@ final class ParleyMessageView: UIView {
     weak var delegate: ParleyMessageViewDelegate?
     
     // MARK: - Appearance
-    var appearance: ParleyMessageViewAppearance? {
-        didSet {
-            guard let appearance = appearance else { return }
-            apply(appearance)
-        }
-    }
+    private var appearance: ParleyMessageViewAppearance?
     private var message: Message!
     private var time: Date?
     private static let minimumImageWidth: CGFloat = 5
@@ -133,13 +126,17 @@ final class ParleyMessageView: UIView {
     
     
     // MARK: - View
-    override init(frame: CGRect) {
+    init(frame: CGRect, imageLoader: ImageLoaderProtocol = Parley.shared.imageLoader) {
+        self.imageLoader = imageLoader
+
         super.init(frame: frame)
 
         setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
+        imageLoader = Parley.shared.imageLoader
+
         super.init(coder: aDecoder)
 
         setup()
@@ -170,7 +167,7 @@ final class ParleyMessageView: UIView {
         render()
     }
     
-    func render() {
+    private func render() {
         renderName()
         renderMeta()
         renderMetaStatus()
@@ -195,6 +192,7 @@ final class ParleyMessageView: UIView {
         
         imageNameLabel.text = message.agent?.name
         nameLabel.text = message.agent?.name
+        nameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameLabel.isHidden = displayName != .image
         nameView.isHidden = displayName != .message
@@ -209,15 +207,17 @@ final class ParleyMessageView: UIView {
             renderImageFailure()
         }
         
-        imageMetaStackView.isHidden = displayMeta != .image
-        metaView.isHidden = displayMeta != .message
+        imageMetaTimeLabel.isHidden = displayMeta != .image
+        imageMetaStatusImageView.isHidden = displayMeta != .image
         
+        metaView.isHidden = displayMeta != .message
         renderMetaTime()
     }
     
     private func renderImageFailure() {
         imageFailureMessageLabel.textColor = appearance?.imageInnerColor
         imageFailureMessageLabel.font = appearance?.timeFont
+        imageFailureMessageLabel.adjustsFontForContentSizeCategory = true
         
         if let failureMessage = formattedFailureMessage() {
             imageFailureMessageLabel.text = failureMessage
@@ -252,19 +252,25 @@ final class ParleyMessageView: UIView {
             
             switch message.status {
             case .failed:
-                imageMetaStatusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_close", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                let closeIcon = UIImage.template(named: "ic_close")
+                imageMetaStatusImageView.image = closeIcon
+                statusImageView.image = closeIcon
             case .pending:
-                imageMetaStatusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_clock", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                let clockIcon = UIImage.template(named: "ic_clock")
+                imageMetaStatusImageView.image = clockIcon
+                statusImageView.image = clockIcon
             case .success:
-                imageMetaStatusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                statusImageView.image = UIImage(named: "ic_tick", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                let tickIcon = UIImage.template(named: "ic_tick")
+                imageMetaStatusImageView.image = tickIcon
+                statusImageView.image = tickIcon
             }
         } else {
             imageMetaStatusImageView.isHidden = true
             statusImageView.isHidden = true
         }
+        
+        statusImageViewWidth.constant = timeLabel.intrinsicContentSize.height
+        imageMetaStatusImageViewWidth.constant = imageMetaTimeLabel.intrinsicContentSize.height
     }
     
     private func renderTitle() {
@@ -314,10 +320,24 @@ final class ParleyMessageView: UIView {
     
     private func renderImageCorners() {
         if displayTitle == .message || message.message != nil || message.hasButtons {
-            imageImageView.corners = [.topLeft, .topRight]
+            imageImageView.corners = filterOutCornersIfNecessary(neededCorners: appearance?.imageCorners)
         } else {
-            imageImageView.corners = [.allCorners]
+            imageImageView.corners = appearance?.imageCorners ?? [.allCorners]
         }
+    }
+    
+    private func filterOutCornersIfNecessary(neededCorners: UIRectCorner?) -> UIRectCorner {
+        guard let neededCorners else {
+            return [.topLeft, .topRight]
+        }
+        var filteredCorners: UIRectCorner = []
+        if neededCorners.contains(.topLeft) || neededCorners.contains(.allCorners) {
+            filteredCorners.insert(.topLeft)
+        }
+        if neededCorners.contains(.topRight) || neededCorners.contains(.allCorners) {
+            filteredCorners.insert(.topRight)
+        }
+        return filteredCorners
     }
     
     private func setImageWidth() {
@@ -367,16 +387,15 @@ final class ParleyMessageView: UIView {
     
     // Gradient
     private func renderGradients() {
-        DispatchQueue.main.async { [weak self] in
-            self?.imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        layoutIfNeeded()
+        imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
-            if self?.displayName == .image {
-                self?.addImageNameGradient()
-            }
-            
-            if self?.displayMeta == .image {
-                self?.addImageMetaGradient()
-            }
+        if displayName == .image {
+            addImageNameGradient()
+        }
+        
+        if displayMeta == .image {
+            addImageMetaGradient()
         }
     }
     
@@ -416,8 +435,8 @@ final class ParleyMessageView: UIView {
             appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor
         ]
         
-        let width = imageMetaStackView.frame.width + metaRightLayoutConstraint.constant + 50
-        let height = imageMetaStackView.frame.height + metaBottomLayoutConstraint.constant + 40
+        let width = (imageMetaTimeLabel.bounds.width * 3) + metaRightLayoutConstraint.constant
+        let height = (imageMetaTimeLabel.bounds.height * 4) + metaBottomLayoutConstraint.constant
         gradient.frame = CGRect(
             x: imageImageView.frame.width - width,
             y: imageImageView.frame.height - height,
@@ -437,8 +456,8 @@ final class ParleyMessageView: UIView {
             appearance?.imageInnerShadowEndColor.cgColor ?? UIColor.black.cgColor,
             appearance?.imageInnerShadowStartColor.cgColor ?? UIColor(white: 0, alpha: 0.3).cgColor
         ]
-        let width = imageImageView.frame.width
-        let height = imageMetaStackView.frame.height + metaBottomLayoutConstraint.constant + 40
+        let width = imageImageView.bounds.width
+        let height = imageMetaTimeLabel.bounds.height + metaBottomLayoutConstraint.constant + 20
         gradient.frame = CGRect(
             x: imageImageView.frame.width - width,
             y: imageImageView.frame.height - height,
@@ -497,7 +516,9 @@ final class ParleyMessageView: UIView {
     }
     
     // MARK: - Appearance
-    private func apply(_ appearance: ParleyMessageViewAppearance) {
+    func apply(_ appearance: ParleyMessageViewAppearance) {
+        self.appearance = appearance
+        
         // Balloon
         if let backgroundTintColor = appearance.balloonTintColor {
             balloonImageView.image = appearance.balloonImage?.withRenderingMode(.alwaysTemplate)
@@ -520,12 +541,13 @@ final class ParleyMessageView: UIView {
         imageBottomLayoutConstraint.constant = appearance.imageInsets?.bottom ?? 0
         
         imageImageView.cornerRadius = CGFloat(appearance.imageCornerRadius)
-        imageImageView.corners = [.allCorners]
+        imageImageView.corners = appearance.imageCorners
         
         imageActivityIndicatorView.color = appearance.imageLoaderTintColor
         
         imageNameLabel.textColor = appearance.imageInnerColor
         imageNameLabel.font = appearance.nameFont
+        imageNameLabel.adjustsFontForContentSizeCategory = true
         
         imageNameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
         imageNameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
@@ -545,26 +567,21 @@ final class ParleyMessageView: UIView {
         nameLabel.font = appearance.nameFont
         
         nameTopLayoutConstraint.constant = (appearance.balloonContentTextInsets?.top ?? 0) + (appearance.nameInsets?.top ?? 0)
-        nameLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
-        nameRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
-        nameBottomLayoutCostraint.constant = appearance.nameInsets?.bottom ?? 0
+        nameLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.nameInsets?.left ?? 0)
+        nameRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.nameInsets?.right ?? 0)
+        nameBottomLayoutConstraint.constant = appearance.nameInsets?.bottom ?? 0
         
         // Title
         titleLabel.textColor = appearance.titleColor
         titleLabel.font = appearance.titleFont
         
-        titleLeftLayoutCostraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
-        titleRightLayoutCostraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
-        titleBottomLayoutCostraint.constant = appearance.titleInsets?.bottom ?? 0
+        titleLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.titleInsets?.left ?? 0)
+        titleRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.titleInsets?.right ?? 0)
+        titleBottomLayoutConstraint.constant = appearance.titleInsets?.bottom ?? 0
         
         // Message
-        messageTextView.textColor = appearance.messageColor
-        messageTextView.tintColor = appearance.messageTintColor
-        
-        messageTextView.regularFont = appearance.messageRegularFont
-        messageTextView.italicFont = appearance.messageItalicFont
-        messageTextView.boldFont = appearance.messageBoldFont
-        
+        messageTextView.appearance = appearance.messageTextViewAppearance
+
         messageTopLayoutConstraint.constant = appearance.messageInsets?.top ?? 0
         messageLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.messageInsets?.left ?? 0)
         messageBottomLayoutConstraint.constant = appearance.messageInsets?.bottom ?? 0
@@ -586,6 +603,8 @@ final class ParleyMessageView: UIView {
         buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
+        
+        renderGradients()
     }
     
     // MARK: - Actions
