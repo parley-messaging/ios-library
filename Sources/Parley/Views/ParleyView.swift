@@ -16,29 +16,32 @@ public class ParleyView: UIView {
     @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet private weak var messagesTableView: MessagesTableView!
     @IBOutlet private weak var messagesTableViewPaddingToSafeAreaTopView: UIView!
-    
+
     @IBOutlet weak var notificationsStackView: UIStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            pushDisabledNotificationView.text =  ParleyLocalizationKey.pushDisabled.localized
+            pushDisabledNotificationView.text = ParleyLocalizationKey.pushDisabled.localized
         }
     }
+
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            offlineNotificationView.text =  ParleyLocalizationKey.notificationOffline.localized
+            offlineNotificationView.text = ParleyLocalizationKey.notificationOffline.localized
         }
     }
+
     @IBOutlet weak var stickyView: ParleyStickyView!
-    
+
     @IBOutlet weak var suggestionsView: ParleySuggestionsView! {
         didSet {
             suggestionsView.delegate = self
-            
+
             syncMessageTableViewContentInsets()
         }
     }
+
     @IBOutlet weak var suggestionsConstraintBottom: NSLayoutConstraint!
 
     @IBOutlet weak var composeView: ParleyComposeView! {
@@ -55,7 +58,7 @@ public class ParleyView: UIView {
     private lazy var notificationService = NotificationService()
     private lazy var messageRepository: MessageRepository = Parley.shared.messageRepository
     private lazy var pollingService: PollingServiceProtocol = PollingService()
-    
+
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
@@ -105,9 +108,9 @@ public class ParleyView: UIView {
         addObservers()
 
         Parley.shared.delegate = self
-        
+
         setupPollingIfNecessary()
-        
+
         observeNotificationsBounds = notificationsStackView.observe(\.bounds) { [weak self] _, _ in
             self?.syncMessageTableViewContentInsets()
         }
@@ -115,14 +118,14 @@ public class ParleyView: UIView {
             self?.syncMessageTableViewContentInsets()
         }
     }
-    
+
     private func setupPollingIfNecessary() {
         pollingService.delegate = self
-        
+
         if Parley.shared.alwaysPolling {
             pollingService.startRefreshing()
         } else {
-            notificationService.notificationsEnabled() { [weak self] isEnabled in
+            notificationService.notificationsEnabled { [weak self] isEnabled in
                 guard !isEnabled else { return }
                 self?.pollingService.startRefreshing()
             }
@@ -135,14 +138,16 @@ public class ParleyView: UIView {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
 
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor),
+            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
     }
 
     private func getMessagesManager() -> MessagesManager {
-        return Parley.shared.messagesManager
+        Parley.shared.messagesManager
     }
 
     // MARK: Views
@@ -151,12 +156,12 @@ public class ParleyView: UIView {
             InfoTableViewCell.reuseIdentifier,
             DateTableViewCell.reuseIdentifier,
             LoadingTableViewCell.reuseIdentifier,
-            
+
             MessageTableViewCell.reuseIdentifier,
             AgentTypingTableViewCell.reuseIdentifier,
         ]
 
-        cellIdentifiers.forEach { cellIdentifier in
+        for cellIdentifier in cellIdentifiers {
             registerNibCell(cellIdentifier)
         }
 
@@ -165,14 +170,17 @@ public class ParleyView: UIView {
         messagesTableView.separatorStyle = .none
         messagesTableView.keyboardDismissMode = .interactive
         messagesTableView.alwaysBounceVertical = false
-        
-        messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [.initial, .new]) { [weak self] messagesTableView, change in
+
+        messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [
+            .initial,
+            .new,
+        ]) { [weak self] messagesTableView, change in
             guard let self, let newContentHeight = change.newValue?.height else { return }
             let verticalInsets = messagesTableView.contentInset.top + messagesTableView.contentInset.bottom
             let newHeight = newContentHeight + verticalInsets
-            
+
             self.messagesTableViewHeightConstraint.constant = newHeight
-            
+
             let isScrollable = newContentHeight > messagesTableView.frame.maxY
             if isScrollable {
                 messagesTableView.keyboardDismissMode = .interactive
@@ -187,7 +195,7 @@ public class ParleyView: UIView {
         let tableViewCellNib = UINib(nibName: nibName, bundle: .module)
         messagesTableView.register(tableViewCellNib, forCellReuseIdentifier: nibName)
     }
-    
+
     private func syncMessageTableViewContentInsets() {
         let top: CGFloat
         let bottom: CGFloat
@@ -203,24 +211,24 @@ public class ParleyView: UIView {
             bottom = suggestionsHeight + notificationsHeight
             suggestionsConstraintBottom.constant = notificationsHeight
         }
-        
+
         messagesTableView.contentInset = UIEdgeInsets(
             top: top,
             left: 0,
             bottom: bottom,
             right: 0
         )
-        
+
         if messagesTableView.isAtBottom {
             // Stay at bottom
             messagesTableView.scroll(to: .bottom, animated: true)
         }
     }
-    
+
     private func getNotificationsHeight() -> CGFloat {
-        return notificationsStackView.frame.height
+        notificationsStackView.frame.height
     }
-    
+
     /// Gets the notification height for the specified vertical position based on the current appearance.
     /// - Parameters:
     ///  - position: Vertical position
@@ -229,13 +237,16 @@ public class ParleyView: UIView {
         guard appearance.notificationsPosition == position else { return .zero }
         return notificationsStackView.frame.height
     }
-    
+
     private func getSuggestionsHeight() -> CGFloat {
-        return suggestionsView.isHidden ? 0 : suggestionsView.frame.height
+        suggestionsView.isHidden ? 0 : suggestionsView.frame.height
     }
-    
+
     private func syncSuggestionsView() {
-        if let message = getMessagesManager().messages.last, let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+        if
+            let message = getMessagesManager().messages.last, let quickReplies = message.quickReplies,
+            !quickReplies.isEmpty
+        {
             if UIAccessibility.isVoiceOverRunning {
                 messagesTableView.scroll(to: .bottom, animated: false)
             }
@@ -249,12 +260,42 @@ public class ParleyView: UIView {
 
     // MARK: Observers
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(contentSizeCategoryDidChange), name: UIContentSizeCategory.didChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardDidShow),
+            name: UIResponder.keyboardDidShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardDidHide),
+            name: UIResponder.keyboardDidHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(orientationDidChange),
+            name: UIDevice.orientationDidChangeNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(contentSizeCategoryDidChange),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
         watchForVoiceOverDidChangeNotification(observer: self)
     }
 
@@ -269,48 +310,54 @@ public class ParleyView: UIView {
     }
 
     // MARK: Keyboard
-    @objc private func keyboardWillShow(notification: NSNotification) {
+    @objc
+    private func keyboardWillShow(notification: NSNotification) {
         messagesTableView.addGestureRecognizer(tapGestureRecognizer)
-        
+
         if messagesTableView.isAtBottom {
             isShowingKeyboardWithMessagesScrolledToBottom = true
         }
-        
+
         let topPaddingTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard(_:)))
         messagesTableViewPaddingToSafeAreaTopView.addGestureRecognizer(topPaddingTapGestureRecognizer)
         tableViewTopPaddingTapGestureRecognizer = topPaddingTapGestureRecognizer
     }
-    
-    @objc private func keyboardDidShow() {
+
+    @objc
+    private func keyboardDidShow() {
         guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
         messagesTableView.scroll(to: .bottom, animated: false)
         isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
-    @objc private func keyboardWillHide(notification: NSNotification) {
+    @objc
+    private func keyboardWillHide(notification: NSNotification) {
         messagesTableView.removeGestureRecognizer(tapGestureRecognizer)
         if let tableViewTopPaddingTapGestureRecognizer {
             messagesTableViewPaddingToSafeAreaTopView.removeGestureRecognizer(tableViewTopPaddingTapGestureRecognizer)
             self.tableViewTopPaddingTapGestureRecognizer = nil
         }
-        
+
         if messagesTableView.isAtBottom {
             isShowingKeyboardWithMessagesScrolledToBottom = true
         }
     }
-    
-    @objc private func keyboardDidHide() {
+
+    @objc
+    private func keyboardDidHide() {
         guard isShowingKeyboardWithMessagesScrolledToBottom else { return }
         messagesTableView.scroll(to: .bottom, animated: true)
         isShowingKeyboardWithMessagesScrolledToBottom = false
     }
 
-    @IBAction func hideKeyboard(_ sender: Any) {
+    @IBAction
+    func hideKeyboard(_ sender: Any) {
         endEditing(true)
     }
-    
+
     // MARK: Orientation
-    @objc private func orientationDidChange() {
+    @objc
+    private func orientationDidChange() {
         messagesTableView.reloadData()
     }
 
@@ -325,9 +372,9 @@ public class ParleyView: UIView {
         offlineNotificationView.appearance = appearance.offlineNotification
         stickyView.appearance = appearance.sticky
         composeView.appearance = appearance.compose
-        
+
         suggestionsView.appearance = appearance.suggestions
-        
+
         // Positioning
         switch appearance.notificationsPosition {
         case .top:
@@ -340,7 +387,10 @@ public class ParleyView: UIView {
             break;
         case .bottom:
             notificationsConstraintTop?.isActive = false
-            notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(equalTo: composeView.topAnchor, constant: 0)
+            notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(
+                equalTo: composeView.topAnchor,
+                constant: 0
+            )
             notificationsConstraintBottom?.isActive = true
             break;
         }
@@ -353,7 +403,7 @@ extension ParleyView: ParleyDelegate {
 
     func willSend(_ indexPaths: [IndexPath]) {
         syncSuggestionsView()
-        
+
         messagesTableView.insertRows(at: indexPaths, with: .none)
         messagesTableView.scroll(to: .bottom, animated: false)
     }
@@ -366,19 +416,22 @@ extension ParleyView: ParleyDelegate {
 
     func didSent(_ message: Message) {
         delegate?.didSentMessage()
-        UIAccessibility.post(notification: .announcement, argument: ParleyLocalizationKey.voiceOverAnnouncementSentMessage.localized)
+        UIAccessibility.post(
+            notification: .announcement,
+            argument: ParleyLocalizationKey.voiceOverAnnouncementSentMessage.localized
+        )
     }
 
     func didReceiveMessage(_ indexPath: [IndexPath]) {
         syncSuggestionsView()
-        
+
         messagesTableView.insertRows(at: indexPath, with: .none)
         messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didReceiveMessages() {
         syncSuggestionsView()
-        
+
         messagesTableView.reloadData()
     }
 
@@ -443,16 +496,16 @@ extension ParleyView: ParleyDelegate {
 
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
-            
+
             stickyView.text = getMessagesManager().stickyMessage
             stickyView.isHidden = getMessagesManager().stickyMessage == nil
 
             messagesTableView.reloadData()
-            
+
             syncSuggestionsView()
-            
+
             messagesTableView.scroll(to: .bottom, animated: false)
-            
+
             DispatchQueue.main.async { [weak self] in
                 self?.messagesTableView.scroll(to: .bottom, animated: false)
                 self?.updateSuggestionsAlpha() // For VoiceOver
@@ -465,7 +518,7 @@ extension ParleyView: ParleyDelegate {
             guard let self else { return }
             if offlineNotificationView.isHidden == false { return }
             pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
-            
+
             pushDisabledNotificationView.hide(pushEnabled)
         }
     }
@@ -491,7 +544,7 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return getMessagesManager().messages.count
+        getMessagesManager().messages.count
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -499,36 +552,45 @@ extension ParleyView: UITableViewDataSource {
 
         switch message.type {
         case .agent?:
-            let messageTableViewCell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
+            let messageTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.agentMessage
             messageTableViewCell.render(message)
 
             return messageTableViewCell
         case .date?:
-            let dateTableViewCell = tableView.dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
+            let dateTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
             dateTableViewCell.appearance = appearance.date
             dateTableViewCell.render(message)
 
             return dateTableViewCell
         case .info?:
-            let infoTableViewCell = tableView.dequeueReusableCell(withIdentifier: InfoTableViewCell.reuseIdentifier) as! InfoTableViewCell
+            let infoTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: InfoTableViewCell.reuseIdentifier) as! InfoTableViewCell
             infoTableViewCell.appearance = appearance.info
             infoTableViewCell.render(message)
 
             return infoTableViewCell
         case .loading?:
-            let loadingTableViewCell = tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.reuseIdentifier) as! LoadingTableViewCell
+            let loadingTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: LoadingTableViewCell.reuseIdentifier) as! LoadingTableViewCell
             loadingTableViewCell.appearance = appearance.loading
 
             return loadingTableViewCell
         case .agentTyping?:
-            let agentTypingTableViewCell = tableView.dequeueReusableCell(withIdentifier: AgentTypingTableViewCell.reuseIdentifier) as! AgentTypingTableViewCell
+            let agentTypingTableViewCell = tableView
+                .dequeueReusableCell(
+                    withIdentifier: AgentTypingTableViewCell
+                        .reuseIdentifier
+                ) as! AgentTypingTableViewCell
             agentTypingTableViewCell.appearance = appearance.typingBalloon
 
             return agentTypingTableViewCell
         case .user?:
-            let messageTableViewCell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
+            let messageTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.userMessage
             messageTableViewCell.render(message)
@@ -551,7 +613,7 @@ extension ParleyView: UITableViewDataSource {
             return UITableView.automaticDimension
         }
     }
-    
+
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let loadingTableViewCell = cell as? LoadingTableViewCell {
             loadingTableViewCell.startAnimating()
@@ -562,7 +624,11 @@ extension ParleyView: UITableViewDataSource {
         }
     }
 
-    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    public func tableView(
+        _ tableView: UITableView,
+        didEndDisplaying cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
         if let loadingTableViewCell = cell as? LoadingTableViewCell {
             loadingTableViewCell.stopAnimating()
         }
@@ -578,29 +644,28 @@ extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         messagesTableView.scrollViewDidScroll()
-        
+
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
-        
+
         if scrollY < height / 2 {
-            guard 
+            guard
                 !isAlreadyAtTop,
-                let lastMessageId = getMessagesManager().getOldestMessage()?.id
-            else { return }
-            
+                let lastMessageId = getMessagesManager().getOldestMessage()?.id else { return }
+
             isAlreadyAtTop = true
             Parley.shared.loadMoreMessages(lastMessageId)
         } else {
             isAlreadyAtTop = false
         }
-        
+
         updateSuggestionsAlpha()
     }
-    
+
     private func updateSuggestionsAlpha() {
         let scrollY = messagesTableView.contentOffset.y
         let contentHeight = messagesTableView.contentSize.height - messagesTableView.frame.size.height
-        
+
         if messagesTableView.isAtBottom {
             let bottomSpace: CGFloat
             switch appearance.notificationsPosition {
@@ -630,13 +695,13 @@ extension ParleyView: UITableViewDelegate {
 
 // MARK: ParleyComposeViewDelegate
 extension ParleyView: ParleyComposeViewDelegate {
-    
+
     func failedToSelectImage() {
         let title = ParleyLocalizationKey.sendFailedTitle.localized
         let message = ParleyLocalizationKey.sendFailedBodySelectingImage.localized
         presentInformationalAlert(title: title, message: message)
     }
-    
+
     @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -654,12 +719,21 @@ extension ParleyView: ParleyComposeViewDelegate {
     func send(_ message: String) {
         Parley.shared.send(message)
     }
-    
+
     func send(image: UIImage, with data: Data, url: URL) {
         Task { @MainActor in
             guard let mediaModel = MediaModel(image: image, data: data, url: url) else {
                 presentInvalidMediaAlert() ; return
             }
+
+            guard !mediaModel.isLargerThan(size: 10) else {
+                let title = ParleyLocalizationKey.sendFailedTitle.localized
+                let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
+                presentInformationalAlert(title: title, message: message)
+                return
+            }
+
+            await Parley.shared.sendNewMessageWithMedia(mediaModel)
             
             await send(media: mediaModel)
         }
@@ -702,16 +776,20 @@ extension ParleyView: ParleyComposeViewDelegate {
 
 // MARK: MessageTableViewCellDelegate
 extension ParleyView: MessageTableViewCellDelegate {
-    
-    func didSelectImage(from message: Message) {
-        let imageViewController = MessageImageViewController(messageRepository: messageRepository)
+
+    func didSelectImage(messageMediaIdentifier: String) {
+        let imageViewController = MessageImageViewController(
+            messageMediaIdentifier: messageMediaIdentifier,
+            messageRepository: messageRepository,
+            imageLoader: Parley.shared.imageLoader
+        )
+
         imageViewController.modalPresentationStyle = .overFullScreen
         imageViewController.modalTransitionStyle = .crossDissolve
-        imageViewController.message = message
 
         present(imageViewController, animated: true, completion: nil)
     }
-    
+
     func didSelect(_ button: MessageButton) {
         guard let payload = button.payload else { return }
         switch button.type {
@@ -729,7 +807,7 @@ extension ParleyView: MessageTableViewCellDelegate {
 
 // MARK: ParleySuggestionsViewDelegate
 extension ParleyView: ParleySuggestionsViewDelegate {
-    
+
     func didSelect(_ suggestion: String) {
         Parley.shared.send(suggestion)
     }
@@ -737,14 +815,15 @@ extension ParleyView: ParleySuggestionsViewDelegate {
 
 // MARK: - Accessibility
 extension ParleyView {
-    
+
     // MARK: VoiceOver
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
         messagesTableView.reloadData()
     }
-    
+
     // MARK: Dynamic Type
-    @objc private func contentSizeCategoryDidChange() {
+    @objc
+    private func contentSizeCategoryDidChange() {
         messagesTableView.reloadData()
     }
 }

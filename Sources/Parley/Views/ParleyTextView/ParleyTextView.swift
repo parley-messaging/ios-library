@@ -12,7 +12,7 @@ final class ParleyTextView: UITextView {
             updateAttributedText()
         }
     }
-    
+
     @ParleyScaledFont(textStyle: .body) var linkFont = .systemFont(ofSize: 14)
     @ParleyScaledFont(textStyle: .body) var regularFont = .systemFont(ofSize: 14)
     @ParleyScaledFont(textStyle: .body) var italicFont = .italicSystemFont(ofSize: 14)
@@ -57,7 +57,7 @@ final class ParleyTextView: UITextView {
             attributedText = nil
         }
     }
-    
+
     private func parse(markdownText: String) -> NSAttributedString {
         let parser = makeParser(with: appearance)
 
