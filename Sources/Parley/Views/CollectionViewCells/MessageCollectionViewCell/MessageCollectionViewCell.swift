@@ -45,7 +45,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     }
     
     private func apply(_ appearance: MessageCollectionViewCellAppearance) {
-        self.parleyMessageView.appearance = appearance
+        self.parleyMessageView.apply(appearance)
         
         self.widthLayoutConstraint.constant = CGFloat(appearance.width)
     }
