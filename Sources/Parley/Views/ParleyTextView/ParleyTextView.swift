@@ -48,6 +48,19 @@ final class ParleyTextView: UITextView {
             attributedText = nil
         }
     }
+    
+    private func parse(markdownText: String) -> NSAttributedString {
+        let parser = makeParser(with: appearance)
+
+        let attributedText = NSMutableAttributedString(attributedString: parser.parse(markdownText))
+        attributedText.addAttribute(
+            .paragraphStyle,
+            value: appearance.paragraphStyle,
+            range: NSRange(location: 0, length: attributedText.length)
+        )
+
+        return attributedText
+    }
 
     private func makeParser(with appearance: ParleyTextViewAppearance) -> MarkdownParser {
         let parser = MarkdownParser(
@@ -62,18 +75,5 @@ final class ParleyTextView: UITextView {
         parser.enabledElements = [.bold, .italic, .link]
 
         return parser
-    }
-
-    private func parse(markdownText: String) -> NSAttributedString {
-        let parser = makeParser(with: appearance)
-
-        let attributedText = NSMutableAttributedString(attributedString: parser.parse(markdownText))
-        attributedText.addAttribute(
-            .paragraphStyle,
-            value: appearance.paragraphStyle,
-            range: NSRange(location: 0, length: attributedText.length)
-        )
-
-        return attributedText
     }
 }

@@ -436,7 +436,7 @@ final class ParleyMessageView: UIView {
         ]
         
         let width = (imageMetaTimeLabel.bounds.width * 3) + metaRightLayoutConstraint.constant
-        let height = (imageMetaTimeLabel.bounds.height * 3) + metaBottomLayoutConstraint.constant
+        let height = (imageMetaTimeLabel.bounds.height * 4) + metaBottomLayoutConstraint.constant
         gradient.frame = CGRect(
             x: imageImageView.frame.width - width,
             y: imageImageView.frame.height - height,
