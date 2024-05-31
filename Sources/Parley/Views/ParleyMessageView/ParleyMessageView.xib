@@ -49,8 +49,8 @@
                 <outlet property="messageTopLayoutConstraint" destination="rYr-OZ-iKe" id="kmy-oY-Aau"/>
                 <outlet property="messageView" destination="DQf-Yc-TpL" id="wTB-vi-tsM"/>
                 <outlet property="metaBottomLayoutConstraint" destination="ODj-dK-89D" id="PqW-SK-eFm"/>
-                <outlet property="metaLeftLayoutConstraint" destination="rit-CQ-txP" id="Rqp-IP-ToG"/>
-                <outlet property="metaRightLayoutConstraint" destination="WdG-QK-Ugk" id="znv-ef-bLT"/>
+                <outlet property="metaLeftLayoutConstraint" destination="aWw-SN-5e2" id="rje-x4-wAt"/>
+                <outlet property="metaRightLayoutConstraint" destination="WdG-QK-Ugk" id="UJE-Ak-XXm"/>
                 <outlet property="metaTopLayoutConstraint" destination="aT1-ZE-lWG" id="AF0-X4-01j"/>
                 <outlet property="metaView" destination="ITI-5G-N0m" id="XWx-v8-T8n"/>
                 <outlet property="nameBottomLayoutConstraint" destination="7Jt-yy-WgR" id="KUQ-zg-6c0"/>
@@ -253,7 +253,7 @@
                                         <constraint firstAttribute="bottom" secondItem="Huz-hJ-BRa" secondAttribute="bottom" id="ODj-dK-89D"/>
                                         <constraint firstAttribute="trailing" secondItem="iez-d4-lFu" secondAttribute="trailing" id="WdG-QK-Ugk"/>
                                         <constraint firstItem="Huz-hJ-BRa" firstAttribute="top" secondItem="ITI-5G-N0m" secondAttribute="top" id="aT1-ZE-lWG"/>
-                                        <constraint firstItem="Huz-hJ-BRa" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ITI-5G-N0m" secondAttribute="leading" constant="8" id="aWw-SN-5e2"/>
+                                        <constraint firstItem="Huz-hJ-BRa" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ITI-5G-N0m" secondAttribute="leading" id="aWw-SN-5e2"/>
                                         <constraint firstItem="iez-d4-lFu" firstAttribute="leading" secondItem="Huz-hJ-BRa" secondAttribute="trailing" id="rX4-aA-p01"/>
                                         <constraint firstItem="iez-d4-lFu" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ITI-5G-N0m" secondAttribute="leading" id="rit-CQ-txP"/>
                                     </constraints>
