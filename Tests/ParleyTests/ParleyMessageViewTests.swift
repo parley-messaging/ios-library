@@ -125,6 +125,7 @@ final class ParleyMessageViewTests: XCTestCase {
         )
 
         let container = addToContainer(sut: sut)
+        container.layoutIfNeeded() // Without this, balloon left-bottom corner goes incorrect
         assert(sut: container)
         assert(
             sut: container,
