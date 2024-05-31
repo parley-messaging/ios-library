@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.1.1 - Released 31 May 2024
+
+- Fixed an issue where the image viewer sometimes didn't show the image correctly.
+- Fixed agent name not scaling with dynamic font.
+- Fixed meta issues with dynamic font.
+- Added `Parley.purgeLocalMemory()` method to clear local memory of Parley. Requires calling `configure()` again.
+- Increased meta shadow height for better visibility.
+- Added `Parley.setLocalizationManager(manager)` for overriding localizations used by Parley.
+- Improved media capture and selection by requesting permissions after selecting the desired option.
+- Improved media selection for iOS 14 and above by using PHPickerViewController, resulting in needing less permission for sending media.
+- Added more (screenshot) tests for Parley.
+
 ## 4.1.0 - Released 28 May 2024
 
 **IMPORTANT**: With Parley 4.1.0 there is a minor breaking change with appearance. Migrating can be done easily by adjusting to the new `ParleyTextViewAppearance` in such cases.

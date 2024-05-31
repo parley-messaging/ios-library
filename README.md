@@ -318,15 +318,23 @@ Parley.configure("appSecret", uniqueDeviceIdentifier: "uniqueDeviceIdentifier")
 
 _When passing the `uniqueDeviceIdentifier` to the configure method, Parley will not store it. Client applications are responsible for storing it and providing Parley with the same ID in this case._
 
-### Reset
+### Reset (logout)
 
 Parley doesn't need to be reset usually, but in some cases this might be wanted. For example when a user logs out and then logs in with a different account. 
 
-Resetting Parley will clear the current user information and chat data that is in memory. 
+Resetting Parley will clear the current user information and chat data that is in memory as well as deregister the device's push token to Parley. This ensures that registered users will not receive push notifications anymore that are not intended for them. 
 Requires calling the `configure()` method again to use Parley.
 
 ```swift
 Parley.reset()
+```
+
+### Purge memory
+
+There is also the possibility to only remove the data that is in memory of Parley. The difference with the `reset()` method is that this one does not update the backend. In fact, this can be seen as the app going 'inactive' and clearing its memory, while the user keeps being logged in. However, Parley will not be able to recover from this automatically and therefore it is required to call the `configure()` method again to use Parley.
+
+```
+Parley.purgeLocalMemory()
 ```
 
 ### Always polling
@@ -376,6 +384,14 @@ appearance.offlineNotification.show = true
 appearance.pushDisabledNotification.show = true
 
 parleyView.appearance = appearance
+```
+
+### Localizations
+
+By default all texts used by Parley are localized in EN (default) and NL. Overriding the texts can be done by implementing the `LocalizationManager` protocol and apply this to Parley.
+
+```swift
+Parley.setLocalizationManager(manager)
 ```
 
 #### Examples
