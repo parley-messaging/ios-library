@@ -732,8 +732,6 @@ extension ParleyView: ParleyComposeViewDelegate {
                 presentInformationalAlert(title: title, message: message)
                 return
             }
-
-            await Parley.shared.sendNewMessageWithMedia(mediaModel)
             
             await send(media: mediaModel)
         }
