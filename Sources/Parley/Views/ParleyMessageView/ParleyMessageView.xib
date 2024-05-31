@@ -30,7 +30,7 @@
                 <outlet property="imageImageView" destination="zoP-WW-OLh" id="tEw-zE-d1O"/>
                 <outlet property="imageLeftLayoutConstraint" destination="0q7-ER-gYq" id="VXR-Pe-gXX"/>
                 <outlet property="imageMetaBottomLayoutConstraint" destination="mMd-y5-Mps" id="EYF-fh-B0z"/>
-                <outlet property="imageMetaLeftLayoutConstraint" destination="I2x-bh-Kp7" id="JnP-Uv-NEC"/>
+                <outlet property="imageMetaLeftLayoutConstraint" destination="sPL-aK-w5m" id="hEj-R3-mAf"/>
                 <outlet property="imageMetaRightLayoutConstraint" destination="H4f-wv-4cT" id="LO1-3g-7cc"/>
                 <outlet property="imageMetaStatusImageView" destination="e3C-MF-EHD" id="Vq3-Yd-NYn"/>
                 <outlet property="imageMetaStatusImageViewWidth" destination="Xe8-Uy-v6R" id="PTr-Rg-IkW"/>
@@ -123,28 +123,33 @@
                                                 </imageView>
                                             </subviews>
                                         </stackView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="failure_message" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k5x-Kx-day">
-                                            <rect key="frame" x="10" y="141" width="92.5" height="14.5"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                            <nil key="textColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
+                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bxR-cR-4PX">
+                                            <rect key="frame" x="0.0" y="141" width="92.5" height="14.5"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="failure_message" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k5x-Kx-day">
+                                                    <rect key="frame" x="0.0" y="0.0" width="92.5" height="14.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </stackView>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="zoP-WW-OLh" firstAttribute="leading" secondItem="e8S-QX-hPh" secondAttribute="leading" id="0q7-ER-gYq"/>
+                                        <constraint firstItem="bxR-cR-4PX" firstAttribute="centerY" secondItem="lqa-Gq-hQT" secondAttribute="centerY" id="4xx-yd-Wnc"/>
                                         <constraint firstAttribute="trailing" secondItem="zoP-WW-OLh" secondAttribute="trailing" id="5Xd-pV-h2h"/>
                                         <constraint firstItem="w5c-0H-UCF" firstAttribute="centerX" secondItem="e8S-QX-hPh" secondAttribute="centerX" id="82N-Ri-lJE"/>
                                         <constraint firstAttribute="trailing" secondItem="lqa-Gq-hQT" secondAttribute="trailing" id="H4f-wv-4cT"/>
-                                        <constraint firstItem="k5x-Kx-day" firstAttribute="leading" secondItem="e8S-QX-hPh" secondAttribute="leading" constant="10" id="I2x-bh-Kp7"/>
-                                        <constraint firstItem="lqa-Gq-hQT" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="k5x-Kx-day" secondAttribute="trailing" id="Re8-i5-ZPz"/>
+                                        <constraint firstItem="lqa-Gq-hQT" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="bxR-cR-4PX" secondAttribute="trailing" id="XzY-Jn-i1e"/>
                                         <constraint firstItem="w5c-0H-UCF" firstAttribute="centerY" secondItem="e8S-QX-hPh" secondAttribute="centerY" id="bXh-B0-wJd"/>
                                         <constraint firstAttribute="height" priority="999" constant="160" id="fSP-b9-UOX"/>
                                         <constraint firstItem="zoP-WW-OLh" firstAttribute="top" secondItem="e8S-QX-hPh" secondAttribute="top" id="gbD-wD-sOL"/>
                                         <constraint firstAttribute="bottom" secondItem="zoP-WW-OLh" secondAttribute="bottom" priority="999" id="jqg-P7-Cpb"/>
                                         <constraint firstItem="Pff-X9-oZe" firstAttribute="top" secondItem="e8S-QX-hPh" secondAttribute="top" id="lQK-rV-oIc"/>
                                         <constraint firstAttribute="bottom" secondItem="lqa-Gq-hQT" secondAttribute="bottom" id="mMd-y5-Mps"/>
-                                        <constraint firstItem="k5x-Kx-day" firstAttribute="centerY" secondItem="lqa-Gq-hQT" secondAttribute="centerY" id="p7T-kC-xfz"/>
+                                        <constraint firstItem="bxR-cR-4PX" firstAttribute="leading" secondItem="e8S-QX-hPh" secondAttribute="leading" id="sPL-aK-w5m"/>
                                         <constraint firstItem="Pff-X9-oZe" firstAttribute="leading" secondItem="e8S-QX-hPh" secondAttribute="leading" id="wMP-Fa-tWW"/>
                                         <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Pff-X9-oZe" secondAttribute="trailing" id="yKA-WW-vyO"/>
                                     </constraints>
