@@ -52,8 +52,10 @@ extension UIImage {
 
     class func gif(name: String) -> UIImage? {
         // Check for existence of gif
-        guard let bundleURL = Bundle.main
-          .url(forResource: name, withExtension: "gif") else {
+        guard
+            let bundleURL = Bundle.main
+                .url(forResource: name, withExtension: "gif") else
+        {
             print("SwiftGif: This image named \"\(name)\" does not exist")
             return nil
         }
@@ -95,12 +97,17 @@ extension UIImage {
 
         // Get delay time
         var delayObject: AnyObject = unsafeBitCast(
-            CFDictionaryGetValue(gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()),
-            to: AnyObject.self)
+            CFDictionaryGetValue(
+                gifProperties,
+                Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()
+            ),
+            to: AnyObject.self
+        )
         if delayObject.doubleValue == 0 {
-            delayObject = unsafeBitCast(CFDictionaryGetValue(gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()), to: AnyObject.self)
+            delayObject = unsafeBitCast(CFDictionaryGetValue(
+                gifProperties,
+                Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()
+            ), to: AnyObject.self)
         }
 
         if let delayObject = delayObject as? Double, delayObject > 0 {
@@ -204,7 +211,7 @@ extension UIImage {
 
         return animation
     }
-    
+
     static func template(named name: String) -> UIImage? {
         UIImage(named: name, in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     }

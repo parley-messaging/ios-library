@@ -1,5 +1,5 @@
-import Reachability
 import Foundation
+import Reachability
 import UIKit
 
 public final class Parley {
@@ -15,7 +15,7 @@ public final class Parley {
 
     private(set) var state: State = .unconfigured {
         didSet {
-            self.delegate?.didChangeState(self.state)
+            delegate?.didChangeState(state)
         }
     }
 
@@ -62,14 +62,14 @@ public final class Parley {
 
     weak var delegate: ParleyDelegate? {
         didSet {
-            if self.delegate == nil { return }
+            if delegate == nil { return }
 
-            self.delegate?.didChangeState(self.state)
+            delegate?.didChangeState(state)
 
-            if self.reachable {
-                self.delegate?.reachable()
+            if reachable {
+                delegate?.reachable()
             } else {
-                self.delegate?.unreachable()
+                delegate?.unreachable()
             }
         }
     }
@@ -94,19 +94,19 @@ public final class Parley {
         )
         self.networkConfig = networkConfig
         self.remote = remote
-        self.deviceRepository = DeviceRepository(remote: remote)
-        self.eventRemoteService = EventRemoteService(remote: remote)
-        self.messagesManager = MessagesManager(
+        deviceRepository = DeviceRepository(remote: remote)
+        eventRemoteService = EventRemoteService(remote: remote)
+        messagesManager = MessagesManager(
             messageDataSource: messageDataSource,
             keyValueDataSource: keyValueDataSource
         )
 
         let messageRemoteService = MessageRemoteService(remote: remote)
-        self.messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
+        messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
 
-        self.imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
-        self.imageRepository.dataSource = imageDataSource
-        self.imageLoader = ImageLoader(imageRepository: imageRepository)
+        imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
+        imageRepository.dataSource = imageDataSource
+        imageLoader = ImageLoader(imageRepository: imageRepository)
     }
 
     // MARK: Reachability
@@ -130,8 +130,18 @@ public final class Parley {
     // MARK: Observers
 
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(willEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
     }
 
     private func removeObservers() {
@@ -139,11 +149,13 @@ public final class Parley {
         NotificationCenter.default.removeObserver(UIApplication.didEnterBackgroundNotification)
     }
 
-    @objc private func willEnterForeground() {
+    @objc
+    private func willEnterForeground() {
         configureWhenNeeded()
     }
 
-    @objc private func didEnterBackground() {
+    @objc
+    private func didEnterBackground() {
         reachability?.stopNotifier()
     }
 
@@ -152,8 +164,8 @@ public final class Parley {
     private func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String?,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil,
         clearCache: Bool = false
     ) {
         debugPrint("Parley.\(#function)")
@@ -167,18 +179,18 @@ public final class Parley {
         self.secret = secret
         self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
 
-        self.configure(onSuccess: onSuccess, onFailure: onFailure)
+        configure(onSuccess: onSuccess, onFailure: onFailure)
     }
-    
+
     private func configureWhenNeeded() {
         guard state == .failed || state == .configured else {
             return
         }
-        
+
         configure()
     }
 
-    private func configure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+    private func configure(onSuccess: (() -> Void)? = nil, onFailure: ((_ code: Int, _ message: String) -> Void)? = nil) {
         debugPrint("Parley.\(#function)")
 
         guard !isLoading else { return }
@@ -203,14 +215,14 @@ public final class Parley {
             }
         }
 
-        let onFailure: (_ error: Error) -> () = { [weak self] error in
+        let onFailure: (_ error: Error) -> Void = { [weak self] error in
             guard let self else { return }
-            self.isLoading = false
+            isLoading = false
 
-            if self.isOfflineError(error) && self.isCachingEnabled() {
+            if isOfflineError(error) && isCachingEnabled() {
                 onSuccess?()
             } else {
-                self.state = .failed
+                state = .failed
 
                 onFailure?((error as NSError).code, error.getFormattedMessage())
             }
@@ -220,19 +232,19 @@ public final class Parley {
             device: makeDeviceData(),
             onSuccess: { [weak self] _ in
                 guard let self else { return }
-                let onSecondSuccess: () -> () = { [weak self] in
+                let onSecondSuccess: () -> Void = { [weak self] in
                     guard let self else { return }
                     delegate?.didReceiveMessages()
-                    
+
                     send(messagesManager.pendingMessages)
-                    
+
                     isLoading = false
                     state = .configured
 
                     onSuccess?()
                 }
 
-                if let lastMessage = self.messagesManager.lastSentMessage, let id = lastMessage.id {
+                if let lastMessage = messagesManager.lastSentMessage, let id = lastMessage.id {
                     messageRepository.findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
                         messagesManager?.handle(messageCollection, .after)
 
@@ -249,7 +261,7 @@ public final class Parley {
             onFailure: onFailure
         )
     }
-    
+
     private func updateSecretInDataSource() {
         if let secret {
             keyValueDataSource?.set(secret, forKey: kParleyCacheKeySecret)
@@ -257,7 +269,7 @@ public final class Parley {
             keyValueDataSource?.removeObject(forKey: kParleyCacheKeySecret)
         }
     }
-    
+
     private func updateUserAuthorizationInDataSource() {
         if let userAuthorization {
             keyValueDataSource?.set(userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
@@ -265,12 +277,12 @@ public final class Parley {
             keyValueDataSource?.removeObject(forKey: kParleyCacheKeyUserAuthorization)
         }
     }
-    
-    private func reconfigure(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+
+    private func reconfigure(onSuccess: (() -> Void)? = nil, onFailure: ((_ code: Int, _ message: String) -> Void)? = nil) {
         clearChat()
         configure(onSuccess: onSuccess, onFailure: onFailure)
     }
-    
+
     private func clearChat() {
         clearMessagesAndDataSources()
         state = .unconfigured
@@ -278,32 +290,32 @@ public final class Parley {
 
     private func isOfflineError(_ error: Error) -> Bool {
         if let httpError = error as? ParleyHTTPErrorResponse {
-            return httpError.isOfflineError
+            httpError.isOfflineError
         } else {
-            return isOfflineErrorCode((error as NSError).code)
+            isOfflineErrorCode((error as NSError).code)
         }
     }
 
     private func isOfflineErrorCode(_ code: Int) -> Bool {
-        return code == 13
+        code == 13
     }
-    
+
     // MARK: Caching
 
     func isCachingEnabled() -> Bool {
-        return self.messageDataSource != nil
+        messageDataSource != nil
     }
 
     private func clearCacheWhenNeeded(secret: String) {
-        if let cachedSecret = self.keyValueDataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
+        if let cachedSecret = keyValueDataSource?.string(forKey: kParleyCacheKeySecret), cachedSecret == secret {
             return
         } else if let currentSecret = self.secret, currentSecret == secret {
             return
         }
-        
+
         clearMessagesAndDataSources()
     }
-    
+
     private func clearMessagesAndDataSources() {
         messagesManager?.clear()
         messageDataSource?.clear()
@@ -313,8 +325,11 @@ public final class Parley {
 
     // MARK: Devices
 
-    private func registerDevice(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
-        if state == .configuring || self.state == .configured {
+    private func registerDevice(
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        if state == .configuring || state == .configured {
             deviceRepository?.register(device: makeDeviceData(), onSuccess: { _ in
                 onSuccess?()
             }, onFailure: { error in
@@ -338,18 +353,18 @@ public final class Parley {
     // MARK: Messages
 
     func loadMoreMessages(_ lastMessageId: Int) {
-        guard self.reachable || !self.isLoading || self.messagesManager.canLoadMore() else {
+        guard reachable || !isLoading || messagesManager.canLoadMore() else {
             return
         }
 
-        self.isLoading = true
+        isLoading = true
         messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
             self?.handleFetchedMessageCollection(messageCollection)
         }, onFailure: { [weak self] _ in
             self?.isLoading = false
         })
     }
-    
+
     private func handleFetchedMessageCollection(_ collection: MessageCollection) {
         isLoading = false
         Task {
@@ -367,7 +382,7 @@ public final class Parley {
             }
         }
     }
-    
+
     private func sendPendingMessage(message: Message) async {
         do {
             let updatedMessage = try await ensureMediaUploadedIfAvailable(message)
@@ -381,19 +396,19 @@ public final class Parley {
         guard let storedImage = getStoredMedia(for: message) else { return message }
         return try await upload(storedImage: storedImage, message: message)
     }
-    
+
     private func getStoredMedia(for message: Message) -> ParleyStoredImage? {
         guard let media = message.media else { return nil }
         return imageRepository.getStoredImage(for: media.id)
     }
-    
+
     private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
         let remoteImage = try await imageRepository.upload(image: storedImage)
         message.media = MediaObject(id: remoteImage.id)
         messagesManager.update(message)
         return message
     }
-    
+
     func sendNewMessageWithMedia(_ media: MediaModel) async {
         let (message, storedImage) = await storeNewMessage(with: media)
         do {
@@ -403,7 +418,7 @@ public final class Parley {
             await failedToSend(message: message, error: error)
         }
     }
-    
+
     private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredImage) {
         let localImage = imageRepository.store(media: media)
         let message = media.createMessage(status: .pending)
@@ -411,7 +426,7 @@ public final class Parley {
         await addNewMessage(message)
         return (message, localImage)
     }
-    
+
     func send(_ text: String, silent: Bool = false) {
         let message = Message()
         message.message = text
@@ -425,14 +440,14 @@ public final class Parley {
     }
 
     func send(_ message: Message, isNewMessage: Bool) async {
-        message.referrer = self.referrer
+        message.referrer = referrer
 
         if isNewMessage {
             await addNewMessage(message)
         }
 
-        guard self.reachable else { return }
-        
+        guard reachable else { return }
+
         do {
             let uploadedMessage = try await messageRepository.store(message)
             await handleMessageSent(uploadedMessage)
@@ -440,7 +455,7 @@ public final class Parley {
             await failedToSend(message: message, error: error)
         }
     }
-    
+
     private func handleMessageSent(_ message: Message) async {
         message.status = .success
         messagesManager.update(message)
@@ -449,7 +464,7 @@ public final class Parley {
             delegate?.didSent(message)
         }
     }
-    
+
     private func addNewMessage(_ message: Message) async {
         userStopTypingTimer?.fire()
         let indexPaths = messagesManager.add(message)
@@ -457,12 +472,12 @@ public final class Parley {
             delegate?.willSend(indexPaths)
         }
     }
-    
+
     private func failedToSend(message: Message, error: Error) async {
         if let parleyError = error as? ParleyErrorResponse {
             message.responseInfoType = parleyError.notifications.first?.message
         }
-        
+
         if !isCachingEnabled() || !isOfflineError(error) {
             message.status = .failed
             messagesManager.update(message)
@@ -490,7 +505,7 @@ public final class Parley {
         message.type = Message.MessageType(rawValue: typeId)
         message.time = Date()
 
-        if self.isLoading { return } // Ignore remote messages when configuring chat.
+        if isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
             messageRepository.find(id, onSuccess: { [weak self] storedMessage in
@@ -500,7 +515,7 @@ public final class Parley {
                 }
                 delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(storedMessage)
+                let indexPaths = messagesManager.add(storedMessage)
                 delegate?.didReceiveMessage(indexPaths)
             }) { [weak self] _ in
                 guard let self else { return }
@@ -510,7 +525,7 @@ public final class Parley {
                 }
                 delegate?.didStopTyping()
 
-                let indexPaths = self.messagesManager.add(message)
+                let indexPaths = messagesManager.add(message)
                 delegate?.didReceiveMessage(indexPaths)
             }
         } else {
@@ -536,16 +551,22 @@ public final class Parley {
     // MARK: isTyping
 
     func userStartTyping() {
-        guard self.reachable else { return }
+        guard reachable else { return }
 
-        if self.userStartTypingDate == nil || Date().timeIntervalSince1970 - self.userStartTypingDate!.timeIntervalSince1970 > kParleyEventStartTypingTriggerAfter {
+        if
+            userStartTypingDate == nil || Date().timeIntervalSince1970 - userStartTypingDate!
+                .timeIntervalSince1970 > kParleyEventStartTypingTriggerAfter
+        {
             eventRemoteService.fire(UserTypingEvent.startTyping, onSuccess: { }, onFailure: { _ in })
 
-            self.userStartTypingDate = Date()
+            userStartTypingDate = Date()
         }
 
-        self.userStopTypingTimer?.invalidate()
-        self.userStopTypingTimer = Timer.scheduledTimer(withTimeInterval: kParleyEventStopTypingTriggerAfter, repeats: false) { (timer) in
+        userStopTypingTimer?.invalidate()
+        userStopTypingTimer = Timer.scheduledTimer(
+            withTimeInterval: kParleyEventStopTypingTriggerAfter,
+            repeats: false
+        ) { _ in
             if !self.reachable { return }
 
             self.eventRemoteService.fire(UserTypingEvent.stopTyping, onSuccess: { }, onFailure: { _ in })
@@ -556,32 +577,36 @@ public final class Parley {
     }
 
     private func agentStartTyping() {
-        let agentReallyStartTyping = !self.agentIsTyping
-        self.agentIsTyping = true
+        let agentReallyStartTyping = !agentIsTyping
+        agentIsTyping = true
 
-        self.agentStopTypingTimer?.invalidate()
-        self.agentStopTypingTimer = Timer.scheduledTimer(withTimeInterval: kParleyEventStopTypingTriggerAfter, repeats: false, block: { _ in
-            self.agentStopTyping()
-        })
+        agentStopTypingTimer?.invalidate()
+        agentStopTypingTimer = Timer.scheduledTimer(
+            withTimeInterval: kParleyEventStopTypingTriggerAfter,
+            repeats: false,
+            block: { _ in
+                self.agentStopTyping()
+            }
+        )
 
         if agentReallyStartTyping {
             UIAccessibility.post(
                 notification: .announcement,
                 argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized
             )
-            self.delegate?.didStartTyping()
+            delegate?.didStartTyping()
         }
     }
 
     private func agentStopTyping() {
-        guard self.agentIsTyping else { return }
+        guard agentIsTyping else { return }
 
-        self.agentIsTyping = false
+        agentIsTyping = false
 
-        self.agentStopTypingTimer?.invalidate()
-        self.agentStopTypingTimer = nil
+        agentStopTypingTimer?.invalidate()
+        agentStopTypingTimer = nil
 
-        self.delegate?.didStopTyping()
+        delegate?.didStopTyping()
     }
 }
 
@@ -600,7 +625,7 @@ extension Parley {
             return false
         }
 
-        guard 
+        guard
             let data = (userInfo["parley"] as? String)?.data(using: .utf8),
             let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
             let messageType = json["type"] as? String,
@@ -637,7 +662,7 @@ extension Parley {
         shared.messageDataSource = messageDataSource
         shared.keyValueDataSource = keyValueDataSource
         shared.imageDataSource = imageDataSource
-        
+
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
 
@@ -653,7 +678,7 @@ extension Parley {
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
         shared.imageRepository?.dataSource = nil
-        
+
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
 
@@ -671,8 +696,8 @@ extension Parley {
     public static func setPushToken(
         _ pushToken: String,
         pushType: Device.PushType = .fcm,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         if shared.pushToken == pushToken { return }
 
@@ -692,8 +717,8 @@ extension Parley {
      */
     public static func setPushEnabled(
         _ enabled: Bool,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         guard shared.pushEnabled != enabled else { return }
 
@@ -715,9 +740,9 @@ extension Parley {
      */
     public static func setUserInformation(
         _ authorization: String,
-        additionalInformation: [String : String]? = nil,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        additionalInformation: [String: String]? = nil,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         shared.userAuthorization = authorization
         shared.userAdditionalInformation = additionalInformation
@@ -737,8 +762,8 @@ extension Parley {
        - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func clearUserInformation(
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
@@ -749,7 +774,7 @@ extension Parley {
             onSuccess?()
         }
     }
-    
+
     /**
      Set a ``LocalizationManager`` to be able to provide more localizations than provided by the SDK.
 
@@ -785,8 +810,8 @@ extension Parley {
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         shared.initialize(networkConfig: networkConfig, networkSession: networkSession)
 
@@ -810,11 +835,11 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func reset(onSuccess: (() -> ())? = nil, onFailure: ((_ code: Int, _ message: String) -> ())? = nil) {
+    public static func reset(onSuccess: (() -> Void)? = nil, onFailure: ((_ code: Int, _ message: String) -> Void)? = nil) {
         Task {
             await shared.imageLoader?.reset()
         }
-        
+
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
         shared.imageRepository?.reset()
@@ -829,7 +854,7 @@ extension Parley {
 
         shared.clearChat()
     }
-    
+
     /**
      Resets all local user identifiers. Ensures that no user and chat data is left in memory.
 
@@ -840,11 +865,11 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func purgeLocalMemory(completion: (() -> ())? = nil) {
+    public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
         Task {
             await shared.imageLoader?.reset()
         }
-        
+
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
         shared.imageRepository?.reset()
@@ -875,7 +900,7 @@ extension Parley {
     public static func setReferrer(_ referrer: String) {
         shared.referrer = referrer
     }
-    
+
     /**
      Always enable polling of messages even when the push permission is granted.
 

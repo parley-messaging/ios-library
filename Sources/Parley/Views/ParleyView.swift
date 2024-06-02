@@ -63,7 +63,7 @@ public class ParleyView: UIView {
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
-    
+
     private static let maximumImageSizeInMegabytes = 10
 
     public var appearance = ParleyViewAppearance() {
@@ -179,7 +179,7 @@ public class ParleyView: UIView {
             let verticalInsets = messagesTableView.contentInset.top + messagesTableView.contentInset.bottom
             let newHeight = newContentHeight + verticalInsets
 
-            self.messagesTableViewHeightConstraint.constant = newHeight
+            messagesTableViewHeightConstraint.constant = newHeight
 
             let isScrollable = newContentHeight > messagesTableView.frame.maxY
             if isScrollable {
@@ -384,7 +384,7 @@ public class ParleyView: UIView {
                 notificationsStackView.removeConstraint(bottomConstraint)
                 notificationsConstraintTop?.isActive = true
             }
-            break;
+            break
         case .bottom:
             notificationsConstraintTop?.isActive = false
             notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(
@@ -392,7 +392,7 @@ public class ParleyView: UIView {
                 constant: 0
             )
             notificationsConstraintBottom?.isActive = true
-            break;
+            break
         }
         messagesTableView.reloadData()
     }
@@ -667,12 +667,11 @@ extension ParleyView: UITableViewDelegate {
         let contentHeight = messagesTableView.contentSize.height - messagesTableView.frame.size.height
 
         if messagesTableView.isAtBottom {
-            let bottomSpace: CGFloat
-            switch appearance.notificationsPosition {
+            let bottomSpace: CGFloat = switch appearance.notificationsPosition {
             case .top:
-                bottomSpace = 0
+                0
             case .bottom:
-                bottomSpace = getNotificationsHeight()
+                getNotificationsHeight()
             }
             let alpha = (scrollY - (contentHeight + bottomSpace)) / getSuggestionsHeight()
             suggestionsView.alpha = alpha
@@ -732,38 +731,38 @@ extension ParleyView: ParleyComposeViewDelegate {
                 presentInformationalAlert(title: title, message: message)
                 return
             }
-            
+
             await send(media: mediaModel)
         }
     }
-    
+
     @available(iOS 14.0, *)
     func send(image: UIImage, data: Data, fileName: String, type: UTType) {
         Task { @MainActor in
             guard let mediaModel = MediaModel(image: image, data: data, fileName: fileName, type: type) else {
                 presentInvalidMediaAlert() ; return
             }
-            
+
             await send(media: mediaModel)
         }
     }
-    
+
     @MainActor
     private func send(media: MediaModel) async {
         guard !media.isLargerThan(size: Self.maximumImageSizeInMegabytes) else {
             presentImageToLargeAlert() ; return
         }
-        
+
         await Parley.shared.sendNewMessageWithMedia(media)
     }
-    
+
     @MainActor
     private func presentInvalidMediaAlert() {
         let title = ParleyLocalizationKey.sendFailedTitle.localized
         let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized
         presentInformationalAlert(title: title, message: message)
     }
-    
+
     @MainActor
     private func presentImageToLargeAlert() {
         let title = ParleyLocalizationKey.sendFailedTitle.localized

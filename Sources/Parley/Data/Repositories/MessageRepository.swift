@@ -2,31 +2,42 @@ import Foundation
 import UIKit
 
 final class MessageRepository {
-    
+
     private let messageRemoteService: MessageRemoteService
-    
+
     init(messageRemoteService: MessageRemoteService) {
         self.messageRemoteService = messageRemoteService
     }
-    
-    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
+
+    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> Void, onFailure: @escaping (_ error: Error) -> Void) {
         messageRemoteService.find(id, onSuccess: onSuccess, onFailure: onFailure)
     }
-    
-    func findAll(onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
+
+    func findAll(
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    ) {
         messageRemoteService.findAll(onSuccess: onSuccess, onFailure: onFailure)
     }
-    
-    func findBefore(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
+
+    func findBefore(
+        _ id: Int,
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    ) {
         messageRemoteService.findBefore(id, onSuccess: onSuccess, onFailure: onFailure)
     }
-    
-    func findAfter(_ id: Int, onSuccess: @escaping (_ messageCollection: MessageCollection) -> (), onFailure: @escaping (_ error: Error) -> ()) {
+
+    func findAfter(
+        _ id: Int,
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    ) {
         messageRemoteService.findAfter(id, onSuccess: onSuccess, onFailure: onFailure)
     }
-    
+
     func store(_ message: Message) async throws -> Message {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             messageRemoteService.store(message) { message in
                 continuation.resume(returning: message)
             } onFailure: { error in

@@ -30,7 +30,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
-        headers: [String : String],
+        headers: [String: String],
         completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable {
         var request = URLRequest(url: url)
@@ -69,7 +69,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
-        headers: [String : String],
+        headers: [String: String],
         completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     ) -> ParleyRequestCancelable {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))

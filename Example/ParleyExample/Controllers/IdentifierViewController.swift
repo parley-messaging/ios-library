@@ -1,7 +1,7 @@
-import UIKit
+import Firebase
 import Parley
 import ParleyNetwork
-import Firebase
+import UIKit
 
 class IdentifierViewController: UIViewController {
 
@@ -10,72 +10,77 @@ class IdentifierViewController: UIViewController {
 
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
-            self.titleLabel.text = NSLocalizedString("identifier_title", comment: "").uppercased()
+            titleLabel.text = NSLocalizedString("identifier_title", comment: "").uppercased()
         }
     }
-    
+
     @IBOutlet weak var bodyLabel: UILabel! {
         didSet {
-            self.bodyLabel.text = NSLocalizedString("identifier_body", comment: "")
+            bodyLabel.text = NSLocalizedString("identifier_body", comment: "")
         }
     }
-    
+
     @IBOutlet weak var identifierBackgroundView: UIView! {
         didSet {
-            self.identifierBackgroundView.layer.cornerRadius = 5
-            self.identifierBackgroundView.layer.borderWidth = 1
-            self.identifierBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
+            identifierBackgroundView.layer.cornerRadius = 5
+            identifierBackgroundView.layer.borderWidth = 1
+            identifierBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
         }
     }
-    
+
     @IBOutlet weak var identifierTextView: UITextField! {
         didSet {
-            self.identifierTextView.placeholder = NSLocalizedString("identifier_placeholder", comment: "")
-            self.identifierTextView.text = UserDefaults.standard.string(forKey: kUserDefaultIdentificationCode) ?? kUserDefaultIdentificationCodeDefault
+            identifierTextView.placeholder = NSLocalizedString("identifier_placeholder", comment: "")
+            identifierTextView.text = UserDefaults.standard
+                .string(forKey: kUserDefaultIdentificationCode) ?? kUserDefaultIdentificationCodeDefault
         }
     }
-    
+
     @IBOutlet weak var customerIdentificationBackgroundView: UIView! {
         didSet {
-            self.customerIdentificationBackgroundView.layer.cornerRadius = 5
-            self.customerIdentificationBackgroundView.layer.borderWidth = 1
-            self.customerIdentificationBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
+            customerIdentificationBackgroundView.layer.cornerRadius = 5
+            customerIdentificationBackgroundView.layer.borderWidth = 1
+            customerIdentificationBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
         }
     }
-    
+
     @IBOutlet weak var customerIdentificationTextView: UITextField! {
         didSet {
-            self.customerIdentificationTextView.placeholder = NSLocalizedString("identifier_customer_identification_placeholder", comment: "")
-            self.customerIdentificationTextView.text = UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification)
+            customerIdentificationTextView.placeholder = NSLocalizedString(
+                "identifier_customer_identification_placeholder",
+                comment: ""
+            )
+            customerIdentificationTextView.text = UserDefaults.standard
+                .string(forKey: kUserDefaultIdentifierCustomerIdentification)
         }
     }
-    
+
     @IBOutlet weak var startButton: UIButton! {
         didSet {
-            self.startButton.layer.cornerRadius = 5
-            
-            self.startButton.setTitle(NSLocalizedString("identifier_start", comment: "").uppercased(), for: .normal)
+            startButton.layer.cornerRadius = 5
+
+            startButton.setTitle(NSLocalizedString("identifier_start", comment: "").uppercased(), for: .normal)
         }
     }
-    
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
-    
+
     /// > Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret` can change, which is the case for this demo app. Single app implementations don't need to reset Parley before configuring.
     private var alreadyConfiguredParley = false
-    
+
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         if Self.kOfflineMessagingEnabled {
-            self.setOfflineMessagingEnabled()
+            setOfflineMessagingEnabled()
         }
 
-        self.setNeedsStatusBarAppearanceUpdate()
+        setNeedsStatusBarAppearanceUpdate()
     }
-    
+
     // MARK: UI
 
     private func showAlert(title: String, message: String) {
@@ -95,10 +100,10 @@ class IdentifierViewController: UIViewController {
 
     // MARK: Parley
     private func createNetworkConfig() -> ParleyNetworkConfig {
-        let headers: [String: String] = [
-            "Custom-Header": "Custom header value"
+        let headers = [
+            "Custom-Header": "Custom header value",
         ]
-        
+
         return ParleyNetworkConfig(
             url: "https://api.parley.nu/",
             path: "clientApi/v1.7",
@@ -106,27 +111,40 @@ class IdentifierViewController: UIViewController {
             headers: headers
         )
     }
-    
+
     private func setUserInformation() {
-        let authorization = "ZGFhbnw5ZTA5ZjQ2NWMyMGNjYThiYjMxNzZiYjBhOTZmZDNhNWY0YzVlZjYzMGVhNGZmMWUwMjFjZmE0NTEyYjlmMDQwYTJkMTJmNTQwYTE1YmUwYWU2YTZjNTc4NjNjN2IxMmRjODNhNmU1ODNhODhkMmQwNzY2MGYxZTEzZDVhNDk1Mnw1ZDcwZjM5ZTFlZWE5MTM2YmM3MmIwMzk4ZDcyZjEwNDJkNzUwOTBmZmJjNDM3OTg5ZWU1MzE5MzdlZDlkYmFmNTU1YTcyNTUyZWEyNjllYmI5Yzg5ZDgyZGQ3MDYwYTRjZGYxMzE3NWJkNTUwOGRhZDRmMDA1MTEzNjlkYjkxNQ"
+        let authorization =
+            "ZGFhbnw5ZTA5ZjQ2NWMyMGNjYThiYjMxNzZiYjBhOTZmZDNhNWY0YzVlZjYzMGVhNGZmMWUwMjFjZmE0NTEyYjlmMDQwYTJkMTJmNTQwYTE1YmUwYWU2YTZjNTc4NjNjN2IxMmRjODNhNmU1ODNhODhkMmQwNzY2MGYxZTEzZDVhNDk1Mnw1ZDcwZjM5ZTFlZWE5MTM2YmM3MmIwMzk4ZDcyZjEwNDJkNzUwOTBmZmJjNDM3OTg5ZWU1MzE5MzdlZDlkYmFmNTU1YTcyNTUyZWEyNjllYmI5Yzg5ZDgyZGQ3MDYwYTRjZGYxMzE3NWJkNTUwOGRhZDRmMDA1MTEzNjlkYjkxNQ"
 
         let additionalInformation = [
             kParleyAdditionalValueName: "John Doe",
             kParleyAdditionalValueEmail: "j.doe@parley.nu",
-            kParleyAdditionalValueAddress: "Randstad 21 30, 1314, Nederland"
+            kParleyAdditionalValueAddress: "Randstad 21 30, 1314, Nederland",
         ]
 
         Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
-    
+
     private func setOfflineMessagingEnabled() {
         do {
             let key = "1234567890123456"
             let crypter = try ParleyCrypter(key: key, size: .bits128)
-            let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(crypter: crypter, directory: .default, fileManager: .default)
-            let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(crypter: crypter, directory: .default, fileManager: .default)
-            let imageDataSource = try ParleyEncryptedImageDataSource(crypter: crypter, directory: .default, fileManager: .default)
-            
+            let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(
+                crypter: crypter,
+                directory: .default,
+                fileManager: .default
+            )
+            let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(
+                crypter: crypter,
+                directory: .default,
+                fileManager: .default
+            )
+            let imageDataSource = try ParleyEncryptedImageDataSource(
+                crypter: crypter,
+                directory: .default,
+                fileManager: .default
+            )
+
             Parley.enableOfflineMessaging(
                 messageDataSource: parleyMessageDataSource,
                 keyValueDataSource: parleyKeyValueDataSource,
@@ -136,13 +154,15 @@ class IdentifierViewController: UIViewController {
             print(error)
         }
     }
-    
+
     // MARK: Actions
-    @IBAction func hideKeyboard(_ sender: UITapGestureRecognizer) {
-        self.view.endEditing(true)
+    @IBAction
+    func hideKeyboard(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
     }
-    
-    @IBAction func startChatClicked(_ sender: Any) {
+
+    @IBAction
+    func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
             Parley.reset(onSuccess: { [weak self] in
@@ -154,13 +174,19 @@ class IdentifierViewController: UIViewController {
             startChatDemo()
         }
     }
-    
+
     // Start a chat based on the input
     private func startChatDemo() {
-        if let customerIdentification = self.customerIdentificationTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !customerIdentification.isEmpty {
-            self.startChat(customerIdentification: customerIdentification)
-        } else if let secret = self.identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty, secret.count == 20 {
-            self.startChat(secret: secret)
+        if
+            let customerIdentification = customerIdentificationTextView.text?
+                .trimmingCharacters(in: .whitespacesAndNewlines), !customerIdentification.isEmpty
+        {
+            startChat(customerIdentification: customerIdentification)
+        } else if
+            let secret = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty,
+            secret.count == 20
+        {
+            startChat(secret: secret)
         } else {
             showAlert(
                 title: NSLocalizedString("identifier_error_invalid_title", comment: ""),
@@ -168,10 +194,10 @@ class IdentifierViewController: UIViewController {
             )
         }
     }
-    
+
     // Start chat with user authorization
     private func startChat(customerIdentification: String) {
-        self.startButton.setLoading(true)
+        startButton.setLoading(true)
 
         let authorization = ParleyCustomerAuthorization.generate(
             identification: customerIdentification,
@@ -183,25 +209,30 @@ class IdentifierViewController: UIViewController {
         Parley.configure(
             kParleySecret,
             networkConfig: createNetworkConfig(),
-            onSuccess: {  [weak self] in
+            onSuccess: { [weak self] in
                 guard let self else { return }
-                self.alreadyConfiguredParley = true
-                self.startButton.setLoading(false)
+                alreadyConfiguredParley = true
+                startButton.setLoading(false)
 
-            self.identifierTextView.text = kParleySecret
+                identifierTextView.text = kParleySecret
 
-            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
-            UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
+                UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
+                UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
 
-            self.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { [weak self] code, message in
+                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            }
+        ) { [weak self] code, message in
             self?.startButton.setLoading(false)
             if Self.kOfflineMessagingEnabled {
                 self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
             } else {
                 self?.showAlert(
                     title: NSLocalizedString("identifier_error_start_title", comment: ""),
-                    message: String(format: NSLocalizedString("identifier_error_start_body", comment: ""), message, "\(code)")
+                    message: String(
+                        format: NSLocalizedString("identifier_error_start_body", comment: ""),
+                        message,
+                        "\(code)"
+                    )
                 )
             }
         }
@@ -209,7 +240,7 @@ class IdentifierViewController: UIViewController {
 
     // Start anonymous chat
     private func startChat(secret: String) {
-        self.startButton.setLoading(true)
+        startButton.setLoading(true)
 
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
             Parley.clearUserInformation()
@@ -222,18 +253,23 @@ class IdentifierViewController: UIViewController {
                 self?.alreadyConfiguredParley = true
                 self?.startButton.setLoading(false)
 
-            UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
-            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
+                UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
+                UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
 
-            self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-        }) { [weak self] code, message in
+                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            }
+        ) { [weak self] code, message in
             self?.startButton.setLoading(false)
             if Self.kOfflineMessagingEnabled {
                 self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
             } else {
                 self?.showAlert(
                     title: NSLocalizedString("identifier_error_start_title", comment: ""),
-                    message: String(format: NSLocalizedString("identifier_error_start_body", comment: ""), message, "\(code)")
+                    message: String(
+                        format: NSLocalizedString("identifier_error_start_body", comment: ""),
+                        message,
+                        "\(code)"
+                    )
                 )
             }
         }

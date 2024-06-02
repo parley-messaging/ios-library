@@ -13,7 +13,7 @@ public final class LocalizationManagerSpy: LocalizationManager {
 
     public var getLocalizationKeyCallsCount = 0
     public var getLocalizationKeyCalled: Bool {
-        return getLocalizationKeyCallsCount > 0
+        getLocalizationKeyCallsCount > 0
     }
 
     public var getLocalizationKeyReceivedKey: ParleyLocalizationKey?

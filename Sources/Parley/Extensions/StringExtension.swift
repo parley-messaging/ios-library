@@ -1,13 +1,13 @@
-import UIKit
 import CoreGraphics
 import Foundation
+import UIKit
 
 extension String {
-    
+
     func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {
         @ParleyScaledFont(textStyle: .body) var scaledFont = font
         let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-        let boundingBox = self.boundingRect(
+        let boundingBox = boundingRect(
             with: constraintRect,
             options: .usesLineFragmentOrigin,
             attributes: [.font: scaledFont],
@@ -16,7 +16,7 @@ extension String {
 
         return ceil(boundingBox.height)
     }
-    
+
     /// Appends a string to the current string while maintaining a maximum of a single space character between words.
     /// - Parameters:
     ///  - string: the string to be appended at the end of `self`.
@@ -25,11 +25,11 @@ extension String {
     mutating func appendWithCorrectSpacing(_ string: String) {
         guard !string.isEmpty else { return }
         guard !isEmpty else { self = string ; return }
-        
-        if let lastCharacter = self.last, lastCharacter != " " {
-            self.append(" ")
+
+        if let lastCharacter = last, lastCharacter != " " {
+            append(" ")
         }
-        
-        self.append(string)
+
+        append(string)
     }
 }

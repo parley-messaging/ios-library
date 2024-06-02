@@ -11,19 +11,19 @@ public class ParleyEncryptedMessageDataSource {
         var path: String {
             switch self {
             case .default:
-                return kParleyCacheMessagesDirectory
+                kParleyCacheMessagesDirectory
             case .custom(let string):
-                return string
+                string
             }
         }
     }
-    
+
     public init(
         crypter: ParleyCrypter,
         directory: Directory = .default,
         fileManager: FileManager = .default
     ) throws {
-        self.store = try ParleyEncryptedStore(
+        store = try ParleyEncryptedStore(
             crypter: crypter,
             directory: directory.path,
             fileManager: fileManager
@@ -49,23 +49,24 @@ extension ParleyEncryptedMessageDataSource: ParleyMessageDataSource {
             store.removeObject(forKey: kParleyCacheKeyMessages)
         }
     }
-    
+
     public func insert(_ message: Message, at index: Int) {
         var messages: [Message] = all() ?? []
         messages.insert(message, at: index)
-        
+
         save(messages)
     }
-    
+
     public func update(_ message: Message) {
         var messages: [Message] = all() ?? []
-        
-        guard let index = messages.firstIndex(where: { cachedMessage in
-            cachedMessage.id == message.id || cachedMessage.uuid == message.uuid
-        })  else { return }
-        
+
+        guard
+            let index = messages.firstIndex(where: { cachedMessage in
+                cachedMessage.id == message.id || cachedMessage.uuid == message.uuid
+            }) else { return }
+
         messages[index] = message
-        
+
         save(messages)
     }
 }

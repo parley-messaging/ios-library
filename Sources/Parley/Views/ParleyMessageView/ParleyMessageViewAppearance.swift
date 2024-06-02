@@ -13,7 +13,7 @@ public class ParleyMessageViewAppearance {
     public var imageCornerRadius: Float = 20
     public var imageCorners: UIRectCorner = [.allCorners]
     public var imagePlaceholder: UIImage
-    public var imageLoaderTintColor = UIColor(white:0, alpha:0.8)
+    public var imageLoaderTintColor = UIColor(white: 0, alpha: 0.8)
 
     public var imageInnerColor: UIColor = .white
     public var imageInnerShadowStartColor = UIColor(white: 0, alpha: 0.3)
@@ -23,7 +23,7 @@ public class ParleyMessageViewAppearance {
 
     // Name
     public var name = true
-    public var nameColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
+    public var nameColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
     @ParleyScaledFont(textStyle: .body) public var nameFont = .boldSystemFont(ofSize: 13)
 
     public var nameInsets: UIEdgeInsets? = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
@@ -38,8 +38,8 @@ public class ParleyMessageViewAppearance {
     public var messageTextViewAppearance: ParleyTextViewAppearance = {
         let appearance = ParleyTextViewAppearance()
 
-        appearance.textColor = UIColor(white:0.28, alpha:1.0)
-        appearance.linkTintColor = UIColor(red:0.08, green:0.49, blue:0.98, alpha:1.0)
+        appearance.textColor = UIColor(white: 0.28, alpha: 1.0)
+        appearance.linkTintColor = UIColor(red: 0.08, green: 0.49, blue: 0.98, alpha: 1.0)
 
         return appearance
     }()
@@ -58,10 +58,10 @@ public class ParleyMessageViewAppearance {
     public var buttonsInsets: UIEdgeInsets?
     public var buttonInsets: UIEdgeInsets?
 
-    public var buttonSeperatorColor = UIColor(white:0.91, alpha:1.0)
+    public var buttonSeperatorColor = UIColor(white: 0.91, alpha: 1.0)
 
     @ParleyScaledFont(textStyle: .headline) public var buttonFont = .systemFont(ofSize: 16)
-    public var buttonColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:1.0)
+    public var buttonColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
 
     init() {
         imagePlaceholder = UIImage(named: "placeholder", in: .module, compatibleWith: nil)!

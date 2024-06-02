@@ -7,8 +7,8 @@ extension Parley {
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig? = nil,
-        onSuccess: (() -> ())? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> ())? = nil
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         let localNetworkConfig = if let networkConfig { networkConfig } else { ParleyNetworkConfig() }
 

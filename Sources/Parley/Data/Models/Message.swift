@@ -155,30 +155,32 @@ public final class Message: Codable, Equatable {
     public func ignore() -> Bool {
         switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
-            return true
+            true
         case .agentTyping, .loading:
-            return false
+            false
         case .date, .info, .agent, .user:
-            return (title == nil &&
+            (
+                title == nil &&
                     message == nil &&
                     buttons?.count ?? 0 == 0 &&
                     carousel?.count ?? 0 == 0 &&
-                    media == nil)
+                    media == nil
+            )
         case .none:
-            return true
+            true
         }
     }
 
     public static func == (lhs: Message, rhs: Message) -> Bool {
         if let uuid = rhs.uuid {
-            return lhs.uuid == uuid
+            lhs.uuid == uuid
         } else {
-            return lhs.id == rhs.id
+            lhs.id == rhs.id
         }
     }
 
     public func getFormattedMessage() -> String? {
-        return message
+        message
     }
 }
 
@@ -187,18 +189,18 @@ extension Message: Comparable {
     public static func < (lhs: Message, rhs: Message) -> Bool {
         switch lhs.type {
         case .info, .loading:
-            return false
+            false
         case .agentTyping:
-            return true
+            true
         default:
             if lhs.time == nil && rhs.time == nil {
-                return false
+                false
             } else if lhs.time == nil {
-                return true
+                true
             } else if rhs.time == nil {
-                return false
+                false
             } else {
-                return lhs.time! < rhs.time!
+                lhs.time! < rhs.time!
             }
         }
     }

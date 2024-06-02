@@ -11,19 +11,19 @@ public class ParleyEncryptedKeyValueDataSource {
         var path: String {
             switch self {
             case .default:
-                return kParleyCacheDirectory
+                kParleyCacheDirectory
             case .custom(let string):
-                return string
+                string
             }
         }
     }
-    
+
     public init(
         crypter: ParleyCrypter,
         directory: Directory = .default,
         fileManager: FileManager = .default
     ) throws {
-        self.store = try ParleyEncryptedStore(
+        store = try ParleyEncryptedStore(
             crypter: crypter,
             directory: directory.path,
             fileManager: fileManager

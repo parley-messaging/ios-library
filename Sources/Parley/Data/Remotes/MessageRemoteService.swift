@@ -9,13 +9,13 @@ final class MessageRemoteService {
         self.remote = remote
     }
 
-    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> (), onFailure: @escaping (_ error: Error) -> ()) {
+    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> Void, onFailure: @escaping (_ error: Error) -> Void) {
         remote.execute(.get, path: "messages/\(id)", onSuccess: onSuccess, onFailure: onFailure)
     }
 
     func findAll(
-        onSuccess: @escaping (_ messageCollection: MessageCollection) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         remote.execute(.get, path: "messages", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
     }
@@ -23,8 +23,8 @@ final class MessageRemoteService {
     @discardableResult
     func findBefore(
         _ id: Int,
-        onSuccess: @escaping (_ messageCollection: MessageCollection) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) -> ParleyRequestCancelable {
         remote.execute(
             .get,
@@ -37,8 +37,8 @@ final class MessageRemoteService {
 
     func findAfter(
         _ id: Int,
-        onSuccess: @escaping (_ messageCollection: MessageCollection) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         remote.execute(
             .get,
@@ -51,8 +51,8 @@ final class MessageRemoteService {
 
     func store(
         _ message: Message,
-        onSuccess: @escaping (_ message: Message) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ message: Message) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
@@ -73,7 +73,7 @@ final class MessageRemoteService {
         imageData: Data,
         imageType: ParleyImageType,
         fileName: String,
-        completion: @escaping ((Result<MediaResponse, Error>) -> ())
+        completion: @escaping ((Result<MediaResponse, Error>) -> Void)
     ) {
         remote.execute(
             path: "media",

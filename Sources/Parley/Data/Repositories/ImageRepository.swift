@@ -40,7 +40,7 @@ class ImageRepository {
     }
 
     func upload(image storedImage: ParleyStoredImage) async throws -> RemoteImage {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             messageRemoteService.upload(
                 imageData: storedImage.data,
                 imageType: storedImage.type,
@@ -83,7 +83,7 @@ extension ImageRepository {
     }
 
     private func fetchMedia(url: URL) async throws -> ParleyImageNetworkModel {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             let remotePath = getRemoteFetchPath(url: url)
             messageRemoteService.findMedia(remotePath, result: { result in
                 continuation.resume(with: result)

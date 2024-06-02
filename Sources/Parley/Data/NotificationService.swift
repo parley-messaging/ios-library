@@ -3,7 +3,7 @@ import UIKit
 
 struct NotificationService {
 
-    func notificationsEnabled(completion: @escaping ((Bool) -> ())) {
+    func notificationsEnabled(completion: @escaping ((Bool) -> Void)) {
         let current = UNUserNotificationCenter.current()
 
         current.getNotificationSettings(completionHandler: { settings in

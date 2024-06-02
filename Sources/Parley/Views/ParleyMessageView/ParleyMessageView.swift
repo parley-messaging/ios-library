@@ -396,7 +396,7 @@ final class ParleyMessageView: UIView {
             if displayName == .image {
                 addImageNameGradient()
             }
-            
+
             if displayMeta == .image {
                 addImageMetaGradient()
             }

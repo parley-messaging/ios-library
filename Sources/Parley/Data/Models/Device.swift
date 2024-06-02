@@ -27,7 +27,7 @@ public struct Device: Codable, Equatable {
         pushToken: String?,
         pushType: PushType?,
         pushEnabled: Bool?,
-        userAdditionalInformation: [String : String]?,
+        userAdditionalInformation: [String: String]?,
         referrer: String?
     ) {
         self.pushToken = pushToken
@@ -55,7 +55,7 @@ public struct Device: Codable, Equatable {
         pushType = try container.decodeIfPresent(Device.PushType.self, forKey: .pushType)
         pushEnabled = try container.decodeIfPresent(Bool.self, forKey: .pushEnabled)
         userAdditionalInformation = try container.decodeIfPresent(
-            [String : String].self,
+            [String: String].self,
             forKey: .userAdditionalInformation
         )
         type = try container.decodeIfPresent(DeviceType.self, forKey: .type) ?? DeviceType.iOS
