@@ -9,7 +9,11 @@ final class MessageRemoteService {
         self.remote = remote
     }
 
-    func find(_ id: Int, onSuccess: @escaping (_ message: Message) -> Void, onFailure: @escaping (_ error: Error) -> Void) {
+    func find(
+        _ id: Int,
+        onSuccess: @escaping (_ message: Message) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    ) {
         remote.execute(.get, path: "messages/\(id)", onSuccess: onSuccess, onFailure: onFailure)
     }
 
