@@ -7,7 +7,7 @@ extension String {
     func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {
         @ParleyScaledFont(textStyle: .body) var scaledFont = font
         let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-        let boundingBox = boundingRect(
+        let boundingBox = (self as NSString).boundingRect(
             with: constraintRect,
             options: .usesLineFragmentOrigin,
             attributes: [.font: scaledFont],
