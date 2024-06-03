@@ -12,6 +12,8 @@ final class ParleyTests: XCTestCase {
 
     override func tearDownWithError() throws {
         localizationManagerSpy = nil
+
+        Parley.setLocalizationManager(ParleyLocalizationManager())
     }
 
     func testSetLocalizationManager() {
