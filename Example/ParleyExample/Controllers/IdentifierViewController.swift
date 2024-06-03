@@ -67,7 +67,9 @@ class IdentifierViewController: UIViewController {
         .lightContent
     }
 
-    /// > Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret` can change, which is the case for this demo app. Single app implementations don't need to reset Parley before configuring.
+    /// > Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret`
+    /// can change, which is the case for this demo app. Single app implementations don't need to reset Parley before
+    /// configuring.
     private var alreadyConfiguredParley = false
 
     // MARK: Lifecycle
@@ -179,11 +181,13 @@ class IdentifierViewController: UIViewController {
     private func startChatDemo() {
         if
             let customerIdentification = customerIdentificationTextView.text?
-                .trimmingCharacters(in: .whitespacesAndNewlines), !customerIdentification.isEmpty
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+            !customerIdentification.isEmpty
         {
             startChat(customerIdentification: customerIdentification)
         } else if
-            let secret = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !secret.isEmpty,
+            let secret = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !secret.isEmpty,
             secret.count == 20
         {
             startChat(secret: secret)
