@@ -9,7 +9,7 @@ public enum ParleyLocalizationKey: String {
 
     // MARK: Notifications
     case pushDisabled = "parley_push_disabled"
-    case notificationOffline = "Check your internet connection"
+    case notificationOffline = "parley_notification_offline"
 
     // MARK: Photos
     case photo = "parley_photo"
@@ -55,10 +55,4 @@ public enum ParleyLocalizationKey: String {
     case voiceOverAnnouncementMessageReceived = "parley_voice_over_announcement_message_received"
     case voiceOverAnnouncementInfoMessageReceived = "parley_voice_over_announcement_info_message_received"
     case voiceOverAnnouncementQuickRepliesReceived = "parley_voice_over_announcement_quick_replies_received"
-}
-
-extension ParleyLocalizationKey {
-    var localized: String {
-        Parley.shared.localizationManager.getLocalization(key: self)
-    }
 }
