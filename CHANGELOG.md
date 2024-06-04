@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.1.2 - Upcoming
+## 4.1.2 - Released 5 Jun 2024
 
 - Fixed an issue where scrolling up to load more messages could get the chat not to load even more messages.
 - Fixed an issue where loading more messages didn't scroll back to the earlier shown message after updating.
