@@ -7,6 +7,7 @@ protocol ParleyDelegate: AnyObject {
 
     func didReceiveMessage(_ indexPaths: [IndexPath])
     func didReceiveMessages()
+    func didLoadMore()
 
     func didStartTyping()
     func didStopTyping()

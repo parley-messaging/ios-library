@@ -431,8 +431,20 @@ extension ParleyView: ParleyDelegate {
 
     func didReceiveMessages() {
         syncSuggestionsView()
-
+        
         messagesTableView.reloadData()
+    }
+    
+    func didLoadMore() {
+        let firstVisible = messagesTableView.indexPathsForVisibleRows?.first?.row
+        let fromCount = messagesTableView.numberOfRows(inSection: 0)
+        messagesTableView.reloadData()
+
+        guard let firstVisible else { return }
+        let toCount = messagesTableView.numberOfRows(inSection: 0)
+        let diff = toCount - fromCount
+        // Show to the latest retrieved message to keep at the correct scroll offset
+        messagesTableView.scrollToRow(at: IndexPath(row: firstVisible + diff, section: 0), at: .top, animated: false)
     }
 
     func didStartTyping() {
