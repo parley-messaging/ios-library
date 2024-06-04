@@ -4,6 +4,7 @@
 
 - Fixed an issue where scrolling up to load more messages could get the chat not to load even more messages.
 - Fixed an issue where loading more messages didn't scroll back to the earlier shown message after updating.
+- Fixed loading more messages triggering the API call twice sometimes.
 - Aligned image heights in the chat to be the same as Android (180, instead of 160). 
 
 ## 4.1.1 - Released 31 May 2024
