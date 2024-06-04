@@ -1,4 +1,4 @@
 protocol MessageTableViewCellDelegate: ParleyMessageViewDelegate {
-    
+
     //
 }

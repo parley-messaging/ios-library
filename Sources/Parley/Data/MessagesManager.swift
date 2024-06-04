@@ -30,9 +30,9 @@ final class MessagesManager {
         originalMessages.reduce([Message]()) { partialResult, message in
             switch message.status {
             case .failed, .pending:
-                return partialResult + [message]
+                partialResult + [message]
             default:
-                return partialResult
+                partialResult
             }
         }
     }
@@ -41,9 +41,9 @@ final class MessagesManager {
         messages.first(where: {
             switch $0.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
-                return true
+                true
             default:
-                return false
+                false
             }
         })
     }
@@ -62,19 +62,19 @@ final class MessagesManager {
         if let cachedMessages = messageDataSource?.all() {
             originalMessages.append(contentsOf: cachedMessages.sorted(by: <))
         }
-        
-        self.stickyMessage = nil
-        self.welcomeMessage = keyValueDataSource?.string(forKey: kParleyCacheKeyMessageInfo)
-        
+
+        stickyMessage = nil
+        welcomeMessage = keyValueDataSource?.string(forKey: kParleyCacheKeyMessageInfo)
+
         if let cachedPagingData = keyValueDataSource?.data(forKey: kParleyCacheKeyPaging) {
-            self.paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
+            paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
         } else {
-            self.paging = nil
+            paging = nil
         }
 
-        self.formatMessages()
+        formatMessages()
     }
-    
+
     func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
         let newMessages = messageCollection.messages.filter { message in
             if originalMessages.contains(where: { $0.id == message.id }) {
@@ -87,9 +87,9 @@ final class MessagesManager {
         case .before:
             originalMessages.insert(contentsOf: newMessages, at: .zero)
         case .all, .after:
-            let pendingMessages = self.pendingMessages
+            let pendingMessages = pendingMessages
             originalMessages.removeAll { message -> Bool in
-                return message.status == .pending || message.status == .failed
+                message.status == .pending || message.status == .failed
             }
 
             originalMessages.append(contentsOf: newMessages)
@@ -99,7 +99,7 @@ final class MessagesManager {
         messageDataSource?.save(originalMessages)
         stickyMessage = messageCollection.stickyMessage
         updateWelcomeMessage(messageCollection.welcomeMessage)
-        
+
         if handleType != .after {
             paging = messageCollection.paging
             if let messages = try? CodableHelper.shared.toJSONString(paging) {
@@ -111,7 +111,7 @@ final class MessagesManager {
 
         formatMessages()
     }
-    
+
     private func updateWelcomeMessage(_ message: String?) {
         welcomeMessage = message
         if let welcomeMessage = message {
@@ -159,8 +159,7 @@ final class MessagesManager {
     private func isFirstMessageOfToday(_ message: Message) -> Bool {
         guard
             !messages.isEmpty,
-            let (lastMessageIndex, lastMessage) = self.lastMessage()
-        else { return true }
+            let (lastMessageIndex, lastMessage) = lastMessage() else { return true }
 
         guard let messageTime = message.time else { return false }
 
@@ -174,9 +173,9 @@ final class MessagesManager {
 
     func update(_ message: Message) {
         guard
-            let originalMessagesIndex = originalMessages.firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }),
-            let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid })
-        else { return }
+            let originalMessagesIndex = originalMessages
+                .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }),
+            let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid }) else { return }
 
         originalMessages[originalMessagesIndex] = message
         messages[messagesIndex] = message
@@ -288,14 +287,14 @@ final class MessagesManager {
 
 #if DEBUG
 // MARK: - Only used for testing
-private extension MessagesManager {
+extension MessagesManager {
 
-    func testMessages() {
+    fileprivate func testMessages() {
         let userMessage_shortPending = Message()
         userMessage_shortPending.type = .user
         userMessage_shortPending.message = "Hello 👋"
         userMessage_shortPending.status = .pending
-        
+
         let agentMessage_fullMessageWithActions = Message()
         agentMessage_fullMessageWithActions.id = 0
         agentMessage_fullMessageWithActions.type = .agent
@@ -304,53 +303,69 @@ private extension MessagesManager {
         agentMessage_fullMessageWithActions.buttons = [
             createButton("Open app", "open-app://parley.nu"),
             createButton("Call us", "call://+31362022080"),
-            createButton("Webuildapps", "https://webuildapps.com")
+            createButton("Webuildapps", "https://webuildapps.com"),
         ]
-        
+
         let agentMessage_messageWithCarouselSmall = Message()
         agentMessage_messageWithCarouselSmall.id = 1
         agentMessage_messageWithCarouselSmall.type = .agent
         agentMessage_messageWithCarouselSmall.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-        agentMessage_messageWithCarouselSmall.message = "Here are some quick actions for more information about *Parley*"
+        agentMessage_messageWithCarouselSmall
+            .message = "Here are some quick actions for more information about *Parley*"
         agentMessage_messageWithCarouselSmall.buttons = [
-            createButton("Home page", "https://www.parley.nu/")
+            createButton("Home page", "https://www.parley.nu/"),
         ]
-        
+
         agentMessage_messageWithCarouselSmall.carousel = [
-            createMessage("Parley libraries", "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.", nil, [
-                createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
-                createButton("iOS SDK", "https://github.com/parley-messaging/ios-library")
-            ]),
+            createMessage(
+                "Parley libraries",
+                "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.",
+                nil,
+                [
+                    createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
+                    createButton("iOS SDK", "https://github.com/parley-messaging/ios-library"),
+                ]
+            ),
             createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
                 createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
                 createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
-                createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2")
+                createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2"),
             ]),
         ]
-        
+
         let agentMessage_messageWithCarouselImages = Message()
         agentMessage_messageWithCarouselImages.id = 2
         agentMessage_messageWithCarouselImages.type = .agent
         agentMessage_messageWithCarouselImages.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
         agentMessage_messageWithCarouselImages.buttons = [
-            createButton("Home page", "https://www.parley.nu/")
+            createButton("Home page", "https://www.parley.nu/"),
         ]
-        
+
         agentMessage_messageWithCarouselImages.carousel = [
             createMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
             createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
             createMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
-            createMessage(nil, nil, "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png", nil),
+            createMessage(
+                nil,
+                nil,
+                "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png",
+                nil
+            ),
         ]
-        
+
         originalMessages.removeAll()
 //        originalMessages.append(userMessage_shortPending) // Will be send
 //        originalMessages.append(agentMessage_fullMessageWithActions)
         originalMessages.append(agentMessage_messageWithCarouselSmall)
 //        originalMessages.append(agentMessage_messageWithCarouselImages)
     }
-    
-    func createMessage(_ title: String?, _ message: String?, _ image: String?, _ buttons: [MessageButton]?) -> Message {
+
+    fileprivate func createMessage(
+        _ title: String?,
+        _ message: String?,
+        _ image: String?,
+        _ buttons: [MessageButton]?
+    ) -> Message {
         let m = Message()
         m.type = .agent
         m.title = title
@@ -358,9 +373,9 @@ private extension MessagesManager {
         m.buttons = buttons
         return m
     }
-    
-    func createButton(_ title: String, _ payload: String) -> MessageButton {
-        return MessageButton(title: title, payload: payload)
+
+    fileprivate func createButton(_ title: String, _ payload: String) -> MessageButton {
+        MessageButton(title: title, payload: payload)
     }
 }
 #endif

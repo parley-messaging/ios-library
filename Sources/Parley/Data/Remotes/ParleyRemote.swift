@@ -66,8 +66,8 @@ final class ParleyRemote {
         path: String,
         body: Encodable? = nil,
         keyPath: ParleyResponseKeyPath? = .data,
-        onSuccess: @escaping (_ item: T) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ item: T) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) -> any ParleyRequestCancelable {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
         let bodyData = mapBodyToData(body: body)
@@ -93,8 +93,8 @@ final class ParleyRemote {
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        onSuccess: @escaping () -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping () -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
 
@@ -129,8 +129,8 @@ final class ParleyRemote {
         path: String,
         multipartFormData: @escaping (inout MultipartFormData) -> Void,
         keyPath: ParleyResponseKeyPath? = .data,
-        onSuccess: @escaping (_ item: T) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ item: T) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
 
@@ -157,7 +157,7 @@ final class ParleyRemote {
         name: String,
         fileName: String,
         imageType: ParleyImageType,
-        result: @escaping (Result<T, Error>) -> ()
+        result: @escaping (Result<T, Error>) -> Void
     ) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
 
@@ -188,8 +188,8 @@ final class ParleyRemote {
     private func handleResult<T: Codable>(
         result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>,
         keyPath: ParleyResponseKeyPath?,
-        onSuccess: @escaping (_ item: T) -> (),
-        onFailure: @escaping (_ error: Error) -> ()
+        onSuccess: @escaping (_ item: T) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
     ) {
         switch result {
         case .success(let response):
@@ -216,7 +216,7 @@ final class ParleyRemote {
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        result: @escaping (Result<ParleyImageNetworkModel, Error>) -> ()
+        result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void
     ) -> ParleyRequestCancelable? {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")

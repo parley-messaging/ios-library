@@ -1,78 +1,110 @@
 import UIKit
 
 final class ParleyStickyView: UIView {
-    
+
     @IBOutlet private weak var contentHeightConstraint: NSLayoutConstraint!
-    
+
     @IBOutlet var contentView: UIView! {
         didSet {
-            self.contentView.backgroundColor = UIColor.clear
+            contentView.backgroundColor = UIColor.clear
         }
     }
-    
+
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var textView: ParleyTextView!
-    
+
     private var heightObserver: NSKeyValueObservation?
     private let totalVerticalContentInsets: CGFloat = 16
-    
-    var appearance: ParleyStickyViewAppearance = ParleyStickyViewAppearance() {
+
+    var appearance = ParleyStickyViewAppearance() {
         didSet {
-            self.apply(self.appearance)
+            apply(appearance)
         }
     }
-    
+
     var text: String? {
         didSet {
-            self.textView.markdownText = self.text
+            textView.markdownText = text
         }
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        self.setup()
+
+        setup()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        
-        self.setup()
+
+        setup()
     }
-    
+
     private func setup() {
-        self.loadXib()
-        
+        loadXib()
+
         apply(appearance)
         watchContentHeight()
     }
-    
+
     private func loadXib() {
         Bundle.module.loadNibNamed("ParleyStickyView", owner: self, options: nil)
-        
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.contentView)
-        
-        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(contentView)
+
+        NSLayoutConstraint(
+            item: self,
+            attribute: .leading,
+            relatedBy: .equal,
+            toItem: contentView,
+            attribute: .leading,
+            multiplier: 1.0,
+            constant: 0
+        ).isActive = true
+        NSLayoutConstraint(
+            item: self,
+            attribute: .trailing,
+            relatedBy: .equal,
+            toItem: contentView,
+            attribute: .trailing,
+            multiplier: 1.0,
+            constant: 0
+        ).isActive = true
+        NSLayoutConstraint(
+            item: self,
+            attribute: .top,
+            relatedBy: .equal,
+            toItem: contentView,
+            attribute: .top,
+            multiplier: 1.0,
+            constant: 0
+        ).isActive = true
+        NSLayoutConstraint(
+            item: self,
+            attribute: .bottom,
+            relatedBy: .equal,
+            toItem: contentView,
+            attribute: .bottom,
+            multiplier: 1.0,
+            constant: 0
+        ).isActive = true
     }
-    
+
     private func apply(_ appearance: ParleyStickyViewAppearance) {
-        self.backgroundColor = appearance.backgroundColor
-        
+        backgroundColor = appearance.backgroundColor
+
         if let iconTintColor = appearance.iconTintColor {
-            self.imageView.image = appearance.icon.withRenderingMode(.alwaysTemplate)
-            self.imageView.tintColor = iconTintColor
+            imageView.image = appearance.icon.withRenderingMode(.alwaysTemplate)
+            imageView.tintColor = iconTintColor
         } else {
-            self.imageView.image = appearance.icon.withRenderingMode(.alwaysOriginal)
+            imageView.image = appearance.icon.withRenderingMode(.alwaysOriginal)
         }
-        
-        self.textView.appearance = appearance.textViewAppearance
-    
-        self.textView.markdownText = self.text
-        
+
+        textView.appearance = appearance.textViewAppearance
+
+        textView.markdownText = text
+
         textView.contentInset = UIEdgeInsets(
             top: totalVerticalContentInsets / 2,
             left: 0,
@@ -81,19 +113,18 @@ final class ParleyStickyView: UIView {
         )
         textView.isScrollEnabled = true
     }
-    
+
     private func watchContentHeight() {
         heightObserver = observe(\.textView?.contentSize, options: [.initial, .new]) { [weak self] _, change in
             guard
                 let newValue = change.newValue,
                 let height = newValue?.height,
-                let self
-            else { return }
-            
-            let totalVerticalInsets: CGFloat = self.totalVerticalContentInsets
-            self.contentHeightConstraint.constant = min(200, (height + totalVerticalInsets))
-            
-            self.layoutIfNeeded()
+                let self else { return }
+
+            let totalVerticalInsets: CGFloat = totalVerticalContentInsets
+            contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
+
+            layoutIfNeeded()
         }
     }
 }

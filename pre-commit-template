@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Install Swiftlint and Swiftformat
+# Swiftlint: https://formulae.brew.sh/formula/swiftlint
+# Swiftformat: https://github.com/nicklockwood/SwiftFormat?tab=readme-ov-file#xcode-source-editor-extension
+
+# Make sure the git/hooks folder exists
+# $ mkdir .git/hooks
+# Adjust the command below to hardcoded paths from the home folder, for example:
+# $ ln -s ~/Documents/ParleyFork/pre-commit-template ~/Documents/ParleyFork/.git/hooks/pre-commit
+# Make the file executable
+# $ chmod +x .git/hooks/pre-commit
+
+# Default location of swiftformat
+SWIFTFORMAT=/opt/homebrew/bin/swiftformat
+# Default location of swiftlint
+SWIFTLINT=/opt/homebrew/bin/swiftlint
+
+# Run Swiftformat
+$SWIFTFORMAT .
+
+# Run SwiftLint with --fix option
+$SWIFTLINT --fix
+
+# Check the exit code of SwiftLint
+if [ $? -ne 0 ]; then
+    echo "SwiftLint failed. Commit aborted."
+    exit 1
+fi

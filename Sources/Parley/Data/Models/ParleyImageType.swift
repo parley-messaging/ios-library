@@ -11,18 +11,18 @@ enum ParleyImageType: String, CaseIterable, Codable {
     var mimeType: String {
         switch self {
         case .png:
-            return "image/png"
+            "image/png"
         case .gif:
-            return "image/gif"
+            "image/gif"
         case .jpg:
-            return "image/jpeg"
+            "image/jpeg"
         }
     }
 
     /// Appends a dot (.) before the file extension.
     /// example: .png
     var fileExtension: String {
-        return ".\(rawValue)"
+        ".\(rawValue)"
     }
 
     /// Returns a ParleyImageType from a given URL

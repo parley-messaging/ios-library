@@ -4,7 +4,7 @@ public class ParleyViewAppearance {
 
     public var backgroundColor: UIColor? = UIColor(white: 0.92, alpha: 1.0)
 
-    public var loaderTintColor = UIColor(red:0.29, green:0.37, blue:0.51, alpha:0.6)
+    public var loaderTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 0.6)
     public var textColor = UIColor(white: 0.62, alpha: 1.0)
 
     public var notificationsPosition: ParleyPositionVertical = .top

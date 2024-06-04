@@ -1,55 +1,58 @@
 import Photos
-import UIKit
 import PhotosUI
+import UIKit
 
 public class ParleyComposeView: UIView {
-    
+
     @IBOutlet var contentView: UIView! {
         didSet {
-            self.contentView.backgroundColor = UIColor.clear
+            contentView.backgroundColor = UIColor.clear
         }
     }
-    
+
     @IBOutlet weak var cameraButton: UIButton! {
         didSet {
             cameraButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
         }
     }
+
     @IBOutlet weak var textViewBackgroundView: UIView! {
         didSet {
-            self.textViewBackgroundView.layer.cornerRadius = 18
-            self.textViewBackgroundView.layer.borderWidth = 1
+            textViewBackgroundView.layer.cornerRadius = 18
+            textViewBackgroundView.layer.borderWidth = 1
         }
     }
+
     @IBOutlet weak var textView: UITextView! {
         didSet {
-            self.textView.textContainerInset = .zero
-            self.textView.textContainer.lineFragmentPadding = 0
-            self.textView.autocorrectionType = .default
-            
-            self.textView.delegate = self
-            
+            textView.textContainerInset = .zero
+            textView.textContainer.lineFragmentPadding = 0
+            textView.autocorrectionType = .default
+
+            textView.delegate = self
+
             let keyboardAccessoryView = KeyboardAccessoryView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
             keyboardAccessoryView.delegate = self
-            
-            self.textView.inputAccessoryView = keyboardAccessoryView
-            
+
+            textView.inputAccessoryView = keyboardAccessoryView
+
             textView.accessibilityCustomActions = [
                 UIAccessibilityCustomAction(
                     name: ParleyLocalizationKey.voiceOverDismissKeyboardAction.localized,
                     target: self,
                     selector: #selector(dismissKeyboard)
-                )
+                ),
             ]
-            
+
             textView.adjustsFontForContentSizeCategory = true
         }
     }
-    
-    @objc private func dismissKeyboard() {
+
+    @objc
+    private func dismissKeyboard() {
         textView.resignFirstResponder()
     }
-    
+
     @IBOutlet private weak var placeholderTopConstraint: NSLayoutConstraint!
     @IBOutlet private weak var placeholderLabel: UILabel! {
         didSet {
@@ -58,16 +61,16 @@ public class ParleyComposeView: UIView {
             placeholderLabel.numberOfLines = 2
         }
     }
-    
+
     private var sendButtonEnabledObservation: NSKeyValueObservation?
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
             sendButton.layer.cornerRadius = sendButton.bounds.height / 2
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized
-            
+
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
                 let isEnabled = change.newValue
-                
+
                 if isEnabled == true {
                     self?.sendButton.accessibilityHint = nil
                 } else {
@@ -76,19 +79,20 @@ public class ParleyComposeView: UIView {
             }
         }
     }
-    
+
     @IBOutlet weak var textViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var textViewBackgroundViewTrailingConstraint: NSLayoutConstraint!
-    
+
     private var bottomLayoutConstraint: NSLayoutConstraint!
-    
-    var appearance: ParleyComposeViewAppearance = ParleyComposeViewAppearance() {
+
+    var appearance = ParleyComposeViewAppearance() {
         didSet {
-            self.apply(self.appearance)
+            apply(appearance)
         }
     }
+
     weak var delegate: ParleyComposeViewDelegate?
-    
+
     var placeholder: String? {
         didSet {
             placeholderLabel.text = placeholder
@@ -96,93 +100,126 @@ public class ParleyComposeView: UIView {
             setPlaceHolderHeight()
         }
     }
-    
-    var isEnabled: Bool = true {
+
+    var isEnabled = true {
         didSet {
             cameraButton.isEnabled = isEnabled
             textView.isEditable = isEnabled
             sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
-    var maxCount: Int = 2000
-    
+
+    var maxCount = 2000
+
     var allowPhotos = true {
         didSet {
-            self.cameraButton.isHidden = !self.allowPhotos
-            self.textViewBackgroundViewTrailingConstraint.constant = self.allowPhotos ? 56 : 16
+            cameraButton.isHidden = !allowPhotos
+            textViewBackgroundViewTrailingConstraint.constant = allowPhotos ? 56 : 16
         }
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+
         setup()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        
+
         setup()
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
-    
+
     private func setup() {
         loadXib()
         apply(appearance)
         watchForContentSizeCategoryChanges()
     }
-    
+
     private func loadXib() {
         Bundle.module.loadNibNamed("ParleyComposeView", owner: self, options: nil)
-        
+
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
-        
-        bottomLayoutConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0)
+
+        bottomLayoutConstraint = NSLayoutConstraint(
+            item: self,
+            attribute: .bottom,
+            relatedBy: .equal,
+            toItem: contentView,
+            attribute: .bottom,
+            multiplier: 1.0,
+            constant: 0
+        )
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1.0, constant: 0),
-            NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1.0, constant: 0),
-            NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0),
-            bottomLayoutConstraint
+            NSLayoutConstraint(
+                item: self,
+                attribute: .leading,
+                relatedBy: .equal,
+                toItem: contentView,
+                attribute: .leading,
+                multiplier: 1.0,
+                constant: 0
+            ),
+            NSLayoutConstraint(
+                item: self,
+                attribute: .trailing,
+                relatedBy: .equal,
+                toItem: contentView,
+                attribute: .trailing,
+                multiplier: 1.0,
+                constant: 0
+            ),
+            NSLayoutConstraint(
+                item: self,
+                attribute: .top,
+                relatedBy: .equal,
+                toItem: contentView,
+                attribute: .top,
+                multiplier: 1.0,
+                constant: 0
+            ),
+            bottomLayoutConstraint,
         ])
     }
-    
+
     private func apply(_ appearance: ParleyComposeViewAppearance) {
-        self.backgroundColor = appearance.backgroundColor
-        
-        self.textViewBackgroundView.backgroundColor = appearance.inputBackgroundColor
-        self.textViewBackgroundView.layer.borderColor = appearance.inputBorderColor.cgColor
-        
-        self.sendButton.backgroundColor = appearance.sendBackgroundColor
+        backgroundColor = appearance.backgroundColor
+
+        textViewBackgroundView.backgroundColor = appearance.inputBackgroundColor
+        textViewBackgroundView.layer.borderColor = appearance.inputBorderColor.cgColor
+
+        sendButton.backgroundColor = appearance.sendBackgroundColor
         if let iconTintColor = appearance.sendTintColor {
             let sendIcon = appearance.sendIcon.withRenderingMode(.alwaysTemplate)
             sendIcon.isAccessibilityElement = false
             sendIcon.accessibilityLabel = nil
-            
-            self.sendButton.setImage(sendIcon, for: .normal)
-            
-            self.sendButton.tintColor = iconTintColor
+
+            sendButton.setImage(sendIcon, for: .normal)
+
+            sendButton.tintColor = iconTintColor
         } else {
-            self.sendButton.setImage(appearance.sendIcon, for: .normal)
+            sendButton.setImage(appearance.sendIcon, for: .normal)
         }
-        
+
         let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
         cameraIcon.isAccessibilityElement = false
         cameraIcon.accessibilityLabel = nil
-        self.cameraButton.setImage(cameraIcon, for: .normal)
-        self.cameraButton.tintColor = appearance.cameraTintColor
-        
-        self.placeholderLabel.textColor = appearance.placeholderColor
-        self.placeholderLabel.font = appearance.font
-        
-        self.textView.textColor = appearance.textColor
-        self.textView.tintColor = appearance.tintColor
-        self.textView.font = appearance.font
+        cameraButton.setImage(cameraIcon, for: .normal)
+        cameraButton.tintColor = appearance.cameraTintColor
+
+        placeholderLabel.textColor = appearance.placeholderColor
+        placeholderLabel.font = appearance.font
+
+        textView.textColor = appearance.textColor
+        textView.tintColor = appearance.tintColor
+        textView.font = appearance.font
     }
-    
+
     private func watchForContentSizeCategoryChanges() {
         NotificationCenter.default.addObserver(
             self,
@@ -191,85 +228,90 @@ public class ParleyComposeView: UIView {
             object: nil
         )
     }
-    
-    @objc private func handleContentSizeCategoryDidChange() {
+
+    @objc
+    private func handleContentSizeCategoryDidChange() {
         setPlaceHolderHeight()
     }
-    
+
     func setPlaceHolderHeight() {
         // Needs extra time to render label in new font size.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             placeholderLabel.sizeToFit()
-            
+
             if textView.text?.isEmpty == true {
                 textViewHeightConstraint.constant = max(23, placeholderLabel.bounds.height)
             }
-            
+
             let messageLineHeight = textView.font?.lineHeight ?? .zero
             let placeholderLineHeight = placeholderLabel.font?.lineHeight ?? .zero
-            
+
             placeholderTopConstraint.constant = messageLineHeight - placeholderLineHeight
-            
+
             layoutIfNeeded()
         }
     }
-    
-    @IBAction private func send(_ sender: UIButton) {
+
+    @IBAction
+    private func send(_ sender: UIButton) {
         if let message = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
             delegate?.send(message)
         }
-        
+
         textView.text = ""
         textViewDidChange(textView)
     }
-    
+
     // MARK: Image picker
-    @IBAction private func presentImageActionSheet(_ sender: UIButton) {
+    @IBAction
+    private func presentImageActionSheet(_ sender: UIButton) {
         guard isCameraAvailable() else { selectPhoto() ; return }
-        
+
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = sender
             popoverController.sourceRect = sender.bounds
             popoverController.permittedArrowDirections = [.left, .down]
         }
-        
+
         alertController.title = ParleyLocalizationKey.photo.localized
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.selectPhoto.localized,
             style: .default,
-            handler: { [weak self] action in
+            handler: { [weak self] _ in
                 self?.selectPhoto()
-        }))
-        
+            }
+        ))
+
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.takePhoto.localized,
             style: .default,
-            handler: { [weak self] action in
+            handler: { [weak self] _ in
                 self?.takePhoto()
-        }))
-        
+            }
+        ))
+
         alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .cancel))
-        
+
         present(alertController, animated: true, completion: nil)
     }
-    
+
     private func isCameraAvailable() -> Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
     }
-    
+
     private func selectPhoto() {
         if #available(iOS 14.0, *) {
             showImagePickerController()
         } else {
             Task {
                 var status = PHPhotoLibrary.authorizationStatus()
-                
+
                 if case .notDetermined = status {
                     status = await requestPhotoLibraryAuthorization()
                 }
-                
+
                 await MainActor.run { [status] in
                     if isPhotoLibraryAuthorized(status) {
                         showImagePickerController()
@@ -280,32 +322,32 @@ public class ParleyComposeView: UIView {
             }
         }
     }
-    
+
     @MainActor
     private func requestPhotoLibraryAuthorization() async -> PHAuthorizationStatus {
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             PHPhotoLibrary.requestAuthorization { [weak self] status in
                 continuation.resume(returning: status)
             }
         }
     }
-    
+
     private func isPhotoLibraryAuthorized(_ status: PHAuthorizationStatus) -> Bool {
         switch status {
         case .notDetermined, .denied, .restricted, .denied:
-            return false
+            false
         case .authorized, .limited:
-            return true
+            true
         }
     }
-    
+
     private func takePhoto() {
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.sourceType = .camera
         present(imagePickerController, animated: true, completion: nil)
     }
-    
+
     private func showImagePickerController() {
         if #available(iOS 14.0, *) {
             var configuration = PHPickerConfiguration(photoLibrary: .shared())
@@ -321,45 +363,45 @@ public class ParleyComposeView: UIView {
             present(imagePickerController, animated: true, completion: nil)
         }
     }
-    
+
     private func showPhotoAccessDeniedAlertController() {
         let alertController = UIAlertController(
             title: ParleyLocalizationKey.photoAccessDeniedTitle.localized,
             message: ParleyLocalizationKey.photoAccessDeniedBody.localized,
             preferredStyle: .alert
         )
-        
+
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.ok.localized,
             style: .cancel
         ))
-        
+
         present(alertController, animated: true, completion: nil)
     }
 }
 
 // MARK: UITextViewDelegate
 extension ParleyComposeView: UITextViewDelegate {
-    
+
     public func textViewDidChange(_ textView: UITextView) {
         delegate?.didChange()
-        
+
         sendButton.isEnabled = !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         placeholderLabel.isHidden = !self.textView.text.isEmpty
-        
+
         let cgSize = CGSize(width: self.textView.frame.width, height: .greatestFiniteMagnitude)
         let sizeThatFits = self.textView.sizeThatFits(cgSize)
-        
+
         let minHeight: CGFloat = 23
         let maxHeight: CGFloat = 82
-        
+
         var height = sizeThatFits.height
         if height < minHeight {
             height = minHeight
         } else if height > maxHeight {
             height = maxHeight
         }
-        
+
         textView.isScrollEnabled = height >= maxHeight
 
         if textViewHeightConstraint.constant != height {
@@ -370,72 +412,79 @@ extension ParleyComposeView: UITextViewDelegate {
             }
         }
     }
-    
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        return textView.text.count + (text.count - range.length) <= self.maxCount
+
+    public func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
+        textView.text.count + (text.count - range.length) <= maxCount
     }
 }
 
 // MARK: KeyboardAccessoryViewDelegate
 extension ParleyComposeView: KeyboardAccessoryViewDelegate {
-    
+
     func keyboardFrameChanged(_ frame: CGRect) {
         if let keyWindow = UIApplication.shared.windows.first(where: \.isKeyWindow) {
-            let yFromBottom = keyWindow.bounds.height - self.convert(keyWindow.frame, to: nil).origin.y - self.frame.size.height
-            
+            let yFromBottom = keyWindow.bounds.height - convert(keyWindow.frame, to: nil).origin.y - self.frame.size
+                .height
+
             let bottom = keyWindow.bounds.height - frame.origin.y - yFromBottom
-            
-            self.bottomLayoutConstraint.constant = bottom > 0 ? bottom : 0
-            
-            self.layoutIfNeeded()
+
+            bottomLayoutConstraint.constant = bottom > 0 ? bottom : 0
+
+            layoutIfNeeded()
         }
     }
-    
+
     func keyboardDidHide(_ frame: CGRect) {
-        self.bottomLayoutConstraint.constant = 0
-        
-        self.layoutIfNeeded()
-        self.superview?.layoutIfNeeded()
+        bottomLayoutConstraint.constant = 0
+
+        layoutIfNeeded()
+        superview?.layoutIfNeeded()
     }
 }
 
 // MARK: UIImagePickerControllerDelegate
 extension ParleyComposeView: UIImagePickerControllerDelegate {
-    
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        
+
+    public func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
+
         func dismissFailedToSelect() {
             picker.dismiss(animated: true, completion: { [weak self] in
                 self?.delegate?.failedToSelectImage()
             })
         }
-        
+
         guard let imageURL = info[.imageURL] as? URL, let asset = info[.phAsset] as? PHAsset else {
             // Image has been taken on device, therefore we can convert it to JPEG since you cannot take a GIF image directly.
             guard
                 let fakeURL = URL(string: "tmp://fake/image/path/image.jpg"),
                 let image = info[.originalImage] as? UIImage,
-                let jpegData = MediaModel.convertToJpegData(image)
-            else { dismissFailedToSelect() ; return }
-            
+                let jpegData = MediaModel.convertToJpegData(image) else { dismissFailedToSelect() ; return }
+
             picker.dismiss(animated: true, completion: { [weak self] in
                 self?.delegate?.send(image: image, with: jpegData, url: fakeURL)
             })
-            
+
             return
         }
-        
+
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
-            
-        PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] (data, _, _, _) in
+
+        PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] data, _, _, _ in
             guard let data, let image = UIImage(data: data) else { dismissFailedToSelect() ; return }
             picker.dismiss(animated: true, completion: {
                 self?.delegate?.send(image: image, with: data, url: imageURL)
             })
         }
     }
-    
+
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
@@ -446,28 +495,33 @@ extension ParleyComposeView: UINavigationControllerDelegate { }
 
 @available(iOS 14.0, *)
 extension ParleyComposeView: PHPickerViewControllerDelegate {
-    
+
     public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true) { [weak self] in
             self?.handleDidPickImage(results: results)
         }
     }
-    
+
     private func handleDidPickImage(results: [PHPickerResult]) {
         guard !results.isEmpty else { return }
         Task {
             guard let itemProvider = results.first?.itemProvider else { await handleUnableToLoadImage() ; return }
             let fileName = itemProvider.suggestedName ?? UUID().uuidString
-            
+
             do {
                 let loadedImage = try await itemProvider.loadImage()
-                delegate?.send(image: loadedImage.image, data: loadedImage.data, fileName: fileName, type: loadedImage.type)
+                delegate?.send(
+                    image: loadedImage.image,
+                    data: loadedImage.data,
+                    fileName: fileName,
+                    type: loadedImage.type
+                )
             } catch {
                 await handleUnableToLoadImage(error)
             }
         }
     }
-    
+
     private func handleUnableToLoadImage(_ error: Error? = nil) async {
         await MainActor.run {
             let alertController = UIAlertController(
@@ -475,12 +529,12 @@ extension ParleyComposeView: PHPickerViewControllerDelegate {
                 message: ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized,
                 preferredStyle: .alert
             )
-            
+
             alertController.addAction(UIAlertAction(
                 title: ParleyLocalizationKey.ok.localized,
                 style: .cancel
             ))
-            
+
             present(alertController, animated: true, completion: nil)
         }
     }

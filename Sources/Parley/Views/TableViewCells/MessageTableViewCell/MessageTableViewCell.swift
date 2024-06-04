@@ -2,58 +2,58 @@ import Foundation
 import UIKit
 
 final class MessageTableViewCell: UITableViewCell {
-    
+
     @IBOutlet private weak var messageView: UIView!
     @IBOutlet private weak var parleyMessageView: ParleyMessageView!
-    
+
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
             let messageCollectionViewCell = UINib(nibName: "MessageCollectionViewCell", bundle: .module)
-            self.collectionView.register(messageCollectionViewCell, forCellWithReuseIdentifier: "MessageCollectionViewCell")
-            
-            self.collectionView.dataSource = self
+            collectionView.register(messageCollectionViewCell, forCellWithReuseIdentifier: "MessageCollectionViewCell")
+
+            collectionView.dataSource = self
         }
     }
-    
+
     @IBOutlet private weak var leftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var leftAlignLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var rightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var rightAlignLayoutConstraint: NSLayoutConstraint!
-    
+
     @IBOutlet private weak var collectionViewHeightLayoutConstraint: NSLayoutConstraint!
-    
+
     private var messageWidthConstraint: NSLayoutConstraint?
-    
+
     weak var delegate: MessageTableViewCellDelegate? {
         didSet {
-            self.parleyMessageView.delegate = self.delegate
+            parleyMessageView.delegate = delegate
         }
     }
-    
+
     var appearance: MessageTableViewCellAppearance? {
         didSet {
-            guard let appearance = self.appearance else { return }
-            
-            self.apply(appearance)
+            guard let appearance = appearance else { return }
+
+            apply(appearance)
         }
     }
-    
+
     private var messages: (messages: [Message], time: Date?)?
-    
+
     func render(_ message: Message) {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
-            self.messageView.isHidden = false
+            messageView.isHidden = false
 
-            self.parleyMessageView.set(message: message, forcedTime: nil)
+            parleyMessageView.set(message: message, forcedTime: nil)
         } else {
-            self.messageView.isHidden = true
+            messageView.isHidden = true
         }
 
         if let messages = message.carousel, !messages.isEmpty {
             self.messages = (messages, message.time)
-            
+
             collectionView.isHidden = false
-            
+
             let maxSize = messages.map { message -> CGSize in
                 MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
             }.max(by: { $0.height > $1.height }) ?? .zero
@@ -64,63 +64,64 @@ final class MessageTableViewCell: UITableViewCell {
 
             collectionViewHeightLayoutConstraint.constant = maxSize.height + 4
         } else {
-            self.messages = nil
-            
-            self.collectionView.isHidden = true
+            messages = nil
+
+            collectionView.isHidden = true
         }
 
-        self.collectionView.reloadData()
-        
+        collectionView.reloadData()
+
         setupAccessibilityFeatures(for: message)
     }
-    
+
     private func setupAccessibilityFeatures(for message: Message) {
         isAccessibilityElement = false
         watchForVoiceOverDidChangeNotification(observer: self)
         messageView.isAccessibilityElement = true
         messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
-        
+
         messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
             for: message,
-            actionHandler: { [weak self] message, button in
+            actionHandler: { [weak self] _, button in
                 self?.delegate?.didSelect(button)
-            })
+            }
+        )
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
     }
-    
+
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
         // Disable drag interaction for VoiceOver.
         isUserInteractionEnabled = !isVoiceOverRunning
     }
-    
+
     private func apply(_ appearance: MessageTableViewCellAppearance) {
-        self.parleyMessageView.apply(appearance)
-        
-        self.contentView.removeConstraints([
-            self.leftLayoutConstraint,
-            self.leftAlignLayoutConstraint,
-            self.rightLayoutConstraint,
-            self.rightAlignLayoutConstraint
+        parleyMessageView.apply(appearance)
+
+        contentView.removeConstraints([
+            leftLayoutConstraint,
+            leftAlignLayoutConstraint,
+            rightLayoutConstraint,
+            rightAlignLayoutConstraint,
         ])
-        
+
         switch appearance.align {
         case .left:
-            self.contentView.addConstraints([
-                self.leftLayoutConstraint,
-                self.rightAlignLayoutConstraint
+            contentView.addConstraints([
+                leftLayoutConstraint,
+                rightAlignLayoutConstraint,
             ])
         case .right:
-            self.contentView.addConstraints([
-                self.leftAlignLayoutConstraint,
-                self.rightLayoutConstraint
+            contentView.addConstraints([
+                leftAlignLayoutConstraint,
+                rightLayoutConstraint,
             ])
         default:
-            self.contentView.addConstraints([
-                self.leftLayoutConstraint,
-                self.rightLayoutConstraint
+            contentView.addConstraints([
+                leftLayoutConstraint,
+                rightLayoutConstraint,
             ])
         }
     }
@@ -132,16 +133,21 @@ extension MessageTableViewCell: UICollectionViewDataSource {
         messages?.messages.count ?? 0
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let messageCollectionViewCell = collectionView.dequeueReusableCell(
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        guard
+            let messageCollectionViewCell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MessageCollectionViewCell.reuseIdentifier,
                 for: indexPath
-        ) as? MessageCollectionViewCell else {
+            ) as? MessageCollectionViewCell else
+        {
             return UICollectionViewCell()
         }
 
-        messageCollectionViewCell.delegate = self.delegate
-        messageCollectionViewCell.appearance = self.appearance?.carousel
+        messageCollectionViewCell.delegate = delegate
+        messageCollectionViewCell.appearance = appearance?.carousel
 
         if let messages {
             messageCollectionViewCell.render(messages.messages[indexPath.row], time: messages.time)

@@ -1,4 +1,4 @@
 enum MessageTypeEvent: String {
-    case message = "message"
-    case event = "event"
+    case message
+    case event
 }

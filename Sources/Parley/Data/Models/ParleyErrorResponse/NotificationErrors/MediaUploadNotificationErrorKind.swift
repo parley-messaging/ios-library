@@ -11,9 +11,9 @@ enum MediaUploadNotificationErrorKind: String, Error, CaseIterable, Codable {
     var formattedMessage: String {
         switch self {
         case .invalidMediaType, .missingMedia, .couldNotSaveMedia:
-            return ParleyLocalizationKey.messageMetaFailedToSend.localized
+            ParleyLocalizationKey.messageMetaFailedToSend.localized
         case .mediaTooLarge:
-            return ParleyLocalizationKey.messageMetaMediaTooLarge.localized
+            ParleyLocalizationKey.messageMetaMediaTooLarge.localized
         }
     }
 }

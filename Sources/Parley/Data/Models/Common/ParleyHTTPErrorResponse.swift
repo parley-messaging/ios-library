@@ -8,7 +8,7 @@ public struct ParleyHTTPErrorResponse: Error {
 
     public init(
         statusCode: Int? = nil,
-        headers: [String : String]? = nil,
+        headers: [String: String]? = nil,
         data: Data? = nil,
         error: Error
     ) {

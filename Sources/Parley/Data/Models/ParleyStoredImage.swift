@@ -8,12 +8,12 @@ public struct ParleyStoredImage: Codable {
     var data: Data
     let type: ParleyImageType
     let path: FilePath
-    
+
     init(filename: String, data: Data, type: ParleyImageType) {
         self.filename = filename
         self.data = data
         self.type = type
-        self.path = FilePath(name: filename, type: type)
+        path = FilePath(name: filename, type: type)
     }
 
     static func from(media: MediaModel) -> ParleyStoredImage {
@@ -43,9 +43,9 @@ public struct ParleyStoredImage: Codable {
 
         static func create(path: String) -> FilePath? {
             if let url = URL(string: path) {
-                return Self.decode(url: url)
+                decode(url: url)
             } else {
-                return nil
+                nil
             }
         }
 

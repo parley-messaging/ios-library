@@ -5,7 +5,7 @@ struct ParleyErrorResponse: Error, Codable {
         case success = "SUCCESS"
         case error = "ERROR"
     }
-    
+
     let status: Status
     let notifications: [Notification]
     let metadata: Metadata?

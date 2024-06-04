@@ -1,4 +1,4 @@
 enum UserTypingEvent: String {
-    case startTyping = "startTyping"
-    case stopTyping = "stopTyping"
+    case startTyping
+    case stopTyping
 }

@@ -88,9 +88,9 @@ final class ParleyTextViewTest: XCTestCase {
 
     private func makeSut(backgroundColor: UIColor = .lightGray) -> ParleyTextView {
         let sut = ParleyTextView(frame: .zero)
-        
+
         sut.backgroundColor = backgroundColor
-        
+
         return sut
     }
 }

@@ -19,7 +19,7 @@ extension Message {
             }
         }
 
-        static private func createAccessibilityLabelForMessageType(_ message: Message) -> String? {
+        private static func createAccessibilityLabelForMessageType(_ message: Message) -> String? {
             switch message.type {
             case .agent, .systemMessageAgent:
                 if let agentName = message.agent?.name {
@@ -42,7 +42,7 @@ extension Message {
         }
 
         // MARK: Accessibility Label - Body
-        static private func createAccessibilityMessageLabelBody(_ message: Message) -> String {
+        private static func createAccessibilityMessageLabelBody(_ message: Message) -> String {
             var body = [
                 createMessageTextualContentLabelIfAvailable(message),
                 createMediumAttachedLabelIfAvailable(message),
@@ -57,7 +57,7 @@ extension Message {
             }
         }
 
-        static private func createMessageTextualContentLabelIfAvailable(_ message: Message) -> String? {
+        private static func createMessageTextualContentLabelIfAvailable(_ message: Message) -> String? {
             let textualContent = [message.title, message.message]
                 .compactMap { $0 }
                 .joined(separator: ". ")
@@ -66,32 +66,32 @@ extension Message {
             return textualContent
         }
 
-        static private func createMediumAttachedLabelIfAvailable(_ message: Message) -> String? {
+        private static func createMediumAttachedLabelIfAvailable(_ message: Message) -> String? {
             guard message.hasMedium else { return nil }
             return ParleyLocalizationKey.voiceOverMessageMediaAttached.localized
         }
 
         // MARK: Accessibility Label - Ending
-        static private func createAccessibilityMessageLabelEnding(_ message: Message) -> String {
-            return [
+        private static func createAccessibilityMessageLabelEnding(_ message: Message) -> String {
+            [
                 createStatusLabelIfNeeded(message),
                 createTimeLabelIfAvailable(message),
             ].compactMap { $0 }
                 .joined(separator: " ")
         }
 
-        static private func createStatusLabelIfNeeded(_ message: Message) -> String? {
+        private static func createStatusLabelIfNeeded(_ message: Message) -> String? {
             switch message.status {
             case .failed:
-                return ParleyLocalizationKey.voiceOverMessageFailed.localized
+                ParleyLocalizationKey.voiceOverMessageFailed.localized
             case .pending:
-                return ParleyLocalizationKey.voiceOverMessagePending.localized
+                ParleyLocalizationKey.voiceOverMessagePending.localized
             case .success:
-                return nil
+                nil
             }
         }
 
-        static private func createTimeLabelIfAvailable(_ message: Message) -> String? {
+        private static func createTimeLabelIfAvailable(_ message: Message) -> String? {
             guard let time = message.time else { return nil }
             let format = ParleyLocalizationKey.voiceOverMessageTime.localized
             return .localizedStringWithFormat(format, time.asTime())
@@ -133,7 +133,7 @@ extension Message.Accessibility {
             }
     }
 
-    static private func createActionsAttachedLabelIfAvailable(_ message: Message) -> String? {
+    private static func createActionsAttachedLabelIfAvailable(_ message: Message) -> String? {
         guard message.hasButtons else { return nil }
         return ParleyLocalizationKey.voiceOverMessageActionsAttached.localized
     }

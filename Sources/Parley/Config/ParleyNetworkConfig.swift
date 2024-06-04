@@ -21,7 +21,7 @@ public struct ParleyNetworkConfig {
         apiVersion = .v1_7
     }
 
-    public init(url: String, path: String, apiVersion: ApiVersion, headers: [String:String] = [:]) {
+    public init(url: String, path: String, apiVersion: ApiVersion, headers: [String: String] = [:]) {
         self.url = url
         self.path = path
         self.apiVersion = apiVersion

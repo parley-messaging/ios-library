@@ -10,7 +10,7 @@ extension XCTestCase {
         exp.isInverted = true
         wait(for: [exp], timeout: timeout)
     }
-    
+
     public func wait(
         _ timeout: TimeInterval = 2.0,
         for expression: @escaping () -> Bool,

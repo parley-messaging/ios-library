@@ -1,7 +1,6 @@
 import Alamofire
 import Foundation
 import Parley
-import enum Parley.ParleyHTTPRequestMethod
 import XCTest
 @testable import ParleyNetwork
 
