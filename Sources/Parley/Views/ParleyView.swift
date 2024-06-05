@@ -432,7 +432,13 @@ extension ParleyView: ParleyDelegate {
     func didReceiveMessages() {
         syncSuggestionsView()
         
+        let scrollToBottom = messagesTableView.isAtBottom
+        
         messagesTableView.reloadData()
+        
+        if scrollToBottom {
+            messagesTableView.scroll(to: .bottom, animated: false)
+        }
     }
     
     func didLoadMore() {

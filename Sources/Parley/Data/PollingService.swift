@@ -79,7 +79,7 @@ final class PollingService: PollingServiceProtocol {
                 self?.loopRepeated = 0
                 self?.timerInterval = .twoSeconds
                 self?.setTimer(interval: .twoSeconds)
-                messagesManager?.handle(messageCollection, .all)
+                messagesManager?.handle(messageCollection, .after)
                 delegate?.didReceiveMessages()
             },
             onFailure: { _ in

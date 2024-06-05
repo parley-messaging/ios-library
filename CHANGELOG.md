@@ -1,6 +1,12 @@
 # Changelog
 
-## 4.1.2 - Released 5 Jun 2024
+## 4.1.3 - Released 5 Jun 2024
+
+- Fixed polling functionality resetting its timer more frequently than intended.
+- Fixed always polling sometimes causing the initial information message to disappear or not show up as intended.
+- Automatically scroll to the bottom when new messages are received via polling.
+
+## 4.1.2 - Released 4 Jun 2024
 
 - Fixed an issue where scrolling up to load more messages could get the chat not to load even more messages.
 - Fixed an issue where loading more messages didn't scroll back to the earlier shown message after updating.
