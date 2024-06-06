@@ -2,6 +2,7 @@ import Foundation
 
 protocol ImageLoaderProtocol {
     func load(id: String) async throws -> ImageDisplayModel
+    func reset() async
 }
 
 actor ImageLoader: ImageLoaderProtocol {

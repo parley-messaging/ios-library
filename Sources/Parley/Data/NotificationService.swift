@@ -1,7 +1,11 @@
 import Foundation
 import UIKit
 
-struct NotificationService {
+protocol NotificationServiceProtocol {
+    func notificationsEnabled(completion: @escaping ((Bool) -> Void))
+}
+
+struct NotificationService: NotificationServiceProtocol {
 
     func notificationsEnabled(completion: @escaping ((Bool) -> Void)) {
         let current = UNUserNotificationCenter.current()

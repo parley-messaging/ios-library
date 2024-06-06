@@ -1,7 +1,24 @@
 import Foundation
 import UIKit
 
-final class MessagesManager {
+protocol MessagesManagerProtocol: AnyObject {
+    var messages: [Message] { get }
+    var pendingMessages: [Message] { get }
+    var lastSentMessage: Message? { get }
+    var stickyMessage: String? { get }
+
+    func loadCachedData()
+    func clear()
+    func canLoadMore() -> Bool
+    func handle(_ messageCollection: MessageCollection, _ handleType: MessagesManager.HandleType)
+    func update(_ message: Message)
+    func add(_ message: Message) -> [IndexPath]
+    func addTypingMessage() -> [IndexPath]
+    func getOldestMessage() -> Message?
+    func removeTypingMessage() -> [IndexPath]?
+}
+
+final class MessagesManager: MessagesManagerProtocol {
 
     enum HandleType {
         case all
@@ -60,7 +77,11 @@ final class MessagesManager {
         originalMessages.removeAll(keepingCapacity: true)
 
         if let cachedMessages = messageDataSource?.all() {
-            originalMessages.append(contentsOf: cachedMessages.sorted(by: <)) // When receiving them from cached, they could be sorted differently
+            originalMessages
+                .append(
+                    contentsOf: cachedMessages
+                        .sorted(by: <)
+                ) // When receiving them from cached, they could be sorted differently
         }
 
         stickyMessage = nil

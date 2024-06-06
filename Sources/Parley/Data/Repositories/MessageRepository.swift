@@ -1,7 +1,34 @@
 import Foundation
 import UIKit
 
-final class MessageRepository {
+protocol MessageRepositoryProtocol: AnyObject {
+    func find(
+        _ id: Int,
+        onSuccess: @escaping (_ message: Message) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    )
+
+    func findAll(
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    )
+
+    func findBefore(
+        _ id: Int,
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    )
+
+    func findAfter(
+        _ id: Int,
+        onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
+        onFailure: @escaping (_ error: Error) -> Void
+    )
+
+    func store(_ message: Message) async throws -> Message
+}
+
+final class MessageRepository: MessageRepositoryProtocol {
 
     private let messageRemoteService: MessageRemoteService
 
