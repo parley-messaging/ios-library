@@ -5,9 +5,19 @@ final class ParleyTextView: UITextView {
 
     var appearance = ParleyTextViewAppearance() {
         didSet {
+            linkFont = appearance.linkFont
+            regularFont = appearance.regularFont
+            italicFont = appearance.italicFont
+            boldFont = appearance.boldFont
+
             updateAttributedText()
         }
     }
+
+    @ParleyScaledFont(textStyle: .body) var linkFont = .systemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var regularFont = .systemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var italicFont = .italicSystemFont(ofSize: 14)
+    @ParleyScaledFont(textStyle: .body) var boldFont = .boldSystemFont(ofSize: 14)
 
     var markdownText: String? {
         didSet {
@@ -64,14 +74,14 @@ final class ParleyTextView: UITextView {
 
     private func makeParser(with appearance: ParleyTextViewAppearance) -> MarkdownParser {
         let parser = MarkdownParser(
-            font: appearance.regularFont,
+            font: regularFont,
             color: appearance.textColor
         )
 
         parser.link.color = appearance.linkTintColor ?? tintColor
-        parser.link.font = appearance.linkFont
-        parser.italic.font = appearance.italicFont
-        parser.bold.font = appearance.boldFont
+        parser.link.font = linkFont
+        parser.italic.font = italicFont
+        parser.bold.font = boldFont
         parser.enabledElements = [.bold, .italic, .link]
 
         return parser
