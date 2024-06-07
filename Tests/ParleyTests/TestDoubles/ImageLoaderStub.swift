@@ -11,4 +11,7 @@ final class ImageLoaderStub: ImageLoaderProtocol {
             throw error
         }
     }
+
+    func reset() async {
+    }
 }

@@ -326,7 +326,7 @@ public class ParleyComposeView: UIView {
     @MainActor
     private func requestPhotoLibraryAuthorization() async -> PHAuthorizationStatus {
         await withCheckedContinuation { continuation in
-            PHPhotoLibrary.requestAuthorization { [weak self] status in
+            PHPhotoLibrary.requestAuthorization { status in
                 continuation.resume(returning: status)
             }
         }
@@ -334,10 +334,12 @@ public class ParleyComposeView: UIView {
 
     private func isPhotoLibraryAuthorized(_ status: PHAuthorizationStatus) -> Bool {
         switch status {
-        case .notDetermined, .denied, .restricted, .denied:
-            false
+        case .notDetermined, .denied, .restricted:
+            return false
         case .authorized, .limited:
-            true
+            return true
+        @unknown default:
+            return false
         }
     }
 

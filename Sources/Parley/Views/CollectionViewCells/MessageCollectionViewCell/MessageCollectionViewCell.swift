@@ -14,14 +14,14 @@ final class MessageCollectionViewCell: UICollectionViewCell {
 
     var appearance: MessageCollectionViewCellAppearance? {
         didSet {
-            guard let appearance = appearance else { return }
+            guard let appearance else { return }
 
             apply(appearance)
         }
     }
 
-    func render(_ message: Message, time: Date?) {
-        parleyMessageView.set(message: message, forcedTime: time)
+    func render(_ message: Message, time: Date?, imageLoader: ImageLoaderProtocol?) {
+        parleyMessageView.set(message: message, forcedTime: time, imageLoader: imageLoader)
         setupAccessibilityOptions(for: message)
     }
 

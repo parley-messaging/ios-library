@@ -6,12 +6,13 @@ import XCTest
 final class ParleyMessageViewTests: XCTestCase {
 
     func testDefaultAgentMessageView() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
             message: .makeTestData(message: Self.dummyMessageText, type: .agent),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -23,12 +24,13 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testDefaultUserMessageView() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -40,12 +42,13 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testDefaultUserMessageViewWithShortMessage() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", agent: nil),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -57,12 +60,13 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testDefaultAgentMessageViewWithShortMessage() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
             message: .makeTestData(message: "Lo"),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -74,12 +78,13 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testDefaultUserMessageViewPendingStatus() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .pending, agent: nil),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -91,12 +96,13 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testDefaultUserMessageViewFailedStatus() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .failed, agent: nil),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -108,7 +114,7 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testCustomBalloonImageUser() {
-        let sut = makeSut()
+        let sut = ParleyMessageView()
 
         let appearance = MessageCollectionViewCellAppearance.user()
 
@@ -121,7 +127,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -142,7 +149,7 @@ final class ParleyMessageViewTests: XCTestCase {
 
         imageLoader.loadResult = model
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
@@ -152,7 +159,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 media: MediaObject(id: "identifier"),
                 agent: nil
             ),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         let container = addToContainer(sut: sut)
@@ -172,7 +180,7 @@ final class ParleyMessageViewTests: XCTestCase {
 
         imageLoader.loadResult = model
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
@@ -182,7 +190,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 media: MediaObject(id: "identifier"),
                 agent: nil
             ),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         wait()
@@ -199,7 +208,7 @@ final class ParleyMessageViewTests: XCTestCase {
         let imageLoader = ImageLoaderStub()
         imageLoader.error = .unableToConvertImageData
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
@@ -209,7 +218,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 media: MediaObject(id: "identifier"),
                 agent: nil
             ),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         wait()
@@ -231,12 +241,13 @@ final class ParleyMessageViewTests: XCTestCase {
 
         imageLoader.loadResult = model
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         let container = addToContainer(sut: sut)
@@ -256,12 +267,13 @@ final class ParleyMessageViewTests: XCTestCase {
 
         imageLoader.loadResult = model
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         wait()
@@ -278,12 +290,13 @@ final class ParleyMessageViewTests: XCTestCase {
         let imageLoader = ImageLoaderStub()
         imageLoader.error = .unableToConvertImageData
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         wait()
@@ -305,7 +318,7 @@ final class ParleyMessageViewTests: XCTestCase {
 
         imageLoader.loadResult = model
 
-        let sut = makeSut(imageLoader: imageLoader)
+        let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
@@ -315,7 +328,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 media: MediaObject(id: "identifier"),
                 agent: Agent(id: 1, name: "Longer Agent Name", avatar: nil)
             ),
-            forcedTime: Self.dummyDate
+            forcedTime: Self.dummyDate,
+            imageLoader: imageLoader
         )
 
         wait()
@@ -326,10 +340,6 @@ final class ParleyMessageViewTests: XCTestCase {
             sut: container,
             traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
         )
-    }
-
-    private func makeSut(imageLoader: ImageLoaderStub = ImageLoaderStub()) -> ParleyMessageView {
-        ParleyMessageView(frame: .zero, imageLoader: imageLoader)
     }
 
     private func addToContainer(sut: UIView, width: CGFloat = 320) -> UIView {

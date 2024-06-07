@@ -7,10 +7,14 @@ final class MessageImageViewController: UIViewController {
     private let activityIndicatorView = UIActivityIndicatorView()
 
     private let messageMediaIdentifier: String
-    private let messageRepository: MessageRepository
-    private let imageLoader: ImageLoader
+    private let messageRepository: MessageRepositoryProtocol
+    private let imageLoader: ImageLoaderProtocol
 
-    init(messageMediaIdentifier: String, messageRepository: MessageRepository, imageLoader: ImageLoader) {
+    init(
+        messageMediaIdentifier: String,
+        messageRepository: MessageRepositoryProtocol,
+        imageLoader: ImageLoaderProtocol
+    ) {
         self.messageMediaIdentifier = messageMediaIdentifier
         self.messageRepository = messageRepository
         self.imageLoader = imageLoader

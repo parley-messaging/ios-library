@@ -107,7 +107,7 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
 
     // Image
-    private let imageLoader: ImageLoaderProtocol
+    private var imageLoader: ImageLoaderProtocol?
 
     // Helpers
     private var displayName: Display = .message
@@ -125,17 +125,13 @@ final class ParleyMessageView: UIView {
     private static let maximumImageWidth: CGFloat = 500
 
     // MARK: - View
-    init(frame: CGRect, imageLoader: ImageLoaderProtocol = Parley.shared.imageLoader) {
-        self.imageLoader = imageLoader
-
-        super.init(frame: frame)
+    init() {
+        super.init(frame: .zero)
 
         setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
-        imageLoader = Parley.shared.imageLoader
-
         super.init(coder: aDecoder)
 
         setup()
@@ -160,9 +156,10 @@ final class ParleyMessageView: UIView {
         ])
     }
 
-    func set(message: Message, forcedTime: Date?) {
+    func set(message: Message, forcedTime: Date?, imageLoader: ImageLoaderProtocol?) {
         self.message = message
         time = forcedTime
+        self.imageLoader = imageLoader
         render()
     }
 
@@ -358,6 +355,12 @@ final class ParleyMessageView: UIView {
     }
 
     private func loadImage(id: String) {
+        guard let imageLoader else {
+            assertionFailure("An ImageLoader is expected")
+            displayFailedLoadingImage()
+            return
+        }
+
         let imageRequestForMessageId = message.id
         Task {
             do {
@@ -389,7 +392,8 @@ final class ParleyMessageView: UIView {
 
     // Gradient
     private func renderGradients() {
-        // Async to render gradients on next frame, else scrolling images that are loading might not get the correct gradient applied.
+        // Async to render gradients on next frame, else scrolling images that are loading might not get the correct
+        // gradient applied.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             imageImageView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }

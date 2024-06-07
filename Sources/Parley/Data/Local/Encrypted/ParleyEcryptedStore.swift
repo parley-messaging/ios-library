@@ -62,6 +62,7 @@ extension ParleyEncryptedStore {
         }
     }
 
+    @discardableResult
     public func removeObject(forKey key: String) -> Bool {
         let destination = destination(forKey: key)
 

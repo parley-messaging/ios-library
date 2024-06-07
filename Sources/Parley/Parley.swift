@@ -2,7 +2,26 @@ import Foundation
 import Reachability
 import UIKit
 
-public final class Parley {
+protocol ParleyProtocol {
+    var state: Parley.State { get }
+    var alwaysPolling: Bool { get }
+    var pushEnabled: Bool { get }
+
+    var messagesManager: MessagesManagerProtocol! { get }
+    var messageRepository: MessageRepositoryProtocol! { get }
+    var imageLoader: ImageLoaderProtocol! { get }
+
+    var delegate: ParleyDelegate? { get set }
+
+    func isCachingEnabled() -> Bool
+    func send(_ message: Message, isNewMessage: Bool) async
+    func send(_ text: String, silent: Bool)
+    func userStartTyping()
+    func loadMoreMessages(_ lastMessageId: Int)
+    func sendNewMessageWithMedia(_ media: MediaModel) async
+}
+
+public final class Parley: ParleyProtocol {
 
     enum State {
         case unconfigured
@@ -41,11 +60,11 @@ public final class Parley {
     private(set) var networkConfig: ParleyNetworkConfig!
     private(set) var deviceRepository: DeviceRepository!
     private(set) var eventRemoteService: EventRemoteService!
-    private(set) var messageRepository: MessageRepository!
-    private(set) var messagesManager: MessagesManager!
+    private(set) var messageRepository: MessageRepositoryProtocol!
+    private(set) var messagesManager: MessagesManagerProtocol!
     private(set) var imageDataSource: ParleyImageDataSource?
     private(set) var imageRepository: ImageRepository!
-    private(set) var imageLoader: ImageLoader!
+    private(set) var imageLoader: ImageLoaderProtocol!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
@@ -62,14 +81,14 @@ public final class Parley {
 
     weak var delegate: ParleyDelegate? {
         didSet {
-            if delegate == nil { return }
+            guard let delegate else { return }
 
-            delegate?.didChangeState(state)
+            delegate.didChangeState(state)
 
             if reachable {
-                delegate?.reachable()
+                delegate.reachable()
             } else {
-                delegate?.unreachable()
+                delegate.unreachable()
             }
         }
     }
@@ -359,9 +378,11 @@ public final class Parley {
     // MARK: Messages
 
     func loadMoreMessages(_ lastMessageId: Int) {
-        guard self.reachable,
-              !self.isLoading,
-              self.messagesManager.canLoadMore() else {
+        guard
+            reachable,
+            !isLoading,
+            messagesManager.canLoadMore() else
+        {
             return
         }
 

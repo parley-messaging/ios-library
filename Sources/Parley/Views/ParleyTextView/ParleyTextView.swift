@@ -9,6 +9,7 @@ final class ParleyTextView: UITextView {
             regularFont = appearance.regularFont
             italicFont = appearance.italicFont
             boldFont = appearance.boldFont
+
             updateAttributedText()
         }
     }
