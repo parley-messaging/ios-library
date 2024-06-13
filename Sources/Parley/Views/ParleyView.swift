@@ -142,19 +142,19 @@ public class ParleyView: UIView {
     }
 
     private var didSetupPollingSerivce = false
-    
+
     private func setupPollingIfNecessary() {
         guard didSetupPollingSerivce == false else {
             return
         }
-        
+
         switch parley.state {
         case .unconfigured:
             return
         case .configuring, .configured, .failed:
             didSetupPollingSerivce = true
         }
-        
+
         pollingService.delegate = self
 
         if parley.alwaysPolling {
@@ -503,7 +503,7 @@ extension ParleyView: ParleyDelegate {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
         setupPollingIfNecessary()
-        
+
         switch state {
         case .unconfigured:
             messagesTableView.reloadData()
@@ -597,9 +597,9 @@ extension ParleyView: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch parley.state {
         case .unconfigured:
-            return 0
+            0
         case .configured, .configuring, .failed:
-            return messagesManager.messages.count
+            messagesManager.messages.count
         }
     }
 
@@ -699,13 +699,11 @@ extension ParleyView: UITableViewDataSource {
 extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let oldestMessageId: Int?
-
-        switch parley.state {
+        let oldestMessageId: Int? = switch parley.state {
         case .unconfigured:
-            oldestMessageId = nil
+            nil
         case .configured, .configuring, .failed:
-            oldestMessageId = messagesManager.getOldestMessage()?.id
+            messagesManager.getOldestMessage()?.id
         }
 
         messagesTableView.scrollViewDidScroll()
