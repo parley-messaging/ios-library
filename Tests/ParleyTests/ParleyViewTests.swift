@@ -317,6 +317,12 @@ final class ParleyViewTests: XCTestCase {
 
         assert(sut: sut)
     }
+    
+    func testUnConfiguredStateOfNonStubbedParleyView() {
+        let sut = ParleyView()
+        applySize(sut: sut)
+        assert(sut: sut)
+    }
 
     func testConfiguringState() {
         let messagesManagerStub = MessagesManagerStub()

@@ -141,7 +141,20 @@ public class ParleyView: UIView {
         }
     }
 
+    private var didSetupPollingSerivce = false
+    
     private func setupPollingIfNecessary() {
+        guard didSetupPollingSerivce == false else {
+            return
+        }
+        
+        switch parley.state {
+        case .unconfigured:
+            return
+        case .configuring, .configured, .failed:
+            didSetupPollingSerivce = true
+        }
+        
         pollingService.delegate = self
 
         if parley.alwaysPolling {
@@ -489,6 +502,8 @@ extension ParleyView: ParleyDelegate {
     func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
+        setupPollingIfNecessary()
+        
         switch state {
         case .unconfigured:
             messagesTableView.reloadData()
@@ -580,7 +595,12 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        messagesManager.messages.count
+        switch parley.state {
+        case .unconfigured:
+            return 0
+        case .configured, .configuring, .failed:
+            return messagesManager.messages.count
+        }
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -679,15 +699,22 @@ extension ParleyView: UITableViewDataSource {
 extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let oldestMessageId: Int?
+
+        switch parley.state {
+        case .unconfigured:
+            oldestMessageId = nil
+        case .configured, .configuring, .failed:
+            oldestMessageId = messagesManager.getOldestMessage()?.id
+        }
+
         messagesTableView.scrollViewDidScroll()
 
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
 
         if scrollY < height / 2 {
-            guard
-                !isAlreadyAtTop,
-                let lastMessageId = messagesManager.getOldestMessage()?.id else { return }
+            guard !isAlreadyAtTop, let lastMessageId = oldestMessageId else { return }
 
             isAlreadyAtTop = true
             parley.loadMoreMessages(lastMessageId)
