@@ -145,7 +145,7 @@ public class ParleyView: UIView {
 
     private func setupPollingIfNecessary() {
         guard pollingService != nil,
-              let messagesManager = parley.messagesManager
+              let messagesManager
         else { return }
         
         let pollingService = PollingService(
@@ -273,10 +273,9 @@ public class ParleyView: UIView {
     }
 
     private func syncSuggestionsView() {
-        if
-            let message = messagesManager?.messages.last, let quickReplies = message.quickReplies,
-            !quickReplies.isEmpty
-        {
+        if let message = messagesManager?.messages.last,
+           let quickReplies = message.quickReplies,
+           !quickReplies.isEmpty {
             if UIAccessibility.isVoiceOverRunning {
                 messagesTableView.scroll(to: .bottom, animated: false)
             }
