@@ -536,7 +536,6 @@ extension ParleyView: ParleyDelegate {
 
             stickyView.isHidden = true
         case .configured:
-            messagesTableView.isHidden = false
             composeView.isHidden = false
             statusLabel.isHidden = true
 
@@ -555,6 +554,7 @@ extension ParleyView: ParleyDelegate {
             DispatchQueue.main.async { [weak self] in
                 self?.messagesTableView.scroll(to: .bottom, animated: false)
                 self?.updateSuggestionsAlpha() // For VoiceOver
+                self?.messagesTableView.isHidden = false
             }
         }
     }

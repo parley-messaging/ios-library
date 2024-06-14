@@ -3,6 +3,7 @@
 ## 4.1.4 - Upcoming
 
 - Fixed a crash when showing the ParleyView before configuring Parley.
+- The ParleyView now reveals the chat messages after all loading is done (fixes a slight noticable scroll when the ParleyView is already visible). 
 
 ## 4.1.3 - Released 5 Jun 2024
 
