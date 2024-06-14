@@ -7,7 +7,7 @@ protocol ParleyProtocol {
     var alwaysPolling: Bool { get }
     var pushEnabled: Bool { get }
 
-    var messagesManager: MessagesManagerProtocol! { get }
+    var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
     var imageLoader: ImageLoaderProtocol! { get }
 
@@ -61,7 +61,7 @@ public final class Parley: ParleyProtocol {
     private(set) var deviceRepository: DeviceRepository!
     private(set) var eventRemoteService: EventRemoteService!
     private(set) var messageRepository: MessageRepositoryProtocol!
-    private(set) var messagesManager: MessagesManagerProtocol!
+    private(set) var messagesManager: MessagesManagerProtocol?
     private(set) var imageDataSource: ParleyImageDataSource?
     private(set) var imageRepository: ImageRepository!
     private(set) var imageLoader: ImageLoaderProtocol!
@@ -213,6 +213,8 @@ public final class Parley: ParleyProtocol {
         onSuccess: (() -> Void)? = nil,
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
+        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
+        
         debugPrint("Parley.\(#function)")
 
         guard !isLoading else { return }
@@ -378,13 +380,12 @@ public final class Parley: ParleyProtocol {
     // MARK: Messages
 
     func loadMoreMessages(_ lastMessageId: Int) {
+        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
         guard
             reachable,
             !isLoading,
-            messagesManager.canLoadMore() else
-        {
-            return
-        }
+            messagesManager.canLoadMore() 
+        else { return }
 
         isLoading = true
         messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
@@ -395,6 +396,8 @@ public final class Parley: ParleyProtocol {
     }
 
     private func handleFetchedMessageCollection(_ collection: MessageCollection) {
+        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
+
         isLoading = false
         Task {
             messagesManager.handle(collection, .before)
@@ -434,7 +437,7 @@ public final class Parley: ParleyProtocol {
     private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
         let remoteImage = try await imageRepository.upload(image: storedImage)
         message.media = MediaObject(id: remoteImage.id)
-        messagesManager.update(message)
+        messagesManager?.update(message)
         return message
     }
 
@@ -487,7 +490,7 @@ public final class Parley: ParleyProtocol {
 
     private func handleMessageSent(_ message: Message) async {
         message.status = .success
-        messagesManager.update(message)
+        messagesManager?.update(message)
         await MainActor.run {
             delegate?.didUpdate(message)
             delegate?.didSent(message)
@@ -495,7 +498,9 @@ public final class Parley: ParleyProtocol {
     }
 
     private func addNewMessage(_ message: Message) async {
+        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
         userStopTypingTimer?.fire()
+        
         let indexPaths = messagesManager.add(message)
         await MainActor.run {
             delegate?.willSend(indexPaths)
@@ -509,7 +514,7 @@ public final class Parley: ParleyProtocol {
 
         if !isCachingEnabled() || !isOfflineError(error) {
             message.status = .failed
-            messagesManager.update(message)
+            messagesManager?.update(message)
             await MainActor.run {
                 delegate?.didUpdate(message)
             }
@@ -519,12 +524,11 @@ public final class Parley: ParleyProtocol {
     // MARK: Remote messages
 
     private func handleMessage(_ userInfo: [String: Any]) {
+        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
         guard
             let id = userInfo["id"] as? Int,
-            let typeId = userInfo["typeId"] as? Int else
-        {
-            return
-        }
+            let typeId = userInfo["typeId"] as? Int 
+        else { return }
 
         let body = userInfo["body"] as? String
 

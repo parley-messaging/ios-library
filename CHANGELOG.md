@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.4 - Upcoming
+
+- Fixed a crash when showing the ParleyView before configuring Parley.
+
 ## 4.1.3 - Released 5 Jun 2024
 
 - Fixed polling functionality resetting its timer more frequently than intended.

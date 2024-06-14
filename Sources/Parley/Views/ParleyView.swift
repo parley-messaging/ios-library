@@ -58,18 +58,20 @@ public class ParleyView: UIView {
 
     private lazy var parley: ParleyProtocol = Parley.shared
     private lazy var notificationService: NotificationServiceProtocol = NotificationService()
-    private lazy var pollingService: PollingServiceProtocol = PollingService(
-        messageRepository: parley.messageRepository,
-        messagesManager: parley.messagesManager
-    )
+    private lazy var pollingService: PollingServiceProtocol? = nil
 
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
 
-    private var messagesManager: MessagesManagerProtocol {
-        parley.messagesManager
+    private var messagesManager: MessagesManagerProtocol? {
+        switch parley.state{
+        case .unconfigured:
+            return nil
+        case .configuring, .configured, .failed:
+            return parley.messagesManager
+        }
     }
 
     private static let maximumImageSizeInMegabytes = 10
@@ -142,6 +144,16 @@ public class ParleyView: UIView {
     }
 
     private func setupPollingIfNecessary() {
+        guard pollingService != nil,
+              let messagesManager
+        else { return }
+        
+        let pollingService = PollingService(
+           messageRepository: parley.messageRepository,
+           messagesManager: messagesManager
+        )
+        self.pollingService = pollingService
+        
         pollingService.delegate = self
 
         if parley.alwaysPolling {
@@ -149,7 +161,7 @@ public class ParleyView: UIView {
         } else {
             notificationService.notificationsEnabled { [weak self] isEnabled in
                 guard !isEnabled else { return }
-                self?.pollingService.startRefreshing()
+                self?.pollingService?.startRefreshing()
             }
         }
     }
@@ -261,10 +273,9 @@ public class ParleyView: UIView {
     }
 
     private func syncSuggestionsView() {
-        if
-            let message = messagesManager.messages.last, let quickReplies = message.quickReplies,
-            !quickReplies.isEmpty
-        {
+        if let message = messagesManager?.messages.last,
+           let quickReplies = message.quickReplies,
+           !quickReplies.isEmpty {
             if UIAccessibility.isVoiceOverRunning {
                 messagesTableView.scroll(to: .bottom, animated: false)
             }
@@ -427,7 +438,7 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didUpdate(_ message: Message) {
-        if let index = messagesManager.messages.firstIndex(of: message) {
+        if let index = messagesManager?.messages.firstIndex(of: message) {
             messagesTableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
         }
     }
@@ -472,18 +483,17 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didStartTyping() {
-        let indexPaths = messagesManager.addTypingMessage()
-        messagesTableView.insertRows(at: indexPaths, with: .none)
+        guard let indexPaths = messagesManager?.addTypingMessage() else { return }
 
+        messagesTableView.insertRows(at: indexPaths, with: .none)
         messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didStopTyping() {
-        if let indexPaths = messagesManager.removeTypingMessage() {
-            messagesTableView.deleteRows(at: indexPaths, with: .none)
+        guard let indexPaths = messagesManager?.removeTypingMessage() else { return}
 
-            messagesTableView.scroll(to: .bottom, animated: false)
-        }
+        messagesTableView.deleteRows(at: indexPaths, with: .none)
+        messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didChangeState(_ state: Parley.State) {
@@ -533,8 +543,8 @@ extension ParleyView: ParleyDelegate {
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
 
-            stickyView.text = messagesManager.stickyMessage
-            stickyView.isHidden = messagesManager.stickyMessage == nil
+            stickyView.text = messagesManager?.stickyMessage
+            stickyView.isHidden = messagesManager?.stickyMessage == nil
 
             messagesTableView.reloadData()
 
@@ -553,7 +563,9 @@ extension ParleyView: ParleyDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             if offlineNotificationView.isHidden == false { return }
-            pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
+            if let pollingService {
+                pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
+            }
 
             pushDisabledNotificationView.hide(pushEnabled)
         }
@@ -580,11 +592,11 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        messagesManager.messages.count
+        messagesManager?.messages.count ?? 0
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let message = messagesManager.messages[safe: indexPath.row] else { return .init() }
+        guard let message = messagesManager?.messages[safe: indexPath.row] else { return .init() }
 
         switch message.type {
         case .agent?:
@@ -638,11 +650,8 @@ extension ParleyView: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row >= messagesManager.messages.count {
-            return 0
-        }
-        let message = messagesManager.messages[indexPath.row]
-
+        guard let message = messagesManager?.messages[safe: indexPath.row] else { return 0 }
+        
         if message.ignore() {
             return 0
         } else {
@@ -685,9 +694,9 @@ extension ParleyView: UITableViewDelegate {
         let scrollY = scrollView.contentOffset.y
 
         if scrollY < height / 2 {
-            guard
-                !isAlreadyAtTop,
-                let lastMessageId = messagesManager.getOldestMessage()?.id else { return }
+            guard !isAlreadyAtTop,
+                  let lastMessageId = messagesManager?.getOldestMessage()?.id
+            else { return }
 
             isAlreadyAtTop = true
             parley.loadMoreMessages(lastMessageId)
@@ -719,8 +728,9 @@ extension ParleyView: UITableViewDelegate {
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         messagesTableView.deselectRow(at: indexPath, animated: false)
 
-        let message = messagesManager.messages[indexPath.row]
-        if message.status == .failed && message.type == .user {
+        if let message = messagesManager?.messages[safe: indexPath.row],
+           message.status == .failed,
+           message.type == .user {
             Task {
                 await parley.send(message, isNewMessage: false)
             }

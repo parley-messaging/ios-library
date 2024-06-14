@@ -19,7 +19,7 @@ final class ParleyStub: ParleyProtocol {
     var alwaysPolling = false
     var pushEnabled = true
 
-    var messagesManager: MessagesManagerProtocol!
+    var messagesManager: MessagesManagerProtocol?
     var messageRepository: MessageRepositoryProtocol!
     var imageLoader: ImageLoaderProtocol!
     var localizationManager: LocalizationManager
