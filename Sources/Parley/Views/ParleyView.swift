@@ -144,7 +144,7 @@ public class ParleyView: UIView {
     }
 
     private func setupPollingIfNecessary() {
-        guard pollingService != nil,
+        guard pollingService == nil,
               let messagesManager
         else { return }
         
@@ -499,6 +499,8 @@ extension ParleyView: ParleyDelegate {
     func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
+        setupPollingIfNecessary()
+        
         switch state {
         case .unconfigured:
             messagesTableView.reloadData()
