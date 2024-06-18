@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.7 - Released 18 Jun 2024
+
+- Fixed polling service not renewing when Parley is being reconfigured.
+
 ## 4.1.6 - Released 18 Jun 2024
 
 - Fixed an issue where multiple polling timers were added when it reached the last interval.
