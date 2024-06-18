@@ -214,7 +214,7 @@ public final class Parley: ParleyProtocol {
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
-        
+
         debugPrint("Parley.\(#function)")
 
         guard !isLoading else { return }
@@ -384,8 +384,7 @@ public final class Parley: ParleyProtocol {
         guard
             reachable,
             !isLoading,
-            messagesManager.canLoadMore() 
-        else { return }
+            messagesManager.canLoadMore() else { return }
 
         isLoading = true
         messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
@@ -500,7 +499,7 @@ public final class Parley: ParleyProtocol {
     private func addNewMessage(_ message: Message) async {
         guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
         userStopTypingTimer?.fire()
-        
+
         let indexPaths = messagesManager.add(message)
         await MainActor.run {
             delegate?.willSend(indexPaths)
@@ -527,8 +526,7 @@ public final class Parley: ParleyProtocol {
         guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
         guard
             let id = userInfo["id"] as? Int,
-            let typeId = userInfo["typeId"] as? Int 
-        else { return }
+            let typeId = userInfo["typeId"] as? Int else { return }
 
         let body = userInfo["body"] as? String
 

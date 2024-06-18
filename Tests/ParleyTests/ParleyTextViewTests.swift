@@ -2,7 +2,7 @@ import SnapshotTesting
 import XCTest
 @testable import Parley
 
-final class ParleyTextViewTest: XCTestCase {
+final class ParleyTextViewTests: XCTestCase {
 
     func testNormalTextWithDefaultStyle() {
         let sut = makeSut()
