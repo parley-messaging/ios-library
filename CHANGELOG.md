@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.6 - Released 18 Jun 2024
+
+- Fixed an issue where multiple polling timers were added when it reached the last interval.
+
 ## 4.1.5 - Released 18 Jun 2024
 
 - Fixed an issue where polling wasn't being enabled when it should be.
