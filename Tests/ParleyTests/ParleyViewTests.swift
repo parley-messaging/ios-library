@@ -317,7 +317,7 @@ final class ParleyViewTests: XCTestCase {
 
         assert(sut: sut)
     }
-    
+
     func testUnConfiguredStateOfNonStubbedParleyView() {
         let sut = ParleyView()
         applySize(sut: sut)
