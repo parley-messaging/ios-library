@@ -1,7 +1,7 @@
 import XCTest
 @testable import Parley
 
-final class ParleyImageDataSourceTest: XCTestCase {
+final class ParleyImageDataSourceTests: XCTestCase {
 
     private var testImage: UIImage {
         UIImage(resource: .Tests.redBlockJpg)
