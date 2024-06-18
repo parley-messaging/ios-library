@@ -36,6 +36,8 @@ final class PollingService: PollingServiceProtocol {
                     timerInterval = .tenSeconds
                 case .tenSeconds:
                     timerInterval = .thirtySeconds
+                case .thirtySeconds:
+                    timerInterval = .thirtySeconds
                 default: break
                 }
                 setTimer(interval: timerInterval)
