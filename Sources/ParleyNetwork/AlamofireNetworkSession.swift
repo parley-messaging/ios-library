@@ -32,13 +32,13 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable {
+    ) {
         var request = URLRequest(url: url)
         request.method = Alamofire.HTTPMethod(method)
         request.headers = HTTPHeaders(headers)
         request.httpBody = data
 
-        let dataRequest = session.request(request).response { response in
+        session.request(request).response { response in
             guard let statusCode = response.response?.statusCode else {
                 completion(.failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
                 return
@@ -61,8 +61,6 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
                 completion(.failure(responseError))
             }
         }
-
-        return dataRequest
     }
 
     func upload(
@@ -71,7 +69,7 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable {
+    ) {
         session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
             .response { response in
                 guard let statusCode = response.response?.statusCode else {
