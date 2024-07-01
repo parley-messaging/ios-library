@@ -19,21 +19,19 @@ import UIKit
 /// ```
 public protocol ParleyNetworkSession {
 
-    @discardableResult
     func request(
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable
+    )
 
-    @discardableResult
     func upload(
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable
+    )
 }

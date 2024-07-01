@@ -10,12 +10,11 @@ final class ParleyRemoteTests: XCTestCase {
     private var createSecretMock: (() -> String?)!
     private var createUniqueDeviceIdentifierMock: (() -> String?)!
     private var createUserAuthorizationTokenMock: (() -> String?)!
+    private var mainQueueSpy: QueueSpy!
+    private var backgroundQueueSpy: QueueSpy!
 
     override func setUpWithError() throws {
         parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        parleyNetworkSessionSpy.requestDataMethodHeadersCompletionReturnValue = RequestCancelableStub()
-        parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
-        parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReturnValue = RequestCancelableStub()
 
         networkConfig = ParleyNetworkConfig(
             url: "https://api.parley.nu/",
@@ -25,12 +24,16 @@ final class ParleyRemoteTests: XCTestCase {
         createSecretMock = { "secret" }
         createUniqueDeviceIdentifierMock = { "id" }
         createUserAuthorizationTokenMock = { "token" }
+        mainQueueSpy = QueueSpy()
+        backgroundQueueSpy = QueueSpy()
         sut = ParleyRemote(
             networkConfig: networkConfig,
             networkSession: parleyNetworkSessionSpy,
             createSecret: createSecretMock,
             createUniqueDeviceIdentifier: createUniqueDeviceIdentifierMock,
-            createUserAuthorizationToken: createUserAuthorizationTokenMock
+            createUserAuthorizationToken: createUserAuthorizationTokenMock,
+            mainQueue: mainQueueSpy,
+            backgroundQueue: backgroundQueueSpy
         )
     }
 
@@ -40,6 +43,8 @@ final class ParleyRemoteTests: XCTestCase {
         networkConfig = nil
         createSecretMock = nil
         createUniqueDeviceIdentifierMock = nil
+        mainQueueSpy = nil
+        backgroundQueueSpy = nil
     }
 
     // MARK: - Execute request
@@ -61,7 +66,9 @@ final class ParleyRemoteTests: XCTestCase {
             }
         )
 
+        backgroundQueueSpy.asyncExecuteReceivedWork?()
         try callRequestCompletion(response: [MediaResponse(media: "test")])
+        mainQueueSpy.asyncExecuteReceivedWork?()
 
         wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertTrue(onSuccessCalled)
@@ -84,7 +91,9 @@ final class ParleyRemoteTests: XCTestCase {
             }
         )
 
+        backgroundQueueSpy.asyncExecuteReceivedWork?()
         try callRequestCompletion(response: ["test"])
+        mainQueueSpy.asyncExecuteReceivedWork?()
 
         wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertFalse(onSuccessCalled)
@@ -105,8 +114,9 @@ final class ParleyRemoteTests: XCTestCase {
                 onFailureCalled = true
             }
         )
-
+        backgroundQueueSpy.asyncExecuteReceivedWork?()
         try callRequestCompletion(response: ["test"])
+        mainQueueSpy.asyncExecuteReceivedWork?()
 
         wait { self.parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
         XCTAssertTrue(onSuccessCalled)
@@ -133,7 +143,9 @@ final class ParleyRemoteTests: XCTestCase {
             }
         )
 
+        backgroundQueueSpy.asyncExecuteReceivedWork?()
         try callUploadCompletion(response: ParleyResponse(data: [MediaResponse(media: "test")]))
+        mainQueueSpy.asyncExecuteReceivedWork?()
 
         wait { self.parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionCalled }
         XCTAssertTrue(onSuccessCalled)
@@ -155,7 +167,9 @@ final class ParleyRemoteTests: XCTestCase {
             }
         )
 
+        backgroundQueueSpy.asyncExecuteReceivedWork?()
         try callUploadCompletion(response: ParleyResponse(data: [MediaResponse(media: "test")]))
+        mainQueueSpy.asyncExecuteReceivedWork?()
 
         wait { self.parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionCalled }
         XCTAssertTrue(resultCalled)
