@@ -3,13 +3,7 @@ import Foundation
 
 public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
 
-    public init(
-        requestDataMethodHeadersCompletionReturnValue: ParleyRequestCancelable? = nil,
-        uploadDataToMethodHeadersCompletionReturnValue: ParleyRequestCancelable? = nil
-    ) {
-        self.requestDataMethodHeadersCompletionReturnValue = requestDataMethodHeadersCompletionReturnValue
-        self.uploadDataToMethodHeadersCompletionReturnValue = uploadDataToMethodHeadersCompletionReturnValue
-    }
+    public init() {}
 
     // MARK: - request
 
@@ -32,23 +26,21 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
         headers: [String: String],
         completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )] = []
-    public var requestDataMethodHeadersCompletionReturnValue: ParleyRequestCancelable!
     public var requestDataMethodHeadersCompletionClosure: ((
         URL,
         Data?,
         ParleyHTTPRequestMethod,
         [String: String],
         @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable)?
+    ) -> Void)?
 
-    @discardableResult
     public func request(
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable {
+    ) {
         requestDataMethodHeadersCompletionCallsCount += 1
         requestDataMethodHeadersCompletionReceivedArguments = (
             url: url,
@@ -64,11 +56,7 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
             headers: headers,
             completion: completion
         ))
-        if let requestDataMethodHeadersCompletionClosure = requestDataMethodHeadersCompletionClosure {
-            return requestDataMethodHeadersCompletionClosure(url, data, method, headers, completion)
-        } else {
-            return requestDataMethodHeadersCompletionReturnValue
-        }
+        requestDataMethodHeadersCompletionClosure?(url, data, method, headers, completion)
     }
 
     // MARK: - upload
@@ -92,23 +80,21 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
         headers: [String: String],
         completion: (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )] = []
-    public var uploadDataToMethodHeadersCompletionReturnValue: ParleyRequestCancelable!
     public var uploadDataToMethodHeadersCompletionClosure: ((
         Data,
         URL,
         ParleyHTTPRequestMethod,
         [String: String],
         @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable)?
+    ) -> Void)?
 
-    @discardableResult
     public func upload(
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
         completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) -> ParleyRequestCancelable {
+    ) {
         uploadDataToMethodHeadersCompletionCallsCount += 1
         uploadDataToMethodHeadersCompletionReceivedArguments = (
             data: data,
@@ -124,11 +110,7 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
             headers: headers,
             completion: completion
         ))
-        if let uploadDataToMethodHeadersCompletionClosure = uploadDataToMethodHeadersCompletionClosure {
-            return uploadDataToMethodHeadersCompletionClosure(data, url, method, headers, completion)
-        } else {
-            return uploadDataToMethodHeadersCompletionReturnValue
-        }
+        uploadDataToMethodHeadersCompletionClosure?(data, url, method, headers, completion)
     }
 
 }

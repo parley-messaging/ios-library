@@ -24,12 +24,11 @@ final class MessageRemoteService {
         remote.execute(.get, path: "messages", keyPath: nil, onSuccess: onSuccess, onFailure: onFailure)
     }
 
-    @discardableResult
     func findBefore(
         _ id: Int,
         onSuccess: @escaping (_ messageCollection: MessageCollection) -> Void,
         onFailure: @escaping (_ error: Error) -> Void
-    ) -> ParleyRequestCancelable {
+    ) {
         remote.execute(
             .get,
             path: "messages/before:\(id)",
