@@ -35,7 +35,7 @@ final class ParleyImageDataSourceTests: XCTestCase {
             XCTFail("Should exist") ; return
         }
 
-        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
         dataSource.save(image: localImage)
 
         guard let fetchedImage = dataSource.image(id: localImage.id) else {
@@ -54,12 +54,12 @@ final class ParleyImageDataSourceTests: XCTestCase {
             ParleyStoredImage(
                 filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.blueGradientPng).pngData()!,
-                type: .png
+                type: .imagePng
             ),
             ParleyStoredImage(
                 filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.redBlockJpg).jpegData(compressionQuality: 1)!,
-                type: .jpg
+                type: .imageJPeg
             ),
         ]
 
@@ -71,7 +71,7 @@ final class ParleyImageDataSourceTests: XCTestCase {
 
     func testDataSource_shouldDeleteImage_AfterSavingImage() throws {
         let imageData = testImageData!
-        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
+        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
         dataSource.save(image: localImage)
 
         XCTAssertTrue(dataSource.delete(id: localImage.id))

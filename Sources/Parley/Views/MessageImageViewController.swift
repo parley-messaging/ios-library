@@ -7,14 +7,14 @@ final class MessageImageViewController: UIViewController {
     private let activityIndicatorView = UIActivityIndicatorView()
 
     private let messageMedia: MediaObject
-    private let imageLoader: ImageLoaderProtocol
+    private let mediaLoader: MediaLoaderProtocol
 
     init(
         messageMedia: MediaObject,
-        imageLoader: ImageLoaderProtocol
+        mediaLoader: MediaLoaderProtocol
     ) {
         self.messageMedia = messageMedia
-        self.imageLoader = imageLoader
+        self.mediaLoader = mediaLoader
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -94,7 +94,7 @@ final class MessageImageViewController: UIViewController {
 
         Task {
             do {
-                switch try await imageLoader.load(media: media) {
+                switch try await mediaLoader.load(media: media) {
                 case .image(let model):
                     display(image: model.image)
                 case .file(let model):

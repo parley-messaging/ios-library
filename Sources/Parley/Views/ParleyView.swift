@@ -610,7 +610,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.agentMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader)
 
             return messageTableViewCell
         case .date?:
@@ -647,7 +647,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.userMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader)
 
             return messageTableViewCell
         default:
@@ -832,7 +832,7 @@ extension ParleyView: MessageTableViewCellDelegate {
         if media.getMediaType().isImageType {
             let imageViewController = MessageImageViewController(
                 messageMedia: media,
-                imageLoader: parley.imageLoader
+                mediaLoader: parley.mediaLoader
             )
             
             imageViewController.modalPresentationStyle = .overFullScreen
@@ -848,7 +848,7 @@ extension ParleyView: MessageTableViewCellDelegate {
     
     @MainActor
     private func shareMedia(_ media: MediaObject) async {
-        guard let url = try? await parley.imageLoader.share(media: media) else {
+        guard let url = try? await parley.mediaLoader.share(media: media) else {
             return
         }
         

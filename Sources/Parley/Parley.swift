@@ -9,7 +9,7 @@ protocol ParleyProtocol {
 
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
-    var imageLoader: ImageLoaderProtocol! { get }
+    var mediaLoader: MediaLoaderProtocol! { get }
 
     var delegate: ParleyDelegate? { get set }
 
@@ -64,7 +64,7 @@ public final class Parley: ParleyProtocol {
     private(set) var messagesManager: MessagesManagerProtocol?
     private(set) var imageDataSource: ParleyImageDataSource?
     private(set) var imageRepository: ImageRepository!
-    private(set) var imageLoader: ImageLoaderProtocol!
+    private(set) var mediaLoader: MediaLoaderProtocol!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
@@ -125,7 +125,7 @@ public final class Parley: ParleyProtocol {
 
         imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
         imageRepository.dataSource = imageDataSource
-        imageLoader = ImageLoader(imageRepository: imageRepository)
+        mediaLoader = MediaLoader(imageRepository: imageRepository)
     }
 
     // MARK: Reachability
@@ -871,7 +871,7 @@ extension Parley {
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            await shared.imageLoader?.reset()
+            await shared.mediaLoader?.reset()
         }
 
         shared.userAuthorization = nil
@@ -901,7 +901,7 @@ extension Parley {
      */
     public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
         Task {
-            await shared.imageLoader?.reset()
+            await shared.mediaLoader?.reset()
         }
 
         shared.userAuthorization = nil

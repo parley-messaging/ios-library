@@ -1,14 +1,14 @@
 import Foundation
 
-protocol ImageLoaderProtocol { // TODO: rename to MediaLoader Protocol
+protocol MediaLoaderProtocol {
     func load(media: MediaObject) async throws -> MediaDisplayModel
-    func share(media: MediaObject) async throws -> URL // TODO: Move to share service
+    func share(media: MediaObject) async throws -> URL
     func reset() async
 }
 
-actor ImageLoader: ImageLoaderProtocol { // TODO: rename to MediaLoader
+actor MediaLoader: MediaLoaderProtocol {
 
-    enum ImageLoaderError: Error {
+    enum MediaLoaderError: Error {
         case unableToConvertImageData
         case unableToFindMedia
         case deinitialized
@@ -28,7 +28,7 @@ actor ImageLoader: ImageLoaderProtocol { // TODO: rename to MediaLoader
         if let cachedImage = mediaCache[media.id] {
             return cachedImage
         } else if let storedImage = imageRepository.getStoredImage(for: media) {
-            let mediaDisplayModel = try await handleResult(for: media, data: storedImage.data)
+            let mediaDisplayModel = try handleResult(for: media, data: storedImage.data)
             mediaCache[media.id] = mediaDisplayModel
             return mediaDisplayModel
         } else {
@@ -38,7 +38,7 @@ actor ImageLoader: ImageLoaderProtocol { // TODO: rename to MediaLoader
     
     func share(media: MediaObject) async throws -> URL {
         guard let path = imageRepository.getStoredPath(for: media) else {
-            throw ImageLoaderError.unableToFindMedia
+            throw MediaLoaderError.unableToFindMedia
         }
         
         return path
@@ -50,7 +50,7 @@ actor ImageLoader: ImageLoaderProtocol { // TODO: rename to MediaLoader
     }
 }
 
-extension ImageLoader {
+extension MediaLoader {
 
     private func fetchFromRemote(media: MediaObject) async throws -> MediaDisplayModel {
         let request = requests[media.id] ?? makeRemoteMediaFetchTask(media: media)
@@ -68,7 +68,7 @@ extension ImageLoader {
 
     private func makeRemoteMediaFetchTask(media: MediaObject) -> Task<MediaDisplayModel, Error> {
         let request = Task.detached { [weak self] in
-            guard let self else { throw ImageLoaderError.deinitialized }
+            guard let self else { throw MediaLoaderError.deinitialized }
             let networkMedia = try await imageRepository.getRemoteMedia(for: media)
             return try await handleResult(for: media, data: networkMedia.data)
         }
@@ -81,13 +81,13 @@ extension ImageLoader {
         let mediaDisplayModel: MediaDisplayModel
         if media.getMediaType().isImageType {
             guard let image = ImageDisplayModel(data: data, type: media.getMediaType()) else {
-                throw ImageLoaderError.unableToConvertImageData
+                throw MediaLoaderError.unableToConvertImageData
             }
             
             mediaDisplayModel = .image(model: image)
         } else {
             guard let path = imageRepository.getStoredPath(for: media) else {
-                throw ImageLoaderError.unableToFindMedia
+                throw MediaLoaderError.unableToFindMedia
             }
             
             mediaDisplayModel = .file(model: FileDisplayModel(location: path))

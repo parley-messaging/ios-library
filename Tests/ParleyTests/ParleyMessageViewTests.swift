@@ -12,7 +12,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(message: Self.dummyMessageText, type: .agent),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -30,7 +30,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -48,7 +48,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", agent: nil),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -66,7 +66,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(message: "Lo"),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -84,7 +84,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .pending, agent: nil),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -102,7 +102,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .failed, agent: nil),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -128,7 +128,7 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate,
-            imageLoader: nil
+            mediaLoader: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -141,13 +141,14 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithLoadingImageForUser() throws {
-        let imageLoader = ImageLoaderStub()
+        let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
+        let model = MediaDisplayModel.image(model: imageModel)
 
-        imageLoader.loadResult = model
+        mediaLoader.loadResult = model
 
         let sut = ParleyMessageView()
 
@@ -156,11 +157,11 @@ final class ParleyMessageViewTests: XCTestCase {
             message: .makeTestData(
                 title: nil,
                 message: Self.dummyMessageText,
-                media: MediaObject(id: "identifier"),
+                media: MediaObject(id: "identifier", mimeType: "image/jpeg"),
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         let container = addToContainer(sut: sut)
@@ -172,13 +173,14 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithImageResultForUser() throws {
-        let imageLoader = ImageLoaderStub()
+        let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
+        let model = MediaDisplayModel.image(model: imageModel)
 
-        imageLoader.loadResult = model
+        mediaLoader.loadResult = model
 
         let sut = ParleyMessageView()
 
@@ -187,11 +189,11 @@ final class ParleyMessageViewTests: XCTestCase {
             message: .makeTestData(
                 title: nil,
                 message: Self.dummyMessageText,
-                media: MediaObject(id: "identifier"),
+                media: MediaObject(id: "identifier", mimeType: "image/png"),
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         wait()
@@ -205,8 +207,8 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithImageErrorResultForUser() throws {
-        let imageLoader = ImageLoaderStub()
-        imageLoader.error = .unableToConvertImageData
+        let mediaLoader = MediaLoaderStub()
+        mediaLoader.error = .unableToConvertImageData
 
         let sut = ParleyMessageView()
 
@@ -215,11 +217,11 @@ final class ParleyMessageViewTests: XCTestCase {
             message: .makeTestData(
                 title: nil,
                 message: Self.dummyMessageText,
-                media: MediaObject(id: "identifier"),
+                media: MediaObject(id: "identifier", mimeType: "image/jpeg"),
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         wait()
@@ -233,21 +235,22 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithLoadingImageForAgentWithoutTitleAndMessage() throws {
-        let imageLoader = ImageLoaderStub()
+        let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
+        let model = MediaDisplayModel.image(model: imageModel)
 
-        imageLoader.loadResult = model
+        mediaLoader.loadResult = model
 
         let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
-            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         let container = addToContainer(sut: sut)
@@ -259,21 +262,22 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithImageResultForAgentWithoutTitleAndMessage() throws {
-        let imageLoader = ImageLoaderStub()
+        let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
+        let model = MediaDisplayModel.image(model: imageModel)
 
-        imageLoader.loadResult = model
+        mediaLoader.loadResult = model
 
         let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
-            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         wait()
@@ -287,16 +291,16 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithImageErrorResultForAgentWithoutTitleAndMessage() throws {
-        let imageLoader = ImageLoaderStub()
-        imageLoader.error = .unableToConvertImageData
+        let mediaLoader = MediaLoaderStub()
+        mediaLoader.error = .unableToConvertImageData
 
         let sut = ParleyMessageView()
 
         sut.apply(MessageCollectionViewCellAppearance.agent())
         sut.set(
-            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier")),
+            message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         wait()
@@ -310,13 +314,14 @@ final class ParleyMessageViewTests: XCTestCase {
     }
 
     func testWithWhiteImageResultForAgentWithoutTitleAndMessage() throws {
-        let imageLoader = ImageLoaderStub()
+        let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "white_image", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
+        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
+        let model = MediaDisplayModel.image(model: imageModel)
 
-        imageLoader.loadResult = model
+        mediaLoader.loadResult = model
 
         let sut = ParleyMessageView()
 
@@ -325,11 +330,11 @@ final class ParleyMessageViewTests: XCTestCase {
             message: .makeTestData(
                 title: nil,
                 message: nil,
-                media: MediaObject(id: "identifier"),
+                media: MediaObject(id: "identifier", mimeType: "image/png"),
                 agent: Agent(id: 1, name: "Longer Agent Name", avatar: nil)
             ),
             forcedTime: Self.dummyDate,
-            imageLoader: imageLoader
+            mediaLoader: mediaLoader
         )
 
         wait()
