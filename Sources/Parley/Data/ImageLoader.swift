@@ -1,75 +1,99 @@
 import Foundation
 
-protocol ImageLoaderProtocol {
-    func load(id: String) async throws -> ImageDisplayModel
+protocol ImageLoaderProtocol { // TODO: rename to MediaLoader Protocol
+    func load(media: MediaObject) async throws -> MediaDisplayModel
+    func share(media: MediaObject) async throws -> URL // TODO: Move to share service
     func reset() async
 }
 
-actor ImageLoader: ImageLoaderProtocol {
+actor ImageLoader: ImageLoaderProtocol { // TODO: rename to MediaLoader
 
     enum ImageLoaderError: Error {
         case unableToConvertImageData
+        case unableToFindMedia
         case deinitialized
     }
 
     private let imageRepository: ImageRepository
-    private var imageCache: [String: ImageDisplayModel]
-    private var requests: [String: Task<ImageDisplayModel, Error>]
+    private var mediaCache: [String: MediaDisplayModel]
+    private var requests: [String: Task<MediaDisplayModel, Error>]
 
     init(imageRepository: ImageRepository) {
         self.imageRepository = imageRepository
-        imageCache = [String: ImageDisplayModel]()
+        mediaCache = [String: MediaDisplayModel]()
         requests = [:]
     }
 
-    func load(id: String) async throws -> ImageDisplayModel {
-        if let cachedImage = imageCache[id] {
+    func load(media: MediaObject) async throws -> MediaDisplayModel {
+        if let cachedImage = mediaCache[media.id] {
             return cachedImage
-        } else if let storedImage = imageRepository.getStoredImage(for: id) {
-            guard let image = ImageDisplayModel.from(stored: storedImage) else {
-                throw ImageLoaderError.unableToConvertImageData
-            }
-            imageCache[id] = image
-            return image
+        } else if let storedImage = imageRepository.getStoredImage(for: media) {
+            let mediaDisplayModel = try await handleResult(for: media, data: storedImage.data)
+            mediaCache[media.id] = mediaDisplayModel
+            return mediaDisplayModel
         } else {
-            return try await fetchFromRemote(id: id)
+            return try await fetchFromRemote(media: media)
         }
+    }
+    
+    func share(media: MediaObject) async throws -> URL {
+        guard let path = imageRepository.getStoredPath(for: media) else {
+            throw ImageLoaderError.unableToFindMedia
+        }
+        
+        return path
     }
 
     func reset() {
-        imageCache.removeAll()
+        mediaCache.removeAll()
         clearRequests()
     }
 }
 
 extension ImageLoader {
 
-    private func fetchFromRemote(id: String) async throws -> ImageDisplayModel {
-        let request = requests[id] ?? makeRemoteImageFetchTask(id: id)
+    private func fetchFromRemote(media: MediaObject) async throws -> MediaDisplayModel {
+        let request = requests[media.id] ?? makeRemoteMediaFetchTask(media: media)
 
         do {
-            let image = try await request.value
-            imageCache[id] = image
-            requests[id] = nil
-            return image
+            let displayModel = try await request.value
+            mediaCache[media.id] = displayModel
+            requests[media.id] = nil
+            return displayModel
         } catch {
-            requests[id] = nil
+            requests[media.id] = nil
             throw error
         }
     }
 
-    private func makeRemoteImageFetchTask(id: String) -> Task<ImageDisplayModel, Error> {
+    private func makeRemoteMediaFetchTask(media: MediaObject) -> Task<MediaDisplayModel, Error> {
         let request = Task.detached { [weak self] in
             guard let self else { throw ImageLoaderError.deinitialized }
-            let networkImage = try await imageRepository.getRemoteImage(for: id)
-            guard let image = ImageDisplayModel.from(remote: networkImage) else {
-                throw ImageLoaderError.unableToConvertImageData
-            }
-            return image
+            let networkMedia = try await imageRepository.getRemoteMedia(for: media)
+            return try await handleResult(for: media, data: networkMedia.data)
         }
 
-        requests[id] = request
+        requests[media.id] = request
         return request
+    }
+    
+    private func handleResult(for media: MediaObject, data: Data) throws -> MediaDisplayModel {
+        let mediaDisplayModel: MediaDisplayModel
+        if media.getMediaType().isImageType {
+            guard let image = ImageDisplayModel(data: data, type: media.getMediaType()) else {
+                throw ImageLoaderError.unableToConvertImageData
+            }
+            
+            mediaDisplayModel = .image(model: image)
+        } else {
+            guard let path = imageRepository.getStoredPath(for: media) else {
+                throw ImageLoaderError.unableToFindMedia
+            }
+            
+            mediaDisplayModel = .file(model: FileDisplayModel(location: path))
+        }
+        
+        return mediaDisplayModel
     }
 
     private func clearRequests() {

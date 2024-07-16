@@ -12,10 +12,10 @@ struct MediaModel: Codable {
         type = .map(from: url)
 
         switch type {
-        case .png, .jpg:
+        case .imagePng, .imageJPeg:
             guard let jpegData = Self.convertToJpegData(image) else { return nil }
             self.data = jpegData
-        case .gif:
+        case .imageGif, .applicationPdf, .other: // TODO: Determine how to map model data for pdf and other
             self.data = data
         }
     }
@@ -27,11 +27,11 @@ struct MediaModel: Codable {
         switch type {
         case .gif:
             self.data = data
-            self.type = .gif
-        default:
+            self.type = .imageGif
+        default: // TODO: Determine how to map model data for pdf and other
             guard let jpegData = Self.convertToJpegData(image) else { return nil }
             self.data = jpegData
-            self.type = .jpg
+            self.type = .imageJPeg
         }
     }
 }

@@ -828,17 +828,32 @@ extension ParleyView: ParleyComposeViewDelegate {
 // MARK: MessageTableViewCellDelegate
 extension ParleyView: MessageTableViewCellDelegate {
 
-    func didSelectImage(messageMediaIdentifier: String) {
-        let imageViewController = MessageImageViewController(
-            messageMediaIdentifier: messageMediaIdentifier,
-            messageRepository: parley.messageRepository,
-            imageLoader: parley.imageLoader
-        )
-
-        imageViewController.modalPresentationStyle = .overFullScreen
-        imageViewController.modalTransitionStyle = .crossDissolve
-
-        present(imageViewController, animated: true, completion: nil)
+    func didSelectMedia(_ media: MediaObject) {
+        if media.getMediaType().isImageType {
+            let imageViewController = MessageImageViewController(
+                messageMedia: media,
+                imageLoader: parley.imageLoader
+            )
+            
+            imageViewController.modalPresentationStyle = .overFullScreen
+            imageViewController.modalTransitionStyle = .crossDissolve
+            
+            present(imageViewController, animated: true, completion: nil)
+        } else {
+            Task {
+                await shareMedia(media)
+            }
+        }
+    }
+    
+    @MainActor
+    private func shareMedia(_ media: MediaObject) async {
+        guard let url = try? await parley.imageLoader.share(media: media) else {
+            return
+        }
+        
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        present(activityViewController, animated: true, completion: nil)
     }
 
     func didSelect(_ button: MessageButton) {

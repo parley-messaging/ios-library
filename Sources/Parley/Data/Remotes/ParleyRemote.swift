@@ -181,7 +181,7 @@ final class ParleyRemote {
         multipartFormData.add(
             key: "media",
             fileName: fileName,
-            fileMimeType: imageType.mimeType,
+            fileMimeType: imageType.rawValue,
             fileData: imageData
         )
         var headers = createHeaders()
@@ -237,6 +237,7 @@ final class ParleyRemote {
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
+        type: ParleyImageType,
         result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void
     ) {
         let url = getUrl(path)
@@ -254,10 +255,8 @@ final class ParleyRemote {
                     self?.mainQueue.async {
                         switch requestResult {
                         case .success(let response):
-                            if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
-                            } else if let data = response.body {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
+                            if let data = response.body {
+                                result(.success(ParleyImageNetworkModel(data: data, type: type)))
                             }
                         case .failure(let error):
                             if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
@@ -270,11 +269,6 @@ final class ParleyRemote {
                 }
             )
         }
-    }
-
-    static func responseContains(_ response: ParleyHTTPDataResponse, contentType: String) -> Bool {
-        guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
-        return contentTypeHeader.contains(contentType)
     }
 
     private static func decodeBackendError(responseData: Data) -> ParleyErrorResponse? {

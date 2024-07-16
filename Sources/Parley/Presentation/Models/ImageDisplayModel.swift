@@ -1,6 +1,7 @@
 import UIKit
 
-struct ImageDisplayModel: Hashable {
+struct ImageDisplayModel: Hashable { // TODO: Rename to Media Display Model
+    
     let image: UIImage
     let type: ParleyImageType
 
@@ -8,20 +9,12 @@ struct ImageDisplayModel: Hashable {
         self.type = type
 
         switch type {
-        case .png, .jpg:
+        case .imagePng, .imageJPeg, .applicationPdf, .other: // TODO: Determine where this is used and how to display the other types of files
             guard let image = UIImage(data: data) else { return nil }
             self.image = image
-        case .gif:
+        case .imageGif:
             guard let image = UIImage.gif(data: data) else { return nil }
             self.image = image
         }
-    }
-
-    static func from(stored image: ParleyStoredImage) -> Self? {
-        ImageDisplayModel(data: image.data, type: image.type)
-    }
-
-    static func from(remote image: ParleyImageNetworkModel) -> Self? {
-        ImageDisplayModel(data: image.data, type: image.type)
     }
 }
