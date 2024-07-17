@@ -26,6 +26,10 @@ public enum ParleyLocalizationKey: String {
     case sendFailedBodyMediaInvalid = "parley_send_failed_body_media_invalid"
     case sendFailedBodyMediaTooLarge = "parley_send_failed_body_media_too_large"
 
+    // MARK: Message
+    case messageFileUnknownFilename = "parley_message_file_unknown_filename"
+    case messageFileOpen = "parley_message_file_open"
+    
     // MARK: Message Compose View
     case typeMessage = "parley_type_message"
 

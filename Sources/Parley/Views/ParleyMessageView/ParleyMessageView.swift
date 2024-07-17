@@ -57,7 +57,7 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
 
     @IBOutlet private weak var imageFailureMessageLabel: UILabel!
-
+    
     // Name
     @IBOutlet private weak var nameView: UIView!
     @IBOutlet private weak var nameLabel: UILabel!
@@ -84,6 +84,17 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var messageLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var messageRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var messageBottomLayoutConstraint: NSLayoutConstraint!
+    
+    // File
+    @IBOutlet private weak var fileView: UIView!
+    @IBOutlet private weak var fileIcon: UIImageView!
+    @IBOutlet private weak var fileLabel: UILabel!
+    @IBOutlet private weak var fileButton: UIButton!
+    
+    @IBOutlet private weak var fileMetaTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileMetaLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileMetaRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileMetaBottomLayoutConstraint: NSLayoutConstraint!
 
     // Meta
     @IBOutlet private weak var metaView: UIView!
@@ -171,7 +182,7 @@ final class ParleyMessageView: UIView {
         renderTitle()
         renderMessage()
 
-        renderImage()
+        renderMedia()
 
         renderButtons()
     }
@@ -180,7 +191,7 @@ final class ParleyMessageView: UIView {
     private func renderName() {
         if message.agent?.name == nil || !(appearance?.name == true) {
             displayName = .hidden
-        } else if message.hasMedium {
+        } else if message.hasImage {
             displayName = .image
         } else {
             displayName = .message
@@ -195,7 +206,7 @@ final class ParleyMessageView: UIView {
     }
 
     private func renderMeta() {
-        if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
+        if message.message != nil || message.title != nil || message.hasButtons || !message.hasImage {
             displayMeta = .message
             imageFailureMessageLabel.isHidden = true
         } else {
@@ -303,16 +314,35 @@ final class ParleyMessageView: UIView {
         }
     }
 
-    private func renderImage() {
+    private func renderMedia() {
         renderImageCorners()
         setImageWidth()
-
+        
         if let media = message.media {
-            displayImageLoading()
-            loadMedia(media: media)
+            if media.getMediaType().isImageType {
+                hideFile()
+                renderImage(media)
+            } else {
+                hideImage()
+                renderFile(media)
+            }
         } else {
             hideImage()
+            hideFile()
         }
+    }
+    
+    private func renderImage(_ media: MediaObject) {
+        loadImage(media: media)
+        displayImageLoading()
+    }
+    
+    private func renderFile(_ media: MediaObject) {
+        fileLabel.text = ParleyStoredImage.FilePath.from(media: media)?.fileName ?? ParleyLocalizationKey.messageFileUnknownFilename.localized
+        
+        fileLabel.adjustsFontForContentSizeCategory = true
+        fileButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        fileView.isHidden = false
     }
 
     private func renderImageCorners() {
@@ -346,6 +376,10 @@ final class ParleyMessageView: UIView {
         imageImageView.image = nil
         imageActivityIndicatorView.stopAnimating()
     }
+    
+    private func hideFile() {
+        fileView.isHidden = true
+    }
 
     @MainActor
     private func displayImageLoading() {
@@ -354,7 +388,7 @@ final class ParleyMessageView: UIView {
         imageImageView.image = appearance?.imagePlaceholder
     }
 
-    private func loadMedia(media: MediaObject) {
+    private func loadImage(media: MediaObject) {
         guard let mediaLoader else {
             assertionFailure("A MediaLoader is expected")
             displayFailedLoadingImage()
@@ -364,16 +398,19 @@ final class ParleyMessageView: UIView {
         let imageRequestForMessageId = message.id
         Task {
             do {
-                switch try await mediaLoader.load(media: media) {
-                case .image(let model):
-                    // Check if the Message ID of the requested image is the same as the message of the current cell.
-                    // During cell reuse, the ongoing request could callback on another cell.
-                    // This check prevents it from applying that image (or display it's failure).
-                    guard imageRequestForMessageId == message.id else { return }
-                    display(image: model.image)
-                case .file(let model):
-                    displayFailedLoadingImage() // TODO: Display file
+                let result = try await mediaLoader.load(media: media)
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == message.id else { return }
+                
+                // NOTE: Result should be of type image
+                guard case .image(let model) = result else {
+                    displayFailedLoadingImage()
+                    return
                 }
+                
+                display(image: model.image)
             } catch {
                 displayFailedLoadingImage()
             }
@@ -586,7 +623,7 @@ final class ParleyMessageView: UIView {
             .constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
         imageMetaBottomLayoutConstraint
             .constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
-
+        
         // Name
         nameLabel.textColor = appearance.nameColor
         nameLabel.font = appearance.nameFont
@@ -619,6 +656,26 @@ final class ParleyMessageView: UIView {
         messageRightLayoutConstraint
             .constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.messageInsets?.right ?? 0)
 
+        // File
+        fileIcon.tintColor = appearance.fileIconTintColor
+        
+        fileLabel.textColor = appearance.fileNameColor
+        fileLabel.font = appearance.fileNameFont
+        
+        fileButton.setTitleColor(appearance.fileButtonColor ?? UIColor.black, for: .normal)
+        fileButton.titleLabel?.font = appearance.fileButtonFont
+        fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized, for: .normal)
+        fileButton.addTarget(self, action: #selector(imageAction), for: .touchUpInside)
+        if #available(iOS 15, *) {
+            // NOTE: Needed to allow the font setting on the titleLabel to work after 15.0
+            fileButton.configuration = nil
+        }
+        
+        fileMetaTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
+        fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileInsets?.left ?? 0)
+        fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileInsets?.right ?? 0)
+        fileMetaBottomLayoutConstraint.constant = appearance.fileInsets?.bottom ?? 0
+        
         // Meta
         timeLabel.textColor = appearance.timeColor
         timeLabel.font = appearance.timeFont

@@ -16,12 +16,12 @@ class ParleyFileManager {
         }
     }
     
-    func save(fileData: Data, for media: MediaObject) {
+    func save(fileData: Data, for media: MediaObject) -> Bool {
         guard let path = path(for: media) else {
-            return
+            return false
         }
         
-        fileManager.createFile(atPath: path.path, contents: fileData)
+        return fileManager.createFile(atPath: path.path, contents: fileData)
     }
     
     func file(for media: MediaObject) -> Data? {

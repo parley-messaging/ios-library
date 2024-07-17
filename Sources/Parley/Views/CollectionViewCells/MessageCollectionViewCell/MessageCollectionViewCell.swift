@@ -65,11 +65,15 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         totalHeight += appearance.balloonContentInsets?.top ?? 0
         totalHeight += appearance.balloonContentInsets?.bottom ?? 0
 
-        if message.hasMedium {
+        if message.hasImage {
             totalHeight += 160
 
             totalHeight += appearance.imageInsets?.top ?? 0
             totalHeight += appearance.imageInsets?.bottom ?? 0
+        } else if message.hasFile {
+            totalHeight += appearance.fileInsets?.top ?? 0
+            totalHeight += appearance.fileInsets?.bottom ?? 0
+            totalHeight += ParleyLocalizationKey.messageFileOpen.localized.height(withConstrainedWidth: contentWidth, font: appearance.buttonFont)
         } else if let name = message.agent?.name, appearance.name {
             totalHeight += appearance.nameInsets?.top ?? 0
             totalHeight += appearance.nameInsets?.bottom ?? 0
@@ -93,7 +97,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             )
         }
 
-        if message.message != nil || message.title != nil || message.hasButtons || !message.hasMedium {
+        if message.message != nil || message.title != nil || message.hasButtons || !message.hasImage {
             totalHeight += appearance.metaInsets?.top ?? 0
             totalHeight += appearance.metaInsets?.bottom ?? 0
 
@@ -119,12 +123,12 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                 totalHeight += 1 // Button separator
             })
 
-            if message.message == nil && message.title == nil && !message.hasMedium {
+            if message.message == nil && message.title == nil && !message.hasImage {
                 totalHeight += appearance.balloonContentTextInsets?.top ?? 0
             }
         }
 
-        if message.message != nil || message.title != nil || message.hasMedium {
+        if message.message != nil || message.title != nil || message.hasImage {
             totalHeight += appearance.balloonContentTextInsets?.top ?? 0
             totalHeight += appearance.balloonContentTextInsets?.bottom ?? 0
         }

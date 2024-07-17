@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <accessibilityOverrides dynamicTypePreference="3"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,6 +24,14 @@
                 <outlet property="buttonsTopLayoutConstraint" destination="SuQ-jr-ETd" id="8Jb-ht-cFU"/>
                 <outlet property="buttonsView" destination="4aa-5n-Q0e" id="P40-5X-wch"/>
                 <outlet property="contentView" destination="gFs-GY-XLf" id="itE-AA-rNi"/>
+                <outlet property="fileButton" destination="kz2-lo-cCt" id="fCa-24-v39"/>
+                <outlet property="fileIcon" destination="SiI-pO-uaz" id="SfQ-m9-025"/>
+                <outlet property="fileLabel" destination="qB8-No-J7R" id="FkW-JS-Zkp"/>
+                <outlet property="fileMetaBottomLayoutConstraint" destination="NSo-YY-93i" id="DyU-Xc-Rhd"/>
+                <outlet property="fileMetaLeftLayoutConstraint" destination="BJO-KJ-V3o" id="iOp-CM-3fV"/>
+                <outlet property="fileMetaRightLayoutConstraint" destination="xII-Fz-Bwr" id="4WJ-hx-Xgy"/>
+                <outlet property="fileMetaTopLayoutConstraint" destination="5rm-t9-04o" id="vFu-LQ-sbC"/>
+                <outlet property="fileView" destination="nKs-j9-JUx" id="fEQ-P8-7mC"/>
                 <outlet property="imageActivityIndicatorView" destination="w5c-0H-UCF" id="9yQ-az-MhZ"/>
                 <outlet property="imageBottomLayoutConstraint" destination="jqg-P7-Cpb" id="nUp-xE-0l7"/>
                 <outlet property="imageFailureMessageLabel" destination="k5x-Kx-day" id="hKI-3z-kI4"/>
@@ -173,10 +182,10 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eML-lV-ZyZ" userLabel="Title">
-                                    <rect key="frame" x="0.0" y="197" width="414" height="31"/>
+                                    <rect key="frame" x="0.0" y="197" width="414" height="17"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="message.title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EWJ-Hy-X3o">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="31"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="17"/>
                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
@@ -191,10 +200,10 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DQf-Yc-TpL">
-                                    <rect key="frame" x="0.0" y="228" width="414" height="520"/>
+                                    <rect key="frame" x="0.0" y="214" width="414" height="463"/>
                                     <subviews>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="message.message" textAlignment="natural" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ft-QK-MKv" customClass="ParleyTextView" customModule="Parley">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="520"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="463"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -207,6 +216,46 @@
                                         <constraint firstItem="6Ft-QK-MKv" firstAttribute="leading" secondItem="DQf-Yc-TpL" secondAttribute="leading" id="Fn6-79-uoJ"/>
                                         <constraint firstAttribute="bottom" secondItem="6Ft-QK-MKv" secondAttribute="bottom" priority="999" id="VYW-N9-nai"/>
                                         <constraint firstItem="6Ft-QK-MKv" firstAttribute="top" secondItem="DQf-Yc-TpL" secondAttribute="top" id="rYr-OZ-iKe"/>
+                                    </constraints>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nKs-j9-JUx">
+                                    <rect key="frame" x="0.0" y="677" width="414" height="71"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="gph-OF-RwP">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="71"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="QCd-V2-59v">
+                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="71"/>
+                                                    <subviews>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_file" translatesAutoresizingMaskIntoConstraints="NO" id="SiI-pO-uaz">
+                                                            <rect key="frame" x="0.0" y="25.5" width="20" height="20"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="20" id="ama-Yj-Mlv"/>
+                                                                <constraint firstAttribute="height" constant="20" id="fz9-Qz-eYx"/>
+                                                            </constraints>
+                                                        </imageView>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="message.file.name" textAlignment="natural" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qB8-No-J7R">
+                                                            <rect key="frame" x="30" y="27" width="212" height="17"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kz2-lo-cCt">
+                                                            <rect key="frame" x="252" y="18.5" width="162" height="34.5"/>
+                                                            <state key="normal" title="Button"/>
+                                                            <buttonConfiguration key="configuration" style="plain" title="message.file.open"/>
+                                                        </button>
+                                                    </subviews>
+                                                </stackView>
+                                            </subviews>
+                                        </stackView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="gph-OF-RwP" firstAttribute="top" secondItem="nKs-j9-JUx" secondAttribute="top" id="5rm-t9-04o"/>
+                                        <constraint firstItem="gph-OF-RwP" firstAttribute="leading" secondItem="nKs-j9-JUx" secondAttribute="leading" id="BJO-KJ-V3o"/>
+                                        <constraint firstAttribute="bottom" secondItem="gph-OF-RwP" secondAttribute="bottom" id="NSo-YY-93i"/>
+                                        <constraint firstAttribute="trailing" secondItem="gph-OF-RwP" secondAttribute="trailing" id="xII-Fz-Bwr"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4aa-5n-Q0e" userLabel="Buttons">
@@ -275,7 +324,6 @@
                                 <constraint firstItem="4aa-5n-Q0e" firstAttribute="leading" secondItem="Su8-Z4-8Ej" secondAttribute="leading" id="pnH-gN-D7s"/>
                                 <constraint firstItem="DQf-Yc-TpL" firstAttribute="leading" secondItem="Su8-Z4-8Ej" secondAttribute="leading" id="qdd-bb-he2"/>
                                 <constraint firstItem="Xpm-nr-AbH" firstAttribute="leading" secondItem="Su8-Z4-8Ej" secondAttribute="leading" id="rA6-vn-y3L"/>
-                                <constraint firstItem="Xpm-nr-AbH" firstAttribute="top" secondItem="e8S-QX-hPh" secondAttribute="bottom" id="raH-QW-L6V"/>
                                 <constraint firstAttribute="trailing" secondItem="Xpm-nr-AbH" secondAttribute="trailing" id="uhx-Lv-H7F"/>
                                 <constraint firstItem="ITI-5G-N0m" firstAttribute="leading" secondItem="Su8-Z4-8Ej" secondAttribute="leading" id="vCz-mg-rod"/>
                                 <constraint firstItem="e8S-QX-hPh" firstAttribute="leading" secondItem="Su8-Z4-8Ej" secondAttribute="leading" id="wGX-Ti-KDU"/>
@@ -313,5 +361,6 @@
     </objects>
     <resources>
         <image name="ic_clock" width="24" height="24"/>
+        <image name="ic_file" width="20" height="20"/>
     </resources>
 </document>
