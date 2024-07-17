@@ -1,5 +1,7 @@
 import Photos
 import PhotosUI
+import UniformTypeIdentifiers
+import MobileCoreServices
 import UIKit
 
 public class ParleyComposeView: UIView {
@@ -291,6 +293,14 @@ public class ParleyComposeView: UIView {
                 self?.takePhoto()
             }
         ))
+        
+        alertController.addAction(UIAlertAction(
+            title: ParleyLocalizationKey.uploadFile.localized,
+            style: .default,
+            handler: { [weak self] _ in
+                self?.uploadFile()
+            }
+        ))
 
         alertController.addAction(UIAlertAction(title: ParleyLocalizationKey.cancel.localized, style: .cancel))
 
@@ -379,6 +389,17 @@ public class ParleyComposeView: UIView {
         ))
 
         present(alertController, animated: true, completion: nil)
+    }
+    
+    private func uploadFile() {
+        let documentPicker: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.pdf], asCopy: true)
+        } else {
+            documentPicker = UIDocumentPickerViewController(documentTypes: [String(kUTTypePDF)], in: .import)
+        }
+        documentPicker.delegate = self
+        present(documentPicker, animated: true, completion: nil)
     }
 }
 
@@ -489,6 +510,17 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
 
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension ParleyComposeView: UIDocumentPickerDelegate {
+    
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let selectedFileURL = urls.first else {
+            return
+        }
+        
+        delegate?.send(file: selectedFileURL)
     }
 }
 

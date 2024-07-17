@@ -9,9 +9,10 @@
 "parley_notification_offline" = "Check your internet connection";
 
 // MARK: Photos
-"parley_photo" = "Photo";
-"parley_select_photo" = "Select photo";
-"parley_take_photo" = "Take photo";
+"parley_photo" = "Send image or document";
+"parley_select_photo" = "Gallery";
+"parley_take_photo" = "Camera";
+"parley_upload_file" = "Document";
 "parley_photo_access_denied_title" = "Photo access";
 "parley_photo_access_denied_body" = "We need access to your photos. Go to settings and give the application access to your photos.";
 

@@ -9,9 +9,10 @@
 "parley_notification_offline" = "Controleer uw internetverbinding";
 
 // MARK: Photos
-"parley_photo" = "Foto";
-"parley_select_photo" = "Selecteer een foto";
-"parley_take_photo" = "Maak een foto";
+"parley_photo" = "Afbeelding of document sturen";
+"parley_select_photo" = "Gallerij";
+"parley_take_photo" = "Camera";
+"parley_upload_file" = "Document";
 "parley_photo_access_denied_title" = "Foto toegang";
 "parley_photo_access_denied_body" = "We hebben toegang nodig tot je foto's. Ga naar instellingen en geef de applicatie toegang tot je foto's.";
 

@@ -7,6 +7,12 @@ struct MediaModel: Codable {
     let filename: String
     var hasUploaded = false
 
+    init(data: Data, url: URL) {
+        filename = url.lastPathComponent
+        type = .map(from: url)
+        self.data = data
+    }
+    
     init?(image: UIImage, data: Data, url: URL) {
         filename = url.lastPathComponent
         type = .map(from: url)

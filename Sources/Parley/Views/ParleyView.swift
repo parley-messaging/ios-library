@@ -800,10 +800,22 @@ extension ParleyView: ParleyComposeViewDelegate {
             await send(media: mediaModel)
         }
     }
+    
+    func send(file url: URL) {
+        Task { @MainActor in
+            guard let fileData = FileManager.default.contents(atPath: url.path) else {
+                presentInvalidMediaAlert()
+                return
+            }
+            
+            let mediaModel = MediaModel(data: fileData, url: url)
+            await send(media: mediaModel)
+        }
+    }
 
     @MainActor
     private func send(media: MediaModel) async {
-        guard !media.isLargerThan(size: Self.maximumImageSizeInMegabytes) else {
+        guard !media.isLargerThan(size: Self.maximumImageSizeInMegabytes) else { // TODO: Does the maximum size increase for files?
             presentImageToLargeAlert() ; return
         }
 
@@ -813,14 +825,14 @@ extension ParleyView: ParleyComposeViewDelegate {
     @MainActor
     private func presentInvalidMediaAlert() {
         let title = ParleyLocalizationKey.sendFailedTitle.localized
-        let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized
+        let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized // TODO: Readjust the failed sending of data messages?
         presentInformationalAlert(title: title, message: message)
     }
 
     @MainActor
     private func presentImageToLargeAlert() {
         let title = ParleyLocalizationKey.sendFailedTitle.localized
-        let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
+        let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized // TODO: Readjust the failed sending of data messages?
         presentInformationalAlert(title: title, message: message)
     }
 }

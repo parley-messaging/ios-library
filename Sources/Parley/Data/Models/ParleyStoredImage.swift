@@ -45,7 +45,7 @@ public struct ParleyStoredImage: Codable {
             return .from(id: media.id, type: media.getMediaType())
         }
         
-        static func from(id: RemoteImage.ID, type: ParleyImageType) -> FilePath? {
+        static func from(id: String, type: ParleyImageType) -> FilePath? {
             guard let fileName = decodeFileName(id: id) else {
                 return nil
             }

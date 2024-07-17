@@ -434,8 +434,8 @@ public final class Parley: ParleyProtocol {
     }
 
     private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
-        let remoteImage = try await mediaRepository.upload(image: storedImage)
-        message.media = MediaObject(id: remoteImage.id, mimeType: storedImage.type.rawValue)
+        let remoteId = try await mediaRepository.upload(image: storedImage)
+        message.media = MediaObject(id: remoteId, mimeType: storedImage.type.rawValue)
         messagesManager?.update(message)
         return message
     }

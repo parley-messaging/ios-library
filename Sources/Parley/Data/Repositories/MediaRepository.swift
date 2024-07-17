@@ -55,7 +55,7 @@ class MediaRepository {
         return networkImage
     }
 
-    func upload(image storedImage: ParleyStoredImage) async throws -> RemoteImage {
+    func upload(image storedImage: ParleyStoredImage) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
             messageRemoteService.upload(
                 imageData: storedImage.data,
@@ -65,11 +65,12 @@ class MediaRepository {
                 guard let self else { return }
                 do {
                     let mediaResponse = try imageResult.get()
-                    let remoteImage = RemoteImage(id: mediaResponse.media, type: storedImage.type)
+                    
+                    if storedImage.type.isImageType {
+                        move(storedImage, to: mediaResponse.media)
+                    }
 
-                    move(storedImage, to: remoteImage.id)
-
-                    continuation.resume(returning: remoteImage)
+                    continuation.resume(returning: mediaResponse.media)
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -111,7 +112,7 @@ extension MediaRepository {
         url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
     }
 
-    private func move(_ local: ParleyStoredImage, to remoteId: RemoteImage.ID) {
+    private func move(_ local: ParleyStoredImage, to remoteId: String) {
         guard
             let storedImage = dataSource?.image(id: local.id),
             let filePath = ParleyStoredImage.FilePath.from(id: remoteId, type: storedImage.type) else { return }

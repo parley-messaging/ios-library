@@ -15,6 +15,7 @@ public enum ParleyLocalizationKey: String {
     case photo = "parley_photo"
     case selectPhoto = "parley_select_photo"
     case takePhoto = "parley_take_photo"
+    case uploadFile = "parley_upload_file"
     case photoAccessDeniedTitle = "parley_photo_access_denied_title"
     case photoAccessDeniedBody = "parley_photo_access_denied_body"
 
