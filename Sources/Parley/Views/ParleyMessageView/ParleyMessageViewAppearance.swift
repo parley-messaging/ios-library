@@ -49,7 +49,6 @@ public class ParleyMessageViewAppearance {
     // File
     public var fileIconTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
     
-//    public var fileName = true // TODO: Determine if appearance allows hiding the file name
     public var fileNameColor =  UIColor(white: 0, alpha: 1)
     @ParleyScaledFont(textStyle: .body) public var fileNameFont = .systemFont(ofSize: 13)
     
