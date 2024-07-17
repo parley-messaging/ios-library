@@ -14,12 +14,12 @@ actor MediaLoader: MediaLoaderProtocol {
         case deinitialized
     }
 
-    private let imageRepository: ImageRepository
+    private let mediaRepository: MediaRepository
     private var mediaCache: [String: MediaDisplayModel]
     private var requests: [String: Task<MediaDisplayModel, Error>]
 
-    init(imageRepository: ImageRepository) {
-        self.imageRepository = imageRepository
+    init(mediaRepository: MediaRepository) {
+        self.mediaRepository = mediaRepository
         mediaCache = [String: MediaDisplayModel]()
         requests = [:]
     }
@@ -27,7 +27,7 @@ actor MediaLoader: MediaLoaderProtocol {
     func load(media: MediaObject) async throws -> MediaDisplayModel {
         if let cachedImage = mediaCache[media.id] {
             return cachedImage
-        } else if let storedImage = imageRepository.getStoredImage(for: media) {
+        } else if let storedImage = mediaRepository.getStoredImage(for: media) {
             let mediaDisplayModel = try handleResult(for: media, data: storedImage.data)
             mediaCache[media.id] = mediaDisplayModel
             return mediaDisplayModel
@@ -37,7 +37,7 @@ actor MediaLoader: MediaLoaderProtocol {
     }
     
     func share(media: MediaObject) async throws -> URL {
-        guard let path = imageRepository.getStoredPath(for: media) else {
+        guard let path = mediaRepository.getStoredPath(for: media) else {
             throw MediaLoaderError.unableToFindMedia
         }
         
@@ -69,7 +69,7 @@ extension MediaLoader {
     private func makeRemoteMediaFetchTask(media: MediaObject) -> Task<MediaDisplayModel, Error> {
         let request = Task.detached { [weak self] in
             guard let self else { throw MediaLoaderError.deinitialized }
-            let networkMedia = try await imageRepository.getRemoteMedia(for: media)
+            let networkMedia = try await mediaRepository.getRemoteMedia(for: media)
             return try await handleResult(for: media, data: networkMedia.data)
         }
 
@@ -86,7 +86,7 @@ extension MediaLoader {
             
             mediaDisplayModel = .image(model: image)
         } else {
-            guard let path = imageRepository.getStoredPath(for: media) else {
+            guard let path = mediaRepository.getStoredPath(for: media) else {
                 throw MediaLoaderError.unableToFindMedia
             }
             

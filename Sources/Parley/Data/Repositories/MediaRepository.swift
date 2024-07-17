@@ -1,8 +1,8 @@
 import Foundation
 
-class ImageRepository { // TODO: Rename to Media Repository
+class MediaRepository {
 
-    enum ImageRepositoryError: Error {
+    enum MediaRepositoryError: Error {
         case invalidRemoteURL
     }
 
@@ -83,7 +83,7 @@ class ImageRepository { // TODO: Rename to Media Repository
 }
 
 // MARK: Privates
-extension ImageRepository {
+extension MediaRepository {
 
     private func isLocalId(imageId: ParleyStoredImage.ID) -> Bool {
         guard let url = URL(string: imageId) else { return true }
@@ -94,7 +94,7 @@ extension ImageRepository {
         if let mediaIdUrl = URL(string: path) {
             return mediaIdUrl
         } else {
-            throw ImageRepositoryError.invalidRemoteURL
+            throw MediaRepositoryError.invalidRemoteURL
         }
     }
 

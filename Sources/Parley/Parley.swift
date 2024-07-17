@@ -63,7 +63,7 @@ public final class Parley: ParleyProtocol {
     private(set) var messageRepository: MessageRepositoryProtocol!
     private(set) var messagesManager: MessagesManagerProtocol?
     private(set) var imageDataSource: ParleyImageDataSource?
-    private(set) var imageRepository: ImageRepository!
+    private(set) var mediaRepository: MediaRepository!
     private(set) var mediaLoader: MediaLoaderProtocol!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
@@ -123,9 +123,9 @@ public final class Parley: ParleyProtocol {
         let messageRemoteService = MessageRemoteService(remote: remote)
         messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
 
-        imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
-        imageRepository.dataSource = imageDataSource
-        mediaLoader = MediaLoader(imageRepository: imageRepository)
+        mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
+        mediaRepository.dataSource = imageDataSource
+        mediaLoader = MediaLoader(mediaRepository: mediaRepository)
     }
 
     // MARK: Reachability
@@ -430,11 +430,11 @@ public final class Parley: ParleyProtocol {
 
     private func getStoredMedia(for message: Message) -> ParleyStoredImage? {
         guard let media = message.media else { return nil }
-        return imageRepository.getStoredImage(for: media)
+        return mediaRepository.getStoredImage(for: media)
     }
 
     private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
-        let remoteImage = try await imageRepository.upload(image: storedImage)
+        let remoteImage = try await mediaRepository.upload(image: storedImage)
         message.media = MediaObject(id: remoteImage.id, mimeType: storedImage.type.rawValue)
         messagesManager?.update(message)
         return message
@@ -451,7 +451,7 @@ public final class Parley: ParleyProtocol {
     }
 
     private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredImage) {
-        let localImage = imageRepository.store(media: media)
+        let localImage = mediaRepository.store(media: media)
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id, mimeType: localImage.type.rawValue)
         await addNewMessage(message)
@@ -708,7 +708,7 @@ extension Parley {
         shared.keyValueDataSource = nil
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
-        shared.imageRepository?.dataSource = nil
+        shared.mediaRepository?.dataSource = nil
 
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
@@ -876,7 +876,7 @@ extension Parley {
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository?.reset()
+        shared.mediaRepository?.reset()
 
         shared.registerDevice(onSuccess: {
             shared.secret = nil
@@ -906,7 +906,7 @@ extension Parley {
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository?.reset()
+        shared.mediaRepository?.reset()
         shared.secret = nil
         shared.clearChat()
         completion?()
