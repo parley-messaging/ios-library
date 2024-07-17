@@ -10,7 +10,6 @@ class ParleyFileManager {
     init() {
         do {
             destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheFilesDirectory)
-            try fileManager.removeItem(at: destination)
             try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
         } catch {
             print("Failed to create storage directory: \(error)")
