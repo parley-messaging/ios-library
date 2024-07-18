@@ -35,10 +35,11 @@ public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
         appearance.balloonContentTextInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
 
         appearance.messageTextViewAppearance.textColor = UIColor.white
+        appearance.messageTextViewAppearance.linkTintColor =  UIColor(white: 1, alpha: 0.6)
         
         appearance.fileIconTintColor = UIColor(white: 1, alpha: 0.6)
         appearance.fileNameColor = UIColor.white
-        appearance.fileButtonColor = UIColor(white: 1, alpha: 0.6)
+        appearance.fileActionColor = UIColor(white: 1, alpha: 0.6)
 
         appearance.timeColor = UIColor(white: 1, alpha: 0.6)
 

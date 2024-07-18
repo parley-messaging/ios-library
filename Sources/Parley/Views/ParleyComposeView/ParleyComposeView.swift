@@ -274,16 +274,8 @@ public class ParleyComposeView: UIView {
             popoverController.sourceRect = sender.bounds
             popoverController.permittedArrowDirections = [.left, .down]
         }
-
+        
         alertController.title = ParleyLocalizationKey.photo.localized
-        alertController.addAction(UIAlertAction(
-            title: ParleyLocalizationKey.selectPhoto.localized,
-            style: .default,
-            handler: { [weak self] _ in
-                self?.selectPhoto()
-            }
-        ))
-
         if isCameraAvailable() {
             alertController.addAction(UIAlertAction(
                 title: ParleyLocalizationKey.takePhoto.localized,
@@ -293,6 +285,14 @@ public class ParleyComposeView: UIView {
                 }
             ))
         }
+        
+        alertController.addAction(UIAlertAction(
+            title: ParleyLocalizationKey.selectPhoto.localized,
+            style: .default,
+            handler: { [weak self] _ in
+                self?.selectPhoto()
+            }
+        ))
         
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.uploadFile.localized,

@@ -25,7 +25,6 @@
 "parley_send_failed_body_media_too_large" = "The photo is too large to send.";
 
 // MARK: Message
-"parley_message_file_unknown_filename" = "File";
 "parley_message_file_open" = "OPEN";
 
 // MARK: Message Compose View

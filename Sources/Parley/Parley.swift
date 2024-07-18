@@ -428,13 +428,13 @@ public final class Parley: ParleyProtocol {
         return try await upload(storedImage: storedImage, message: message)
     }
 
-    private func getStoredMedia(for message: Message) -> ParleyStoredImage? {
+    private func getStoredMedia(for message: Message) -> ParleyStoredMedia? {
         guard let media = message.media else { return nil }
-        return mediaRepository.getStoredImage(for: media)
+        return mediaRepository.getStoredMedia(for: media)
     }
 
-    private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
-        let remoteId = try await mediaRepository.upload(image: storedImage)
+    private func upload(storedImage: ParleyStoredMedia, message: Message) async throws -> Message {
+        let remoteId = try await mediaRepository.upload(media: storedImage)
         message.media = MediaObject(id: remoteId, mimeType: storedImage.type.rawValue)
         messagesManager?.update(message)
         return message
@@ -450,7 +450,7 @@ public final class Parley: ParleyProtocol {
         }
     }
 
-    private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredImage) {
+    private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredMedia) {
         let localImage = mediaRepository.store(media: media)
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id, mimeType: localImage.type.rawValue)

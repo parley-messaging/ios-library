@@ -91,6 +91,8 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var fileLabel: UILabel!
     @IBOutlet private weak var fileButton: UIButton!
     
+    @IBOutlet private weak var fileActivityIndicatorView: UIActivityIndicatorView!
+    
     @IBOutlet private weak var fileMetaTopLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileMetaLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileMetaRightLayoutConstraint: NSLayoutConstraint!
@@ -119,6 +121,7 @@ final class ParleyMessageView: UIView {
 
     // Media
     private var mediaLoader: MediaLoaderProtocol?
+    private var shareManager: ShareManager?
 
     // Helpers
     private var displayName: Display = .message
@@ -167,10 +170,11 @@ final class ParleyMessageView: UIView {
         ])
     }
 
-    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?) {
+    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManager?) {
         self.message = message
         time = forcedTime
         self.mediaLoader = mediaLoader
+        self.shareManager = shareManager
         render()
     }
 
@@ -338,7 +342,7 @@ final class ParleyMessageView: UIView {
     }
     
     private func renderFile(_ media: MediaObject) {
-        fileLabel.text = ParleyStoredImage.FilePath.from(media: media)?.fileName ?? ParleyLocalizationKey.messageFileUnknownFilename.localized
+        fileLabel.text = ParleyStoredMedia.FilePath.from(media: media)?.fileName ?? ParleyStoredMedia.FilePath(name: UUID().uuidString, type: .applicationPdf).fileName
         
         fileLabel.adjustsFontForContentSizeCategory = true
         fileButton.titleLabel?.adjustsFontForContentSizeCategory = true
@@ -398,19 +402,19 @@ final class ParleyMessageView: UIView {
         let imageRequestForMessageId = message.id
         Task {
             do {
-                let result = try await mediaLoader.load(media: media)
+                let data = try await mediaLoader.load(media: media)
                 // Check if the Message ID of the requested image is the same as the message of the current cell.
                 // During cell reuse, the ongoing request could callback on another cell.
                 // This check prevents it from applying that image (or display it's failure).
                 guard imageRequestForMessageId == message.id else { return }
                 
                 // NOTE: Result should be of type image
-                guard case .image(let model) = result else {
+                guard let image = media.imageFromData(data) else {
                     displayFailedLoadingImage()
                     return
                 }
                 
-                display(image: model.image)
+                display(image: image)
             } catch {
                 displayFailedLoadingImage()
             }
@@ -429,6 +433,21 @@ final class ParleyMessageView: UIView {
     private func displayFailedLoadingImage() {
         imageActivityIndicatorView.stopAnimating()
         renderGradients()
+    }
+    
+    private func displayFailedLoadingFileNoFileManager() {
+        presentAlert(title: "Openen mislukt", message: "Geen file manager beschikbaar")
+    }
+    
+    private func displayFailedLoadingFile() {
+        presentAlert(title: "Openen mislukt", message: "Kan de file niet laden")
+    }
+    
+    private func presentAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okMessage = ParleyLocalizationKey.ok.localized
+        alert.addAction(UIAlertAction(title: okMessage, style: .default))
+        present(alert, animated: true)
     }
 
     // Gradient
@@ -662,14 +681,16 @@ final class ParleyMessageView: UIView {
         fileLabel.textColor = appearance.fileNameColor
         fileLabel.font = appearance.fileNameFont
         
-        fileButton.setTitleColor(appearance.fileButtonColor ?? UIColor.black, for: .normal)
-        fileButton.titleLabel?.font = appearance.fileButtonFont
+        fileButton.setTitleColor(appearance.fileActionColor, for: .normal)
+        fileButton.titleLabel?.font = appearance.fileActionFont
         fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized, for: .normal)
         fileButton.addTarget(self, action: #selector(imageAction), for: .touchUpInside)
         if #available(iOS 15, *) {
             // NOTE: Needed to allow the font setting on the titleLabel to work after 15.0
             fileButton.configuration = nil
         }
+        
+        fileActivityIndicatorView.color = appearance.fileActionColor
         
         fileMetaTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
         fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileInsets?.left ?? 0)
@@ -701,12 +722,38 @@ final class ParleyMessageView: UIView {
 
     // MARK: - Actions
     @IBAction
-    func imageAction(sender: AnyObject) {
+    private func imageAction(sender: AnyObject) {
         guard let media = message.media else {
             return
         }
         
         delegate?.didSelectMedia(media)
+    }
+    
+    @IBAction
+    private func openMediaAction(sender: UIButton) {
+        fileButton.isHidden = true
+        fileActivityIndicatorView.startAnimating()
+        Task { @MainActor in
+            defer {
+                fileButton.isHidden = false
+                fileActivityIndicatorView.stopAnimating()
+            }
+            
+            
+            guard let shareManager else {
+                displayFailedLoadingFileNoFileManager()
+                return
+            }
+            
+            guard let media = message.media,
+                  let url = try? await shareManager.share(media: media) else {
+                displayFailedLoadingFile()
+                return
+            }
+            
+            delegate?.shareMedia(url: url)
+        }
     }
 
     @objc

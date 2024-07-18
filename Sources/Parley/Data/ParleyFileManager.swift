@@ -2,26 +2,21 @@ import Foundation
 
 class ParleyFileManager {
     
-    static var shared: ParleyFileManager = .init()
-    
     private let fileManager: FileManager = .default
     private let destination: URL
     
-    init() {
-        do {
-            destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheFilesDirectory)
-            try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
-        } catch {
-            print("Failed to create storage directory: \(error)")
-        }
+    init() throws {
+        destination = fileManager.temporaryDirectory.appendingPathComponent(kParleyCacheFilesDirectory)
+        try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
     }
     
-    func save(fileData: Data, for media: MediaObject) -> Bool {
-        guard let path = path(for: media) else {
-            return false
+    func save(fileData: Data, for media: MediaObject) -> URL? {
+        guard let path = path(for: media),
+              fileManager.createFile(atPath: path.path, contents: fileData) else {
+            return nil
         }
         
-        return fileManager.createFile(atPath: path.path, contents: fileData)
+        return path
     }
     
     func file(for media: MediaObject) -> Data? {
@@ -33,7 +28,7 @@ class ParleyFileManager {
     }
     
     func path(for media: MediaObject) -> URL? {
-        guard let fileName = ParleyStoredImage.FilePath.from(media: media)?.fileName else {
+        guard let fileName = ParleyStoredMedia.FilePath.from(media: media)?.fileName else {
             return nil
         }
         

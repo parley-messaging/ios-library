@@ -20,8 +20,8 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    func render(_ message: Message, time: Date?, mediaLoader: MediaLoaderProtocol?) {
-        parleyMessageView.set(message: message, forcedTime: time, mediaLoader: mediaLoader)
+    func render(_ message: Message, time: Date?, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManager?) {
+        parleyMessageView.set(message: message, forcedTime: time, mediaLoader: mediaLoader, shareManager: shareManager)
         setupAccessibilityOptions(for: message)
     }
 

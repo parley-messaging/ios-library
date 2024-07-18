@@ -238,7 +238,7 @@ final class ParleyRemote {
         _ method: ParleyHTTPRequestMethod,
         path: String,
         type: ParleyImageType,
-        result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void
+        result: @escaping (Result<Data, Error>) -> Void
     ) {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
@@ -256,7 +256,7 @@ final class ParleyRemote {
                         switch requestResult {
                         case .success(let response):
                             if let data = response.body {
-                                result(.success(ParleyImageNetworkModel(data: data, type: type)))
+                                result(.success(data))
                             }
                         case .failure(let error):
                             if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {

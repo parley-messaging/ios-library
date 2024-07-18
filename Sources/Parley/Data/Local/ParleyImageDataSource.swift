@@ -2,14 +2,14 @@ import Foundation
 
 public protocol ParleyImageDataSource: AnyObject, ParleyDataSource {
 
-    func all() -> [ParleyStoredImage]
+    func all() -> [ParleyStoredMedia]
 
-    func image(id: ParleyStoredImage.ID) -> ParleyStoredImage?
+    func image(id: ParleyStoredMedia.ID) -> ParleyStoredMedia?
 
-    func save(images: [ParleyStoredImage])
+    func save(images: [ParleyStoredMedia])
 
-    func save(image: ParleyStoredImage)
+    func save(image: ParleyStoredMedia)
 
     @discardableResult
-    func delete(id: ParleyStoredImage.ID) -> Bool
+    func delete(id: ParleyStoredMedia.ID) -> Bool
 }

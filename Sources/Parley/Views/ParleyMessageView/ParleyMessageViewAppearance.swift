@@ -52,8 +52,8 @@ public class ParleyMessageViewAppearance {
     public var fileNameColor =  UIColor(white: 0, alpha: 1)
     @ParleyScaledFont(textStyle: .body) public var fileNameFont = .systemFont(ofSize: 13)
     
-    public var fileButtonColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
-    @ParleyScaledFont(textStyle: .headline) public var fileButtonFont = .boldSystemFont(ofSize: 16)
+    public var fileActionColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
+    @ParleyScaledFont(textStyle: .headline) public var fileActionFont = .boldSystemFont(ofSize: 16)
     
     public var fileInsets: UIEdgeInsets? = UIEdgeInsets(top: 14, left: 0, bottom: 14, right: 0)
 
@@ -64,7 +64,7 @@ public class ParleyMessageViewAppearance {
     @ParleyScaledFont(textStyle: .callout) public var timeFont = .systemFont(ofSize: 12)
 
     public var statusTintColor = UIColor(white: 1, alpha: 0.6)
-
+    
     // Buttons
     public var buttonsInsets: UIEdgeInsets?
     public var buttonInsets: UIEdgeInsets?

@@ -24,6 +24,7 @@
                 <outlet property="buttonsTopLayoutConstraint" destination="SuQ-jr-ETd" id="8Jb-ht-cFU"/>
                 <outlet property="buttonsView" destination="4aa-5n-Q0e" id="P40-5X-wch"/>
                 <outlet property="contentView" destination="gFs-GY-XLf" id="itE-AA-rNi"/>
+                <outlet property="fileActivityIndicatorView" destination="cDB-2u-kSP" id="B1s-2H-nMB"/>
                 <outlet property="fileButton" destination="kz2-lo-cCt" id="fCa-24-v39"/>
                 <outlet property="fileIcon" destination="SiI-pO-uaz" id="SfQ-m9-025"/>
                 <outlet property="fileLabel" destination="qB8-No-J7R" id="FkW-JS-Zkp"/>
@@ -200,10 +201,10 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DQf-Yc-TpL">
-                                    <rect key="frame" x="0.0" y="214" width="414" height="463"/>
+                                    <rect key="frame" x="0.0" y="214" width="414" height="384"/>
                                     <subviews>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="message.message" textAlignment="natural" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ft-QK-MKv" customClass="ParleyTextView" customModule="Parley">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="463"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="384"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -219,7 +220,7 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nKs-j9-JUx">
-                                    <rect key="frame" x="0.0" y="677" width="414" height="71"/>
+                                    <rect key="frame" x="0.0" y="598" width="414" height="71"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="gph-OF-RwP">
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="71"/>
@@ -240,11 +241,32 @@
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
-                                                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kz2-lo-cCt">
+                                                        <view contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="740" translatesAutoresizingMaskIntoConstraints="NO" id="iEv-L2-Mz5">
                                                             <rect key="frame" x="252" y="18.5" width="162" height="34.5"/>
-                                                            <state key="normal" title="Button"/>
-                                                            <buttonConfiguration key="configuration" style="plain" title="message.file.open"/>
-                                                        </button>
+                                                            <subviews>
+                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kz2-lo-cCt">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="162" height="34.5"/>
+                                                                    <state key="normal" title="Button"/>
+                                                                    <buttonConfiguration key="configuration" style="plain" title="message.file.open"/>
+                                                                    <connections>
+                                                                        <action selector="openMediaActionWithSender:" destination="-1" eventType="touchUpInside" id="jfq-g2-gFu"/>
+                                                                    </connections>
+                                                                </button>
+                                                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="cDB-2u-kSP">
+                                                                    <rect key="frame" x="71" y="0.0" width="20" height="34.5"/>
+                                                                </activityIndicatorView>
+                                                            </subviews>
+                                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="bottom" secondItem="cDB-2u-kSP" secondAttribute="bottom" id="HcD-aG-vfr"/>
+                                                                <constraint firstItem="cDB-2u-kSP" firstAttribute="top" secondItem="iEv-L2-Mz5" secondAttribute="top" id="Ht9-fl-3b2"/>
+                                                                <constraint firstAttribute="bottom" secondItem="kz2-lo-cCt" secondAttribute="bottom" id="SYD-sY-2Vg"/>
+                                                                <constraint firstItem="kz2-lo-cCt" firstAttribute="leading" secondItem="iEv-L2-Mz5" secondAttribute="leading" id="cE9-Vo-5Z9"/>
+                                                                <constraint firstItem="kz2-lo-cCt" firstAttribute="top" secondItem="iEv-L2-Mz5" secondAttribute="top" id="ie4-O7-tY1"/>
+                                                                <constraint firstItem="cDB-2u-kSP" firstAttribute="centerX" secondItem="iEv-L2-Mz5" secondAttribute="centerX" id="lPW-zk-Jf3"/>
+                                                                <constraint firstAttribute="trailing" secondItem="kz2-lo-cCt" secondAttribute="trailing" id="zuf-FP-bJ1"/>
+                                                            </constraints>
+                                                        </view>
                                                     </subviews>
                                                 </stackView>
                                             </subviews>
@@ -259,10 +281,10 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4aa-5n-Q0e" userLabel="Buttons">
-                                    <rect key="frame" x="0.0" y="748" width="414" height="50"/>
+                                    <rect key="frame" x="0.0" y="669" width="414" height="129"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="H1q-4j-tMw">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="50"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="129"/>
                                         </stackView>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

@@ -3,7 +3,7 @@ import Foundation
 /// An image stored locally on-device.
 ///
 /// This image can either be already uploaded or is pending to be uploaded later when the user is online.
-public struct ParleyStoredImage: Codable {
+public struct ParleyStoredMedia: Codable {
     let filename: String
     var data: Data
     let type: ParleyImageType
@@ -16,8 +16,8 @@ public struct ParleyStoredImage: Codable {
         path = FilePath(name: filename, type: type)
     }
 
-    static func from(media: MediaModel) -> ParleyStoredImage {
-        ParleyStoredImage(
+    static func from(media: MediaModel) -> ParleyStoredMedia {
+        ParleyStoredMedia(
             filename: UUID().uuidString,
             data: media.data,
             type: media.type
@@ -37,7 +37,7 @@ public struct ParleyStoredImage: Codable {
             self.type = type
         }
 
-        static func from(image: ParleyStoredImage) -> FilePath {
+        static func from(image: ParleyStoredMedia) -> FilePath {
             FilePath(name: image.filename, type: image.type)
         }
 
@@ -72,14 +72,14 @@ public struct ParleyStoredImage: Codable {
     }
 }
 
-extension ParleyStoredImage: Identifiable {
+extension ParleyStoredMedia: Identifiable {
 
     public var id: String { filename }
 }
 
-extension ParleyStoredImage: Equatable {
+extension ParleyStoredMedia: Equatable {
 
-    public static func == (lhs: ParleyStoredImage, rhs: ParleyStoredImage) -> Bool {
+    public static func == (lhs: ParleyStoredMedia, rhs: ParleyStoredMedia) -> Bool {
         lhs.id == rhs.id
     }
 }
