@@ -268,8 +268,6 @@ public class ParleyComposeView: UIView {
     // MARK: Image picker
     @IBAction
     private func presentImageActionSheet(_ sender: UIButton) {
-        guard isCameraAvailable() else { selectPhoto() ; return }
-
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = sender
@@ -286,13 +284,15 @@ public class ParleyComposeView: UIView {
             }
         ))
 
-        alertController.addAction(UIAlertAction(
-            title: ParleyLocalizationKey.takePhoto.localized,
-            style: .default,
-            handler: { [weak self] _ in
-                self?.takePhoto()
-            }
-        ))
+        if isCameraAvailable() {
+            alertController.addAction(UIAlertAction(
+                title: ParleyLocalizationKey.takePhoto.localized,
+                style: .default,
+                handler: { [weak self] _ in
+                    self?.takePhoto()
+                }
+            ))
+        }
         
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.uploadFile.localized,
