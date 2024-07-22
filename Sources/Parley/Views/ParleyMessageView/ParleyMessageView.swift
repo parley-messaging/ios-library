@@ -342,7 +342,14 @@ final class ParleyMessageView: UIView {
     }
     
     private func renderFile(_ media: MediaObject) {
-        fileLabel.text = ParleyStoredMedia.FilePath.from(media: media)?.fileName ?? ParleyStoredMedia.FilePath(name: UUID().uuidString, type: .applicationPdf).fileName
+        let filePath = ParleyStoredMedia.FilePath.from(media: media) ?? ParleyStoredMedia.FilePath(name: UUID().uuidString, type: .applicationPdf)
+        fileLabel.text = filePath.fileName
+        switch message.status {
+        case .failed, .pending:
+            fileButton.isHidden = true
+        case .success:
+            fileButton.isHidden = false
+        }
         
         fileLabel.adjustsFontForContentSizeCategory = true
         fileButton.titleLabel?.adjustsFontForContentSizeCategory = true

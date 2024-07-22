@@ -121,7 +121,6 @@ public class ParleyView: UIView {
     }
     
     private lazy var shareManager: ShareManager? = {
-        return nil
         guard let shareManager = try? ShareManager(mediaLoader: parley.mediaLoader) else {
             return nil
         }
