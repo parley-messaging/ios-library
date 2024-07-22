@@ -60,7 +60,7 @@ final class MessageTableViewCell: UITableViewCell {
 
             let maxSize = messages.map { message -> CGSize in
                 MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
-            }.max(by: { $0.height > $1.height }) ?? .zero
+            }.max(by: { $0.height < $1.height }) ?? .zero
 
             if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
                 flowLayout.estimatedItemSize = maxSize

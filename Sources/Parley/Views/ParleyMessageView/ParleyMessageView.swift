@@ -87,11 +87,18 @@ final class ParleyMessageView: UIView {
     
     // File
     @IBOutlet private weak var fileView: UIView!
+    @IBOutlet private weak var fileStackView: UIStackView!
+    @IBOutlet private weak var fileContentView: UIView!
     @IBOutlet private weak var fileIcon: UIImageView!
     @IBOutlet private weak var fileLabel: UILabel!
     @IBOutlet private weak var fileButton: UIButton!
     
     @IBOutlet private weak var fileActivityIndicatorView: UIActivityIndicatorView!
+    
+    @IBOutlet private weak var fileTopLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileLeftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileRightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var fileBottomLayoutConstraint: NSLayoutConstraint!
     
     @IBOutlet private weak var fileMetaTopLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileMetaLeftLayoutConstraint: NSLayoutConstraint!
@@ -342,6 +349,16 @@ final class ParleyMessageView: UIView {
     }
     
     private func renderFile(_ media: MediaObject) {
+        for arrangedSubview in fileStackView.arrangedSubviews {
+            fileStackView.removeArrangedSubview(arrangedSubview)
+        }
+
+        if message.title != nil || displayName == .message || message.message != nil {
+            fileStackView.addArrangedSubview(createSeparator())
+        }
+        fileStackView.addArrangedSubview(fileContentView)
+        fileStackView.addArrangedSubview(createSeparator())
+        
         let filePath = ParleyStoredMedia.FilePath.from(media: media) ?? ParleyStoredMedia.FilePath(name: UUID().uuidString, type: .applicationPdf)
         fileLabel.text = filePath.fileName
         switch message.status {
@@ -553,14 +570,14 @@ final class ParleyMessageView: UIView {
             let messageButtons = message.buttons
         {
             buttonsView.isHidden = false
-            if message.title != nil || displayName == .message || message.message != nil || message.hasMedium {
-                let sep = createButtonSeparator()
+            if message.title != nil || displayName == .message || message.message != nil || message.hasImage {
+                let sep = createSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
             for (tag, messageButton) in messageButtons.enumerated() {
                 let button = createButton(from: messageButton, tag: tag)
                 buttonsStackView.addArrangedSubview(button)
-                let sep = createButtonSeparator()
+                let sep = createSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
         } else {
@@ -568,11 +585,21 @@ final class ParleyMessageView: UIView {
         }
     }
 
-    private func createButtonSeparator() -> UIView {
-        let separator = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
+    private func createSeparator() -> UIView {
+        let separatorContainer = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
+        let separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = appearance?.buttonSeperatorColor ?? UIColor(white: 0.91, alpha: 1.0)
-        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        return separator
+        separatorContainer.addSubview(separator)
+        NSLayoutConstraint.activate([
+            separator.heightAnchor.constraint(equalToConstant: 1),
+            separator.leadingAnchor.constraint(equalTo: separatorContainer.leadingAnchor, constant: appearance?.separatorInset?.left ?? 0),
+            separator.topAnchor.constraint(equalTo: separatorContainer.topAnchor, constant: appearance?.separatorInset?.top ?? 0),
+            separator.trailingAnchor.constraint(equalTo: separatorContainer.trailingAnchor, constant: -(appearance?.separatorInset?.right ?? 0)),
+            separator.bottomAnchor.constraint(equalTo: separatorContainer.bottomAnchor, constant: -(appearance?.separatorInset?.bottom ?? 0)),
+        ])
+        
+        return separatorContainer
     }
 
     private func createButton(from messageButton: MessageButton, tag: Int) -> UIButton {
@@ -699,10 +726,15 @@ final class ParleyMessageView: UIView {
         
         fileActivityIndicatorView.color = appearance.fileActionColor
         
-        fileMetaTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
-        fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileInsets?.left ?? 0)
-        fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileInsets?.right ?? 0)
-        fileMetaBottomLayoutConstraint.constant = appearance.fileInsets?.bottom ?? 0
+        fileTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
+        fileLeftLayoutConstraint.constant = appearance.fileInsets?.left ?? 0
+        fileRightLayoutConstraint.constant = appearance.fileInsets?.right ?? 0
+        fileBottomLayoutConstraint.constant = appearance.fileInsets?.bottom ?? 0
+        
+        fileMetaTopLayoutConstraint.constant = appearance.fileContentInsets?.top ?? 0
+        fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileContentInsets?.left ?? 0)
+        fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
+        fileMetaBottomLayoutConstraint.constant = appearance.fileContentInsets?.bottom ?? 0
         
         // Meta
         timeLabel.textColor = appearance.timeColor
