@@ -27,6 +27,11 @@
 // MARK: Message
 "parley_message_file_open" = "OPEN";
 
+"parley_message_file_load_failed_no_file_manager_title" = "Kan bestand niet opslaan";
+"parley_message_file_load_failed_no_file_manager_message" = "Er is een probleem opgetreden bij het initialiseren van de download.";
+"parley_message_file_load_failed_title" = "Kan bestand niet opslaan";
+"parley_message_file_load_failed_message" = "Het bestand kon niet worden opgeslagen.";
+
 // MARK: Message Compose View
 "parley_type_message" = "Typ een bericht...";
 

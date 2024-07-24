@@ -460,11 +460,17 @@ final class ParleyMessageView: UIView {
     }
     
     private func displayFailedLoadingFileNoFileManager() {
-        presentAlert(title: "Openen mislukt", message: "Geen file manager beschikbaar")
+        presentAlert(
+            title: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerTitle.localized,
+            message: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerMessage.localized
+        )
     }
     
     private func displayFailedLoadingFile() {
-        presentAlert(title: "Openen mislukt", message: "Kan de file niet laden")
+        presentAlert(
+            title: ParleyLocalizationKey.messageFileLoadFailedTitle.localized,
+            message: ParleyLocalizationKey.messageFileLoadFailedMessage.localized
+        )
     }
     
     private func presentAlert(title: String, message: String) {
