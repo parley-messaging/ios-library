@@ -45,27 +45,27 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 
     public func all() -> [ParleyStoredMedia] {
-        getFiles().compactMap(obtainStoredImage(from:))
+        getFiles().compactMap(obtainStoredMedia(from:))
     }
 
     public func image(id: ParleyStoredMedia.ID) -> ParleyStoredMedia? {
         guard let url = path(id: id) else { return nil }
-        return obtainStoredImage(from: url)
+        return obtainStoredMedia(from: url)
     }
     
     private func path(id: ParleyStoredMedia.ID) -> URL? {
         return getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 
-    private func obtainStoredImage(from url: URL) -> ParleyStoredMedia? {
+    private func obtainStoredMedia(from url: URL) -> ParleyStoredMedia? {
         guard
-            let decryptedData = getDecryptedStoredImageData(url: url),
+            let decryptedData = getDecryptedStoredMediaData(url: url),
             let filePath = ParleyStoredMedia.FilePath.from(url: url) else { return nil }
         
         return ParleyStoredMedia(filename: filePath.name, data: decryptedData, type: filePath.type)
     }
 
-    private func getDecryptedStoredImageData(url: URL) -> Data? {
+    private func getDecryptedStoredMediaData(url: URL) -> Data? {
         guard let data = store.fileManager.contents(atPath: url.path) else { return nil }
         return try? store.crypter.decrypt(data)
     }
@@ -77,7 +77,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 
     public func save(image: ParleyStoredMedia) {
-        let path = ParleyStoredMedia.FilePath.from(image: image).fileName
+        let path = ParleyStoredMedia.FilePath.from(media: image).fileName
         let absoluteURL = store.destination.appendingPathComponent(path)
 
         if let encryptedImageData = try? store.crypter.encrypt(image.data) {
@@ -86,11 +86,11 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 
     public func delete(id: ParleyStoredMedia.ID) -> Bool {
-        guard let url = findUrlForStoredImage(id: id) else { return false }
+        guard let url = findUrlForStoredMedia(id: id) else { return false }
         return removeItem(at: url)
     }
 
-    private func findUrlForStoredImage(id: ParleyStoredMedia.ID) -> URL? {
+    private func findUrlForStoredMedia(id: ParleyStoredMedia.ID) -> URL? {
         getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 

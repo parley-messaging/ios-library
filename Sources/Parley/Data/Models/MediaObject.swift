@@ -5,8 +5,8 @@ struct MediaObject: Codable {
     let id: String
     let mimeType: String
     
-    func getMediaType() -> ParleyImageType {
-        return ParleyImageType.from(mimeType: mimeType);
+    func getMediaType() -> ParleyMediaType {
+        return ParleyMediaType.from(mimeType: mimeType);
     }
     
     func imageFromData(_ imageData: Data) -> UIImage? {

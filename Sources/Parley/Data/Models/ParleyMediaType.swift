@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-enum ParleyImageType: String, CaseIterable, Codable {
+enum ParleyMediaType: String, CaseIterable, Codable {
     case imagePng = "image/png"
     case imageGif = "image/gif"
     case imageJPeg = "image/jpeg"
@@ -34,22 +34,22 @@ enum ParleyImageType: String, CaseIterable, Codable {
         }
     }
 
-    /// Returns a ParleyImageType from a given mimetype
+    /// Returns a ParleyMediaType from a given mimetype
     /// Defaults to .other.
     /// - Parameters:
     ///  - mimetype: MimeType of the media
-    /// - Returns: ParleyImageType
-    static func from(mimeType: String) -> ParleyImageType {
-        ParleyImageType(rawValue: mimeType) ?? .other
+    /// - Returns: ParleyMediaType
+    static func from(mimeType: String) -> ParleyMediaType {
+        ParleyMediaType(rawValue: mimeType) ?? .other
     }
     
-    /// Returns a ParleyImageType from a given URL
+    /// Returns a ParleyMediaType from a given URL
     /// Defaults to .other.
     /// - Parameters:
-    ///  - url: Local URL of the image
-    /// - Returns: ParleyImageType
-    static func map(from url: URL) -> ParleyImageType {
-        let imageName = url.lastPathComponent
-        return ParleyImageType.allCases.first { imageName.contains($0.fileExtension) } ?? .other
+    ///  - url: Local URL of the media
+    /// - Returns: ParleyMediaType
+    static func map(from url: URL) -> ParleyMediaType {
+        let mediaName = url.lastPathComponent
+        return ParleyMediaType.allCases.first { mediaName.contains($0.fileExtension) } ?? .other
     }
 }

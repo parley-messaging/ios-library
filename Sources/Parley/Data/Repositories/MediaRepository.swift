@@ -14,9 +14,9 @@ class MediaRepository {
     }
 
     func store(media: MediaModel) -> ParleyStoredMedia {
-        let image = ParleyStoredMedia.from(media: media)
-        store(media: image)
-        return image
+        let storedMedia = ParleyStoredMedia.from(media: media)
+        store(media: storedMedia)
+        return storedMedia
     }
     
     func getStoredMedia(for media: MediaObject) -> ParleyStoredMedia? {
@@ -38,13 +38,13 @@ class MediaRepository {
     func upload(media storedMedia: ParleyStoredMedia) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
             messageRemoteService.upload(
-                imageData: storedMedia.data,
-                imageType: storedMedia.type,
+                data: storedMedia.data,
+                type: storedMedia.type,
                 fileName: storedMedia.filename
-            ) { [weak self] imageResult in
+            ) { [weak self] mediaResult in
                 guard let self else { return }
                 do {
-                    let mediaResponse = try imageResult.get()
+                    let mediaResponse = try mediaResult.get()
                     
                     move(storedMedia, to: mediaResponse.media)
                     
@@ -72,7 +72,7 @@ extension MediaRepository {
         }
     }
 
-    private func fetchMedia(url: URL, type: ParleyImageType) async throws -> Data {
+    private func fetchMedia(url: URL, type: ParleyMediaType) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             let remotePath = getRemoteFetchPath(url: url)
             messageRemoteService.findMedia(remotePath, type: type, result: { result in

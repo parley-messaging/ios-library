@@ -3,9 +3,9 @@ import UniformTypeIdentifiers
 
 struct MediaModel: Codable {
     let data: Data
-    let type: ParleyImageType
+    let type: ParleyMediaType
     let filename: String
-    var hasUploaded = false
+    var hasUploaded = false // TODO: This is not used anywhere. Remove
 
     init(data: Data, url: URL) {
         filename = url.lastPathComponent

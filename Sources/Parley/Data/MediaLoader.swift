@@ -22,8 +22,8 @@ actor MediaLoader: MediaLoaderProtocol {
     }
 
     func load(media: MediaObject) async throws -> Data {
-        if let cachedImage = mediaCache[media.id] {
-            return cachedImage
+        if let cachedMedia = mediaCache[media.id] {
+            return cachedMedia
         } else if let storedMedia = mediaRepository.getStoredMedia(for: media) {
             mediaCache[media.id] = storedMedia.data
             return storedMedia.data
