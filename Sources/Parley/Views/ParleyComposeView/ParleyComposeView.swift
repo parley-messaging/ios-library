@@ -12,9 +12,9 @@ public class ParleyComposeView: UIView {
         }
     }
 
-    @IBOutlet weak var cameraButton: UIButton! {
+    @IBOutlet weak var mediaUploadButton: UIButton! {
         didSet {
-            cameraButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
+            mediaUploadButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
         }
     }
 
@@ -105,7 +105,7 @@ public class ParleyComposeView: UIView {
 
     var isEnabled = true {
         didSet {
-            cameraButton.isEnabled = isEnabled
+            mediaUploadButton.isEnabled = isEnabled
             textView.isEditable = isEnabled
             sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -113,10 +113,10 @@ public class ParleyComposeView: UIView {
 
     var maxCount = 2000
 
-    var allowPhotos = true {
+    var allowMediaUpload = true {
         didSet {
-            cameraButton.isHidden = !allowPhotos
-            textViewBackgroundViewTrailingConstraint.constant = allowPhotos ? 56 : 16
+            mediaUploadButton.isHidden = !allowMediaUpload
+            textViewBackgroundViewTrailingConstraint.constant = allowMediaUpload ? 56 : 16
         }
     }
 
@@ -211,8 +211,8 @@ public class ParleyComposeView: UIView {
         let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
         cameraIcon.isAccessibilityElement = false
         cameraIcon.accessibilityLabel = nil
-        cameraButton.setImage(cameraIcon, for: .normal)
-        cameraButton.tintColor = appearance.cameraTintColor
+        mediaUploadButton.setImage(cameraIcon, for: .normal)
+        mediaUploadButton.tintColor = appearance.cameraTintColor
 
         placeholderLabel.textColor = appearance.placeholderColor
         placeholderLabel.font = appearance.font

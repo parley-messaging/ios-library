@@ -6,7 +6,7 @@ class MediaRepository {
         case invalidRemoteURL
     }
 
-    weak var dataSource: ParleyImageDataSource?
+    weak var dataSource: ParleyMediaDataSource?
     private var messageRemoteService: MessageRemoteService
 
     init(messageRemoteService: MessageRemoteService) {
@@ -20,7 +20,7 @@ class MediaRepository {
     }
     
     func getStoredMedia(for media: MediaObject) -> ParleyStoredMedia? {
-        return dataSource?.image(id: media.id)
+        return dataSource?.media(id: media.id)
     }
 
     func getRemoteMedia(for media: MediaObject) async throws -> Data {
@@ -98,6 +98,6 @@ extension MediaRepository {
     }
 
     private func store(media: ParleyStoredMedia) {
-        dataSource?.save(image: media)
+        dataSource?.save(media: media)
     }
 }

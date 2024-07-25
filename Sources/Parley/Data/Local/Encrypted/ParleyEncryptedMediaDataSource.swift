@@ -1,6 +1,9 @@
 import Foundation
 
-public class ParleyEncryptedImageDataSource {
+@available(*, deprecated, renamed: "ParleyEncryptedMediaDataSource", message: "Use ParleyEncryptedMediaDataSource instead")
+public typealias ParleyEncryptedImageDataSource = ParleyEncryptedMediaDataSource
+
+public class ParleyEncryptedMediaDataSource {
 
     private let store: ParleyEncryptedStore
 
@@ -11,7 +14,7 @@ public class ParleyEncryptedImageDataSource {
         var path: String {
             switch self {
             case .default:
-                kParleyCacheImagesDirectory
+                kParleyCacheMediaDirectory
             case .custom(let string):
                 string
             }
@@ -31,7 +34,7 @@ public class ParleyEncryptedImageDataSource {
     }
 }
 
-extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
+extension ParleyEncryptedMediaDataSource: ParleyMediaDataSource {
 
     public func clear() -> Bool {
         do {
@@ -48,7 +51,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
         getFiles().compactMap(obtainStoredMedia(from:))
     }
 
-    public func image(id: ParleyStoredMedia.ID) -> ParleyStoredMedia? {
+    public func media(id: ParleyStoredMedia.ID) -> ParleyStoredMedia? {
         guard let url = path(id: id) else { return nil }
         return obtainStoredMedia(from: url)
     }
@@ -70,18 +73,18 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
         return try? store.crypter.decrypt(data)
     }
 
-    public func save(images: [ParleyStoredMedia]) {
-        for image in images {
-            save(image: image)
+    public func save(media: [ParleyStoredMedia]) {
+        for medium in media {
+            save(media: medium)
         }
     }
 
-    public func save(image: ParleyStoredMedia) {
-        let path = ParleyStoredMedia.FilePath.from(media: image).fileName
+    public func save(media: ParleyStoredMedia) {
+        let path = ParleyStoredMedia.FilePath.from(media: media).fileName
         let absoluteURL = store.destination.appendingPathComponent(path)
 
-        if let encryptedImageData = try? store.crypter.encrypt(image.data) {
-            store.fileManager.createFile(atPath: absoluteURL.path, contents: encryptedImageData)
+        if let encryptedMediaData = try? store.crypter.encrypt(media.data) {
+            store.fileManager.createFile(atPath: absoluteURL.path, contents: encryptedMediaData)
         }
     }
 
@@ -104,7 +107,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 }
 
-extension ParleyEncryptedImageDataSource {
+extension ParleyEncryptedMediaDataSource {
 
     private func getFiles() -> [URL] {
         guard

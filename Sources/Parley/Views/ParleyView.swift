@@ -82,9 +82,16 @@ public class ParleyView: UIView {
         }
     }
 
+    @available(*, deprecated, renamed: "mediaEnabled", message: "Use mediaEnabled instead")
     public var imagesEnabled = true {
         didSet {
-            composeView.allowPhotos = imagesEnabled
+            mediaEnabled = imagesEnabled
+        }
+    }
+    
+    public var mediaEnabled = true {
+        didSet {
+            composeView.allowMediaUpload = mediaEnabled
         }
     }
 

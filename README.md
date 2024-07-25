@@ -366,12 +366,12 @@ extension ChatViewController: ParleyViewDelegate {
 
 ### Appearance
 
-**Images**
+**Media**
 
-Image upload is enabled by default.
+Media upload is enabled by default.
 
 ```swift
-self.parleyView.imagesEnabled = false
+self.parleyView.mediaEnabled = false
 ```
 
 **Appearance**

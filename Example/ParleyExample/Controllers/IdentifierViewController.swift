@@ -141,7 +141,7 @@ class IdentifierViewController: UIViewController {
                 directory: .default,
                 fileManager: .default
             )
-            let imageDataSource = try ParleyEncryptedImageDataSource(
+            let mediaDataSource = try ParleyEncryptedMediaDataSource(
                 crypter: crypter,
                 directory: .default,
                 fileManager: .default
@@ -150,7 +150,7 @@ class IdentifierViewController: UIViewController {
             Parley.enableOfflineMessaging(
                 messageDataSource: parleyMessageDataSource,
                 keyValueDataSource: parleyKeyValueDataSource,
-                imageDataSource: imageDataSource
+                mediaDataSource: mediaDataSource
             )
         } catch {
             print(error)
