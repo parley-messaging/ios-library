@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.2.0 - Upcoming
+
+- Added support for uploading PDF files.
+- Added support for showing and opening PDF files inside the chat.
+- **DEPRECATION**: `ParleyImageDataSource` is now deprecated, replace it with `ParleyMediaDataSource`.
+- **DEPRECATION**: `ParleyEncryptedImageDataSource` is now deprecated, replace it with `ParleyEncryptedMediaDataSource`.
+
 ## 4.1.7 - Released 18 Jun 2024
 
 - Fixed polling service not renewing when Parley is being reconfigured.
