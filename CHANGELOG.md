@@ -4,6 +4,12 @@
 
 - Added support for uploading PDF files.
 - Added support for showing and opening PDF files inside the chat.
+- Styling: `fileIconTintColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileNameColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileActionColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileInsets` has been added ParleyMessageViewAppearance.
+- Styling: `fileContentInsets` has been added ParleyMessageViewAppearance.
+- **DEPRECATION**: ParleyView's `imagesEnabled` is now deprecated, replace it with `mediaEnabled`.
 - **DEPRECATION**: `ParleyImageDataSource` is now deprecated, replace it with `ParleyMediaDataSource`.
 - **DEPRECATION**: `ParleyEncryptedImageDataSource` is now deprecated, replace it with `ParleyEncryptedMediaDataSource`.
 
