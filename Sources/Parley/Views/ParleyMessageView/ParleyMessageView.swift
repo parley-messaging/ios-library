@@ -106,8 +106,8 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var buttonsRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var buttonsBottomLayoutConstraint: NSLayoutConstraint!
 
-    // Image
-    private var imageLoader: ImageLoaderProtocol?
+    // Media
+    private var mediaLoader: MediaLoaderProtocol?
 
     // Helpers
     private var displayName: Display = .message
@@ -156,10 +156,10 @@ final class ParleyMessageView: UIView {
         ])
     }
 
-    func set(message: Message, forcedTime: Date?, imageLoader: ImageLoaderProtocol?) {
+    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?) {
         self.message = message
         time = forcedTime
-        self.imageLoader = imageLoader
+        self.mediaLoader = mediaLoader
         render()
     }
 
@@ -307,9 +307,9 @@ final class ParleyMessageView: UIView {
         renderImageCorners()
         setImageWidth()
 
-        if let mediaId = message.media?.id {
+        if let media = message.media {
             displayImageLoading()
-            loadImage(id: mediaId)
+            loadMedia(media: media)
         } else {
             hideImage()
         }
@@ -354,9 +354,9 @@ final class ParleyMessageView: UIView {
         imageImageView.image = appearance?.imagePlaceholder
     }
 
-    private func loadImage(id: String) {
-        guard let imageLoader else {
-            assertionFailure("An ImageLoader is expected")
+    private func loadMedia(media: MediaObject) {
+        guard let mediaLoader else {
+            assertionFailure("A MediaLoader is expected")
             displayFailedLoadingImage()
             return
         }
@@ -364,12 +364,16 @@ final class ParleyMessageView: UIView {
         let imageRequestForMessageId = message.id
         Task {
             do {
-                let image = try await imageLoader.load(id: id)
-                // Check if the Message ID of the requested image is the same as the message of the current cell.
-                // During cell reuse, the ongoing request could callback on another cell.
-                // This check prevents it from applying that image (or display it's failure).
-                guard imageRequestForMessageId == message.id else { return }
-                display(image: image.image)
+                switch try await mediaLoader.load(media: media) {
+                case .image(let model):
+                    // Check if the Message ID of the requested image is the same as the message of the current cell.
+                    // During cell reuse, the ongoing request could callback on another cell.
+                    // This check prevents it from applying that image (or display it's failure).
+                    guard imageRequestForMessageId == message.id else { return }
+                    display(image: model.image)
+                case .file(let model):
+                    displayFailedLoadingImage() // TODO: Display file
+                }
             } catch {
                 displayFailedLoadingImage()
             }
@@ -641,11 +645,11 @@ final class ParleyMessageView: UIView {
     // MARK: - Actions
     @IBAction
     func imageAction(sender: AnyObject) {
-        guard let messageMediaIdentifier = message.media?.id else {
+        guard let media = message.media else {
             return
         }
-
-        delegate?.didSelectImage(messageMediaIdentifier: messageMediaIdentifier)
+        
+        delegate?.didSelectMedia(media)
     }
 
     @objc

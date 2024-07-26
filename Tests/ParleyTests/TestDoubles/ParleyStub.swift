@@ -5,12 +5,12 @@ final class ParleyStub: ParleyProtocol {
     init(
         messagesManager: MessagesManagerProtocol,
         messageRepository: MessageRepositoryProtocol,
-        imageLoader: ImageLoaderProtocol,
+        mediaLoader: MediaLoaderProtocol,
         localizationManager: LocalizationManager
     ) {
         self.messagesManager = messagesManager
         self.messageRepository = messageRepository
-        self.imageLoader = imageLoader
+        self.mediaLoader = mediaLoader
         self.localizationManager = localizationManager
     }
 
@@ -21,7 +21,7 @@ final class ParleyStub: ParleyProtocol {
 
     var messagesManager: MessagesManagerProtocol?
     var messageRepository: MessageRepositoryProtocol!
-    var imageLoader: ImageLoaderProtocol!
+    var mediaLoader: MediaLoaderProtocol!
     var localizationManager: LocalizationManager
 
     var delegate: ParleyDelegate?

@@ -24,11 +24,11 @@ public struct ParleyStoredImage: Codable {
         )
     }
 
-    struct FilePath: Codable, CustomStringConvertible {
+    struct FilePath: Codable {
         let name: String
         let type: ParleyImageType
 
-        var description: String {
+        var fileName: String {
             [name, type.fileExtension].joined().replacingOccurrences(of: "/", with: "_")
         }
 
@@ -37,27 +37,37 @@ public struct ParleyStoredImage: Codable {
             self.type = type
         }
 
-        static func create(image: ParleyStoredImage) -> String {
-            FilePath(name: image.filename, type: image.type).description
+        static func from(image: ParleyStoredImage) -> FilePath {
+            FilePath(name: image.filename, type: image.type)
         }
 
-        static func create(path: String) -> FilePath? {
-            if let url = URL(string: path) {
-                decode(url: url)
-            } else {
-                nil
+        static func from(media: MediaObject) -> FilePath? {
+            return .from(id: media.id, type: media.getMediaType())
+        }
+        
+        static func from(id: RemoteImage.ID, type: ParleyImageType) -> FilePath? {
+            guard let fileName = decodeFileName(id: id) else {
+                return nil
             }
+            return FilePath(name: fileName, type: type)
+        }
+        
+        static func from(url: URL) -> FilePath? {
+            let type = ParleyImageType.map(from: url)
+            guard let fileName = decodeFileName(id: url.absoluteString) else {
+                return nil
+            }
+            
+            return FilePath(name: fileName, type: type)
         }
 
-        static func decode(url: URL) -> FilePath? {
-            var splitFilename = url.lastPathComponent.split(separator: ".")
-            guard splitFilename.count >= 2 else { return nil }
+        private static func decodeFileName(id: String) -> String? {
+            guard var splitFilename = id.split(separator: "/").last?.split(separator: "."), splitFilename.count >= 2 else {
+                return nil
+            }
 
-            let type = String(splitFilename.removeLast())
-            let fileName = String(splitFilename.removeLast())
-
-            guard let imageType = ParleyImageType(rawValue: type) else { return nil }
-            return FilePath(name: fileName, type: imageType)
+            splitFilename.removeLast()
+            return String(splitFilename.removeLast())
         }
     }
 }

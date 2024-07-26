@@ -161,7 +161,7 @@ final class ParleyRemoteTests: XCTestCase {
             imageData: Data(),
             name: "image",
             fileName: "image.jpg",
-            imageType: .jpg,
+            imageType: .imageJPeg,
             result: { (_: Result<[MediaResponse], Error>) in
                 resultCalled = true
             }

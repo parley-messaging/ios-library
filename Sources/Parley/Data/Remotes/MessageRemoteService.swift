@@ -88,7 +88,7 @@ final class MessageRemoteService {
         )
     }
 
-    func findMedia(_ id: String, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
-        remote.execute(.get, path: "media/\(id)", result: result)
+    func findMedia(_ id: String, type: ParleyImageType, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
+        remote.execute(.get, path: "media/\(id)", type: type, result: result)
     }
 }

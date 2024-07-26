@@ -6,18 +6,15 @@ final class MessageImageViewController: UIViewController {
     private let imageView = UIImageView()
     private let activityIndicatorView = UIActivityIndicatorView()
 
-    private let messageMediaIdentifier: String
-    private let messageRepository: MessageRepositoryProtocol
-    private let imageLoader: ImageLoaderProtocol
+    private let messageMedia: MediaObject
+    private let mediaLoader: MediaLoaderProtocol
 
     init(
-        messageMediaIdentifier: String,
-        messageRepository: MessageRepositoryProtocol,
-        imageLoader: ImageLoaderProtocol
+        messageMedia: MediaObject,
+        mediaLoader: MediaLoaderProtocol
     ) {
-        self.messageMediaIdentifier = messageMediaIdentifier
-        self.messageRepository = messageRepository
-        self.imageLoader = imageLoader
+        self.messageMedia = messageMedia
+        self.mediaLoader = mediaLoader
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -42,7 +39,7 @@ final class MessageImageViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        loadImage(id: messageMediaIdentifier)
+        loadImage(media: messageMedia)
     }
 
     private func setupView() {
@@ -92,14 +89,17 @@ final class MessageImageViewController: UIViewController {
         activityIndicatorView.stopAnimating()
     }
 
-    private func loadImage(id: String) {
+    private func loadImage(media: MediaObject) {
         startImageLoading()
 
         Task {
             do {
-                let image = try await imageLoader.load(id: id)
-
-                display(image: image.image)
+                switch try await mediaLoader.load(media: media) {
+                case .image(let model):
+                    display(image: model.image)
+                case .file(let model):
+                    displayFailedLoadingImage()
+                }
             } catch {
                 displayFailedLoadingImage()
             }

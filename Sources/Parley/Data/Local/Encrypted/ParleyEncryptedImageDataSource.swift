@@ -49,16 +49,20 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 
     public func image(id: ParleyStoredImage.ID) -> ParleyStoredImage? {
-        guard let url = getFiles().first(where: { $0.lastPathComponent.contains(id) }) else { return nil }
+        guard let url = path(id: id) else { return nil }
         return obtainStoredImage(from: url)
+    }
+    
+    private func path(id: ParleyStoredImage.ID) -> URL? {
+        return getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 
     private func obtainStoredImage(from url: URL) -> ParleyStoredImage? {
         guard
             let decryptedData = getDecryptedStoredImageData(url: url),
-            let file = ParleyStoredImage.FilePath.decode(url: url) else { return nil }
-
-        return ParleyStoredImage(filename: file.name, data: decryptedData, type: file.type)
+            let filePath = ParleyStoredImage.FilePath.from(url: url) else { return nil }
+        
+        return ParleyStoredImage(filename: filePath.name, data: decryptedData, type: filePath.type)
     }
 
     private func getDecryptedStoredImageData(url: URL) -> Data? {
@@ -73,7 +77,7 @@ extension ParleyEncryptedImageDataSource: ParleyImageDataSource {
     }
 
     public func save(image: ParleyStoredImage) {
-        let path = ParleyStoredImage.FilePath.create(image: image)
+        let path = ParleyStoredImage.FilePath.from(image: image).fileName
         let absoluteURL = store.destination.appendingPathComponent(path)
 
         if let encryptedImageData = try? store.crypter.encrypt(image.data) {

@@ -610,7 +610,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.agentMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader)
 
             return messageTableViewCell
         case .date?:
@@ -647,7 +647,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.userMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader)
 
             return messageTableViewCell
         default:
@@ -828,17 +828,32 @@ extension ParleyView: ParleyComposeViewDelegate {
 // MARK: MessageTableViewCellDelegate
 extension ParleyView: MessageTableViewCellDelegate {
 
-    func didSelectImage(messageMediaIdentifier: String) {
-        let imageViewController = MessageImageViewController(
-            messageMediaIdentifier: messageMediaIdentifier,
-            messageRepository: parley.messageRepository,
-            imageLoader: parley.imageLoader
-        )
-
-        imageViewController.modalPresentationStyle = .overFullScreen
-        imageViewController.modalTransitionStyle = .crossDissolve
-
-        present(imageViewController, animated: true, completion: nil)
+    func didSelectMedia(_ media: MediaObject) {
+        if media.getMediaType().isImageType {
+            let imageViewController = MessageImageViewController(
+                messageMedia: media,
+                mediaLoader: parley.mediaLoader
+            )
+            
+            imageViewController.modalPresentationStyle = .overFullScreen
+            imageViewController.modalTransitionStyle = .crossDissolve
+            
+            present(imageViewController, animated: true, completion: nil)
+        } else {
+            Task {
+                await shareMedia(media)
+            }
+        }
+    }
+    
+    @MainActor
+    private func shareMedia(_ media: MediaObject) async {
+        guard let url = try? await parley.mediaLoader.share(media: media) else {
+            return
+        }
+        
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        present(activityViewController, animated: true, completion: nil)
     }
 
     func didSelect(_ button: MessageButton) {

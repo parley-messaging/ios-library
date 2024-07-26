@@ -9,7 +9,7 @@ protocol ParleyProtocol {
 
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
-    var imageLoader: ImageLoaderProtocol! { get }
+    var mediaLoader: MediaLoaderProtocol! { get }
 
     var delegate: ParleyDelegate? { get set }
 
@@ -63,8 +63,8 @@ public final class Parley: ParleyProtocol {
     private(set) var messageRepository: MessageRepositoryProtocol!
     private(set) var messagesManager: MessagesManagerProtocol?
     private(set) var imageDataSource: ParleyImageDataSource?
-    private(set) var imageRepository: ImageRepository!
-    private(set) var imageLoader: ImageLoaderProtocol!
+    private(set) var mediaRepository: MediaRepository!
+    private(set) var mediaLoader: MediaLoaderProtocol!
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
@@ -119,10 +119,9 @@ public final class Parley: ParleyProtocol {
         let messageRemoteService = MessageRemoteService(remote: remote)
         messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
 
-        imageRepository = ImageRepository(messageRemoteService: messageRemoteService)
-        imageRepository.dataSource = imageDataSource
-        imageLoader = ImageLoader(imageRepository: imageRepository)
-
+        mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
+        mediaRepository.dataSource = imageDataSource
+        mediaLoader = MediaLoader(mediaRepository: mediaRepository)
         addObservers()
     }
 
@@ -428,12 +427,12 @@ public final class Parley: ParleyProtocol {
 
     private func getStoredMedia(for message: Message) -> ParleyStoredImage? {
         guard let media = message.media else { return nil }
-        return imageRepository.getStoredImage(for: media.id)
+        return mediaRepository.getStoredImage(for: media)
     }
 
     private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
-        let remoteImage = try await imageRepository.upload(image: storedImage)
-        message.media = MediaObject(id: remoteImage.id)
+        let remoteImage = try await mediaRepository.upload(image: storedImage)
+        message.media = MediaObject(id: remoteImage.id, mimeType: storedImage.type.rawValue)
         messagesManager?.update(message)
         return message
     }
@@ -449,9 +448,9 @@ public final class Parley: ParleyProtocol {
     }
 
     private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredImage) {
-        let localImage = imageRepository.store(media: media)
+        let localImage = mediaRepository.store(media: media)
         let message = media.createMessage(status: .pending)
-        message.media = MediaObject(id: localImage.id)
+        message.media = MediaObject(id: localImage.id, mimeType: localImage.type.rawValue)
         await addNewMessage(message)
         return (message, localImage)
     }
@@ -706,7 +705,7 @@ extension Parley {
         shared.keyValueDataSource = nil
         shared.imageDataSource?.clear()
         shared.imageDataSource = nil
-        shared.imageRepository?.dataSource = nil
+        shared.mediaRepository?.dataSource = nil
 
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
@@ -869,7 +868,7 @@ extension Parley {
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            await shared.imageLoader?.reset()
+            await shared.mediaLoader?.reset()
         }
 
         shared.userAuthorization = nil
@@ -902,12 +901,12 @@ extension Parley {
      */
     public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
         Task {
-            await shared.imageLoader?.reset()
+            await shared.mediaLoader?.reset()
         }
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository?.reset()
+        shared.mediaRepository?.reset()
         shared.secret = nil
         shared.clearChat()
         shared.removeObservers()

@@ -1,4 +1,4 @@
 protocol ParleyMessageViewDelegate: AnyObject {
-    func didSelectImage(messageMediaIdentifier: String)
+    func didSelectMedia(_ media: MediaObject)
     func didSelect(_ button: MessageButton)
 }
