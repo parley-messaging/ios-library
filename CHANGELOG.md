@@ -13,6 +13,14 @@
 - **DEPRECATION**: `ParleyImageDataSource` is now deprecated, replace it with `ParleyMediaDataSource`.
 - **DEPRECATION**: `ParleyEncryptedImageDataSource` is now deprecated, replace it with `ParleyEncryptedMediaDataSource`.
 
+## 4.1.8 - Released 12 Jul 2024
+
+**IMPORTANT**: Parley 4.1.8 contains a minor breaking change when using a custom network implementation. Migrating can be done easily by removing the return types to adhere to the `ParleyNetworkSession` implementation again.
+
+- [Network] Running network requests on background queue.
+- [Network] Removed cancelable implementation, since this was not being used anymore.
+- [Chat] Fixed an issue that could cause a crash when entering foreground after resetting due to the registered observers.
+
 ## 4.1.7 - Released 18 Jun 2024
 
 - Fixed polling service not renewing when Parley is being reconfigured.
