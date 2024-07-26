@@ -99,10 +99,6 @@ public final class Parley: ParleyProtocol {
     private var userStartTypingDate: Date?
     private var userStopTypingTimer: Timer?
 
-    private init() {
-        addObservers()
-    }
-
     private func initialize(networkConfig: ParleyNetworkConfig, networkSession: ParleyNetworkSession) {
         let remote = ParleyRemote(
             networkConfig: networkConfig,
@@ -126,6 +122,7 @@ public final class Parley: ParleyProtocol {
         mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
         mediaRepository.dataSource = imageDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
+        addObservers()
     }
 
     // MARK: Reachability
@@ -876,13 +873,16 @@ extension Parley {
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.mediaRepository?.reset()
+        shared.imageRepository?.reset()
+        shared.removeObservers()
 
         shared.registerDevice(onSuccess: {
             shared.secret = nil
+            shared.state = .unconfigured
             onSuccess?()
         }, onFailure: { code, message in
             shared.secret = nil
+            shared.state = .unconfigured
             onFailure?(code, message)
         })
 
@@ -909,6 +909,8 @@ extension Parley {
         shared.mediaRepository?.reset()
         shared.secret = nil
         shared.clearChat()
+        shared.removeObservers()
+        shared.state = .unconfigured
         completion?()
     }
 
