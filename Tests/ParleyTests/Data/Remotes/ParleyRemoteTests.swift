@@ -158,10 +158,10 @@ final class ParleyRemoteTests: XCTestCase {
 
         sut.execute(
             path: "media",
-            imageData: Data(),
+            data: Data(),
             name: "image",
             fileName: "image.jpg",
-            imageType: .imageJPeg,
+            type: .imageJPeg,
             result: { (_: Result<[MediaResponse], Error>) in
                 resultCalled = true
             }

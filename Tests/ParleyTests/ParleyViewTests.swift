@@ -120,9 +120,8 @@ final class ParleyViewTests: XCTestCase {
         let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-        mediaLoaderStub.loadResult = model
+        
+        mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(
             parley: ParleyStub(
@@ -183,9 +182,8 @@ final class ParleyViewTests: XCTestCase {
         let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-        mediaLoaderStub.loadResult = model
+        
+        mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(
             parley: ParleyStub(

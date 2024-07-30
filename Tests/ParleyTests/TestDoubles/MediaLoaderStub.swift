@@ -3,21 +3,13 @@ import Foundation
 
 final class MediaLoaderStub: MediaLoaderProtocol {
     
-    var loadResult: MediaDisplayModel?
+    var loadResult: Data?
     var url: URL?
     var error: MediaLoader.MediaLoaderError = .deinitialized
     
-    func load(media: MediaObject) async throws -> MediaDisplayModel {
+    func load(media: MediaObject) async throws -> Data {
         if let loadResult {
             return loadResult
-        } else {
-            throw error
-        }
-    }
-    
-    func share(media: MediaObject) async throws -> URL {
-        if let url {
-            return url
         } else {
             throw error
         }
