@@ -196,6 +196,8 @@ final class ParleyMessageView: UIView {
         renderMedia()
 
         renderButtons()
+        
+        fixAppearanceForMessage()
     }
 
     // MARK: - Render
@@ -594,6 +596,16 @@ final class ParleyMessageView: UIView {
             buttonsView.isHidden = true
         }
     }
+    
+    private func fixAppearanceForMessage() {
+        if message.hasFile && message.hasButtons {
+            fileBottomLayoutConstraint.constant = 0
+            buttonsTopLayoutConstraint.constant = 0
+        } else {
+            fileBottomLayoutConstraint.constant = appearance?.fileInsets?.bottom ?? 0
+            buttonsTopLayoutConstraint.constant = appearance?.buttonInsets?.bottom ?? 0
+        }
+    }
 
     private func createSeparator() -> UIView {
         let separatorContainer = UIView(frame: CGRect(x: 0, y: 0, width: 250, height: 1))
@@ -744,10 +756,10 @@ final class ParleyMessageView: UIView {
         fileMetaTopLayoutConstraint.constant = appearance.fileContentInsets?.top ?? 0
         fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileContentInsets?.left ?? 0)
         fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
-        fileMetaBottomLayoutConstraint.constant = message.hasButtons ? 0 : (appearance.fileContentInsets?.bottom ?? 0)
+        fileMetaBottomLayoutConstraint.constant = appearance.fileContentInsets?.bottom ?? 0
         
         // Buttons
-        buttonsTopLayoutConstraint.constant = message.hasFile ? 0 : (appearance.buttonsInsets?.top ?? 0)
+        buttonsTopLayoutConstraint.constant = appearance.buttonsInsets?.top ?? 0
         buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
