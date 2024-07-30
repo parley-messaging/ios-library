@@ -891,7 +891,7 @@ extension Parley {
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository?.reset()
+        shared.mediaRepository?.reset()
         shared.removeObservers()
 
         shared.registerDevice(onSuccess: {
