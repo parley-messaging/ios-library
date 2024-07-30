@@ -1,8 +1,11 @@
 import Foundation
 import UIKit
 
-final class ParleyRemote {
+enum ParleyRemoteError: Error, Equatable {
+    case secretNotSet
+}
 
+final class ParleyRemote {
     let networkSession: ParleyNetworkSession
     private var networkConfig: ParleyNetworkConfig
     private let createSecret: () -> String?
@@ -31,10 +34,10 @@ final class ParleyRemote {
         self.backgroundQueue = backgroundQueue
     }
 
-    private func createHeaders() -> [String: String] {
+    private func createHeaders() throws -> [String: String] {
         var headers = networkConfig.headers
         guard let secret = createSecret() else {
-            fatalError("ParleyRemote: Secret is not set")
+            throw ParleyRemoteError.secretNotSet
         }
         headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(getDeviceId())"
         headers[HTTPHeaders.contentType.rawValue] = "application/json; charset=utf-8"
@@ -76,16 +79,23 @@ final class ParleyRemote {
     ) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
         let bodyData = mapBodyToData(body: body)
-
         backgroundQueue.async { [weak self] in
             guard let self else { return }
-            networkSession.request(
-                getUrl(path),
-                data: bodyData,
-                method: method,
-                headers: createHeaders()
-            ) { [weak self] result in
-                self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
+            do {
+                let headers = try createHeaders()
+
+                networkSession.request(
+                    getUrl(path),
+                    data: bodyData,
+                    method: method,
+                    headers: headers
+                ) { [weak self] result in
+                    self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
+                }
+            } catch let error {
+                mainQueue.async {
+                    onFailure(error)
+                }
             }
         }
     }
@@ -108,28 +118,40 @@ final class ParleyRemote {
 
         backgroundQueue.async { [weak self] in
             guard let self else { return }
-            networkSession.request(
-                getUrl(path),
-                data: nil,
-                method: method,
-                headers: createHeaders()
-            ) { [weak self] result in
-                self?.mainQueue.async {
-                    switch result {
-                    case .success(let response):
-                        do {
-                            try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
-                            onSuccess()
-                        } catch {
-                            if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
-                                onFailure(apiError)
-                            } else {
-                                onFailure(error)
+            do {
+
+                let headers = try createHeaders()
+
+                networkSession.request(
+                    getUrl(path),
+                    data: nil,
+                    method: method,
+                    headers: headers
+                ) { [weak self] result in
+                    self?.mainQueue.async {
+                        switch result {
+                        case .success(let response):
+                            do {
+                                try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
+                                onSuccess()
+                            } catch {
+                                if
+                                    let data = response.body,
+                                    let apiError = Self.decodeBackendError(responseData: data)
+                                {
+                                    onFailure(apiError)
+                                } else {
+                                    onFailure(error)
+                                }
                             }
+                        case .failure(let error):
+                            onFailure(error)
                         }
-                    case .failure(let error):
-                        onFailure(error)
                     }
+                }
+            } catch {
+                mainQueue.async {
+                    onFailure(error)
                 }
             }
         }
@@ -150,18 +172,24 @@ final class ParleyRemote {
         var multipartForm = MultipartFormData()
         multipartFormData(&multipartForm)
 
-        var headers = createHeaders()
-        headers[HTTPHeaders.contentType.rawValue] = multipartForm.httpContentTypeHeaderValue
+        do {
+            var headers = try createHeaders()
+            headers[HTTPHeaders.contentType.rawValue] = multipartForm.httpContentTypeHeaderValue
 
-        backgroundQueue.async { [weak self] in
-            guard let self else { return }
-            networkSession.upload(
-                data: multipartForm.httpBody,
-                to: getUrl(path),
-                method: method,
-                headers: headers
-            ) { [weak self] result in
-                self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
+            backgroundQueue.async { [weak self] in
+                guard let self else { return }
+                networkSession.upload(
+                    data: multipartForm.httpBody,
+                    to: getUrl(path),
+                    method: method,
+                    headers: headers
+                ) { [weak self] result in
+                    self?.handleResult(result: result, keyPath: keyPath, onSuccess: onSuccess, onFailure: onFailure)
+                }
+            }
+        } catch {
+            mainQueue.async {
+                onFailure(error)
             }
         }
     }
@@ -184,23 +212,29 @@ final class ParleyRemote {
             fileMimeType: imageType.mimeType,
             fileData: imageData
         )
-        var headers = createHeaders()
-        headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
+        do {
+            var headers = try createHeaders()
+            headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
 
-        backgroundQueue.async { [weak self] in
-            guard let self else { return }
+            backgroundQueue.async { [weak self] in
+                guard let self else { return }
 
-            networkSession.upload(
-                data: multipartFormData.httpBody,
-                to: getUrl(path),
-                method: method,
-                headers: headers
-            ) { [weak self] resultToHandle in
-                self?.handleResult(result: resultToHandle, keyPath: .data, onSuccess: { success in
-                    result(.success(success))
-                }, onFailure: { error in
-                    result(.failure(error))
-                })
+                networkSession.upload(
+                    data: multipartFormData.httpBody,
+                    to: getUrl(path),
+                    method: method,
+                    headers: headers
+                ) { [weak self] resultToHandle in
+                    self?.handleResult(result: resultToHandle, keyPath: .data, onSuccess: { success in
+                        result(.success(success))
+                    }, onFailure: { error in
+                        result(.failure(error))
+                    })
+                }
+            }
+        } catch {
+            mainQueue.async {
+                result(.failure(error))
             }
         }
     }
@@ -245,30 +279,39 @@ final class ParleyRemote {
         backgroundQueue.async { [weak self] in
             guard let self else { return }
 
-            networkSession.request(
-                url,
-                data: nil,
-                method: .get,
-                headers: createHeaders(),
-                completion: { [weak self] requestResult in
-                    self?.mainQueue.async {
-                        switch requestResult {
-                        case .success(let response):
-                            if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
-                            } else if let data = response.body {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
-                            }
-                        case .failure(let error):
-                            if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
-                                result(.failure(apiError))
-                            } else {
-                                result(.failure(error))
+            do {
+                let headers = try createHeaders()
+
+                networkSession.request(
+                    url,
+                    data: nil,
+                    method: .get,
+                    headers: headers,
+                    completion: { [weak self] requestResult in
+                        self?.mainQueue.async {
+                            switch requestResult {
+                            case .success(let response):
+                                if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
+                                    result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
+                                } else if let data = response.body {
+                                    result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
+                                }
+                            case .failure(let error):
+                                if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
+                                    result(.failure(apiError))
+                                } else {
+                                    result(.failure(error))
+                                }
                             }
                         }
                     }
+
+                )
+            } catch {
+                mainQueue.async {
+                    result(.failure(error))
                 }
-            )
+            }
         }
     }
 

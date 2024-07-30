@@ -413,15 +413,13 @@ public class ParleyView: UIView {
                 notificationsStackView.removeConstraint(bottomConstraint)
                 notificationsConstraintTop?.isActive = true
             }
-            break
-        case .bottom:
+            case .bottom:
             notificationsConstraintTop?.isActive = false
             notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(
                 equalTo: composeView.topAnchor,
                 constant: 0
             )
             notificationsConstraintBottom?.isActive = true
-            break
         }
         messagesTableView.reloadData()
     }
