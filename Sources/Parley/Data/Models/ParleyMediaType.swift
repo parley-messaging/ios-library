@@ -1,5 +1,7 @@
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
+import MobileCoreServices
 
 enum ParleyMediaType: String, CaseIterable, Codable {
     case imagePng = "image/png"
@@ -33,6 +35,35 @@ enum ParleyMediaType: String, CaseIterable, Codable {
             false
         }
     }
+    
+    @available(iOS 14.0, *)
+    static var documentContentTypes: [UTType] = {
+        var types: [UTType] = []
+        ParleyMediaType.allCases.forEach { mediaType in
+            switch mediaType {
+            case .imagePng, .imageGif, .imageJPeg, .other:
+                break
+            case .applicationPdf:
+                types.append(.pdf)
+            }
+        }
+        
+        return types
+    }()
+    
+    static var documentTypes: [String] = {
+        var types: [String] = []
+        ParleyMediaType.allCases.forEach { mediaType in
+            switch mediaType {
+            case .imagePng, .imageGif, .imageJPeg, .other:
+                break
+            case .applicationPdf:
+                types.append(String(kUTTypePDF))
+            }
+        }
+        
+        return types
+    }()
 
     /// Returns a ParleyMediaType from a given mimetype
     /// Defaults to .other.

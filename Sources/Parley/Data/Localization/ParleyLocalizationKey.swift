@@ -32,8 +32,8 @@ public enum ParleyLocalizationKey: String {
     
     case messageFileLoadFailedNoFileManagerTitle = "parley_message_file_load_failed_no_file_manager_title"
     case messageFileLoadFailedNoFileManagerMessage = "parley_message_file_load_failed_no_file_manager_message"
-    case messageFileLoadFailedTitle = "parley_message_file_load_failed_title"
-    case messageFileLoadFailedMessage = "parley_message_file_load_failed_message"
+    case messageFileLoadFailedSavingTitle = "parley_message_file_load_failed_saving_title"
+    case messageFileLoadFailedSavingMessage = "parley_message_file_load_failed_saving_message"
     
     // MARK: Message Compose View
     case typeMessage = "parley_type_message"

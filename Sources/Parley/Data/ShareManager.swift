@@ -1,6 +1,10 @@
 import Foundation
 
-class ShareManager {
+protocol ShareManagerProtocol {
+    func share(media: MediaObject) async throws -> URL
+}
+
+class ShareManager: ShareManagerProtocol {
     
     enum ShareManagerError: Error {
         case unableToSaveFile(id: String)

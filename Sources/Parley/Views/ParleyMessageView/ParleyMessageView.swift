@@ -128,7 +128,7 @@ final class ParleyMessageView: UIView {
 
     // Media
     private var mediaLoader: MediaLoaderProtocol?
-    private var shareManager: ShareManager?
+    private var shareManager: ShareManagerProtocol?
 
     // Helpers
     private var displayName: Display = .message
@@ -177,7 +177,7 @@ final class ParleyMessageView: UIView {
         ])
     }
 
-    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManager?) {
+    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManagerProtocol?) {
         self.message = message
         time = forcedTime
         self.mediaLoader = mediaLoader
@@ -359,8 +359,7 @@ final class ParleyMessageView: UIView {
         fileStackView.addArrangedSubview(fileContentView)
         fileStackView.addArrangedSubview(createSeparator())
         
-        let filePath = ParleyStoredMedia.FilePath.from(media: media) ?? ParleyStoredMedia.FilePath(name: UUID().uuidString, type: .applicationPdf)
-        fileLabel.text = filePath.fileName
+        fileLabel.text = media.displayFileName
         switch message.status {
         case .failed, .pending:
             fileButton.isHidden = true
@@ -468,8 +467,8 @@ final class ParleyMessageView: UIView {
     
     private func displayFailedLoadingFile() {
         presentAlert(
-            title: ParleyLocalizationKey.messageFileLoadFailedTitle.localized,
-            message: ParleyLocalizationKey.messageFileLoadFailedMessage.localized
+            title: ParleyLocalizationKey.messageFileLoadFailedSavingTitle.localized,
+            message: ParleyLocalizationKey.messageFileLoadFailedSavingMessage.localized
         )
     }
     
@@ -576,10 +575,11 @@ final class ParleyMessageView: UIView {
             let messageButtons = message.buttons
         {
             buttonsView.isHidden = false
-            if message.title != nil || displayName == .message || message.message != nil || message.hasImage {
+            if !message.hasFile && (message.title != nil || displayName == .message || message.message != nil || message.hasImage) {
                 let sep = createSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
+            
             for (tag, messageButton) in messageButtons.enumerated() {
                 let button = createButton(from: messageButton, tag: tag)
                 buttonsStackView.addArrangedSubview(button)
@@ -742,6 +742,12 @@ final class ParleyMessageView: UIView {
         fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
         fileMetaBottomLayoutConstraint.constant = appearance.fileContentInsets?.bottom ?? 0
         
+        // Buttons
+        buttonsTopLayoutConstraint.constant = appearance.buttonsInsets?.top ?? 0
+        buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
+        buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
+        buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
+        
         // Meta
         timeLabel.textColor = appearance.timeColor
         timeLabel.font = appearance.timeFont
@@ -755,12 +761,6 @@ final class ParleyMessageView: UIView {
             .constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.metaInsets?.right ?? 0)
         metaBottomLayoutConstraint
             .constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
-
-        // Buttons
-        buttonsTopLayoutConstraint.constant = appearance.buttonsInsets?.top ?? 0
-        buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
-        buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
-        buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
 
         renderGradients()
     }

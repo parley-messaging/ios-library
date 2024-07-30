@@ -394,9 +394,9 @@ public class ParleyComposeView: UIView {
     private func uploadFile() {
         let documentPicker: UIDocumentPickerViewController
         if #available(iOS 14.0, *) {
-            documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.pdf], asCopy: true)
+            documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: ParleyMediaType.documentContentTypes, asCopy: true)
         } else {
-            documentPicker = UIDocumentPickerViewController(documentTypes: [String(kUTTypePDF)], in: .import)
+            documentPicker = UIDocumentPickerViewController(documentTypes: ParleyMediaType.documentTypes, in: .import)
         }
         documentPicker.delegate = self
         present(documentPicker, animated: true, completion: nil)

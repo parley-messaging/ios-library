@@ -29,8 +29,8 @@
 
 "parley_message_file_load_failed_no_file_manager_title" = "Could not save file";
 "parley_message_file_load_failed_no_file_manager_message" = "A problem occurred while initializing the download.";
-"parley_message_file_load_failed_title" = "Could not save file";
-"parley_message_file_load_failed_message" = "The file could not be saved.";
+"parley_message_file_load_failed_saving_title" = "Could not save file";
+"parley_message_file_load_failed_saving_message" = "The file could not be saved.";
 
 // MARK: Message Compose View
 "parley_type_message" = "Type a message...";

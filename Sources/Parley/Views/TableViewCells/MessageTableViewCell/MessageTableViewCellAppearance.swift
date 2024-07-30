@@ -48,9 +48,9 @@ public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
         appearance.messageTextViewAppearance.textColor = UIColor.white
         appearance.messageTextViewAppearance.linkTintColor =  UIColor(white: 1, alpha: 0.6)
         
-        appearance.fileIconTintColor = UIColor(white: 1, alpha: 0.6)
+        appearance.fileIconTintColor = UIColor(red: 0.6, green: 0.81, blue: 1, alpha: 1.0)
         appearance.fileNameColor = UIColor.white
-        appearance.fileActionColor = UIColor(white: 1, alpha: 0.6)
+        appearance.fileActionColor = UIColor(red: 0.6, green: 0.81, blue: 1, alpha: 1.0)
 
         appearance.timeColor = UIColor(white: 1, alpha: 0.6)
 

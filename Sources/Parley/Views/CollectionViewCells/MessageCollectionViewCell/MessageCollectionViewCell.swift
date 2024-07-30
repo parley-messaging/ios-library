@@ -105,7 +105,10 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             
             totalHeight += appearance.fileContentInsets?.top ?? 0
             totalHeight += appearance.fileContentInsets?.bottom ?? 0
-            totalHeight += ParleyLocalizationKey.messageFileOpen.localized.height(withConstrainedWidth: contentWidth, font: appearance.buttonFont)
+            totalHeight += max(
+                ParleyLocalizationKey.messageFileOpen.localized.height(withConstrainedWidth: contentWidth, font: appearance.buttonFont),
+                message.media?.displayFileName.height(withConstrainedWidth: contentWidth, font: appearance.fileNameFont) ?? 0
+            )
             
             // Bottom separator
             totalHeight += appearance.separatorInset?.top ?? 0
