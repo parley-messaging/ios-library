@@ -598,6 +598,12 @@ final class ParleyMessageView: UIView {
     }
     
     private func fixAppearanceForMessage() {
+        if message.title != nil || displayName == .message || message.message != nil {
+            fileTopLayoutConstraint.constant = appearance?.fileInsets?.top ?? 0
+        } else {
+            fileTopLayoutConstraint.constant = 0
+        }
+        
         if message.hasFile && message.hasButtons {
             fileBottomLayoutConstraint.constant = 0
             buttonsTopLayoutConstraint.constant = 0
