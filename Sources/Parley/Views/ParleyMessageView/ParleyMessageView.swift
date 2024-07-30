@@ -405,6 +405,10 @@ final class ParleyMessageView: UIView {
     }
     
     private func hideFile() {
+        for arrangedSubview in fileStackView.arrangedSubviews {
+            fileStackView.removeArrangedSubview(arrangedSubview)
+        }
+        
         fileView.isHidden = true
     }
 
@@ -740,10 +744,10 @@ final class ParleyMessageView: UIView {
         fileMetaTopLayoutConstraint.constant = appearance.fileContentInsets?.top ?? 0
         fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileContentInsets?.left ?? 0)
         fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
-        fileMetaBottomLayoutConstraint.constant = appearance.fileContentInsets?.bottom ?? 0
+        fileMetaBottomLayoutConstraint.constant = message.hasButtons ? 0 : (appearance.fileContentInsets?.bottom ?? 0)
         
         // Buttons
-        buttonsTopLayoutConstraint.constant = appearance.buttonsInsets?.top ?? 0
+        buttonsTopLayoutConstraint.constant = message.hasFile ? 0 : (appearance.buttonsInsets?.top ?? 0)
         buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0

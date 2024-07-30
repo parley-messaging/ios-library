@@ -55,7 +55,7 @@ public class ParleyMessageViewAppearance {
     public var fileActionColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
     @ParleyScaledFont(textStyle: .headline) public var fileActionFont = .boldSystemFont(ofSize: 16)
     
-    public var fileInsets: UIEdgeInsets? = UIEdgeInsets(top: 0, left: 0, bottom: 8, right: 0)
+    public var fileInsets: UIEdgeInsets? = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     public var fileContentInsets: UIEdgeInsets? = UIEdgeInsets(top: 14, left: 0, bottom: 14, right: 0)
 
     // Meta
