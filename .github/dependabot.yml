@@ -1,5 +1,6 @@
 version: 2
 enable-beta-ecosystems: true
+target-branch: "develop"
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
