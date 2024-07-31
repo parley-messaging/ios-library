@@ -41,7 +41,7 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.1.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.2.x"))
 ]
 ```
 
@@ -268,12 +268,12 @@ do {
     let crypter = try ParleyCrypter(key: key, size: .bits128)
     let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(crypter: crypter, directory: .default, fileManager: .default)
     let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(crypter: crypter, directory: .default, fileManager: .default)
-    let imageDataSource = try ParleyEncryptedImageDataSource(crypter: crypter, directory: .default, fileManager: .default)
+    let mediaDataSource = try ParleyEncryptedMediaDataSource(crypter: crypter, directory: .default, fileManager: .default)
     
     Parley.enableOfflineMessaging(
         messageDataSource: parleyMessageDataSource,
         keyValueDataSource: parleyKeyValueDataSource,
-        imageDataSource: imageDataSource
+        mediaDataSource: mediaDataSource
     )
 } catch {
     print(error)
@@ -366,12 +366,12 @@ extension ChatViewController: ParleyViewDelegate {
 
 ### Appearance
 
-**Images**
+**Media**
 
-Image upload is enabled by default.
+Media upload is enabled by default.
 
 ```swift
-self.parleyView.imagesEnabled = false
+self.parleyView.mediaEnabled = false
 ```
 
 **Appearance**

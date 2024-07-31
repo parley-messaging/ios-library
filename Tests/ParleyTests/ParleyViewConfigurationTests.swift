@@ -6,7 +6,7 @@ final class ParleyViewConfigurationTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: MessagesManagerStub(),
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 

@@ -11,9 +11,9 @@ final class ParleyImageDataSourceTests: XCTestCase {
         testImage.jpegData(compressionQuality: 1)
     }
 
-    private lazy var dataSource: ParleyImageDataSource = {
+    private lazy var dataSource: ParleyMediaDataSource = {
         let crypter = try! ParleyCrypter(key: "6543210987654321", size: .bits128)
-        return try! ParleyEncryptedImageDataSource(crypter: crypter, directory: .custom("parley_images_tests"))
+        return try! ParleyEncryptedMediaDataSource(crypter: crypter, directory: .custom("parley_images_tests"))
     }()
 
     override func setUp() {
@@ -35,10 +35,10 @@ final class ParleyImageDataSourceTests: XCTestCase {
             XCTFail("Should exist") ; return
         }
 
-        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
-        dataSource.save(image: localImage)
+        let localImage = ParleyStoredMedia(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
+        dataSource.save(media: localImage)
 
-        guard let fetchedImage = dataSource.image(id: localImage.id) else {
+        guard let fetchedImage = dataSource.media(id: localImage.id) else {
             XCTFail("Should exist") ; return
         }
 
@@ -50,33 +50,33 @@ final class ParleyImageDataSourceTests: XCTestCase {
     }
 
     func testDataSource_shouldSaveArrayOfImages() {
-        let images = [
-            ParleyStoredImage(
+        let media = [
+            ParleyStoredMedia(
                 filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.blueGradientPng).pngData()!,
-                type: .png
+                type: .imagePng
             ),
-            ParleyStoredImage(
+            ParleyStoredMedia(
                 filename: UUID().uuidString,
                 data: UIImage(resource: .Tests.redBlockJpg).jpegData(compressionQuality: 1)!,
-                type: .jpg
+                type: .imageJPeg
             ),
         ]
 
-        dataSource.save(images: images)
+        dataSource.save(media: media)
 
         let fetchedImage = dataSource.all()
-        XCTAssertEqual(images.count, fetchedImage.count)
+        XCTAssertEqual(media.count, fetchedImage.count)
     }
 
-    func testDataSource_shouldDeleteImage_AfterSavingImage() throws {
+    func testDataSource_shouldDeleteMedia_AfterSavingMedia() throws {
         let imageData = testImageData!
-        let localImage = ParleyStoredImage(filename: UUID().uuidString, data: imageData, type: .jpg)
-        dataSource.save(image: localImage)
+        let localImage = ParleyStoredMedia(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
+        dataSource.save(media: localImage)
 
         XCTAssertTrue(dataSource.delete(id: localImage.id))
 
-        XCTAssertNil(dataSource.image(id: localImage.id))
+        XCTAssertNil(dataSource.media(id: localImage.id))
 
         XCTAssertFalse(dataSource.delete(id: localImage.id), "Should not find image, which should return `false`.")
     }
