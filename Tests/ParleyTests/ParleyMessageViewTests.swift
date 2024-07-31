@@ -12,7 +12,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(message: Self.dummyMessageText, type: .agent),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -30,7 +31,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -48,7 +50,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", agent: nil),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -66,7 +69,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(message: "Lo"),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -84,7 +88,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .pending, agent: nil),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -102,7 +107,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: "Lo", status: .failed, agent: nil),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -128,7 +134,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: Self.dummyMessageText, agent: nil),
             forcedTime: Self.dummyDate,
-            mediaLoader: nil
+            mediaLoader: nil,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -145,10 +152,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-
-        mediaLoader.loadResult = model
+        
+        mediaLoader.loadResult = data
 
         let sut = ParleyMessageView()
 
@@ -161,7 +166,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -177,10 +183,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-
-        mediaLoader.loadResult = model
+        
+        mediaLoader.loadResult = data
 
         let sut = ParleyMessageView()
 
@@ -193,7 +197,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         wait()
@@ -208,7 +213,6 @@ final class ParleyMessageViewTests: XCTestCase {
 
     func testWithImageErrorResultForUser() throws {
         let mediaLoader = MediaLoaderStub()
-        mediaLoader.error = .unableToConvertImageData
 
         let sut = ParleyMessageView()
 
@@ -221,7 +225,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 agent: nil
             ),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         wait()
@@ -239,10 +244,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-
-        mediaLoader.loadResult = model
+        
+        mediaLoader.loadResult = data
 
         let sut = ParleyMessageView()
 
@@ -250,7 +253,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         let container = addToContainer(sut: sut)
@@ -266,10 +270,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-
-        mediaLoader.loadResult = model
+        
+        mediaLoader.loadResult = data
 
         let sut = ParleyMessageView()
 
@@ -277,7 +279,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         wait()
@@ -292,7 +295,6 @@ final class ParleyMessageViewTests: XCTestCase {
 
     func testWithImageErrorResultForAgentWithoutTitleAndMessage() throws {
         let mediaLoader = MediaLoaderStub()
-        mediaLoader.error = .unableToConvertImageData
 
         let sut = ParleyMessageView()
 
@@ -300,7 +302,8 @@ final class ParleyMessageViewTests: XCTestCase {
         sut.set(
             message: .makeTestData(title: nil, message: nil, media: MediaObject(id: "identifier", mimeType: "image/png")),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         wait()
@@ -318,10 +321,8 @@ final class ParleyMessageViewTests: XCTestCase {
 
         let image = try XCTUnwrap(UIImage(named: "white_image", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let imageModel = try XCTUnwrap(ImageDisplayModel(data: data, type: .imagePng))
-        let model = MediaDisplayModel.image(model: imageModel)
-
-        mediaLoader.loadResult = model
+        
+        mediaLoader.loadResult = data
 
         let sut = ParleyMessageView()
 
@@ -334,7 +335,8 @@ final class ParleyMessageViewTests: XCTestCase {
                 agent: Agent(id: 1, name: "Longer Agent Name", avatar: nil)
             ),
             forcedTime: Self.dummyDate,
-            mediaLoader: mediaLoader
+            mediaLoader: mediaLoader,
+            shareManager: nil
         )
 
         wait()

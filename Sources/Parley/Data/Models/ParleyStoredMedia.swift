@@ -1,23 +1,23 @@
 import Foundation
 
-/// An image stored locally on-device.
+/// A file stored locally on-device.
 ///
-/// This image can either be already uploaded or is pending to be uploaded later when the user is online.
-public struct ParleyStoredImage: Codable {
+/// This file can either be already uploaded or is pending to be uploaded later when the user is online.
+public struct ParleyStoredMedia: Codable {
     let filename: String
     var data: Data
-    let type: ParleyImageType
+    let type: ParleyMediaType
     let path: FilePath
 
-    init(filename: String, data: Data, type: ParleyImageType) {
+    init(filename: String, data: Data, type: ParleyMediaType) {
         self.filename = filename
         self.data = data
         self.type = type
         path = FilePath(name: filename, type: type)
     }
 
-    static func from(media: MediaModel) -> ParleyStoredImage {
-        ParleyStoredImage(
+    static func from(media: MediaModel) -> ParleyStoredMedia {
+        ParleyStoredMedia(
             filename: UUID().uuidString,
             data: media.data,
             type: media.type
@@ -26,26 +26,26 @@ public struct ParleyStoredImage: Codable {
 
     struct FilePath: Codable {
         let name: String
-        let type: ParleyImageType
+        let type: ParleyMediaType
 
         var fileName: String {
             [name, type.fileExtension].joined().replacingOccurrences(of: "/", with: "_")
         }
 
-        package init(name: String, type: ParleyImageType) {
+        package init(name: String, type: ParleyMediaType) {
             self.name = name
             self.type = type
         }
 
-        static func from(image: ParleyStoredImage) -> FilePath {
-            FilePath(name: image.filename, type: image.type)
+        static func from(media: ParleyStoredMedia) -> FilePath {
+            FilePath(name: media.filename, type: media.type)
         }
 
         static func from(media: MediaObject) -> FilePath? {
             return .from(id: media.id, type: media.getMediaType())
         }
         
-        static func from(id: RemoteImage.ID, type: ParleyImageType) -> FilePath? {
+        static func from(id: String, type: ParleyMediaType) -> FilePath? {
             guard let fileName = decodeFileName(id: id) else {
                 return nil
             }
@@ -53,7 +53,7 @@ public struct ParleyStoredImage: Codable {
         }
         
         static func from(url: URL) -> FilePath? {
-            let type = ParleyImageType.map(from: url)
+            let type = ParleyMediaType.map(from: url)
             guard let fileName = decodeFileName(id: url.absoluteString) else {
                 return nil
             }
@@ -72,14 +72,14 @@ public struct ParleyStoredImage: Codable {
     }
 }
 
-extension ParleyStoredImage: Identifiable {
+extension ParleyStoredMedia: Identifiable {
 
     public var id: String { filename }
 }
 
-extension ParleyStoredImage: Equatable {
+extension ParleyStoredMedia: Equatable {
 
-    public static func == (lhs: ParleyStoredImage, rhs: ParleyStoredImage) -> Bool {
+    public static func == (lhs: ParleyStoredMedia, rhs: ParleyStoredMedia) -> Bool {
         lhs.id == rhs.id
     }
 }

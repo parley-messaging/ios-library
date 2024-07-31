@@ -40,12 +40,13 @@ final class MessageTableViewCell: UITableViewCell {
 
     private var messages: (messages: [Message], time: Date?)?
     private var mediaLoader: MediaLoaderProtocol?
+    private var shareManager: ShareManager?
 
-    func render(_ message: Message, mediaLoader: MediaLoaderProtocol?) {
+    func render(_ message: Message, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManager?) {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             messageView.isHidden = false
 
-            parleyMessageView.set(message: message, forcedTime: nil, mediaLoader: mediaLoader)
+            parleyMessageView.set(message: message, forcedTime: nil, mediaLoader: mediaLoader, shareManager: shareManager)
         } else {
             messageView.isHidden = true
         }
@@ -53,12 +54,13 @@ final class MessageTableViewCell: UITableViewCell {
         if let messages = message.carousel, !messages.isEmpty {
             self.messages = (messages, message.time)
             self.mediaLoader = mediaLoader
+            self.shareManager = shareManager
 
             collectionView.isHidden = false
 
             let maxSize = messages.map { message -> CGSize in
                 MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
-            }.max(by: { $0.height > $1.height }) ?? .zero
+            }.max(by: { $0.height < $1.height }) ?? .zero
 
             if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
                 flowLayout.estimatedItemSize = maxSize
@@ -155,7 +157,8 @@ extension MessageTableViewCell: UICollectionViewDataSource {
             messageCollectionViewCell.render(
                 messages.messages[indexPath.row],
                 time: messages.time,
-                mediaLoader: mediaLoader
+                mediaLoader: mediaLoader,
+                shareManager: shareManager
             )
         }
 

@@ -62,7 +62,7 @@ public final class Parley: ParleyProtocol {
     private(set) var eventRemoteService: EventRemoteService!
     private(set) var messageRepository: MessageRepositoryProtocol!
     private(set) var messagesManager: MessagesManagerProtocol?
-    private(set) var imageDataSource: ParleyImageDataSource?
+    private(set) var mediaDataSource: ParleyMediaDataSource?
     private(set) var mediaRepository: MediaRepository!
     private(set) var mediaLoader: MediaLoaderProtocol!
     private(set) var messageDataSource: ParleyMessageDataSource?
@@ -120,7 +120,7 @@ public final class Parley: ParleyProtocol {
         messageRepository = MessageRepository(messageRemoteService: messageRemoteService)
 
         mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
-        mediaRepository.dataSource = imageDataSource
+        mediaRepository.dataSource = mediaDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
         addObservers()
     }
@@ -425,14 +425,14 @@ public final class Parley: ParleyProtocol {
         return try await upload(storedImage: storedImage, message: message)
     }
 
-    private func getStoredMedia(for message: Message) -> ParleyStoredImage? {
+    private func getStoredMedia(for message: Message) -> ParleyStoredMedia? {
         guard let media = message.media else { return nil }
-        return mediaRepository.getStoredImage(for: media)
+        return mediaRepository.getStoredMedia(for: media)
     }
 
-    private func upload(storedImage: ParleyStoredImage, message: Message) async throws -> Message {
-        let remoteImage = try await mediaRepository.upload(image: storedImage)
-        message.media = MediaObject(id: remoteImage.id, mimeType: storedImage.type.rawValue)
+    private func upload(storedImage: ParleyStoredMedia, message: Message) async throws -> Message {
+        let remoteId = try await mediaRepository.upload(media: storedImage)
+        message.media = MediaObject(id: remoteId, mimeType: storedImage.type.rawValue)
         messagesManager?.update(message)
         return message
     }
@@ -447,7 +447,7 @@ public final class Parley: ParleyProtocol {
         }
     }
 
-    private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredImage) {
+    private func storeNewMessage(with media: MediaModel) async -> (Message, ParleyStoredMedia) {
         let localImage = mediaRepository.store(media: media)
         let message = media.createMessage(status: .pending)
         message.media = MediaObject(id: localImage.id, mimeType: localImage.type.rawValue)
@@ -674,22 +674,40 @@ extension Parley {
         return true
     }
 
+    @available(
+        *,
+         deprecated,
+         renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
+         message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
+    )
+    public static func enableOfflineMessaging(
+        messageDataSource: ParleyMessageDataSource,
+        keyValueDataSource: ParleyKeyValueDataSource,
+        imageDataSource: ParleyMediaDataSource
+    ) {
+        enableOfflineMessaging(
+            messageDataSource: messageDataSource,
+            keyValueDataSource: keyValueDataSource,
+            mediaDataSource: imageDataSource)
+    }
+
+    
     /**
      Enable offline messaging.
 
      - Parameters:
        - messageDataSource: ParleyMessageDataSource instance
        - keyValueDataSource: ParleyKeyValueDataSource instance
-       - imageDataSource: ParleyImageDataSource instance
+       - mediaDataSource: ParleyMediaDataSource instance
      */
     public static func enableOfflineMessaging(
         messageDataSource: ParleyMessageDataSource,
         keyValueDataSource: ParleyKeyValueDataSource,
-        imageDataSource: ParleyImageDataSource
+        mediaDataSource: ParleyMediaDataSource
     ) {
         shared.messageDataSource = messageDataSource
         shared.keyValueDataSource = keyValueDataSource
-        shared.imageDataSource = imageDataSource
+        shared.mediaDataSource = mediaDataSource
 
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
@@ -703,8 +721,8 @@ extension Parley {
         shared.messageDataSource?.clear()
         shared.messageDataSource = nil
         shared.keyValueDataSource = nil
-        shared.imageDataSource?.clear()
-        shared.imageDataSource = nil
+        shared.mediaDataSource?.clear()
+        shared.mediaDataSource = nil
         shared.mediaRepository?.dataSource = nil
 
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
@@ -873,7 +891,7 @@ extension Parley {
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
-        shared.imageRepository?.reset()
+        shared.mediaRepository?.reset()
         shared.removeObservers()
 
         shared.registerDevice(onSuccess: {

@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.2.0 - Released 31 Jul 2024
+
+- Added support for uploading PDF files.
+- Added support for showing and opening PDF files inside the chat.
+- Styling: `fileIconTintColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileNameColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileActionColor` has been added ParleyMessageViewAppearance.
+- Styling: `fileInsets` has been added ParleyMessageViewAppearance.
+- Styling: `fileContentInsets` has been added ParleyMessageViewAppearance.
+- **DEPRECATION**: ParleyView's `imagesEnabled` is now deprecated, replace it with `mediaEnabled`.
+- **DEPRECATION**: `ParleyImageDataSource` is now deprecated, replace it with `ParleyMediaDataSource`.
+- **DEPRECATION**: `ParleyEncryptedImageDataSource` is now deprecated, replace it with `ParleyEncryptedMediaDataSource`.
+
 ## 4.1.8 - Released 12 Jul 2024
 
 **IMPORTANT**: Parley 4.1.8 contains a minor breaking change when using a custom network implementation. Migrating can be done easily by removing the return types to adhere to the `ParleyNetworkSession` implementation again.

@@ -73,22 +73,22 @@ final class MessageRemoteService {
     }
 
     func upload(
-        imageData: Data,
-        imageType: ParleyImageType,
+        data: Data,
+        type: ParleyMediaType,
         fileName: String,
         completion: @escaping ((Result<MediaResponse, Error>) -> Void)
     ) {
         remote.execute(
             path: "media",
-            imageData: imageData,
+            data: data,
             name: "media",
             fileName: fileName,
-            imageType: imageType,
+            type: type,
             result: completion
         )
     }
 
-    func findMedia(_ id: String, type: ParleyImageType, result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void) {
+    func findMedia(_ id: String, type: ParleyMediaType, result: @escaping (Result<Data, Error>) -> Void) {
         remote.execute(.get, path: "media/\(id)", type: type, result: result)
     }
 }

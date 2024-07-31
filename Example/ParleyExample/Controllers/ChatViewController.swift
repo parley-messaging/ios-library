@@ -14,7 +14,7 @@ class ChatViewController: BaseViewController {
             appearance.pushDisabledNotification.show = true
             parleyView.appearance = appearance
 
-            parleyView.imagesEnabled = true
+            parleyView.mediaEnabled = true
 
             parleyView.delegate = self
         }

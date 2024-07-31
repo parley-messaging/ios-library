@@ -93,18 +93,14 @@ final class MessageImageViewController: UIViewController {
         startImageLoading()
 
         Task {
-            do {
-                switch try await mediaLoader.load(media: media) {
-                case .image(let model):
-                    display(image: model.image)
-                case .file(let model):
-                    displayFailedLoadingImage()
-                }
-            } catch {
+            defer { stopImageLoading() }
+            guard let mediaData = try? await mediaLoader.load(media: media),
+                  let image = media.imageFromData(mediaData) else {
                 displayFailedLoadingImage()
+                return
             }
-
-            stopImageLoading()
+            
+            display(image: image)
         }
     }
 
