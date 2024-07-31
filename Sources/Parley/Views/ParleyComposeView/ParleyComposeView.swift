@@ -208,11 +208,11 @@ public class ParleyComposeView: UIView {
             sendButton.setImage(appearance.sendIcon, for: .normal)
         }
 
-        let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
-        cameraIcon.isAccessibilityElement = false
-        cameraIcon.accessibilityLabel = nil
-        mediaUploadButton.setImage(cameraIcon, for: .normal)
-        mediaUploadButton.tintColor = appearance.cameraTintColor
+        let mediaIcon = appearance.mediaIcon.withRenderingMode(.alwaysTemplate)
+        mediaIcon.isAccessibilityElement = false
+        mediaIcon.accessibilityLabel = nil
+        mediaUploadButton.setImage(mediaIcon, for: .normal)
+        mediaUploadButton.tintColor = appearance.mediaTintColor
 
         placeholderLabel.textColor = appearance.placeholderColor
         placeholderLabel.font = appearance.font
