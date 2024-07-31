@@ -161,8 +161,8 @@ public final class Parley: ParleyProtocol {
     }
 
     private func removeObservers() {
-        NotificationCenter.default.removeObserver(UIApplication.willEnterForegroundNotification)
-        NotificationCenter.default.removeObserver(UIApplication.didEnterBackgroundNotification)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 
     @objc
