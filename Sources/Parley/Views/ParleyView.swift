@@ -413,7 +413,7 @@ public class ParleyView: UIView {
                 notificationsStackView.removeConstraint(bottomConstraint)
                 notificationsConstraintTop?.isActive = true
             }
-            case .bottom:
+        case .bottom:
             notificationsConstraintTop?.isActive = false
             notificationsConstraintBottom = notificationsStackView.bottomAnchor.constraint(
                 equalTo: composeView.topAnchor,
