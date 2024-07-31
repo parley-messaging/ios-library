@@ -55,6 +55,14 @@ public final class Message: Codable, Equatable {
     var hasMedium: Bool {
         media != nil
     }
+    
+    var hasImage: Bool {
+        media?.getMediaType().isImageType == true
+    }
+    
+    var hasFile: Bool {
+        media?.getMediaType().isImageType == false
+    }
 
     var hasButtons: Bool {
         guard let buttons else { return false }

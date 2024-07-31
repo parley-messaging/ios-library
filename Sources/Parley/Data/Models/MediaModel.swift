@@ -3,19 +3,24 @@ import UniformTypeIdentifiers
 
 struct MediaModel: Codable {
     let data: Data
-    let type: ParleyImageType
+    let type: ParleyMediaType
     let filename: String
-    var hasUploaded = false
 
+    init(data: Data, url: URL) {
+        filename = url.lastPathComponent
+        type = .map(from: url)
+        self.data = data
+    }
+    
     init?(image: UIImage, data: Data, url: URL) {
         filename = url.lastPathComponent
         type = .map(from: url)
 
         switch type {
-        case .png, .jpg:
+        case .imagePng, .imageJPeg:
             guard let jpegData = Self.convertToJpegData(image) else { return nil }
             self.data = jpegData
-        case .gif:
+        case .imageGif, .applicationPdf, .other:
             self.data = data
         }
     }
@@ -27,11 +32,11 @@ struct MediaModel: Codable {
         switch type {
         case .gif:
             self.data = data
-            self.type = .gif
+            self.type = .imageGif
         default:
             guard let jpegData = Self.convertToJpegData(image) else { return nil }
             self.data = jpegData
-            self.type = .jpg
+            self.type = .imageJPeg
         }
     }
 }

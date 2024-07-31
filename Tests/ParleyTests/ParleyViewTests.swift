@@ -30,7 +30,7 @@ final class ParleyViewTests: XCTestCase {
             parley: ParleyStub(
                 messagesManager: messagesManagerStub,
                 messageRepository: MessageRepositoryStub(),
-                imageLoader: ImageLoaderStub(),
+                mediaLoader: MediaLoaderStub(),
                 localizationManager: ParleyLocalizationManager()
             ),
             pollingService: PollingServiceStub(),
@@ -85,7 +85,7 @@ final class ParleyViewTests: XCTestCase {
             parley: ParleyStub(
                 messagesManager: messagesManagerStub,
                 messageRepository: MessageRepositoryStub(),
-                imageLoader: ImageLoaderStub(),
+                mediaLoader: MediaLoaderStub(),
                 localizationManager: ParleyLocalizationManager()
             ),
             pollingService: PollingServiceStub(),
@@ -111,23 +111,23 @@ final class ParleyViewTests: XCTestCase {
                 time: Date(timeIntSince1970: 1),
                 title: nil,
                 message: "This is my question.",
-                media: MediaObject(id: "mediaObject"),
+                media: MediaObject(id: "mediaObject", mimeType: "image/png"),
                 type: .user,
                 agent: nil
             ),
         ]
 
-        let imageLoaderStub = ImageLoaderStub()
+        let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
-        imageLoaderStub.loadResult = model
+        
+        mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(
             parley: ParleyStub(
                 messagesManager: messagesManagerStub,
                 messageRepository: MessageRepositoryStub(),
-                imageLoader: imageLoaderStub,
+                mediaLoader: mediaLoaderStub,
                 localizationManager: ParleyLocalizationManager()
             ),
             pollingService: PollingServiceStub(),
@@ -160,7 +160,7 @@ final class ParleyViewTests: XCTestCase {
                         time: Date(timeIntSince1970: 2),
                         title: nil,
                         message: "Carousel 1",
-                        media: MediaObject(id: "id"),
+                        media: MediaObject(id: "id", mimeType: "image/png"),
                         type: .user,
                         agent: nil
                     ),
@@ -179,17 +179,17 @@ final class ParleyViewTests: XCTestCase {
             Message.makeTestData(type: .agentTyping),
         ]
 
-        let imageLoaderStub = ImageLoaderStub()
+        let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        let model = try XCTUnwrap(ImageDisplayModel(data: data, type: .png))
-        imageLoaderStub.loadResult = model
+        
+        mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(
             parley: ParleyStub(
                 messagesManager: messagesManagerStub,
                 messageRepository: MessageRepositoryStub(),
-                imageLoader: imageLoaderStub,
+                mediaLoader: mediaLoaderStub,
                 localizationManager: ParleyLocalizationManager()
             ),
             pollingService: PollingServiceStub(),
@@ -224,7 +224,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 
@@ -262,7 +262,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 
@@ -300,7 +300,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 
@@ -342,7 +342,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 
@@ -378,7 +378,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 
@@ -404,7 +404,7 @@ final class ParleyViewTests: XCTestCase {
         let parleyStub = ParleyStub(
             messagesManager: messagesManagerStub,
             messageRepository: MessageRepositoryStub(),
-            imageLoader: ImageLoaderStub(),
+            mediaLoader: MediaLoaderStub(),
             localizationManager: ParleyLocalizationManager()
         )
 

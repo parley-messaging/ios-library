@@ -20,7 +20,7 @@ public class ParleyComposeViewAppearance {
     @ParleyScaledFont(textStyle: .headline) public var font = .systemFont(ofSize: 17, weight: .regular)
 
     init() {
-        cameraIcon = UIImage(named: "ic_camera", in: .module, compatibleWith: nil)!
+        cameraIcon = UIImage(named: "ic_add", in: .module, compatibleWith: nil)!
         sendIcon = UIImage(named: "ic_send", in: .module, compatibleWith: nil)!
     }
 }

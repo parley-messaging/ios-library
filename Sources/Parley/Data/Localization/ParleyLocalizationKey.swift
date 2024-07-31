@@ -15,6 +15,7 @@ public enum ParleyLocalizationKey: String {
     case photo = "parley_photo"
     case selectPhoto = "parley_select_photo"
     case takePhoto = "parley_take_photo"
+    case uploadFile = "parley_upload_file"
     case photoAccessDeniedTitle = "parley_photo_access_denied_title"
     case photoAccessDeniedBody = "parley_photo_access_denied_body"
 
@@ -26,6 +27,14 @@ public enum ParleyLocalizationKey: String {
     case sendFailedBodyMediaInvalid = "parley_send_failed_body_media_invalid"
     case sendFailedBodyMediaTooLarge = "parley_send_failed_body_media_too_large"
 
+    // MARK: Message
+    case messageFileOpen = "parley_message_file_open"
+    
+    case messageFileLoadFailedNoFileManagerTitle = "parley_message_file_load_failed_no_file_manager_title"
+    case messageFileLoadFailedNoFileManagerMessage = "parley_message_file_load_failed_no_file_manager_message"
+    case messageFileLoadFailedSavingTitle = "parley_message_file_load_failed_saving_title"
+    case messageFileLoadFailedSavingMessage = "parley_message_file_load_failed_saving_message"
+    
     // MARK: Message Compose View
     case typeMessage = "parley_type_message"
 

@@ -169,10 +169,10 @@ final class ParleyRemote {
     func execute<T: Codable>(
         _ method: ParleyHTTPRequestMethod = .post,
         path: String,
-        imageData: Data,
+        data: Data,
         name: String,
         fileName: String,
-        imageType: ParleyImageType,
+        type: ParleyMediaType,
         result: @escaping (Result<T, Error>) -> Void
     ) {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
@@ -181,8 +181,8 @@ final class ParleyRemote {
         multipartFormData.add(
             key: "media",
             fileName: fileName,
-            fileMimeType: imageType.mimeType,
-            fileData: imageData
+            fileMimeType: type.rawValue,
+            fileData: data
         )
         var headers = createHeaders()
         headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
@@ -232,12 +232,13 @@ final class ParleyRemote {
         }
     }
 
-    // MARK: - Image
+    // MARK: - Media
 
     func execute(
         _ method: ParleyHTTPRequestMethod,
         path: String,
-        result: @escaping (Result<ParleyImageNetworkModel, Error>) -> Void
+        type: ParleyMediaType,
+        result: @escaping (Result<Data, Error>) -> Void
     ) {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
@@ -254,10 +255,8 @@ final class ParleyRemote {
                     self?.mainQueue.async {
                         switch requestResult {
                         case .success(let response):
-                            if let data = response.body, Self.responseContains(response, contentType: "image/gif") {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .gif)))
-                            } else if let data = response.body {
-                                result(.success(ParleyImageNetworkModel(data: data, type: .jpg)))
+                            if let data = response.body {
+                                result(.success(data))
                             }
                         case .failure(let error):
                             if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
@@ -270,11 +269,6 @@ final class ParleyRemote {
                 }
             )
         }
-    }
-
-    static func responseContains(_ response: ParleyHTTPDataResponse, contentType: String) -> Bool {
-        guard let contentTypeHeader = response.headers["Content-Type"] else { return false }
-        return contentTypeHeader.contains(contentType)
     }
 
     private static func decodeBackendError(responseData: Data) -> ParleyErrorResponse? {

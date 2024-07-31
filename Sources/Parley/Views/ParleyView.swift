@@ -82,9 +82,16 @@ public class ParleyView: UIView {
         }
     }
 
+    @available(*, deprecated, renamed: "mediaEnabled", message: "Use mediaEnabled instead")
     public var imagesEnabled = true {
         didSet {
-            composeView.allowPhotos = imagesEnabled
+            mediaEnabled = imagesEnabled
+        }
+    }
+    
+    public var mediaEnabled = true {
+        didSet {
+            composeView.allowMediaUpload = mediaEnabled
         }
     }
 
@@ -119,6 +126,14 @@ public class ParleyView: UIView {
     deinit {
         removeObservers()
     }
+    
+    private lazy var shareManager: ShareManager? = {
+        guard let shareManager = try? ShareManager(mediaLoader: parley.mediaLoader) else {
+            return nil
+        }
+        
+        return shareManager
+    }()
 
     private func setup() {
         loadXib()
@@ -610,7 +625,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.agentMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader, shareManager: shareManager)
 
             return messageTableViewCell
         case .date?:
@@ -647,7 +662,7 @@ extension ParleyView: UITableViewDataSource {
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
             messageTableViewCell.appearance = appearance.userMessage
-            messageTableViewCell.render(message, imageLoader: parley.imageLoader)
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader, shareManager: shareManager)
 
             return messageTableViewCell
         default:
@@ -779,7 +794,7 @@ extension ParleyView: ParleyComposeViewDelegate {
                 presentInvalidMediaAlert() ; return
             }
 
-            guard !mediaModel.isLargerThan(size: 10) else {
+            guard !mediaModel.isLargerThan(size: Self.maximumImageSizeInMegabytes) else {
                 let title = ParleyLocalizationKey.sendFailedTitle.localized
                 let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
                 presentInformationalAlert(title: title, message: message)
@@ -797,6 +812,18 @@ extension ParleyView: ParleyComposeViewDelegate {
                 presentInvalidMediaAlert() ; return
             }
 
+            await send(media: mediaModel)
+        }
+    }
+    
+    func send(file url: URL) {
+        Task { @MainActor in
+            guard let fileData = FileManager.default.contents(atPath: url.path) else {
+                presentInvalidMediaAlert()
+                return
+            }
+            
+            let mediaModel = MediaModel(data: fileData, url: url)
             await send(media: mediaModel)
         }
     }
@@ -828,17 +855,26 @@ extension ParleyView: ParleyComposeViewDelegate {
 // MARK: MessageTableViewCellDelegate
 extension ParleyView: MessageTableViewCellDelegate {
 
-    func didSelectImage(messageMediaIdentifier: String) {
+    func didSelectMedia(_ media: MediaObject) {
+        guard media.getMediaType().isImageType else {
+            return
+        }
+        
         let imageViewController = MessageImageViewController(
-            messageMediaIdentifier: messageMediaIdentifier,
-            messageRepository: parley.messageRepository,
-            imageLoader: parley.imageLoader
+            messageMedia: media,
+            mediaLoader: parley.mediaLoader
         )
-
+        
         imageViewController.modalPresentationStyle = .overFullScreen
         imageViewController.modalTransitionStyle = .crossDissolve
-
+        
         present(imageViewController, animated: true, completion: nil)
+    }
+    
+    func shareMedia(url: URL) {
+        print(url)
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        present(activityViewController, animated: true, completion: nil)
     }
 
     func didSelect(_ button: MessageButton) {

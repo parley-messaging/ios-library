@@ -10,8 +10,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ParleyComposeView" customModule="Parley" customModuleProvider="target">
             <connections>
-                <outlet property="cameraButton" destination="Obg-AW-I1L" id="tvb-76-8vS"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="th6-Zz-TMr"/>
+                <outlet property="mediaUploadButton" destination="Obg-AW-I1L" id="MAi-dv-jZW"/>
                 <outlet property="placeholderLabel" destination="suP-vB-fIc" id="ReM-Vc-PO9"/>
                 <outlet property="placeholderTopConstraint" destination="fSE-SK-sxr" id="MwC-Gu-rY2"/>
                 <outlet property="sendButton" destination="ZkG-vl-dEG" id="6iJ-cs-yee"/>
@@ -26,7 +26,7 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Obg-AW-I1L" userLabel="Camera Button">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Obg-AW-I1L" userLabel="Upload Media Button">
                     <rect key="frame" x="16" y="824" width="24" height="24"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="24" id="Yxm-Io-95I"/>

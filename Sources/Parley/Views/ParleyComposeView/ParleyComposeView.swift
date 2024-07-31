@@ -1,5 +1,7 @@
 import Photos
 import PhotosUI
+import UniformTypeIdentifiers
+import MobileCoreServices
 import UIKit
 
 public class ParleyComposeView: UIView {
@@ -10,9 +12,9 @@ public class ParleyComposeView: UIView {
         }
     }
 
-    @IBOutlet weak var cameraButton: UIButton! {
+    @IBOutlet weak var mediaUploadButton: UIButton! {
         didSet {
-            cameraButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
+            mediaUploadButton.accessibilityLabel = ParleyLocalizationKey.voiceOverCameraButtonLabel.localized
         }
     }
 
@@ -103,7 +105,7 @@ public class ParleyComposeView: UIView {
 
     var isEnabled = true {
         didSet {
-            cameraButton.isEnabled = isEnabled
+            mediaUploadButton.isEnabled = isEnabled
             textView.isEditable = isEnabled
             sendButton.isEnabled = isEnabled && !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -111,10 +113,10 @@ public class ParleyComposeView: UIView {
 
     var maxCount = 2000
 
-    var allowPhotos = true {
+    var allowMediaUpload = true {
         didSet {
-            cameraButton.isHidden = !allowPhotos
-            textViewBackgroundViewTrailingConstraint.constant = allowPhotos ? 56 : 16
+            mediaUploadButton.isHidden = !allowMediaUpload
+            textViewBackgroundViewTrailingConstraint.constant = allowMediaUpload ? 56 : 16
         }
     }
 
@@ -209,8 +211,8 @@ public class ParleyComposeView: UIView {
         let cameraIcon = appearance.cameraIcon.withRenderingMode(.alwaysTemplate)
         cameraIcon.isAccessibilityElement = false
         cameraIcon.accessibilityLabel = nil
-        cameraButton.setImage(cameraIcon, for: .normal)
-        cameraButton.tintColor = appearance.cameraTintColor
+        mediaUploadButton.setImage(cameraIcon, for: .normal)
+        mediaUploadButton.tintColor = appearance.cameraTintColor
 
         placeholderLabel.textColor = appearance.placeholderColor
         placeholderLabel.font = appearance.font
@@ -266,16 +268,24 @@ public class ParleyComposeView: UIView {
     // MARK: Image picker
     @IBAction
     private func presentImageActionSheet(_ sender: UIButton) {
-        guard isCameraAvailable() else { selectPhoto() ; return }
-
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = sender
             popoverController.sourceRect = sender.bounds
             popoverController.permittedArrowDirections = [.left, .down]
         }
-
+        
         alertController.title = ParleyLocalizationKey.photo.localized
+        if isCameraAvailable() {
+            alertController.addAction(UIAlertAction(
+                title: ParleyLocalizationKey.takePhoto.localized,
+                style: .default,
+                handler: { [weak self] _ in
+                    self?.takePhoto()
+                }
+            ))
+        }
+        
         alertController.addAction(UIAlertAction(
             title: ParleyLocalizationKey.selectPhoto.localized,
             style: .default,
@@ -283,12 +293,12 @@ public class ParleyComposeView: UIView {
                 self?.selectPhoto()
             }
         ))
-
+        
         alertController.addAction(UIAlertAction(
-            title: ParleyLocalizationKey.takePhoto.localized,
+            title: ParleyLocalizationKey.uploadFile.localized,
             style: .default,
             handler: { [weak self] _ in
-                self?.takePhoto()
+                self?.uploadFile()
             }
         ))
 
@@ -379,6 +389,17 @@ public class ParleyComposeView: UIView {
         ))
 
         present(alertController, animated: true, completion: nil)
+    }
+    
+    private func uploadFile() {
+        let documentPicker: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: ParleyMediaType.documentContentTypes, asCopy: true)
+        } else {
+            documentPicker = UIDocumentPickerViewController(documentTypes: ParleyMediaType.documentTypes, in: .import)
+        }
+        documentPicker.delegate = self
+        present(documentPicker, animated: true, completion: nil)
     }
 }
 
@@ -489,6 +510,17 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
 
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension ParleyComposeView: UIDocumentPickerDelegate {
+    
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let selectedFileURL = urls.first else {
+            return
+        }
+        
+        delegate?.send(file: selectedFileURL)
     }
 }
 

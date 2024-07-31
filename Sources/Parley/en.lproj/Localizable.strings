@@ -9,9 +9,10 @@
 "parley_notification_offline" = "Check your internet connection";
 
 // MARK: Photos
-"parley_photo" = "Photo";
-"parley_select_photo" = "Select photo";
-"parley_take_photo" = "Take photo";
+"parley_photo" = "Send image or document";
+"parley_select_photo" = "Gallery";
+"parley_take_photo" = "Camera";
+"parley_upload_file" = "Document";
 "parley_photo_access_denied_title" = "Photo access";
 "parley_photo_access_denied_body" = "We need access to your photos. Go to settings and give the application access to your photos.";
 
@@ -22,6 +23,14 @@
 "parley_send_failed_body_selecting_image" = "The photo cannot be sent.";
 "parley_send_failed_body_media_invalid" = "Photo cannot be processed.";
 "parley_send_failed_body_media_too_large" = "The photo is too large to send.";
+
+// MARK: Message
+"parley_message_file_open" = "OPEN";
+
+"parley_message_file_load_failed_no_file_manager_title" = "Could not save file";
+"parley_message_file_load_failed_no_file_manager_message" = "A problem occurred while initializing the download.";
+"parley_message_file_load_failed_saving_title" = "Could not save file";
+"parley_message_file_load_failed_saving_message" = "The file could not be saved.";
 
 // MARK: Message Compose View
 "parley_type_message" = "Type a message...";
