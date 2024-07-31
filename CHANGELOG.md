@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.2.0 - Upcoming
+## 4.2.0 - Released 31 Jul 2024
 
 - Added support for uploading PDF files.
 - Added support for showing and opening PDF files inside the chat.
