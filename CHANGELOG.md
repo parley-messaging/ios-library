@@ -4,6 +4,11 @@
 
 - Added support for uploading PDF files.
 - Added support for showing and opening PDF files inside the chat.
+- Fixed an issue where reusing Parley after `reset` or `purgeLocalMemory` could cause a crash (due to the registered observers).
+- Fixed removing registered observers not being removed as expected.
+- Parley doesn't crash itself now when doing a call when no secret is set (fail-safe and neater, but the found case doesn't happen anymore).
+- Styling: `mediaIcon` has been added ParleyComposeViewAppearance.
+- Styling: `mediaTintColor` has been added ParleyComposeViewAppearance. 
 - Styling: `fileIconTintColor` has been added ParleyMessageViewAppearance.
 - Styling: `fileNameColor` has been added ParleyMessageViewAppearance.
 - Styling: `fileActionColor` has been added ParleyMessageViewAppearance.
@@ -12,6 +17,8 @@
 - **DEPRECATION**: ParleyView's `imagesEnabled` is now deprecated, replace it with `mediaEnabled`.
 - **DEPRECATION**: `ParleyImageDataSource` is now deprecated, replace it with `ParleyMediaDataSource`.
 - **DEPRECATION**: `ParleyEncryptedImageDataSource` is now deprecated, replace it with `ParleyEncryptedMediaDataSource`.
+- **DEPRECATION**: `cameraIcon` is now deprecated on ParleyComposeViewAppearance, replace it with `mediaIcon`.
+- **DEPRECATION**: `cameraTintColor` is now deprecated on ParleyComposeViewAppearance, replace it with `mediaTintColor`.
 
 ## 4.1.8 - Released 12 Jul 2024
 
