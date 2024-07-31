@@ -7,7 +7,7 @@ public class ParleyComposeViewAppearance {
     public var inputBackgroundColor = UIColor.white
     public var inputBorderColor = UIColor(white: 0.87, alpha: 1.0)
 
-    @available(*, deprecated, renamed: "mediaIcon", message: "Repleace with `mediaIcon` instead.")
+    @available(*, deprecated, renamed: "mediaIcon", message: "Replace with `mediaIcon` instead.")
     public var cameraIcon: UIImage {
         get {
             mediaIcon
@@ -16,7 +16,7 @@ public class ParleyComposeViewAppearance {
             mediaIcon = cameraIcon
         }
     }
-    @available(*, deprecated, renamed: "mediaTintColor", message: "Repleace with `mediaTintColor` instead.")
+    @available(*, deprecated, renamed: "mediaTintColor", message: "Replace with `mediaTintColor` instead.")
     public var cameraTintColor: UIColor {
         get {
             mediaTintColor
