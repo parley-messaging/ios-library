@@ -46,7 +46,12 @@ final class MessageTableViewCell: UITableViewCell {
         if message.hasMedium || message.title != nil || message.message != nil || message.hasButtons {
             messageView.isHidden = false
 
-            parleyMessageView.set(message: message, forcedTime: nil, mediaLoader: mediaLoader, shareManager: shareManager)
+            parleyMessageView.set(
+                message: message,
+                forcedTime: nil,
+                mediaLoader: mediaLoader,
+                shareManager: shareManager
+            )
         } else {
             messageView.isHidden = true
         }

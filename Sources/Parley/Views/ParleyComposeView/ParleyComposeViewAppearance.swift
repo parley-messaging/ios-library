@@ -16,6 +16,7 @@ public class ParleyComposeViewAppearance {
             mediaIcon = cameraIcon
         }
     }
+
     @available(*, deprecated, renamed: "mediaTintColor", message: "Replace with `mediaTintColor` instead.")
     public var cameraTintColor: UIColor {
         get {
@@ -25,6 +26,7 @@ public class ParleyComposeViewAppearance {
             mediaTintColor = cameraTintColor
         }
     }
+
     public var mediaIcon: UIImage
     public var mediaTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
 

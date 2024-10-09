@@ -57,7 +57,7 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
 
     @IBOutlet private weak var imageFailureMessageLabel: UILabel!
-    
+
     // Name
     @IBOutlet private weak var nameView: UIView!
     @IBOutlet private weak var nameLabel: UILabel!
@@ -84,7 +84,7 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var messageLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var messageRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var messageBottomLayoutConstraint: NSLayoutConstraint!
-    
+
     // File
     @IBOutlet private weak var fileView: UIView!
     @IBOutlet private weak var fileStackView: UIStackView!
@@ -92,14 +92,14 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var fileIcon: UIImageView!
     @IBOutlet private weak var fileLabel: UILabel!
     @IBOutlet private weak var fileButton: UIButton!
-    
+
     @IBOutlet private weak var fileActivityIndicatorView: UIActivityIndicatorView!
-    
+
     @IBOutlet private weak var fileTopLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileBottomLayoutConstraint: NSLayoutConstraint!
-    
+
     @IBOutlet private weak var fileMetaTopLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileMetaLeftLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var fileMetaRightLayoutConstraint: NSLayoutConstraint!
@@ -177,7 +177,12 @@ final class ParleyMessageView: UIView {
         ])
     }
 
-    func set(message: Message, forcedTime: Date?, mediaLoader: MediaLoaderProtocol?, shareManager: ShareManagerProtocol?) {
+    func set(
+        message: Message,
+        forcedTime: Date?,
+        mediaLoader: MediaLoaderProtocol?,
+        shareManager: ShareManagerProtocol?
+    ) {
         self.message = message
         time = forcedTime
         self.mediaLoader = mediaLoader
@@ -196,7 +201,7 @@ final class ParleyMessageView: UIView {
         renderMedia()
 
         renderButtons()
-        
+
         fixAppearanceForMessage()
     }
 
@@ -330,7 +335,7 @@ final class ParleyMessageView: UIView {
     private func renderMedia() {
         renderImageCorners()
         setImageWidth()
-        
+
         if let media = message.media {
             if media.getMediaType().isImageType {
                 hideFile()
@@ -344,12 +349,12 @@ final class ParleyMessageView: UIView {
             hideFile()
         }
     }
-    
+
     private func renderImage(_ media: MediaObject) {
         loadImage(media: media)
         displayImageLoading()
     }
-    
+
     private func renderFile(_ media: MediaObject) {
         for arrangedSubview in fileStackView.arrangedSubviews {
             fileStackView.removeArrangedSubview(arrangedSubview)
@@ -360,7 +365,7 @@ final class ParleyMessageView: UIView {
         }
         fileStackView.addArrangedSubview(fileContentView)
         fileStackView.addArrangedSubview(createSeparator())
-        
+
         fileLabel.text = media.displayFileName
         switch message.status {
         case .failed, .pending:
@@ -368,7 +373,7 @@ final class ParleyMessageView: UIView {
         case .success:
             fileButton.isHidden = false
         }
-        
+
         fileLabel.adjustsFontForContentSizeCategory = true
         fileButton.titleLabel?.adjustsFontForContentSizeCategory = true
         fileView.isHidden = false
@@ -405,12 +410,12 @@ final class ParleyMessageView: UIView {
         imageImageView.image = nil
         imageActivityIndicatorView.stopAnimating()
     }
-    
+
     private func hideFile() {
         for arrangedSubview in fileStackView.arrangedSubviews {
             fileStackView.removeArrangedSubview(arrangedSubview)
         }
-        
+
         fileView.isHidden = true
     }
 
@@ -436,13 +441,13 @@ final class ParleyMessageView: UIView {
                 // During cell reuse, the ongoing request could callback on another cell.
                 // This check prevents it from applying that image (or display it's failure).
                 guard imageRequestForMessageId == message.id else { return }
-                
+
                 // NOTE: Result should be of type image
                 guard let image = media.imageFromData(data) else {
                     displayFailedLoadingImage()
                     return
                 }
-                
+
                 display(image: image)
             } catch {
                 displayFailedLoadingImage()
@@ -463,24 +468,24 @@ final class ParleyMessageView: UIView {
         imageActivityIndicatorView.stopAnimating()
         renderGradients()
     }
-    
+
     private func displayFailedLoadingFileNoFileManager() {
         presentAlert(
-            title: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerTitle.localized,
-            message: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerMessage.localized
+            title: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerTitle.localized(),
+            message: ParleyLocalizationKey.messageFileLoadFailedNoFileManagerMessage.localized()
         )
     }
-    
+
     private func displayFailedLoadingFile() {
         presentAlert(
-            title: ParleyLocalizationKey.messageFileLoadFailedSavingTitle.localized,
-            message: ParleyLocalizationKey.messageFileLoadFailedSavingMessage.localized
+            title: ParleyLocalizationKey.messageFileLoadFailedSavingTitle.localized(),
+            message: ParleyLocalizationKey.messageFileLoadFailedSavingMessage.localized()
         )
     }
-    
+
     private func presentAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = ParleyLocalizationKey.ok.localized
+        let okMessage = ParleyLocalizationKey.ok.localized()
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -581,11 +586,15 @@ final class ParleyMessageView: UIView {
             let messageButtons = message.buttons
         {
             buttonsView.isHidden = false
-            if !message.hasFile && (message.title != nil || displayName == .message || message.message != nil || message.hasImage) {
+            if
+                !message
+                    .hasFile &&
+                    (message.title != nil || displayName == .message || message.message != nil || message.hasImage)
+            {
                 let sep = createSeparator()
                 buttonsStackView.addArrangedSubview(sep)
             }
-            
+
             for (tag, messageButton) in messageButtons.enumerated() {
                 let button = createButton(from: messageButton, tag: tag)
                 buttonsStackView.addArrangedSubview(button)
@@ -596,14 +605,14 @@ final class ParleyMessageView: UIView {
             buttonsView.isHidden = true
         }
     }
-    
+
     private func fixAppearanceForMessage() {
         if message.title != nil || displayName == .message || message.message != nil {
             fileTopLayoutConstraint.constant = appearance?.fileInsets?.top ?? 0
         } else {
             fileTopLayoutConstraint.constant = 0
         }
-        
+
         if message.hasFile && message.hasButtons {
             fileBottomLayoutConstraint.constant = 0
             buttonsTopLayoutConstraint.constant = 0
@@ -621,12 +630,24 @@ final class ParleyMessageView: UIView {
         separatorContainer.addSubview(separator)
         NSLayoutConstraint.activate([
             separator.heightAnchor.constraint(equalToConstant: 1),
-            separator.leadingAnchor.constraint(equalTo: separatorContainer.leadingAnchor, constant: appearance?.separatorInset?.left ?? 0),
-            separator.topAnchor.constraint(equalTo: separatorContainer.topAnchor, constant: appearance?.separatorInset?.top ?? 0),
-            separator.trailingAnchor.constraint(equalTo: separatorContainer.trailingAnchor, constant: -(appearance?.separatorInset?.right ?? 0)),
-            separator.bottomAnchor.constraint(equalTo: separatorContainer.bottomAnchor, constant: -(appearance?.separatorInset?.bottom ?? 0)),
+            separator.leadingAnchor.constraint(
+                equalTo: separatorContainer.leadingAnchor,
+                constant: appearance?.separatorInset?.left ?? 0
+            ),
+            separator.topAnchor.constraint(
+                equalTo: separatorContainer.topAnchor,
+                constant: appearance?.separatorInset?.top ?? 0
+            ),
+            separator.trailingAnchor.constraint(
+                equalTo: separatorContainer.trailingAnchor,
+                constant: -(appearance?.separatorInset?.right ?? 0)
+            ),
+            separator.bottomAnchor.constraint(
+                equalTo: separatorContainer.bottomAnchor,
+                constant: -(appearance?.separatorInset?.bottom ?? 0)
+            ),
         ])
-        
+
         return separatorContainer
     }
 
@@ -704,7 +725,7 @@ final class ParleyMessageView: UIView {
             .constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.metaInsets?.left ?? 0)
         imageMetaBottomLayoutConstraint
             .constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
-        
+
         // Name
         nameLabel.textColor = appearance.nameColor
         nameLabel.font = appearance.nameFont
@@ -739,37 +760,39 @@ final class ParleyMessageView: UIView {
 
         // File
         fileIcon.tintColor = appearance.fileIconTintColor
-        
+
         fileLabel.textColor = appearance.fileNameColor
         fileLabel.font = appearance.fileNameFont
-        
+
         fileButton.setTitleColor(appearance.fileActionColor, for: .normal)
         fileButton.titleLabel?.font = appearance.fileActionFont
-        fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized, for: .normal)
+        fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized(), for: .normal)
         fileButton.addTarget(self, action: #selector(imageAction), for: .touchUpInside)
         if #available(iOS 15, *) {
             // NOTE: Needed to allow the font setting on the titleLabel to work after 15.0
             fileButton.configuration = nil
         }
-        
+
         fileActivityIndicatorView.color = appearance.fileActionColor
-        
+
         fileTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
         fileLeftLayoutConstraint.constant = appearance.fileInsets?.left ?? 0
         fileRightLayoutConstraint.constant = appearance.fileInsets?.right ?? 0
         fileBottomLayoutConstraint.constant = appearance.fileInsets?.bottom ?? 0
-        
+
         fileMetaTopLayoutConstraint.constant = appearance.fileContentInsets?.top ?? 0
-        fileMetaLeftLayoutConstraint.constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileContentInsets?.left ?? 0)
-        fileMetaRightLayoutConstraint.constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
+        fileMetaLeftLayoutConstraint
+            .constant = (appearance.balloonContentTextInsets?.left ?? 0) + (appearance.fileContentInsets?.left ?? 0)
+        fileMetaRightLayoutConstraint
+            .constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.fileContentInsets?.right ?? 0)
         fileMetaBottomLayoutConstraint.constant = appearance.fileContentInsets?.bottom ?? 0
-        
+
         // Buttons
         buttonsTopLayoutConstraint.constant = appearance.buttonsInsets?.top ?? 0
         buttonsLeftLayoutConstraint.constant = appearance.buttonsInsets?.left ?? 0
         buttonsRightLayoutConstraint.constant = appearance.buttonsInsets?.right ?? 0
         buttonsBottomLayoutConstraint.constant = appearance.buttonsInsets?.bottom ?? 0
-        
+
         // Meta
         timeLabel.textColor = appearance.timeColor
         timeLabel.font = appearance.timeFont
@@ -793,10 +816,10 @@ final class ParleyMessageView: UIView {
         guard let media = message.media else {
             return
         }
-        
+
         delegate?.didSelectMedia(media)
     }
-    
+
     @IBAction
     private func openMediaAction(sender: UIButton) {
         fileButton.isHidden = true
@@ -806,19 +829,20 @@ final class ParleyMessageView: UIView {
                 fileButton.isHidden = false
                 fileActivityIndicatorView.stopAnimating()
             }
-            
-            
+
             guard let shareManager else {
                 displayFailedLoadingFileNoFileManager()
                 return
             }
-            
-            guard let media = message.media,
-                  let url = try? await shareManager.share(media: media) else {
+
+            guard
+                let media = message.media,
+                let url = try? await shareManager.share(media: media) else
+            {
                 displayFailedLoadingFile()
                 return
             }
-            
+
             delegate?.shareMedia(url: url)
         }
     }

@@ -42,27 +42,30 @@ public struct ParleyStoredMedia: Codable {
         }
 
         static func from(media: MediaObject) -> FilePath? {
-            return .from(id: media.id, type: media.getMediaType())
+            .from(id: media.id, type: media.getMediaType())
         }
-        
+
         static func from(id: String, type: ParleyMediaType) -> FilePath? {
             guard let fileName = decodeFileName(id: id) else {
                 return nil
             }
             return FilePath(name: fileName, type: type)
         }
-        
+
         static func from(url: URL) -> FilePath? {
             let type = ParleyMediaType.map(from: url)
             guard let fileName = decodeFileName(id: url.absoluteString) else {
                 return nil
             }
-            
+
             return FilePath(name: fileName, type: type)
         }
 
         private static func decodeFileName(id: String) -> String? {
-            guard var splitFilename = id.split(separator: "/").last?.split(separator: "."), splitFilename.count >= 2 else {
+            guard
+                var splitFilename = id.split(separator: "/").last?.split(separator: "."),
+                splitFilename.count >= 2 else
+            {
                 return nil
             }
 

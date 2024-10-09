@@ -11,7 +11,7 @@ struct MediaModel: Codable {
         type = .map(from: url)
         self.data = data
     }
-    
+
     init?(image: UIImage, data: Data, url: URL) {
         filename = url.lastPathComponent
         type = .map(from: url)

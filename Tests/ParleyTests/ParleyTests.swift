@@ -19,13 +19,13 @@ final class ParleyTests: XCTestCase {
     func testSetLocalizationManager() {
         let localizationKeyReturnValue = "test!"
 
-        XCTAssertNotEqual(ParleyLocalizationKey.cancel.localized, ParleyLocalizationKey.cancel.rawValue)
-        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyCallsCount, 0)
+        XCTAssertNotEqual(ParleyLocalizationKey.cancel.localized(), ParleyLocalizationKey.cancel.rawValue)
+        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount, 0)
 
         Parley.setLocalizationManager(localizationManagerSpy)
-        localizationManagerSpy.getLocalizationKeyReturnValue = localizationKeyReturnValue
+        localizationManagerSpy.getLocalizationKeyArgumentsReturnValue = localizationKeyReturnValue
 
-        XCTAssertEqual(ParleyLocalizationKey.cancel.localized, localizationKeyReturnValue)
-        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyCallsCount, 1)
+        XCTAssertEqual(ParleyLocalizationKey.cancel.localized(), localizationKeyReturnValue)
+        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount, 1)
     }
 }

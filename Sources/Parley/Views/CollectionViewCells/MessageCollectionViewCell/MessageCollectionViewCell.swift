@@ -65,7 +65,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         totalHeight += appearance.balloonContentInsets?.top ?? 0
         totalHeight += appearance.balloonContentInsets?.bottom ?? 0
 
-        var showTopSeparator: Bool = true
+        var showTopSeparator = true
         if message.hasImage {
             totalHeight += 160
 
@@ -94,7 +94,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                 font: appearance.messageTextViewAppearance.regularFont
             )
         }
-        
+
         if message.hasFile {
             if showTopSeparator {
                 // Top separator
@@ -102,32 +102,38 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                 totalHeight += appearance.separatorInset?.bottom ?? 0
                 totalHeight += 1
             }
-            
+
             totalHeight += appearance.fileContentInsets?.top ?? 0
             totalHeight += appearance.fileContentInsets?.bottom ?? 0
             totalHeight += max(
-                ParleyLocalizationKey.messageFileOpen.localized.height(withConstrainedWidth: contentWidth, font: appearance.buttonFont),
-                message.media?.displayFileName.height(withConstrainedWidth: contentWidth, font: appearance.fileNameFont) ?? 0
+                ParleyLocalizationKey.messageFileOpen.localized().height(
+                    withConstrainedWidth: contentWidth,
+                    font: appearance.buttonFont
+                ),
+                message.media?.displayFileName.height(
+                    withConstrainedWidth: contentWidth,
+                    font: appearance.fileNameFont
+                ) ?? 0
             )
-            
+
             // Bottom separator
             totalHeight += appearance.separatorInset?.top ?? 0
             totalHeight += appearance.separatorInset?.bottom ?? 0
             totalHeight += 1
-            
+
             showTopSeparator = false
         }
 
         if message.hasButtons {
             totalHeight += appearance.buttonsInsets?.top ?? 0
             totalHeight += appearance.buttonsInsets?.bottom ?? 0
-            
+
             var buttonWidth = balloonWidth
             buttonWidth -= appearance.buttonsInsets?.left ?? 0
             buttonWidth -= appearance.buttonsInsets?.right ?? 0
             buttonWidth -= appearance.buttonInsets?.left ?? 0
             buttonWidth -= appearance.buttonInsets?.right ?? 0
-            
+
             if showTopSeparator {
                 totalHeight += 1 // Initial separator
                 totalHeight += appearance.separatorInset?.top ?? 0
@@ -146,7 +152,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                 totalHeight += appearance.balloonContentTextInsets?.top ?? 0
             }
         }
-        
+
         if message.message != nil || message.title != nil || message.hasButtons || !message.hasImage {
             totalHeight += appearance.metaInsets?.top ?? 0
             totalHeight += appearance.metaInsets?.bottom ?? 0
