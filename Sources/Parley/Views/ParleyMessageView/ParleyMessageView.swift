@@ -587,9 +587,8 @@ final class ParleyMessageView: UIView {
         {
             buttonsView.isHidden = false
             if
-                !message
-                    .hasFile &&
-                    (message.title != nil || displayName == .message || message.message != nil || message.hasImage)
+                !message.hasFile &&
+                (message.title != nil || displayName == .message || message.message != nil || message.hasImage)
             {
                 let sep = createSeparator()
                 buttonsStackView.addArrangedSubview(sep)
