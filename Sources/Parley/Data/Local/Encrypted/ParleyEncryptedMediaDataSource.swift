@@ -1,6 +1,11 @@
 import Foundation
 
-@available(*, deprecated, renamed: "ParleyEncryptedMediaDataSource", message: "Use ParleyEncryptedMediaDataSource instead")
+@available(
+    *,
+    deprecated,
+    renamed: "ParleyEncryptedMediaDataSource",
+    message: "Use ParleyEncryptedMediaDataSource instead"
+)
 public typealias ParleyEncryptedImageDataSource = ParleyEncryptedMediaDataSource
 
 public class ParleyEncryptedMediaDataSource {
@@ -55,16 +60,16 @@ extension ParleyEncryptedMediaDataSource: ParleyMediaDataSource {
         guard let url = path(id: id) else { return nil }
         return obtainStoredMedia(from: url)
     }
-    
+
     private func path(id: ParleyStoredMedia.ID) -> URL? {
-        return getFiles().first(where: { $0.lastPathComponent.contains(id) })
+        getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 
     private func obtainStoredMedia(from url: URL) -> ParleyStoredMedia? {
         guard
             let decryptedData = getDecryptedStoredMediaData(url: url),
             let filePath = ParleyStoredMedia.FilePath.from(url: url) else { return nil }
-        
+
         return ParleyStoredMedia(filename: filePath.name, data: decryptedData, type: filePath.type)
     }
 

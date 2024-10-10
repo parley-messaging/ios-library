@@ -1,7 +1,7 @@
 import Foundation
+import MobileCoreServices
 import UIKit
 import UniformTypeIdentifiers
-import MobileCoreServices
 
 enum ParleyMediaType: String, CaseIterable, Codable {
     case imagePng = "image/png"
@@ -26,7 +26,7 @@ enum ParleyMediaType: String, CaseIterable, Codable {
             ".bin"
         }
     }
-    
+
     var isImageType: Bool {
         switch self {
         case .imagePng, .imageGif, .imageJPeg:
@@ -35,11 +35,11 @@ enum ParleyMediaType: String, CaseIterable, Codable {
             false
         }
     }
-    
+
     @available(iOS 14.0, *)
     static var documentContentTypes: [UTType] = {
         var types: [UTType] = []
-        ParleyMediaType.allCases.forEach { mediaType in
+        for mediaType in ParleyMediaType.allCases {
             switch mediaType {
             case .imagePng, .imageGif, .imageJPeg, .other:
                 break
@@ -47,13 +47,13 @@ enum ParleyMediaType: String, CaseIterable, Codable {
                 types.append(.pdf)
             }
         }
-        
+
         return types
     }()
-    
+
     static var documentTypes: [String] = {
         var types: [String] = []
-        ParleyMediaType.allCases.forEach { mediaType in
+        for mediaType in ParleyMediaType.allCases {
             switch mediaType {
             case .imagePng, .imageGif, .imageJPeg, .other:
                 break
@@ -61,7 +61,7 @@ enum ParleyMediaType: String, CaseIterable, Codable {
                 types.append(String(kUTTypePDF))
             }
         }
-        
+
         return types
     }()
 
@@ -73,7 +73,7 @@ enum ParleyMediaType: String, CaseIterable, Codable {
     static func from(mimeType: String) -> ParleyMediaType {
         ParleyMediaType(rawValue: mimeType) ?? .other
     }
-    
+
     /// Returns a ParleyMediaType from a given URL
     /// Defaults to .other.
     /// - Parameters:

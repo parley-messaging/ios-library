@@ -94,12 +94,14 @@ final class MessageImageViewController: UIViewController {
 
         Task {
             defer { stopImageLoading() }
-            guard let mediaData = try? await mediaLoader.load(media: media),
-                  let image = media.imageFromData(mediaData) else {
+            guard
+                let mediaData = try? await mediaLoader.load(media: media),
+                let image = media.imageFromData(mediaData) else
+            {
                 displayFailedLoadingImage()
                 return
             }
-            
+
             display(image: image)
         }
     }
@@ -154,7 +156,7 @@ final class MessageImageViewController: UIViewController {
         button.setImage(image, for: .normal)
         button.tintColor = .white
         button.isAccessibilityElement = true
-        button.accessibilityLabel = ParleyLocalizationKey.close.localized
+        button.accessibilityLabel = ParleyLocalizationKey.close.localized()
 
         view.addSubview(button)
 

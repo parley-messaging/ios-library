@@ -45,16 +45,16 @@ public class ParleyMessageViewAppearance {
     }()
 
     public var messageInsets: UIEdgeInsets?
-    
+
     // File
     public var fileIconTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
-    
-    public var fileNameColor =  UIColor(white: 0, alpha: 1)
+
+    public var fileNameColor = UIColor(white: 0, alpha: 1)
     @ParleyScaledFont(textStyle: .body) public var fileNameFont = .systemFont(ofSize: 13)
-    
+
     public var fileActionColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
     @ParleyScaledFont(textStyle: .headline) public var fileActionFont = .boldSystemFont(ofSize: 16)
-    
+
     public var fileInsets: UIEdgeInsets? = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     public var fileContentInsets: UIEdgeInsets? = UIEdgeInsets(top: 14, left: 0, bottom: 14, right: 0)
 
@@ -65,7 +65,7 @@ public class ParleyMessageViewAppearance {
     @ParleyScaledFont(textStyle: .callout) public var timeFont = .systemFont(ofSize: 12)
 
     public var statusTintColor = UIColor(white: 1, alpha: 0.6)
-    
+
     // Buttons
     public var buttonsInsets: UIEdgeInsets?
     public var buttonInsets: UIEdgeInsets?
@@ -76,7 +76,7 @@ public class ParleyMessageViewAppearance {
     public var buttonColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
 
     public var separatorInset: UIEdgeInsets?
-    
+
     init() {
         imagePlaceholder = UIImage(named: "placeholder", in: .module, compatibleWith: nil)!
     }

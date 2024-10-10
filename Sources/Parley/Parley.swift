@@ -161,7 +161,11 @@ public final class Parley: ParleyProtocol {
     }
 
     private func removeObservers() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 
@@ -620,7 +624,7 @@ public final class Parley: ParleyProtocol {
         if agentReallyStartTyping {
             UIAccessibility.post(
                 notification: .announcement,
-                argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized
+                argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
             )
             delegate?.didStartTyping()
         }
@@ -676,9 +680,9 @@ extension Parley {
 
     @available(
         *,
-         deprecated,
-         renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
-         message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
+        deprecated,
+        renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
+        message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
     )
     public static func enableOfflineMessaging(
         messageDataSource: ParleyMessageDataSource,
@@ -688,10 +692,10 @@ extension Parley {
         enableOfflineMessaging(
             messageDataSource: messageDataSource,
             keyValueDataSource: keyValueDataSource,
-            mediaDataSource: imageDataSource)
+            mediaDataSource: imageDataSource
+        )
     }
 
-    
     /**
      Enable offline messaging.
 

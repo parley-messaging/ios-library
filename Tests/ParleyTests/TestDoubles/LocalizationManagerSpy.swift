@@ -4,31 +4,31 @@ import XCTest
 public final class LocalizationManagerSpy: LocalizationManager {
 
     public init(
-        getLocalizationKeyReturnValue: String? = nil
+        getLocalizationKeyArgumentsReturnValue: String? = nil
     ) {
-        self.getLocalizationKeyReturnValue = getLocalizationKeyReturnValue
+        self.getLocalizationKeyArgumentsReturnValue = getLocalizationKeyArgumentsReturnValue
     }
 
     // MARK: - getLocalization
 
-    public var getLocalizationKeyCallsCount = 0
-    public var getLocalizationKeyCalled: Bool {
-        getLocalizationKeyCallsCount > 0
+    public var getLocalizationKeyArgumentsCallsCount = 0
+    public var getLocalizationKeyArgumentsCalled: Bool {
+        getLocalizationKeyArgumentsCallsCount > 0
     }
 
-    public var getLocalizationKeyReceivedKey: ParleyLocalizationKey?
-    public var getLocalizationKeyReceivedInvocations: [ParleyLocalizationKey] = []
-    public var getLocalizationKeyReturnValue: String!
-    public var getLocalizationKeyClosure: ((ParleyLocalizationKey) -> String)?
+    public var getLocalizationKeyArgumentsReceivedArguments: (key: ParleyLocalizationKey, arguments: CVarArg)?
+    public var getLocalizationKeyArgumentsReceivedInvocations: [(key: ParleyLocalizationKey, arguments: CVarArg)] = []
+    public var getLocalizationKeyArgumentsReturnValue: String!
+    public var getLocalizationKeyArgumentsClosure: ((ParleyLocalizationKey, CVarArg) -> String)?
 
-    public func getLocalization(key: ParleyLocalizationKey) -> String {
-        getLocalizationKeyCallsCount += 1
-        getLocalizationKeyReceivedKey = key
-        getLocalizationKeyReceivedInvocations.append(key)
-        if let getLocalizationKeyClosure {
-            return getLocalizationKeyClosure(key)
+    public func getLocalization(key: ParleyLocalizationKey, arguments: CVarArg...) -> String {
+        getLocalizationKeyArgumentsCallsCount += 1
+        getLocalizationKeyArgumentsReceivedArguments = (key: key, arguments: arguments)
+        getLocalizationKeyArgumentsReceivedInvocations.append((key: key, arguments: arguments))
+        if let getLocalizationKeyArgumentsClosure {
+            return getLocalizationKeyArgumentsClosure(key, arguments)
         } else {
-            return getLocalizationKeyReturnValue
+            return getLocalizationKeyArgumentsReturnValue
         }
     }
 

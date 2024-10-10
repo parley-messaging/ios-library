@@ -18,9 +18,9 @@ class MediaRepository {
         store(media: storedMedia)
         return storedMedia
     }
-    
+
     func getStoredMedia(for media: MediaObject) -> ParleyStoredMedia? {
-        return dataSource?.media(id: media.id)
+        dataSource?.media(id: media.id)
     }
 
     func getRemoteMedia(for media: MediaObject) async throws -> Data {
@@ -45,9 +45,9 @@ class MediaRepository {
                 guard let self else { return }
                 do {
                     let mediaResponse = try mediaResult.get()
-                    
+
                     move(storedMedia, to: mediaResponse.media)
-                    
+
                     continuation.resume(returning: mediaResponse.media)
                 } catch {
                     continuation.resume(throwing: error)
@@ -90,7 +90,7 @@ extension MediaRepository {
         let storedMedia = ParleyStoredMedia(filename: remoteId, data: local.data, type: local.type)
         store(media: storedMedia)
     }
-    
+
     private func storeMedia(data: Data, for media: MediaObject) {
         guard let filePath = ParleyStoredMedia.FilePath.from(media: media) else { return }
         let storedMedia = ParleyStoredMedia(filename: filePath.name, data: data, type: filePath.type)

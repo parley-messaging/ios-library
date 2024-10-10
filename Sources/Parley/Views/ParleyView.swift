@@ -22,13 +22,13 @@ public class ParleyView: UIView {
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView! {
         didSet {
-            pushDisabledNotificationView.text = ParleyLocalizationKey.pushDisabled.localized
+            pushDisabledNotificationView.text = ParleyLocalizationKey.pushDisabled.localized()
         }
     }
 
     @IBOutlet weak var offlineNotificationView: ParleyNotificationView! {
         didSet {
-            offlineNotificationView.text = ParleyLocalizationKey.notificationOffline.localized
+            offlineNotificationView.text = ParleyLocalizationKey.notificationOffline.localized()
         }
     }
 
@@ -46,7 +46,7 @@ public class ParleyView: UIView {
 
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
-            composeView.placeholder = ParleyLocalizationKey.typeMessage.localized
+            composeView.placeholder = ParleyLocalizationKey.typeMessage.localized()
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self
@@ -88,7 +88,7 @@ public class ParleyView: UIView {
             mediaEnabled = imagesEnabled
         }
     }
-    
+
     public var mediaEnabled = true {
         didSet {
             composeView.allowMediaUpload = mediaEnabled
@@ -126,12 +126,12 @@ public class ParleyView: UIView {
     deinit {
         removeObservers()
     }
-    
+
     private lazy var shareManager: ShareManager? = {
         guard let shareManager = try? ShareManager(mediaLoader: parley.mediaLoader) else {
             return nil
         }
-        
+
         return shareManager
     }()
 
@@ -525,7 +525,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = ParleyLocalizationKey.stateUnconfigured.localized
+            statusLabel.text = ParleyLocalizationKey.stateUnconfigured.localized()
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -547,7 +547,7 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = true
             suggestionsView.isHidden = true
 
-            statusLabel.text = ParleyLocalizationKey.stateFailed.localized
+            statusLabel.text = ParleyLocalizationKey.stateFailed.localized()
             statusLabel.isHidden = false
 
             activityIndicatorView.isHidden = true
@@ -763,15 +763,15 @@ extension ParleyView: UITableViewDelegate {
 extension ParleyView: ParleyComposeViewDelegate {
 
     func failedToSelectImage() {
-        let title = ParleyLocalizationKey.sendFailedTitle.localized
-        let message = ParleyLocalizationKey.sendFailedBodySelectingImage.localized
+        let title = ParleyLocalizationKey.sendFailedTitle.localized()
+        let message = ParleyLocalizationKey.sendFailedBodySelectingImage.localized()
         presentInformationalAlert(title: title, message: message)
     }
 
     @MainActor
     private func presentInformationalAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okMessage = ParleyLocalizationKey.ok.localized
+        let okMessage = ParleyLocalizationKey.ok.localized()
         alert.addAction(UIAlertAction(title: okMessage, style: .default))
         present(alert, animated: true)
     }
@@ -793,8 +793,8 @@ extension ParleyView: ParleyComposeViewDelegate {
             }
 
             guard !mediaModel.isLargerThan(size: Self.maximumImageSizeInMegabytes) else {
-                let title = ParleyLocalizationKey.sendFailedTitle.localized
-                let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
+                let title = ParleyLocalizationKey.sendFailedTitle.localized()
+                let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized()
                 presentInformationalAlert(title: title, message: message)
                 return
             }
@@ -813,14 +813,14 @@ extension ParleyView: ParleyComposeViewDelegate {
             await send(media: mediaModel)
         }
     }
-    
+
     func send(file url: URL) {
         Task { @MainActor in
             guard let fileData = FileManager.default.contents(atPath: url.path) else {
                 presentInvalidMediaAlert()
                 return
             }
-            
+
             let mediaModel = MediaModel(data: fileData, url: url)
             await send(media: mediaModel)
         }
@@ -837,15 +837,15 @@ extension ParleyView: ParleyComposeViewDelegate {
 
     @MainActor
     private func presentInvalidMediaAlert() {
-        let title = ParleyLocalizationKey.sendFailedTitle.localized
-        let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized
+        let title = ParleyLocalizationKey.sendFailedTitle.localized()
+        let message = ParleyLocalizationKey.sendFailedBodyMediaInvalid.localized()
         presentInformationalAlert(title: title, message: message)
     }
 
     @MainActor
     private func presentImageToLargeAlert() {
-        let title = ParleyLocalizationKey.sendFailedTitle.localized
-        let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized
+        let title = ParleyLocalizationKey.sendFailedTitle.localized()
+        let message = ParleyLocalizationKey.sendFailedBodyMediaTooLarge.localized()
         presentInformationalAlert(title: title, message: message)
     }
 }
@@ -857,18 +857,18 @@ extension ParleyView: MessageTableViewCellDelegate {
         guard media.getMediaType().isImageType else {
             return
         }
-        
+
         let imageViewController = MessageImageViewController(
             messageMedia: media,
             mediaLoader: parley.mediaLoader
         )
-        
+
         imageViewController.modalPresentationStyle = .overFullScreen
         imageViewController.modalTransitionStyle = .crossDissolve
-        
+
         present(imageViewController, animated: true, completion: nil)
     }
-    
+
     func shareMedia(url: URL) {
         print(url)
         let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)

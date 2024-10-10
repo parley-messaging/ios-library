@@ -120,7 +120,7 @@ final class ParleyViewTests: XCTestCase {
         let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        
+
         mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(
@@ -182,7 +182,7 @@ final class ParleyViewTests: XCTestCase {
         let mediaLoaderStub = MediaLoaderStub()
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
-        
+
         mediaLoaderStub.loadResult = data
 
         let sut = ParleyView(

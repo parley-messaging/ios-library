@@ -46,8 +46,8 @@ public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
         appearance.balloonContentTextInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
 
         appearance.messageTextViewAppearance.textColor = UIColor.white
-        appearance.messageTextViewAppearance.linkTintColor =  UIColor(white: 1, alpha: 0.6)
-        
+        appearance.messageTextViewAppearance.linkTintColor = UIColor(white: 1, alpha: 0.6)
+
         appearance.fileIconTintColor = UIColor(red: 0.6, green: 0.81, blue: 1, alpha: 1.0)
         appearance.fileNameColor = UIColor.white
         appearance.fileActionColor = UIColor(red: 0.6, green: 0.81, blue: 1, alpha: 1.0)
