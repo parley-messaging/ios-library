@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.1 - Released 10 Oct 2024
+
+- Fixed `LocalizationManager` not localizing keys that had arguments.
+- **IMPORTANT**: When using the `LocalizationManager`, the structure of the protocol has changed slightly to support arguments.
+
 ## 4.2.0 - Released 31 Jul 2024
 
 - Added support for uploading PDF files.
