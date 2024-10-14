@@ -762,16 +762,16 @@ final class ParleyMessageView: UIView {
 
         fileLabel.textColor = appearance.fileNameColor
         fileLabel.font = appearance.fileNameFont
-
-        fileButton.setTitleColor(appearance.fileActionColor, for: .normal)
-        fileButton.titleLabel?.font = appearance.fileActionFont
-        fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized(), for: .normal)
-        fileButton.addTarget(self, action: #selector(imageAction), for: .touchUpInside)
+        
         if #available(iOS 15, *) {
             // NOTE: Needed to allow the font setting on the titleLabel to work after 15.0
             fileButton.configuration = nil
         }
-
+        fileButton.setTitleColor(appearance.fileActionColor, for: .normal)
+        fileButton.titleLabel?.font = appearance.fileActionFont
+        fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized, for: .normal)
+        fileButton.addTarget(self, action: #selector(imageAction), for: .touchUpInside)
+        
         fileActivityIndicatorView.color = appearance.fileActionColor
 
         fileTopLayoutConstraint.constant = appearance.fileInsets?.top ?? 0
