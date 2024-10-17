@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.2 - Released 17 Oct 2024
+
+- Fixed `fileActionFont` not updating on initial load.
+- Styling: Added `ParleyMessageViewAppearance.fileIcon` to configure the icon for files.
+
 ## 4.2.1 - Released 10 Oct 2024
 
 - Fixed `LocalizationManager` not localizing keys that had arguments.
