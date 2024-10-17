@@ -758,6 +758,7 @@ final class ParleyMessageView: UIView {
             .constant = (appearance.balloonContentTextInsets?.right ?? 0) + (appearance.messageInsets?.right ?? 0)
 
         // File
+        fileIcon.image = appearance.fileIcon
         fileIcon.tintColor = appearance.fileIconTintColor
 
         fileLabel.textColor = appearance.fileNameColor

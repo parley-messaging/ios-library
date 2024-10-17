@@ -47,6 +47,7 @@ public class ParleyMessageViewAppearance {
     public var messageInsets: UIEdgeInsets?
 
     // File
+    public var fileIcon: UIImage
     public var fileIconTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
 
     public var fileNameColor = UIColor(white: 0, alpha: 1)
@@ -79,5 +80,6 @@ public class ParleyMessageViewAppearance {
 
     init() {
         imagePlaceholder = UIImage(named: "placeholder", in: .module, compatibleWith: nil)!
+        fileIcon = UIImage(named: "ic_file", in: .module, compatibleWith: nil)!
     }
 }
