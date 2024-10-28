@@ -403,7 +403,8 @@ public class ParleyView: UIView {
     // MARK: Orientation
     @objc
     private func orientationDidChange() {
-        // NOTE: Only reloading data if the orientation actually changed from landscape to portrait or vice versa
+        // NOTE: Only reloading data if the orientation actually changed from landscape to portrait or vice versa.
+        // NOTE: This also triggers when device went `faceUp` and `faceDown`. We ignore those triggers since we don't need these.
         guard let simplifiedOrientation = UIDevice.current.orientation.simplifiedOrientation,
               mostRecentSimplifiedDeviceOrientation != simplifiedOrientation else {
             return

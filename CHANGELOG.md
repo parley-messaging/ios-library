@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.3 - Released 28 Oct 2024
+
+- Fixed images flickering when device orientation changes from to faceUp/faceDown.
+
 ## 4.2.2 - Released 17 Oct 2024
 
 - Fixed `fileActionFont` not updating on initial load.
