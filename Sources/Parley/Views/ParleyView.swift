@@ -64,6 +64,7 @@ public class ParleyView: UIView {
     private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
+    private var mostRecentSimplifiedDeviceOrientation: UIDeviceOrientation.Simplified = UIDevice.current.orientation.simplifiedOrientation ?? .portrait
 
     private var messagesManager: MessagesManagerProtocol? {
         switch parley.state {
@@ -402,6 +403,13 @@ public class ParleyView: UIView {
     // MARK: Orientation
     @objc
     private func orientationDidChange() {
+        // NOTE: Only reloading data if the orientation actually changed from landscape to portrait or vice versa
+        guard let simplifiedOrientation = UIDevice.current.orientation.simplifiedOrientation,
+              mostRecentSimplifiedDeviceOrientation != simplifiedOrientation else {
+            return
+        }
+        
+        mostRecentSimplifiedDeviceOrientation = simplifiedOrientation
         messagesTableView.reloadData()
     }
 
@@ -912,3 +920,4 @@ extension ParleyView {
         messagesTableView.reloadData()
     }
 }
+
