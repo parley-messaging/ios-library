@@ -1,6 +1,6 @@
 import UIKit
 
-public class SuggestionCollectionViewCellAppearance {
+public struct SuggestionCollectionViewCellAppearance {
 
     // Balloon
     public var balloonImage: UIImage?

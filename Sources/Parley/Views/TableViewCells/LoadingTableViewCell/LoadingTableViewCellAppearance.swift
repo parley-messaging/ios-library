@@ -1,6 +1,6 @@
 import UIKit
 
-public class LoadingTableViewCellAppearance {
+public struct LoadingTableViewCellAppearance {
 
     public var loaderTintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 0.6)
 

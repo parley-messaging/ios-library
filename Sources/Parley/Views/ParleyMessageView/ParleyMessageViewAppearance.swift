@@ -35,14 +35,10 @@ public class ParleyMessageViewAppearance {
     public var titleInsets: UIEdgeInsets? = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
 
     // Message
-    public var messageTextViewAppearance: ParleyTextViewAppearance = {
-        let appearance = ParleyTextViewAppearance()
-
-        appearance.textColor = UIColor(white: 0.28, alpha: 1.0)
-        appearance.linkTintColor = UIColor(red: 0.08, green: 0.49, blue: 0.98, alpha: 1.0)
-
-        return appearance
-    }()
+    public var messageTextViewAppearance = ParleyTextViewAppearance(
+        textColor: UIColor(white: 0.28, alpha: 1.0),
+        linkTintColor: UIColor(red: 0.08, green: 0.49, blue: 0.98, alpha: 1.0)
+    )
 
     public var messageInsets: UIEdgeInsets?
 

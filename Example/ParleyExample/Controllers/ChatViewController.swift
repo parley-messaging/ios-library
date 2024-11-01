@@ -5,7 +5,7 @@ class ChatViewController: BaseViewController {
 
     @IBOutlet weak var parleyView: ParleyView! {
         didSet {
-            let appearance = ParleyViewAppearance(
+            var appearance = ParleyViewAppearance(
                 fontRegularName: "Montserrat-Regular",
                 fontItalicName: "Montserrat-Italic",
                 fontBoldName: "Montserrat-Bold"

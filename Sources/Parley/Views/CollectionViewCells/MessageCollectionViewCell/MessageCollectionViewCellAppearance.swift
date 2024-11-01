@@ -1,6 +1,6 @@
 import UIKit
 
-public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
+public final class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
 
     public var width: CGFloat = 250
 
@@ -23,7 +23,7 @@ public class MessageCollectionViewCellAppearance: ParleyMessageViewAppearance {
     }
 
     static func user() -> MessageCollectionViewCellAppearance {
-        let appearance = MessageCollectionViewCellAppearance()
+        var appearance = MessageCollectionViewCellAppearance()
 
         let edgeInsets = UIEdgeInsets(top: 21, left: 21, bottom: 21, right: 23)
 

@@ -1,6 +1,6 @@
 import UIKit
 
-public class ParleyComposeViewAppearance {
+public struct ParleyComposeViewAppearance {
 
     public var backgroundColor = UIColor(white: 0.92, alpha: 1.0)
 

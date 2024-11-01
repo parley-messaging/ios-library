@@ -1,6 +1,6 @@
 import UIKit
 
-public class AgentTypingTableViewCellAppearance {
+public struct AgentTypingTableViewCellAppearance {
 
     public var backgroundImage: UIImage?
     public var backgroundTintColor: UIColor? = UIColor.white
