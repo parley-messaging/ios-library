@@ -3,9 +3,9 @@ import UIKit
 
 extension Date {
 
-    func asDate() -> String {
+    func asDate(style: DateFormatter.Style = .medium) -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
+        dateFormatter.dateStyle = style
 
         return dateFormatter.string(from: self)
     }
