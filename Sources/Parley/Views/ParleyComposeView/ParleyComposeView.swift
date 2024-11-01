@@ -237,7 +237,7 @@ public class ParleyComposeView: UIView {
         setPlaceHolderHeight()
     }
 
-    func setPlaceHolderHeight() {
+    private func setPlaceHolderHeight() {
         // Needs extra time to render label in new font size.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -412,6 +412,14 @@ extension ParleyComposeView: UITextViewDelegate {
         sendButton.isEnabled = !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         placeholderLabel.isHidden = !self.textView.text.isEmpty
 
+        if textView.text.isEmpty {
+            setPlaceHolderHeight()
+        } else {
+            adjustComposeViewTextfieldHeight()
+        }
+    }
+    
+    private func adjustComposeViewTextfieldHeight() {
         let cgSize = CGSize(width: self.textView.frame.width, height: .greatestFiniteMagnitude)
         let sizeThatFits = self.textView.sizeThatFits(cgSize)
 
@@ -428,11 +436,7 @@ extension ParleyComposeView: UITextViewDelegate {
         textView.isScrollEnabled = height >= maxHeight
 
         if textViewHeightConstraint.constant != height {
-            UIView.animate(withDuration: 0.1) { [weak self] in
-                guard let self else { return }
-                textViewHeightConstraint.constant = height
-                layoutIfNeeded()
-            }
+            textViewHeightConstraint.constant = height
         }
     }
 
