@@ -28,7 +28,7 @@ public class AgentTypingTableViewCellAppearance {
             transparency: (min: Double, max: Double) = (0.2, 1.0),
             animationCurve: UIView.AnimationCurve = .easeInOut,
             animationScaleFactor: CGFloat = 1.3,
-            animationInterval: TimeInterval = 0.9
+            animationInterval: TimeInterval = 1.2
         ) {
             self.color = color
             self.spacing = spacing

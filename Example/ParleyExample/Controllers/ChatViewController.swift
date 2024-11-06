@@ -15,8 +15,7 @@ class ChatViewController: BaseViewController {
             parleyView.appearance = appearance
             
             appearance.typingBalloon.dots = AgentTypingTableViewCellAppearance.DotsAppearance(
-                color: UIColor(named: "primaryColor")!,
-                animationCurve: .linear
+                color: UIColor(named: "primaryColor")!
             )
 
             parleyView.mediaEnabled = true

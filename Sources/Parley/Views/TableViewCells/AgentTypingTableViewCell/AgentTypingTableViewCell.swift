@@ -135,7 +135,7 @@ final class AgentTypingTableViewCell: UITableViewCell {
     
     private func animate(animations: @escaping () -> Void, completion:  @escaping (Bool) -> Void) {
         UIView.animate(
-            withDuration: appearance.dots.animationInterval / 3,
+            withDuration: appearance.dots.animationInterval / 4,
             delay: .zero,
             options: animationOptions,
             animations: animations,
