@@ -384,7 +384,7 @@ final class ParleyMessageViewTests: XCTestCase {
         testName: String = #function,
         line: UInt = #line
     ) {
-        assertSnapshot(matching: sut, as: .image(traits: traits), file: file, testName: testName, line: line)
+        assertSnapshot(of: sut, as: .image(traits: traits), file: file, testName: testName, line: line)
     }
 
     private static let dummyDate = Date(timeIntervalSince1970: 0)

@@ -436,7 +436,7 @@ final class ParleyViewTests: XCTestCase {
         line: UInt = #line
     ) {
         assertSnapshot(
-            matching: sut,
+            of: sut,
             as: .image(traits: traits),
             file: file,
             testName: testName,
