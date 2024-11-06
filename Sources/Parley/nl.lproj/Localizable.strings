@@ -10,7 +10,7 @@
 
 // MARK: Photos
 "parley_photo" = "Afbeelding of document sturen";
-"parley_select_photo" = "Gallerij";
+"parley_select_photo" = "Galerij";
 "parley_take_photo" = "Camera";
 "parley_upload_file" = "Document";
 "parley_photo_access_denied_title" = "Foto toegang";

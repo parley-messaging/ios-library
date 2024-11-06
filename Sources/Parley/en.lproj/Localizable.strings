@@ -1,5 +1,5 @@
 "parley_cancel" = "Cancel";
-"parley_ok" = "Ok";
+"parley_ok" = "OK";
 "parley_state_failed" = "The chat cannot be displayed at this time.";
 "parley_state_unconfigured" = "The chat is not configured.";
 "parley_close" = "Close";
@@ -52,7 +52,7 @@
 "parley_voice_over_message_time" = "At %@.";
 "parley_voice_over_message_agent_is_typing" = "Agent is typing.";
 "parley_voice_over_message_informational" = "Informational message.";
-"parley_voice_over_message_loading" = "Older message are being retrieved.";
+"parley_voice_over_message_loading" = "Older messages are being retrieved.";
 "parley_voice_over_message_actions_attached" = "Actions attached.";
 
 // Announcements
