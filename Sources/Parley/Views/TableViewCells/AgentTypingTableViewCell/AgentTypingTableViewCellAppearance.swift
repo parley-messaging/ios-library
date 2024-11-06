@@ -24,11 +24,11 @@ public class AgentTypingTableViewCellAppearance {
         public init(
             color: UIColor = .black,
             spacing: CGFloat = 4,
-            size: CGFloat = 10,
-            transparency: (min: Double, max: Double) = (0.5, 1.0),
+            size: CGFloat = 8,
+            transparency: (min: Double, max: Double) = (0.2, 1.0),
             animationCurve: UIView.AnimationCurve = .easeInOut,
             animationScaleFactor: CGFloat = 1.3,
-            animationInterval: TimeInterval = 0.6
+            animationInterval: TimeInterval = 0.9
         ) {
             self.color = color
             self.spacing = spacing
