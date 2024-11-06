@@ -75,14 +75,13 @@ final class ParleyTextView: UITextView {
     private func makeParser(with appearance: ParleyTextViewAppearance) -> MarkdownParser {
         let parser = MarkdownParser(
             font: regularFont,
-            color: appearance.textColor
+            color: appearance.textColor,
+            customElements: [MarkdownUnderlinedLink(color: appearance.linkTintColor ?? tintColor, font: linkFont)]
         )
 
-        parser.link.color = appearance.linkTintColor ?? tintColor
-        parser.link.font = linkFont
         parser.italic.font = italicFont
         parser.bold.font = boldFont
-        parser.enabledElements = [.bold, .italic, .link]
+        parser.enabledElements = [.bold, .italic]
 
         return parser
     }
