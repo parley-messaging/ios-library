@@ -47,6 +47,7 @@ public class ParleyView: UIView {
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
             composeView.placeholder = ParleyLocalizationKey.typeMessage.localized()
+            composeView.placeholderVoiceOver = ParleyLocalizationKey.voiceOverTypeMessageLabel.localized()
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self

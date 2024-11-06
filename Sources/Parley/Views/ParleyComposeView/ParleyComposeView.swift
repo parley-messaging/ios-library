@@ -99,8 +99,14 @@ public class ParleyComposeView: UIView {
     var placeholder: String? {
         didSet {
             placeholderLabel.text = placeholder
-            textView.accessibilityLabel = placeholder
+            textView.accessibilityLabel = placeholderVoiceOver ?? placeholder
             setPlaceHolderHeight()
+        }
+    }
+    
+    var placeholderVoiceOver: String? {
+        didSet {
+            textView.accessibilityLabel = placeholderVoiceOver
         }
     }
 
