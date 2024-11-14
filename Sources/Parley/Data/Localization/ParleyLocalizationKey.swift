@@ -40,6 +40,7 @@ public enum ParleyLocalizationKey: String {
 
     // MARK: - Accessibility - Voice Over
     // MARK: Message Compose View
+    case voiceOverTypeMessageLabel = "parley_voice_over_type_message_label"
     case voiceOverCameraButtonLabel = "parley_voice_over_camera_button_label"
     case voiceOverSendButtonLabel = "parley_voice_over_send_button_label"
     case voiceOverSendButtonDisabledHint = "parley_voice_over_send_button_disabled_hint"
