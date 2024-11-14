@@ -97,8 +97,6 @@ final class MessageTableViewCell: UITableViewCell {
             }
         )
     }
-    
-    // Fixed an issue preventing VoiceOver from opening images and files
 
     deinit {
         NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
