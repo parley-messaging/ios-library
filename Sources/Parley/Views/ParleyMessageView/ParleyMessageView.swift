@@ -518,8 +518,8 @@ final class ParleyMessageView: UIView {
         ]
         gradient.frame = CGRect(
             x: 0, y: 0,
-            width: imageNameLabel.frame.width + (appearance?.nameInsets?.left ?? 0) + 50,
-            height: imageNameLabel.frame.height + (appearance?.nameInsets?.top ?? 0) + 40
+            width: (imageNameLabel.frame.width * 2) + (appearance?.nameInsets?.left ?? 0),
+            height: (imageNameLabel.frame.height * 4) + (appearance?.nameInsets?.top ?? 0)
         )
 
         imageImageView.layer.insertSublayer(gradient, at: 0)
