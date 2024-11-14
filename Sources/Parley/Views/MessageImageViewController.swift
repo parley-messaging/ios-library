@@ -2,9 +2,10 @@ import UIKit
 
 final class MessageImageViewController: UIViewController {
 
-    private let scrollView = UIScrollView()
-    private let imageView = UIImageView()
+    private var scrollView = UIScrollView()
+    private var imageView = UIImageView()
     private let activityIndicatorView = UIActivityIndicatorView()
+    private let dismissButton = UIButton()
 
     private let messageMedia: MediaObject
     private let mediaLoader: MediaLoaderProtocol
@@ -41,12 +42,38 @@ final class MessageImageViewController: UIViewController {
 
         loadImage(media: messageMedia)
     }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        reconstructView(size: size)
+        super.viewWillTransition(to: size, with: coordinator)
+    }
+    
+    private func reconstructView(size: CGSize) {
+        scrollView.removeFromSuperview()
+        scrollView = UIScrollView(frame: CGRect(x: .zero, y: .zero, width: size.width, height: size.height))
+        
+        let image = imageView.image
+        imageView.removeFromSuperview()
+        imageView = UIImageView()
+        
+        setupScrollView()
+        setupImageView()
+        
+        view.bringSubviewToFront(dismissButton)
+        
+        if let image {
+            display(image: image)
+        } else {
+            loadImage(media: messageMedia)
+        }
+    }
 
     private func setupView() {
         view.backgroundColor = UIColor(white: 0.0, alpha: 0.75)
     }
 
     private func setupScrollView() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
@@ -77,7 +104,15 @@ final class MessageImageViewController: UIViewController {
     }
 
     private func setupImageView() {
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            imageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+        ])
     }
 
     private func startImageLoading() {
@@ -137,10 +172,8 @@ final class MessageImageViewController: UIViewController {
         let imageViewSize = imageView.frame.size
         let scrollViewSize = scrollView.bounds.size
 
-        let verticalInset = imageViewSize.height < scrollViewSize
-            .height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0
-        let horizontalInset = imageViewSize.width < scrollViewSize
-            .width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
+        let verticalInset = imageViewSize.height < scrollViewSize.height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0
+        let horizontalInset = imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
         scrollView.contentInset = UIEdgeInsets(
             top: verticalInset,
             left: horizontalInset,
@@ -150,22 +183,21 @@ final class MessageImageViewController: UIViewController {
     }
 
     private func addDismissButton() {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
+        dismissButton.translatesAutoresizingMaskIntoConstraints = false
         let image = UIImage(named: "ic_close", in: .module, compatibleWith: .none)?.withRenderingMode(.alwaysTemplate)
-        button.setImage(image, for: .normal)
-        button.tintColor = .white
-        button.isAccessibilityElement = true
-        button.accessibilityLabel = ParleyLocalizationKey.close.localized()
+        dismissButton.setImage(image, for: .normal)
+        dismissButton.tintColor = .white
+        dismissButton.isAccessibilityElement = true
+        dismissButton.accessibilityLabel = ParleyLocalizationKey.close.localized()
 
-        view.addSubview(button)
+        view.addSubview(dismissButton)
 
         NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            dismissButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            dismissButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
         ])
 
-        button.addTarget(self, action: #selector(MessageImageViewController.dismissTapped), for: .touchUpInside)
+        dismissButton.addTarget(self, action: #selector(MessageImageViewController.dismissTapped), for: .touchUpInside)
     }
 
     @objc
