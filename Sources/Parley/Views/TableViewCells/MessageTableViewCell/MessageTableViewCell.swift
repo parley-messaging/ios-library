@@ -3,7 +3,7 @@ import UIKit
 
 final class MessageTableViewCell: UITableViewCell {
 
-    @IBOutlet private weak var messageView: UIView!
+    @IBOutlet private weak var messageView: AccesibilityTappableView!
     @IBOutlet private weak var parleyMessageView: ParleyMessageView!
 
     @IBOutlet weak var collectionView: UICollectionView! {
@@ -87,6 +87,7 @@ final class MessageTableViewCell: UITableViewCell {
         isAccessibilityElement = false
         watchForVoiceOverDidChangeNotification(observer: self)
         messageView.isAccessibilityElement = true
+        messageView.delegate = self
         messageView.accessibilityLabel = Message.Accessibility.getAccessibilityLabelDescription(for: message)
 
         messageView.accessibilityCustomActions = Message.Accessibility.getAccessibilityCustomActions(
@@ -96,6 +97,8 @@ final class MessageTableViewCell: UITableViewCell {
             }
         )
     }
+    
+    // Fixed an issue preventing VoiceOver from opening images and files
 
     deinit {
         NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
@@ -168,5 +171,13 @@ extension MessageTableViewCell: UICollectionViewDataSource {
         }
 
         return messageCollectionViewCell
+    }
+}
+
+extension MessageTableViewCell: AccesibilityTappableView.Delegate {
+    
+    func didActivate() -> Bool {
+        parleyMessageView.didActiveUsingVoiceOver()
+        return true
     }
 }

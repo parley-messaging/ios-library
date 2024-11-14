@@ -764,6 +764,7 @@ final class ParleyMessageView: UIView {
         fileLabel.textColor = appearance.fileNameColor
         fileLabel.font = appearance.fileNameFont
 
+        fileButton.isAccessibilityElement = true
         fileButton.setTitleColor(appearance.fileActionColor, for: .normal)
         fileButton.titleLabel?.font = appearance.fileActionFont
         fileButton.setTitle(ParleyLocalizationKey.messageFileOpen.localized(), for: .normal)
@@ -809,6 +810,14 @@ final class ParleyMessageView: UIView {
 
         renderGradients()
     }
+    
+    func didActiveUsingVoiceOver() {
+        if message.hasFile {
+            openMediaAction(sender: self)
+        } else if message.hasMedium {
+            imageAction(sender: self)
+        }
+    }
 
     // MARK: - Actions
     @IBAction
@@ -821,7 +830,7 @@ final class ParleyMessageView: UIView {
     }
 
     @IBAction
-    private func openMediaAction(sender: UIButton) {
+    private func openMediaAction(sender: AnyObject) {
         fileButton.isHidden = true
         fileActivityIndicatorView.startAnimating()
         Task { @MainActor in
