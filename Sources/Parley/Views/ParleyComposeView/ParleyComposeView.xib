@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -27,10 +27,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Obg-AW-I1L" userLabel="Upload Media Button">
-                    <rect key="frame" x="16" y="824" width="24" height="24"/>
+                    <rect key="frame" x="6" y="815" width="44" height="42"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="24" id="Yxm-Io-95I"/>
-                        <constraint firstAttribute="height" constant="24" id="lW9-y3-fxf"/>
+                        <constraint firstAttribute="width" constant="44" id="Yxm-Io-95I"/>
+                        <constraint firstAttribute="height" constant="42" id="lW9-y3-fxf"/>
                     </constraints>
                     <connections>
                         <action selector="presentImageActionSheet:" destination="-1" eventType="touchUpInside" id="RKt-WM-sL8"/>
@@ -85,8 +85,8 @@
             <gestureRecognizers/>
             <constraints>
                 <constraint firstItem="sGl-7U-7P4" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="56" id="8Tg-td-D8e"/>
-                <constraint firstItem="Obg-AW-I1L" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Rvs-xJ-06d"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Obg-AW-I1L" secondAttribute="bottom" constant="14" id="YTw-QZ-shh"/>
+                <constraint firstItem="Obg-AW-I1L" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="6" id="Rvs-xJ-06d"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Obg-AW-I1L" secondAttribute="bottom" constant="5" id="YTw-QZ-shh"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="sGl-7U-7P4" secondAttribute="trailing" constant="16" id="bA8-mG-lJR"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="sGl-7U-7P4" secondAttribute="bottom" constant="8" id="e6f-ee-nMR"/>
                 <constraint firstItem="sGl-7U-7P4" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="uge-Cb-yZD"/>
