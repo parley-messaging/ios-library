@@ -2,13 +2,13 @@ import UIKit
 
 final class DateTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var timeView: UIView!
-    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet private weak var timeView: UIView!
+    @IBOutlet private weak var timeLabel: UILabel!
 
-    @IBOutlet weak var topLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var leftLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var rightLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var topLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var leftLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var bottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var rightLayoutConstraint: NSLayoutConstraint!
 
     var appearance = DateTableViewCellAppearance() {
         didSet {
@@ -23,7 +23,7 @@ final class DateTableViewCell: UITableViewCell {
     }
 
     func render(_ message: Message) {
-        timeLabel.text = message.time?.asDate()
+        timeLabel.text = message.time?.asDate(style: appearance.style)
     }
 
     private func apply(_ appearance: DateTableViewCellAppearance) {
