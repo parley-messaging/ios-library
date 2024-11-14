@@ -104,15 +104,7 @@ final class MessageImageViewController: UIViewController {
     }
 
     private func setupImageView() {
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(imageView)
-        
-        NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            imageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-        ])
     }
 
     private func startImageLoading() {
@@ -172,8 +164,10 @@ final class MessageImageViewController: UIViewController {
         let imageViewSize = imageView.frame.size
         let scrollViewSize = scrollView.bounds.size
 
-        let verticalInset = imageViewSize.height < scrollViewSize.height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0
-        let horizontalInset = imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
+        let verticalInset = imageViewSize.height < scrollViewSize
+            .height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0
+        let horizontalInset = imageViewSize.width < scrollViewSize
+            .width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
         scrollView.contentInset = UIEdgeInsets(
             top: verticalInset,
             left: horizontalInset,
