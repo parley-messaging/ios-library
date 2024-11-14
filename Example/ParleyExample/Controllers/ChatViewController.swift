@@ -13,6 +13,10 @@ class ChatViewController: BaseViewController {
             appearance.offlineNotification.show = true
             appearance.pushDisabledNotification.show = true
             parleyView.appearance = appearance
+            
+            appearance.typingBalloon.dots = AgentTypingTableViewCellAppearance.DotsAppearance(
+                color: UIColor(named: "primaryColor")!
+            )
 
             parleyView.mediaEnabled = true
 
@@ -29,8 +33,7 @@ class ChatViewController: BaseViewController {
     }
 
     // MARK: Actions
-    @IBAction
-    func dismiss(_ sender: Any) {
+    @IBAction func dismiss(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
 }

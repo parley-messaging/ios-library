@@ -9,10 +9,19 @@ final class AgentTypingTableViewCell: UITableViewCell {
     @IBOutlet weak var contentBottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentRightLayoutConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var dotContainerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var dot1View: UIView!
     @IBOutlet weak var dot2View: UIView!
     @IBOutlet weak var dot3View: UIView!
-
+    
+    // Added options for changing the appearance of the agent typing indicator
+    
+    // Spacing Constrtaints
+    @IBOutlet weak var firstDotToSecondDotConstraint: NSLayoutConstraint!
+    @IBOutlet weak var secondDotToThirdDotConstraint: NSLayoutConstraint!
+    
+    @IBOutlet var dotSizeConstraints: [NSLayoutConstraint]!
+    
     private var startTimer: Timer?
 
     var appearance = AgentTypingTableViewCellAppearance() {
@@ -20,35 +29,43 @@ final class AgentTypingTableViewCell: UITableViewCell {
             apply(appearance)
         }
     }
+    
+    private var affineTransform: CGAffineTransform {
+        let scaleFactor = appearance.dots.animationScaleFactor
+        return CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
+    }
+    
+    private var animationOptions: UIView.AnimationOptions {
+        switch appearance.dots.animationCurve {
+        case .easeInOut: return .curveEaseInOut
+        case .easeIn: return .curveEaseIn
+        case .easeOut: return .curveEaseOut
+        case .linear: return .curveLinear
+        }
+    }
 
     private var animating = false
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        dot1View.layer.cornerRadius = dot1View.bounds.width / 2
-        dot2View.layer.cornerRadius = dot2View.bounds.width / 2
-        dot3View.layer.cornerRadius = dot3View.bounds.width / 2
-
         apply(appearance)
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        dot1View.transform = CGAffineTransform(scaleX: 1, y: 1)
-        dot2View.transform = CGAffineTransform(scaleX: 1, y: 1)
-        dot3View.transform = CGAffineTransform(scaleX: 1, y: 1)
+        dot1View.transform = .identity
+        dot2View.transform = .identity
+        dot3View.transform = .identity
     }
 
     func startAnimating() {
         stopAnimating()
 
         startTimer?.invalidate()
-        startTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
-            self.animating = true
-
-            self.animation1()
+        startTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
+            self?.animating = true
+            self?.animation1()
         })
     }
 
@@ -57,61 +74,73 @@ final class AgentTypingTableViewCell: UITableViewCell {
     }
 
     private func animation1() {
-        if !animating { return }
+        guard animating else { return }
 
-        UIView.animate(withDuration: 0.2, delay: 0.3, animations: {
-            self.dot1View.alpha = 1
-            self.dot1View.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-        }) { finished in
-            if !finished { return }
-
-            self.animation2()
+        animate { [weak self] in
+            guard let self else { return }
+            dot1View.alpha = appearance.dots.transparency.max
+            dot1View.transform = affineTransform
+        } completion: { [weak self] finished in
+            guard finished else { return }
+            self?.animation2()
         }
     }
 
     private func animation2() {
-        if !animating { return }
+        guard animating else { return }
 
-        UIView.animate(withDuration: 0.2, animations: {
-            self.dot1View.alpha = 0.5
-            self.dot1View.transform = CGAffineTransform(scaleX: 1, y: 1)
+        animate { [weak self] in
+            guard let self else { return }
+            dot1View.alpha = appearance.dots.transparency.min
+            dot1View.transform = .identity
 
-            self.dot2View.alpha = 1
-            self.dot2View.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-        }) { finished in
-            if !finished { return }
-
-            self.animation3()
+            dot2View.alpha = appearance.dots.transparency.max
+            dot2View.transform = affineTransform
+        } completion: { [weak self] finished in
+            guard finished else { return }
+            self?.animation3()
         }
     }
 
     private func animation3() {
-        if !animating { return }
+        guard animating else { return }
 
-        UIView.animate(withDuration: 0.2, animations: {
-            self.dot2View.alpha = 0.5
-            self.dot2View.transform = CGAffineTransform(scaleX: 1, y: 1)
+        animate { [weak self] in
+            guard let self else { return }
+            dot2View.alpha = appearance.dots.transparency.min
+            dot2View.transform = .identity
 
-            self.dot3View.alpha = 1
-            self.dot3View.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-        }) { finished in
-            if !finished { return }
+            dot3View.alpha = appearance.dots.transparency.max
+            dot3View.transform = affineTransform
+        } completion: { [weak self] finished in
+            guard finished else { return }
 
-            self.animation4()
+            self?.animation4()
         }
     }
 
     private func animation4() {
-        if !animating { return }
+        guard animating else { return }
+        
+        animate { [weak self] in
+            guard let self else { return }
+            dot3View.alpha = appearance.dots.transparency.min
+            dot3View.transform = .identity
+        } completion: { [weak self] finished in
+            guard finished else { return }
 
-        UIView.animate(withDuration: 0.2, animations: {
-            self.dot3View.alpha = 0.5
-            self.dot3View.transform = CGAffineTransform(scaleX: 1, y: 1)
-        }) { finished in
-            if !finished { return }
-
-            self.animation1()
+            self?.animation1()
         }
+    }
+    
+    private func animate(animations: @escaping () -> Void, completion:  @escaping (Bool) -> Void) {
+        UIView.animate(
+            withDuration: appearance.dots.animationInterval / 4,
+            delay: .zero,
+            options: animationOptions,
+            animations: animations,
+            completion: completion
+        )
     }
 
     private func apply(_ appearance: AgentTypingTableViewCellAppearance) {
@@ -127,13 +156,26 @@ final class AgentTypingTableViewCell: UITableViewCell {
         contentBottomLayoutConstraint.constant = appearance.contentInset?.bottom ?? 0
         contentRightLayoutConstraint.constant = appearance.contentInset?.right ?? 0
 
-        dot1View.alpha = 0.5
-        dot1View.backgroundColor = appearance.dotColor
+        dot1View.alpha = appearance.dots.transparency.min
+        dot1View.backgroundColor = appearance.dots.color
 
-        dot2View.alpha = 0.5
-        dot2View.backgroundColor = appearance.dotColor
+        dot2View.alpha = appearance.dots.transparency.min
+        dot2View.backgroundColor = appearance.dots.color
 
-        dot3View.alpha = 0.5
-        dot3View.backgroundColor = appearance.dotColor
+        dot3View.alpha = appearance.dots.transparency.min
+        dot3View.backgroundColor = appearance.dots.color
+        
+        firstDotToSecondDotConstraint.constant = appearance.dots.spacing
+        secondDotToThirdDotConstraint.constant = appearance.dots.spacing
+        
+        for constraint in dotSizeConstraints {
+            constraint.constant = appearance.dots.size
+        }
+        
+        dot1View.layer.cornerRadius = appearance.dots.size / 2
+        dot2View.layer.cornerRadius = appearance.dots.size / 2
+        dot3View.layer.cornerRadius = appearance.dots.size / 2
+        
+        dotContainerHeightConstraint.constant = appearance.dots.size * appearance.dots.animationScaleFactor
     }
 }
