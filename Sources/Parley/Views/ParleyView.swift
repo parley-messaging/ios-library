@@ -412,7 +412,10 @@ public class ParleyView: UIView {
         }
         
         mostRecentSimplifiedDeviceOrientation = simplifiedOrientation
-        messagesTableView.reloadData()
+
+        DispatchQueue.main.async {
+            self.messagesTableView.reloadData()
+        }
     }
 
     // MARK: Appearance
