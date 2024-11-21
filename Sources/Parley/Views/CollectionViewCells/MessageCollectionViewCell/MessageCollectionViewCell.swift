@@ -1,6 +1,8 @@
 import UIKit
 
 final class MessageCollectionViewCell: UICollectionViewCell {
+    
+    private static let ImageHeight = 180
 
     @IBOutlet weak var parleyMessageView: ParleyMessageView!
 
@@ -67,7 +69,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
 
         var showTopSeparator = true
         if message.hasImage {
-            totalHeight += 160
+            totalHeight += CGFloat(ImageHeight)
 
             totalHeight += appearance.imageInsets?.top ?? 0
             totalHeight += appearance.imageInsets?.bottom ?? 0
