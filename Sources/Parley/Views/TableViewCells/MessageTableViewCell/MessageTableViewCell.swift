@@ -175,7 +175,7 @@ extension MessageTableViewCell: UICollectionViewDataSource {
 extension MessageTableViewCell: AccesibilityTappableView.Delegate {
     
     func didActivate() -> Bool {
-        parleyMessageView.didActiveUsingVoiceOver()
+        parleyMessageView.didActivateUsingVoiceOver()
         return true
     }
 }

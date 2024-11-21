@@ -811,7 +811,7 @@ final class ParleyMessageView: UIView {
         renderGradients()
     }
     
-    func didActiveUsingVoiceOver() {
+    func didActivateUsingVoiceOver() {
         if message.hasFile {
             openMediaAction(sender: self)
         } else if message.hasMedium {
