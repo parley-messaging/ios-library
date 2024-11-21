@@ -1,6 +1,11 @@
 import UIKit
 
 public class ParleyComposeViewAppearance {
+    
+    public enum SendButtonShape {
+        case circle
+        case roundedRectangle(cornerRadius: CGFloat)
+    }
 
     public var backgroundColor = UIColor(white: 0.92, alpha: 1.0)
 
@@ -33,6 +38,8 @@ public class ParleyComposeViewAppearance {
     public var sendIcon: UIImage
     public var sendBackgroundColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)
     public var sendTintColor: UIColor? = UIColor.white
+    public var sendButtonSize: CGFloat = 26
+    public var sendButtonShape: SendButtonShape = .circle
 
     public var textColor = UIColor.black
     public var tintColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 1.0)

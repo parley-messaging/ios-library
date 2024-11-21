@@ -64,10 +64,11 @@ public class ParleyComposeView: UIView {
         }
     }
 
+    @IBOutlet weak var sendButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var sendButtonWidthConstraint: NSLayoutConstraint!
     private var sendButtonEnabledObservation: NSKeyValueObservation?
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
-            sendButton.layer.cornerRadius = sendButton.bounds.height / 2
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized()
 
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
@@ -214,6 +215,17 @@ public class ParleyComposeView: UIView {
         } else {
             sendButton.setImage(appearance.sendIcon, for: .normal)
         }
+        
+        sendButtonHeightConstraint.constant = appearance.sendButtonSize
+        sendButtonWidthConstraint.constant = appearance.sendButtonSize
+        switch appearance.sendButtonShape {
+        case .circle:
+            sendButton.layer.cornerRadius = appearance.sendButtonSize / 2
+        case .roundedRectangle(let cornerRadius):
+            sendButton.layer.cornerRadius = cornerRadius
+        }
+        
+        textViewHeightConstraint.constant = appearance.sendButtonSize
 
         let mediaIcon = appearance.mediaIcon.withRenderingMode(.alwaysTemplate)
         mediaIcon.isAccessibilityElement = false
