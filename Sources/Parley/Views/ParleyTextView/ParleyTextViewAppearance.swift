@@ -1,6 +1,6 @@
 import UIKit
 
-public final class ParleyTextViewAppearance {
+public struct ParleyTextViewAppearance {
     public var paragraphStyle = NSMutableParagraphStyle()
     public var textColor: UIColor = .white
     public var linkTintColor: UIColor? = nil

@@ -1,6 +1,6 @@
 import UIKit
 
-public class AgentTypingTableViewCellAppearance {
+public struct AgentTypingTableViewCellAppearance {
     
     public struct DotsAppearance {
         

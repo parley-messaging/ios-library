@@ -1,6 +1,6 @@
 import UIKit
 
-public class ParleyViewAppearance {
+public struct ParleyViewAppearance {
 
     public var backgroundColor: UIColor? = UIColor(white: 0.92, alpha: 1.0)
 
