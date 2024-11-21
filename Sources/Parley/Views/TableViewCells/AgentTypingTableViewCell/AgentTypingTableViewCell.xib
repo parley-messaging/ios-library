@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -52,15 +52,13 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="Z83-1B-KKe" secondAttribute="bottom" id="4Yi-5q-4tt"/>
                                     <constraint firstItem="rr7-la-Ddy" firstAttribute="leading" secondItem="FC5-ee-qv6" secondAttribute="leading" id="4ru-wW-YDY"/>
-                                    <constraint firstItem="OIj-9g-lFw" firstAttribute="top" secondItem="FC5-ee-qv6" secondAttribute="top" id="JGo-2y-lJd"/>
-                                    <constraint firstItem="rr7-la-Ddy" firstAttribute="top" secondItem="FC5-ee-qv6" secondAttribute="top" id="SgZ-Ag-hUQ"/>
-                                    <constraint firstAttribute="bottom" secondItem="OIj-9g-lFw" secondAttribute="bottom" id="UcP-qb-ofn"/>
-                                    <constraint firstItem="Z83-1B-KKe" firstAttribute="top" secondItem="FC5-ee-qv6" secondAttribute="top" id="aFH-NW-o8V"/>
+                                    <constraint firstAttribute="height" constant="10" id="DUc-1l-5OK"/>
+                                    <constraint firstItem="OIj-9g-lFw" firstAttribute="centerY" secondItem="FC5-ee-qv6" secondAttribute="centerY" id="ZhO-Re-FQS"/>
                                     <constraint firstItem="Z83-1B-KKe" firstAttribute="leading" secondItem="OIj-9g-lFw" secondAttribute="trailing" constant="4" id="dol-DA-X8L"/>
-                                    <constraint firstAttribute="bottom" secondItem="rr7-la-Ddy" secondAttribute="bottom" id="hT1-zb-Paj"/>
                                     <constraint firstAttribute="trailing" secondItem="Z83-1B-KKe" secondAttribute="trailing" id="iqD-Wo-go0"/>
+                                    <constraint firstItem="Z83-1B-KKe" firstAttribute="centerY" secondItem="FC5-ee-qv6" secondAttribute="centerY" id="pYj-MH-vUI"/>
+                                    <constraint firstItem="rr7-la-Ddy" firstAttribute="centerY" secondItem="FC5-ee-qv6" secondAttribute="centerY" id="tXq-3x-CIP"/>
                                     <constraint firstItem="OIj-9g-lFw" firstAttribute="leading" secondItem="rr7-la-Ddy" secondAttribute="trailing" constant="4" id="znK-Q1-daE"/>
                                 </constraints>
                             </view>
@@ -96,6 +94,15 @@
                 <outlet property="dot1View" destination="rr7-la-Ddy" id="Xb5-q5-FCU"/>
                 <outlet property="dot2View" destination="OIj-9g-lFw" id="cNy-o5-iqr"/>
                 <outlet property="dot3View" destination="Z83-1B-KKe" id="bjo-2N-lQX"/>
+                <outlet property="dotContainerHeightConstraint" destination="DUc-1l-5OK" id="c3y-SJ-49B"/>
+                <outlet property="firstDotToSecondDotConstraint" destination="znK-Q1-daE" id="J81-RP-H5S"/>
+                <outlet property="secondDotToThirdDotConstraint" destination="dol-DA-X8L" id="sdk-1N-sYI"/>
+                <outletCollection property="dotSizeConstraints" destination="DwX-hy-ICo" collectionClass="NSMutableArray" id="IwJ-2u-k5g"/>
+                <outletCollection property="dotSizeConstraints" destination="qt4-Ac-hI6" collectionClass="NSMutableArray" id="OGC-el-pDS"/>
+                <outletCollection property="dotSizeConstraints" destination="xj5-t3-eU6" collectionClass="NSMutableArray" id="Rqg-ha-1SD"/>
+                <outletCollection property="dotSizeConstraints" destination="SVK-dF-uzt" collectionClass="NSMutableArray" id="r8s-z7-wVT"/>
+                <outletCollection property="dotSizeConstraints" destination="SkD-AX-XKd" collectionClass="NSMutableArray" id="owp-J2-x5V"/>
+                <outletCollection property="dotSizeConstraints" destination="ed6-cX-zay" collectionClass="NSMutableArray" id="ppN-Og-hPD"/>
             </connections>
             <point key="canvasLocation" x="136.95652173913044" y="-6.6964285714285712"/>
         </tableViewCell>

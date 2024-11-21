@@ -64,10 +64,11 @@ public class ParleyComposeView: UIView {
         }
     }
 
+    @IBOutlet weak var sendButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var sendButtonWidthConstraint: NSLayoutConstraint!
     private var sendButtonEnabledObservation: NSKeyValueObservation?
     @IBOutlet weak var sendButton: UIButton! {
         didSet {
-            sendButton.layer.cornerRadius = sendButton.bounds.height / 2
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized()
 
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
@@ -99,8 +100,14 @@ public class ParleyComposeView: UIView {
     var placeholder: String? {
         didSet {
             placeholderLabel.text = placeholder
-            textView.accessibilityLabel = placeholder
+            textView.accessibilityLabel = placeholderVoiceOver ?? placeholder
             setPlaceHolderHeight()
+        }
+    }
+    
+    var placeholderVoiceOver: String? {
+        didSet {
+            textView.accessibilityLabel = placeholderVoiceOver
         }
     }
 
@@ -208,6 +215,15 @@ public class ParleyComposeView: UIView {
         } else {
             sendButton.setImage(appearance.sendIcon, for: .normal)
         }
+        
+        sendButtonHeightConstraint.constant = appearance.sendButtonSize
+        sendButtonWidthConstraint.constant = appearance.sendButtonSize
+        switch appearance.sendButtonShape {
+        case .circle:
+            sendButton.layer.cornerRadius = appearance.sendButtonSize / 2
+        case .roundedRectangle(let cornerRadius):
+            sendButton.layer.cornerRadius = cornerRadius
+        }
 
         let mediaIcon = appearance.mediaIcon.withRenderingMode(.alwaysTemplate)
         mediaIcon.isAccessibilityElement = false
@@ -237,7 +253,7 @@ public class ParleyComposeView: UIView {
         setPlaceHolderHeight()
     }
 
-    func setPlaceHolderHeight() {
+    private func setPlaceHolderHeight() {
         // Needs extra time to render label in new font size.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -412,6 +428,14 @@ extension ParleyComposeView: UITextViewDelegate {
         sendButton.isEnabled = !self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         placeholderLabel.isHidden = !self.textView.text.isEmpty
 
+        if textView.text.isEmpty {
+            setPlaceHolderHeight()
+        } else {
+            adjustComposeViewTextfieldHeight()
+        }
+    }
+    
+    private func adjustComposeViewTextfieldHeight() {
         let cgSize = CGSize(width: self.textView.frame.width, height: .greatestFiniteMagnitude)
         let sizeThatFits = self.textView.sizeThatFits(cgSize)
 
@@ -428,11 +452,7 @@ extension ParleyComposeView: UITextViewDelegate {
         textView.isScrollEnabled = height >= maxHeight
 
         if textViewHeightConstraint.constant != height {
-            UIView.animate(withDuration: 0.1) { [weak self] in
-                guard let self else { return }
-                textViewHeightConstraint.constant = height
-                layoutIfNeeded()
-            }
+            textViewHeightConstraint.constant = height
         }
     }
 

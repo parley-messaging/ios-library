@@ -9,7 +9,7 @@ final class ParleyTextViewTests: XCTestCase {
 
         sut.markdownText = "Hello World!"
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     func testBoldTextWithDefaultStyle() {
@@ -17,7 +17,7 @@ final class ParleyTextViewTests: XCTestCase {
 
         sut.markdownText = "Hello **Bold** World!"
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     func testItalicTextWithDefaultStyle() {
@@ -25,7 +25,7 @@ final class ParleyTextViewTests: XCTestCase {
 
         sut.markdownText = "Hello *Italic* World!"
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     func testTextWithLinkWithDefaultStyle() {
@@ -33,7 +33,7 @@ final class ParleyTextViewTests: XCTestCase {
 
         sut.markdownText = "Hello [Link](https://www.parley.io/) World!"
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     func testCombinationOfBoldAndItalicAndLinkStyleWithNonDefaultStyle() throws {
@@ -51,7 +51,7 @@ final class ParleyTextViewTests: XCTestCase {
 
         sut.markdownText = "Hello *Italic* and **Bold** and [Link](https://www.parley.io/) World!"
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     func testDynamicFontScalingDefaultStyle() {
@@ -70,7 +70,7 @@ final class ParleyTextViewTests: XCTestCase {
         sut.markdownText = "Hello *Italic* and **Bold** and [Link](https://www.parley.io/) World!"
 
         assertSnapshot(
-            matching: sut,
+            of: sut,
             as: .image(traits: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge))
         )
     }
@@ -83,7 +83,7 @@ final class ParleyTextViewTests: XCTestCase {
         sut.translatesAutoresizingMaskIntoConstraints = false
         sut.widthAnchor.constraint(equalToConstant: 50).isActive = true
 
-        assertSnapshot(matching: sut, as: .image)
+        assertSnapshot(of: sut, as: .image)
     }
 
     private func makeSut(backgroundColor: UIColor = .lightGray) -> ParleyTextView {

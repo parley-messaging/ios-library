@@ -205,6 +205,45 @@ final class ParleyViewTests: XCTestCase {
 
         assert(sut: sut)
     }
+    
+    func testAgentTypingIndicatorAppearance() {
+        let messagesManagerStub = MessagesManagerStub()
+        
+        messagesManagerStub.stickyMessage = stickyMessage
+
+        messagesManagerStub.messages = [
+            Message.makeTestData(type: .agentTyping)
+        ]
+
+        let sut = ParleyView(
+            parley: ParleyStub(
+                messagesManager: messagesManagerStub,
+                messageRepository: MessageRepositoryStub(),
+                mediaLoader: MediaLoaderStub(),
+                localizationManager: ParleyLocalizationManager()
+            ),
+            pollingService: PollingServiceStub(),
+            notificationService: NotificationServiceStub()
+        )
+        
+        sut.appearance.typingBalloon.dots = .init(
+            color: .systemRed,
+            spacing: 10,
+            size: 20,
+            transparency: (min: 0.5, max: 0.9),
+            animationCurve: .easeInOut,
+            animationScaleFactor: 1.2,
+            animationInterval: 0.9
+        )
+
+        sut.reachable()
+        sut.didChangeState(.configured)
+        sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
+
+        applySize(sut: sut)
+
+        assert(sut: sut)
+    }
 
     func testOfflineView() {
         let messagesManagerStub = MessagesManagerStub()
@@ -436,7 +475,7 @@ final class ParleyViewTests: XCTestCase {
         line: UInt = #line
     ) {
         assertSnapshot(
-            matching: sut,
+            of: sut,
             as: .image(traits: traits),
             file: file,
             testName: testName,

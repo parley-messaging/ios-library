@@ -47,6 +47,7 @@ public class ParleyView: UIView {
     @IBOutlet weak var composeView: ParleyComposeView! {
         didSet {
             composeView.placeholder = ParleyLocalizationKey.typeMessage.localized()
+            composeView.placeholderVoiceOver = ParleyLocalizationKey.voiceOverTypeMessageLabel.localized()
             composeView.maxCount = kParleyMessageMaxCount
 
             composeView.delegate = self
@@ -411,7 +412,10 @@ public class ParleyView: UIView {
         }
         
         mostRecentSimplifiedDeviceOrientation = simplifiedOrientation
-        messagesTableView.reloadData()
+
+        DispatchQueue.main.async {
+            self.messagesTableView.reloadData()
+        }
     }
 
     // MARK: Appearance

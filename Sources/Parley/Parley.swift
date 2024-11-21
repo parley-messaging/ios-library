@@ -908,7 +908,9 @@ extension Parley {
             onFailure?(code, message)
         })
 
-        shared.clearChat()
+        DispatchQueue.main.async {
+            Self.shared.clearChat()
+        }
     }
 
     /**
@@ -924,16 +926,17 @@ extension Parley {
     public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
         Task {
             await shared.mediaLoader?.reset()
+            shared.userAuthorization = nil
+            shared.userAdditionalInformation = nil
+            shared.mediaRepository?.reset()
+            shared.secret = nil
+            shared.removeObservers()
+            await MainActor.run {
+                shared.clearChat()
+                shared.state = .unconfigured
+            }
+            completion?()
         }
-
-        shared.userAuthorization = nil
-        shared.userAdditionalInformation = nil
-        shared.mediaRepository?.reset()
-        shared.secret = nil
-        shared.clearChat()
-        shared.removeObservers()
-        shared.state = .unconfigured
-        completion?()
     }
 
     /**
