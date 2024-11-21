@@ -224,8 +224,6 @@ public class ParleyComposeView: UIView {
         case .roundedRectangle(let cornerRadius):
             sendButton.layer.cornerRadius = cornerRadius
         }
-        
-        textViewHeightConstraint.constant = appearance.sendButtonSize
 
         let mediaIcon = appearance.mediaIcon.withRenderingMode(.alwaysTemplate)
         mediaIcon.isAccessibilityElement = false

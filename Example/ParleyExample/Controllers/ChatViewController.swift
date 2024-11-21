@@ -12,11 +12,11 @@ class ChatViewController: BaseViewController {
             )
             appearance.offlineNotification.show = true
             appearance.pushDisabledNotification.show = true
-            parleyView.appearance = appearance
             
             appearance.typingBalloon.dots = AgentTypingTableViewCellAppearance.DotsAppearance(
                 color: UIColor(named: "primaryColor")!
             )
+            parleyView.appearance = appearance
 
             parleyView.mediaEnabled = true
 
