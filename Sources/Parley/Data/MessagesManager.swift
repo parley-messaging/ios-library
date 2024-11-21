@@ -154,7 +154,7 @@ final class MessagesManager: MessagesManagerProtocol {
             indexPaths.append(IndexPath(row: dateIndex, section: 0))
 
             let dateMessage = createDateMessage(message.time ?? Date())
-            if let (index, lastMessage) = lastNotIgnoredMessage(ignoring: [.agentTyping, .loading]), lastMessage.type == .date {
+            if let (index, lastMessage) = lastNotIgnoredMessage(ignoring: [.agentTyping]), lastMessage.type == .date {
                 // Replace consecutive date headers with no vissble messages in between them
                 messages.remove(at: index)
                 messages.insert(dateMessage, at: index)

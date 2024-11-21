@@ -192,7 +192,7 @@ final class MessagesManagerTests: XCTestCase {
         XCTAssertEqual(messagesManager.messages[1].type, .user)
     }
     
-    func testDateHeaders_ShouldNotShowConsecutiveDateHeaders_WhenThereAreOnlyNonTextMessagesBetweenDateHeaders() {
+    func testDateHeaders_ShouldNotShowConsecutiveDateHeaders_WhenThereIsOnlyATypingMessageBetweenDateHeaders() {
         setWelcomeMessage()
         
         let systemMessage = Message()
@@ -204,10 +204,6 @@ final class MessagesManagerTests: XCTestCase {
         let agentTypingMessage = Message()
         agentTypingMessage.type = .agentTyping
         _ = messagesManager.add(agentTypingMessage)
-        
-        let loadingMessage = Message()
-        loadingMessage.type = .loading
-        _ = messagesManager.add(loadingMessage)
         
         let now = Date()
         let todayMessageText = "Good morning!"
