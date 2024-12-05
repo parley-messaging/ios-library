@@ -7,7 +7,7 @@ class ChronologicalMessageCollectionTests {
     
     @Test
     func testCreationIsEmpty() {
-        var collection = makeCollection()
+        let collection = makeCollection()
         let lastPosistion = collection.lastPosistion()
         
         #expect(collection.sections.isEmpty)
@@ -32,6 +32,18 @@ class ChronologicalMessageCollectionTests {
         for i in range {
             #expect(collection[section: .zero, row: i] == messages[i])
         }
+    }
+    
+    @Test
+    func clearCollection() {
+        var collection = makeCollection()
+        _ = collection.add(message: .makeTestData())
+        
+        #expect(collection.getAllMessages().count == 1)
+        
+        collection.clear()
+        
+        #expect(collection.getAllMessages().count == 0)
     }
 }
 

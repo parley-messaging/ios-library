@@ -45,4 +45,6 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     func presentMessages() {
         presentMessagesCallCount += 1
     }
+    
+    func set(display: ParleyMessagesDisplay) { }
 }

@@ -23,6 +23,8 @@ final class ParleyStub: ParleyProtocol {
     var messageRepository: MessageRepositoryProtocol!
     var mediaLoader: MediaLoaderProtocol!
     var localizationManager: LocalizationManager
+    var messagesInteractor: MessagesInteractor!
+    var messagesPresenter: MessagesPresenterProtocol!
 
     var delegate: ParleyDelegate?
 
