@@ -1,6 +1,16 @@
 import UIKit
 import UniformTypeIdentifiers
 
+protocol ParleyMessagesDisplay: AnyObject {
+    @MainActor func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    @MainActor func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    @MainActor func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    @MainActor func reload()
+    
+    @MainActor func display(stickyMessage: String)
+    @MainActor func displayHideStickyMessage()
+}
+
 public class ParleyView: UIView {
 
     @IBOutlet var contentView: UIView! {
@@ -66,6 +76,8 @@ public class ParleyView: UIView {
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
     private var mostRecentSimplifiedDeviceOrientation: UIDeviceOrientation.Simplified = UIDevice.current.orientation.simplifiedOrientation ?? .portrait
+    
+    private var messagesStore: MessagesStore!
 
     private var messagesManager: MessagesManagerProtocol? {
         switch parley.state {
@@ -138,6 +150,7 @@ public class ParleyView: UIView {
     }()
 
     private func setup() {
+        parley.messagesPresenter.set(display: self)
         loadXib()
 
         apply(appearance)
@@ -165,7 +178,8 @@ public class ParleyView: UIView {
 
         let pollingService = PollingService(
             messageRepository: parley.messageRepository,
-            messagesManager: messagesManager
+            messagesManager: messagesManager,
+            messagesInteractor: parley.messagesInteractor
         )
         self.pollingService = pollingService
 
@@ -289,7 +303,7 @@ public class ParleyView: UIView {
 
     private func syncSuggestionsView() {
         if
-            let message = messagesManager?.messages.last,
+            let message = messagesManager?.latestMessage,
             let quickReplies = message.quickReplies,
             !quickReplies.isEmpty
         {
@@ -456,19 +470,6 @@ public class ParleyView: UIView {
 // MARK: ParleyDelegate
 extension ParleyView: ParleyDelegate {
 
-    func willSend(_ indexPaths: [IndexPath]) {
-        syncSuggestionsView()
-
-        messagesTableView.insertRows(at: indexPaths, with: .none)
-        messagesTableView.scroll(to: .bottom, animated: false)
-    }
-
-    func didUpdate(_ message: Message) {
-        if let index = messagesManager?.messages.firstIndex(of: message) {
-            messagesTableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
-        }
-    }
-
     func didSent(_ message: Message) {
         delegate?.didSentMessage()
         UIAccessibility.post(
@@ -506,20 +507,6 @@ extension ParleyView: ParleyDelegate {
         let diff = toCount - fromCount
         // Show to the latest retrieved message to keep at the correct scroll offset
         messagesTableView.scrollToRow(at: IndexPath(row: firstVisible + diff, section: 0), at: .top, animated: false)
-    }
-
-    func didStartTyping() {
-        guard let indexPaths = messagesManager?.addTypingMessage() else { return }
-
-        messagesTableView.insertRows(at: indexPaths, with: .none)
-        messagesTableView.scroll(to: .bottom, animated: false)
-    }
-
-    func didStopTyping() {
-        guard let indexPaths = messagesManager?.removeTypingMessage() else { return }
-
-        messagesTableView.deleteRows(at: indexPaths, with: .none)
-        messagesTableView.scroll(to: .bottom, animated: false)
     }
 
     func didChangeState(_ state: Parley.State) {
@@ -624,42 +611,42 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        messagesManager?.messages.count ?? 0
+        return messagesStore.rows(section: section)
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let message = messagesManager?.messages[safe: indexPath.row] else { return .init() }
-
-        switch message.type {
-        case .agent?:
-            let messageTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
-            messageTableViewCell.delegate = self
-            messageTableViewCell.appearance = appearance.agentMessage
-            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader, shareManager: shareManager)
-
-            return messageTableViewCell
-        case .date?:
-            let dateTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
-            dateTableViewCell.appearance = appearance.date
-            dateTableViewCell.render(message)
-
-            return dateTableViewCell
-        case .info?:
-            let infoTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: InfoTableViewCell.reuseIdentifier) as! InfoTableViewCell
-            infoTableViewCell.appearance = appearance.info
-            infoTableViewCell.render(message)
-
-            return infoTableViewCell
-        case .loading?:
+        guard let cellKind = messagesStore.get(at: indexPath) else { return .init() }
+        
+        switch cellKind {
+        case .loading:
             let loadingTableViewCell = tableView
                 .dequeueReusableCell(withIdentifier: LoadingTableViewCell.reuseIdentifier) as! LoadingTableViewCell
             loadingTableViewCell.appearance = appearance.loading
 
             return loadingTableViewCell
-        case .agentTyping?:
+        case .dateHeader(let date):
+            let dateTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
+            dateTableViewCell.appearance = appearance.date
+            dateTableViewCell.render(date)
+
+            return dateTableViewCell
+        case .message(let message):
+            let messageTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
+            messageTableViewCell.delegate = self
+            
+            switch message.type {
+            case .agent, .agentTyping, .systemMessageAgent:
+                messageTableViewCell.appearance = appearance.agentMessage
+            default:
+                messageTableViewCell.appearance = appearance.userMessage
+            }
+                
+            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader, shareManager: shareManager)
+            
+            return messageTableViewCell
+        case .typingIndicator:
             let agentTypingTableViewCell = tableView
                 .dequeueReusableCell(
                     withIdentifier: AgentTypingTableViewCell
@@ -668,26 +655,23 @@ extension ParleyView: UITableViewDataSource {
             agentTypingTableViewCell.appearance = appearance.typingBalloon
 
             return agentTypingTableViewCell
-        case .user?:
-            let messageTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
-            messageTableViewCell.delegate = self
-            messageTableViewCell.appearance = appearance.userMessage
-            messageTableViewCell.render(message, mediaLoader: parley.mediaLoader, shareManager: shareManager)
+        case .info(let text):
+            let infoTableViewCell = tableView
+                .dequeueReusableCell(withIdentifier: InfoTableViewCell.reuseIdentifier) as! InfoTableViewCell
+            infoTableViewCell.appearance = appearance.info
+            infoTableViewCell.render(text)
 
-            return messageTableViewCell
-        default:
-            return .init()
+            return infoTableViewCell
         }
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let message = messagesManager?.messages[safe: indexPath.row] else { return 0 }
-
-        if message.ignore() {
-            return 0
-        } else {
+        guard let cell = messagesStore.get(at: indexPath) else { return .zero }
+        switch cell {
+        case .dateHeader, .loading, .typingIndicator, .info:
             return UITableView.automaticDimension
+        case .message(let message):
+            return message.ignore() ? 0 : UITableView.automaticDimension
         }
     }
 
@@ -759,9 +743,8 @@ extension ParleyView: UITableViewDelegate {
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         messagesTableView.deselectRow(at: indexPath, animated: false)
-
         if
-            let message = messagesManager?.messages[safe: indexPath.row],
+            let message = messagesStore.getMessage(at: indexPath),
             message.status == .failed,
             message.type == .user
         {
@@ -926,3 +909,31 @@ extension ParleyView {
     }
 }
 
+@MainActor extension ParleyView: ParleyMessagesDisplay {
+        
+    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
+        messagesTableView.insertRows(at: indexPaths, with: animation)
+    }
+    
+    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
+        messagesTableView.deleteRows(at: indexPaths, with: animation)
+    }
+    
+    func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
+        messagesTableView.reloadRows(at: indexPaths, with: animation)
+    }
+    
+    func reload() {
+        messagesTableView.reloadData()
+    }
+    
+    func display(stickyMessage: String) {
+        stickyView.text = stickyMessage
+        stickyView.isHidden = false
+    }
+    
+    func displayHideStickyMessage() {
+        stickyView.text = .none
+        stickyView.isHidden = true
+    }
+}

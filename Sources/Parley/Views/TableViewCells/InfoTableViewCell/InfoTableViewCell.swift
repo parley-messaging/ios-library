@@ -30,6 +30,12 @@ final class InfoTableViewCell: UITableViewCell {
 
         infoTextView.markdownText = message.message
     }
+    
+    func render(_ text: String) {
+        infoTextView.textAlignment = .center
+
+        infoTextView.markdownText = text
+    }
 
     private func apply(_ appearance: InfoTableViewCellAppearance) {
         infoTextView.appearance = appearance.textViewAppearance

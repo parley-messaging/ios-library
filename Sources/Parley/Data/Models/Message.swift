@@ -217,3 +217,23 @@ extension Message: Comparable {
         !(lhs < rhs)
     }
 }
+
+extension [Message] {
+    
+    func byDate(calender: Calendar) -> [Date: [Message]] {
+        var messagesByDate: [Date: [Message]] = [:]
+        
+        for message in self {
+            guard let time = message.time else { continue }
+            let date = calender.startOfDay(for: time)
+            
+            if messagesByDate[date] == nil {
+                messagesByDate[date] = []
+            }
+            
+            messagesByDate[date]?.append(message)
+        }
+        
+        return messagesByDate
+    }
+}
