@@ -102,18 +102,18 @@ extension MessagesInteractor {
     func handleMessageSent(_ message: Message) async {
         message.status = .success
         messagesManager.update(message)
-        // ..
+        messages.update(message: message)
         await presenter.presentMessages()
     }
     
     func handleMessageFailedToSend(_ message: Message) async {
         message.status = .failed
         messagesManager.update(message)
-        // ..
+        messages.update(message: message)
         await presenter.presentMessages()
     }
     
-    func handleUpdate(_ message: Message) {
+    func handleUpdatedMessage(_ message: Message) {
         
     }
     
@@ -141,8 +141,6 @@ private extension MessagesInteractor {
             }
         }
     }
-    
-
     
     private func insertNewMessages(messages: [Message]) async {
         var posisitionsAdded = [ParleyChronologicalMessageCollection.Posisition]()
