@@ -171,6 +171,50 @@ final class MessagesManagerTests: XCTestCase {
         )
         XCTAssertEqual(messagesManager.messages[4].type, .user, "Today message should be from the user.")
     }
+    
+    func testDateHeaders_ShouldNotShowConsecutiveDateHeaders_WhenThereAreNoMessagesBetweenDateHeaders() {
+        setWelcomeMessage()
+        
+        let systemMessage = Message()
+        systemMessage.type = .systemMessageAgent
+        systemMessage.time = Date(timeIntSince1970: 1)
+        
+        _ = messagesManager.add(systemMessage)
+        
+        let now = Date()
+        let todayMessageText = "Good morning!"
+        let todayMessageDate = now
+        let todayMessage = createUserMessage(todayMessageText, date: todayMessageDate)
+        _ = messagesManager.add(todayMessage)
+        
+        XCTAssertEqual(messagesManager.messages[0].type, .date)
+        XCTAssertEqual(messagesManager.messages[0].time, now)
+        XCTAssertEqual(messagesManager.messages[1].type, .user)
+    }
+    
+    func testDateHeaders_ShouldNotShowConsecutiveDateHeaders_WhenThereIsOnlyATypingMessageBetweenDateHeaders() {
+        setWelcomeMessage()
+        
+        let systemMessage = Message()
+        systemMessage.type = .systemMessageAgent
+        systemMessage.time = Date(timeIntSince1970: 1)
+        
+        _ = messagesManager.add(systemMessage)
+        
+        let agentTypingMessage = Message()
+        agentTypingMessage.type = .agentTyping
+        _ = messagesManager.add(agentTypingMessage)
+        
+        let now = Date()
+        let todayMessageText = "Good morning!"
+        let todayMessageDate = now
+        let todayMessage = createUserMessage(todayMessageText, date: todayMessageDate)
+        _ = messagesManager.add(todayMessage)
+        
+        XCTAssertEqual(messagesManager.messages[0].type, .date)
+        XCTAssertEqual(messagesManager.messages[0].time, now)
+        XCTAssertEqual(messagesManager.messages[1].type, .user)
+    }
 
     func testMessage_ShouldBeIgnored_WhenTryingToAddTheSameMessageTwice() {
         let message = createUserMessage("Good morning")
