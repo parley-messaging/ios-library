@@ -16,9 +16,6 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     private(set) var presentUpdateMessageCallCount = 0
     private(set) var presentUpdateLatestArguments: (Message, ParleyChronologicalMessageCollection.Posisition)?
     
-    private(set) var presentDeleteMessageCallCount = 0
-    private(set) var presentDeleteLatestArguments: ParleyChronologicalMessageCollection.Posisition?
-    
     private(set) var presentMessagesCallCount  = 0
     
     func set(display: ParleyMessagesDisplay) { }
@@ -51,11 +48,6 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition) {
         presentUpdateMessageCallCount += 1
         presentUpdateLatestArguments = (message, posistion)
-    }
-    
-    func presentDelete(at posistion: ParleyChronologicalMessageCollection.Posisition) {
-        presentDeleteMessageCallCount += 1
-        presentDeleteLatestArguments = posistion
     }
     
     func presentMessages() {

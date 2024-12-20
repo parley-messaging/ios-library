@@ -15,7 +15,6 @@ protocol MessagesPresenterProtocol: AnyObject {
     
     @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition)
     @MainActor func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition)
-    @MainActor func presentDelete(at posistion: ParleyChronologicalMessageCollection.Posisition)
     
     @MainActor func presentMessages()
 }
@@ -58,7 +57,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = snapshot.set(agentTyping: isAgentTyping)
         
         for section in sections {
-            _ = snapshot.insert(section: section.messages, date: section.date)
+            _ = snapshot.append(section: section.messages, date: section.date)
         }
         
         currentSnapshot = snapshot
@@ -97,12 +96,6 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     
     @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition) {
         let change = currentSnapshot.insert(message: message, section: posistion.section, row: posistion.row)
-        store.apply(snapshot: currentSnapshot)
-        presentSnapshotChange(change)
-    }
-    
-    @MainActor func presentDelete(at posistion: ParleyChronologicalMessageCollection.Posisition) {
-        let change = currentSnapshot.delete(section: posistion.section, row: posistion.row)
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
@@ -218,7 +211,7 @@ extension MessagesPresenter {
             }
         }
         
-        mutating func insert(section: [Message], date: Date) -> SnapshotChange {
+        mutating func append(section: [Message], date: Date) -> SnapshotChange {
             let sectionIndexToInsert = nextMessagesSectionIndex()
             sections.insert(.messages, at: sectionIndexToInsert)
             cells.insert([.dateHeader(date)], at: sectionIndexToInsert)
@@ -339,25 +332,6 @@ extension MessagesPresenter {
             return SnapshotChange(indexPaths: [
                 IndexPath(row: correctedRow, section: correctedSection)
             ], kind: .changed)
-        }
-        
-        mutating func delete(section: Int, row: Int) -> SnapshotChange {
-            var correctedSection = section
-            let correctedRow = row + 1 // Offset for date header
-            
-            if welcomeMessage != nil {
-                correctedSection += 1
-            }
-            
-            if isLoading {
-                correctedSection += 1
-            }
-            
-            cells[correctedSection].remove(at: row)
-            
-            return SnapshotChange(indexPaths: [
-                IndexPath(row: correctedRow, section: correctedSection)
-            ], kind: .deleted)
         }
     }
 }
