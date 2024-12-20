@@ -43,8 +43,12 @@ struct MessagesInteractorTests {
     @MainActor
     func handleViewDidLoad_ShouldCallPresentMessages(messages: [Message]) {
         #expect(presenter.presentMessagesCallCount == 0)
+        #expect(presenter.presentSetSectionsCallCount == 0)
+        
         messagesManager.messages = messages
         interactor.handleViewDidLoad()
+        
+        #expect(presenter.presentSetSectionsCallCount == 1)
         #expect(presenter.presentMessagesCallCount == 1)
     }
     
@@ -83,15 +87,15 @@ struct MessagesInteractorTests {
     mutating func handleMessageCollection() async {
         #expect(presenter.presentStickyMessageCallCount == 0)
         #expect(presenter.presentLoadingMessagesCallCount == 0)
-        #expect(presenter.presentAddMessagesCallCount == 0)
+        #expect(presenter.presentSetSectionsCallCount == 0)
         
         messagesManager.messages = [
-            .makeTestData(id: 2),
-            .makeTestData(id: 3)
+            .makeTestData(id: 2, time: Date(timeIntervalSince1970: 2)),
+            .makeTestData(id: 3, time: Date(timeIntervalSince1970: 3))
         ]
 
         let collection = MessageCollection.makeTestData(
-            messages: [.makeTestData(id: 0), .makeTestData(id: 1)],
+            messages: [.makeTestData(id: 0, time: Date(timeIntervalSince1970: 1)), .makeTestData(id: 1, time: Date(timeIntervalSince1970: 2))],
             stickyMessage: "New Sticky Message",
             welcomeMessage: "Welcome!"
         )
@@ -103,7 +107,7 @@ struct MessagesInteractorTests {
         
         #expect(presenter.presentStickyMessageCallCount == 1)
         #expect(presenter.presentLoadingMessagesCallCount == 2)
-        #expect(presenter.presentAddMessagesCallCount == 1)
+        #expect(presenter.presentSetSectionsCallCount == 1)
     }
     
     @Test

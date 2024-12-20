@@ -32,7 +32,7 @@ extension MessagesInteractor {
     @MainActor
     func handleViewDidLoad() {
         messages.set(messages: messagesManager.messages)
-        presenter.set(messages: messages.getAllMessages())
+        presenter.set(sections: messages.sections)
         
         if let welcomeMessage = messagesManager.welcomeMessage, !welcomeMessage.isEmpty {
             presenter.set(welcomeMessage: welcomeMessage)
@@ -85,7 +85,7 @@ extension MessagesInteractor {
         switch handleType {
         case .all:
             messages.set(messages: messagesManager.messages)
-            presenter.set(messages: messages.getAllMessages())
+            presenter.set(sections: messages.sections)
             await presenter.presentMessages()
         case .before, .after:
             await insertNewMessages(messages: collection.messages)
@@ -96,31 +96,30 @@ extension MessagesInteractor {
     
     @MainActor
     func handleNewMessage(_ message: Message) {
-        
+        let posistion = messages.add(message: message)
+        presenter.presentAdd(message: message, at: posistion)
     }
     
     func handleMessageSent(_ message: Message) async {
         message.status = .success
         messagesManager.update(message)
-        messages.update(message: message)
-        await presenter.presentMessages()
+        if let posistion = messages.update(message: message) {
+            await presenter.presentUpdate(message: message, at: posistion)
+        }
     }
     
     func handleMessageFailedToSend(_ message: Message) async {
         message.status = .failed
         messagesManager.update(message)
-        messages.update(message: message)
-        await presenter.presentMessages()
-    }
-    
-    func handleUpdatedMessage(_ message: Message) {
-        
+        if let posistion = messages.update(message: message) {
+            await presenter.presentUpdate(message: message, at: posistion)
+        }
     }
     
     @MainActor
     func clear() {
         messages.clear()
-        presenter.set(messages: [])
+        presenter.set(sections: messages.sections)
         presenter.presentMessages()
     }
 }
@@ -150,6 +149,6 @@ private extension MessagesInteractor {
             posisitionsAdded.append(self.messages.add(message: message))
         }
         
-        await presenter.presentAdd(messages: messages, posistionsAdded: posisitionsAdded)
+        presenter.set(sections: self.messages.sections)
     }
 }

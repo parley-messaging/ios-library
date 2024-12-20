@@ -79,10 +79,10 @@ extension ParleyChronologicalMessageCollection {
         return Posisition(section: lastSection, row: lastRow)
     }
     
-    mutating func update(message updatedMessage: Message) {
-        guard let messagePosistion = find(message: updatedMessage) else { return }
+    mutating func update(message updatedMessage: Message) -> Posisition? {
+        guard let messagePosistion = find(message: updatedMessage) else { return nil }
         sections[messagePosistion.section].messages.remove(at: messagePosistion.row)
-        _ = add(message: updatedMessage)
+         return add(message: updatedMessage)
     }
     
     func find(message messageToFind: Message) -> Posisition? {

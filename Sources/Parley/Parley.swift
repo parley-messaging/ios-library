@@ -10,8 +10,10 @@ protocol ParleyProtocol {
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
     var mediaLoader: MediaLoaderProtocol! { get }
+    
     var messagesInteractor: MessagesInteractor! { get }
     var messagesPresenter: MessagesPresenterProtocol! { get }
+    var messagesStore: MessagesStore! { get }
 
     var delegate: ParleyDelegate? { get set }
 
@@ -70,8 +72,10 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
+    
     private(set) var messagesInteractor: MessagesInteractor!
     private(set) var messagesPresenter: MessagesPresenterProtocol!
+    private(set) var messagesStore: MessagesStore!
 
     private(set) var alwaysPolling = false
     private(set) var pushToken: String? = nil
@@ -82,8 +86,6 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
 
     private(set) var userAuthorization: String?
     private(set) var userAdditionalInformation: [String: String]?
-    
-    let messagesStore = MessagesStore()
 
     weak var delegate: ParleyDelegate? {
         didSet {
@@ -129,7 +131,7 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
         mediaRepository.dataSource = mediaDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
         
-        let messagesStore = MessagesStore()
+        messagesStore = MessagesStore()
         messagesPresenter = MessagesPresenter(store: messagesStore, display: nil)
         messagesInteractor = MessagesInteractor(
             presenter: messagesPresenter!,

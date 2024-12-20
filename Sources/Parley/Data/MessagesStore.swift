@@ -5,24 +5,39 @@ class MessagesStore {
     enum SectionKind {
         case info
         case loading
-        case messages(Date, [Message])
+        case messages
         case typingIndicator
     }
     
-    enum CellKind {
+    enum CellKind: Equatable {
         case info(String)
         case loading
         case dateHeader(Date)
         case message(Message)
+        case carousel(mainMessage: Message, carousel: [Message])
         case typingIndicator
     }
     
     private(set) var sections: [SectionKind]
-    private var cells: [[CellKind]]
+    private(set) var cells: [[CellKind]]
     
     init() {
         cells = [[CellKind]]()
         sections = [SectionKind]()
+    }
+    
+    func apply(snapshot: MessagesPresenter.Snapshot) {
+        self.sections = snapshot.sections
+        self.cells = snapshot.cells
+    }
+}
+
+// MARK: UITableView / UICollectionView methods
+extension MessagesStore {
+    
+    func rows(section: Int) -> Int {
+        guard let section = cells[safe: section] else { return .zero }
+        return section.count
     }
     
     func get(at indexPath: IndexPath) -> CellKind? {
@@ -35,22 +50,5 @@ class MessagesStore {
         }
         
         return nil
-    }
-    
-    func addSection(cells: [CellKind]) {
-        self.cells[self.cells.endIndex] = cells
-    }
-    
-    func insert(cell: CellKind, section: Int, row: Int) {
-        cells[section][row] = cell
-    }
-    
-    func removeSection(at index: Int) {
-        cells.remove(at: index)
-    }
-    
-    func rows(section: Int) -> Int {
-        guard let section = cells[safe: section] else { return .zero }
-        return section.count
     }
 }

@@ -77,7 +77,9 @@ public class ParleyView: UIView {
     private var isAlreadyAtTop = false
     private var mostRecentSimplifiedDeviceOrientation: UIDeviceOrientation.Simplified = UIDevice.current.orientation.simplifiedOrientation ?? .portrait
     
-    private var messagesStore: MessagesStore!
+    private var messagesStore: MessagesStore {
+        parley.messagesStore
+    }
 
     private var messagesManager: MessagesManagerProtocol? {
         switch parley.state {
@@ -631,7 +633,7 @@ extension ParleyView: UITableViewDataSource {
             dateTableViewCell.render(date)
 
             return dateTableViewCell
-        case .message(let message):
+        case .message(let message), .carousel(mainMessage: let message, _):
             let messageTableViewCell = tableView
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
             messageTableViewCell.delegate = self
@@ -670,7 +672,7 @@ extension ParleyView: UITableViewDataSource {
         switch cell {
         case .dateHeader, .loading, .typingIndicator, .info:
             return UITableView.automaticDimension
-        case .message(let message):
+        case .message(let message), .carousel(mainMessage: let message, carousel: _):
             return message.ignore() ? 0 : UITableView.automaticDimension
         }
     }
