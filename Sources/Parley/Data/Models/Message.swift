@@ -224,7 +224,9 @@ extension [Message] {
         var messagesByDate: [Date: [Message]] = [:]
         
         for message in self {
-            guard let time = message.time else { continue }
+            guard let time = message.time else {
+                continue
+            }
             let date = calender.startOfDay(for: time)
             
             if messagesByDate[date] == nil {
@@ -235,5 +237,43 @@ extension [Message] {
         }
         
         return messagesByDate
+    }
+}
+
+extension Message: CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        var messageDescription = ""
+        
+        if let title {
+            messageDescription.append("title: \(title.prefix(10))\n")
+        }
+        
+        if let message {
+            if message.count > 25 {
+                messageDescription.append("💬 \(message.prefix(25))...")
+            } else {
+                messageDescription.append("💬 \(message)")
+            }
+        }
+        
+        if let carousel, !carousel.isEmpty {
+            messageDescription.append(" (carousel: \(carousel.compactMap(\.id)))")
+        }
+        
+        if hasMedium {
+            messageDescription.append("🖼️")
+        }
+        
+        if ignore() {
+            messageDescription.append(" (ignore)")
+        }
+        messageDescription.append(" (status: \(status))")
+        
+        if let type {
+            messageDescription.append(" (type: \(type.rawValue))")
+        }
+        
+        return messageDescription
     }
 }

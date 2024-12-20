@@ -127,4 +127,33 @@ struct MessagesPresentSnapshotTests {
         guard case .dateHeader = snapshot.cells[1][0] else { Issue.record() ; return }
         guard case .message = snapshot.cells[1][1] else { Issue.record() ; return }
     }
+    
+    @Test("Insert one message in a new section", arguments: [true, false])
+    func insertOneMessageInANewSectionWithWelcomeMessage(agentTyping: Bool) {
+        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+        _ = snapshot.insert(message: .makeTestData(time: .init(timeIntSince1970: 1)), section: 0, row: 0)
+        _ = snapshot.insert(message: .makeTestData(time: .init(timeIntSince1970: 2)), section: 0, row: 1)
+        
+        _ = snapshot.set(agentTyping: agentTyping)
+        
+        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 1, row: 0)
+        #expect(change.indexPaths == [
+            IndexPath(row: 0, section: 2),
+            IndexPath(row: 1, section: 2),
+        ])
+        #expect(change.kind == .added)
+        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.cells[1][0] else { Issue.record() ; return }
+        guard case .message = snapshot.cells[1][1] else { Issue.record() ; return }
+        guard case .message = snapshot.cells[1][2] else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.cells[2][0] else { Issue.record() ; return }
+        guard case .message = snapshot.cells[2][1] else { Issue.record() ; return }
+        
+        if agentTyping {
+            guard case .typingIndicator = snapshot.cells[3][0] else { Issue.record() ; return }
+        } else {
+            #expect(snapshot.cells.count == 3)
+            #expect(snapshot.sections.count == 3)
+        }
+    }
 }

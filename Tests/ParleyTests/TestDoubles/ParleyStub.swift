@@ -25,6 +25,7 @@ final class ParleyStub: ParleyProtocol {
     var localizationManager: LocalizationManager
     var messagesInteractor: MessagesInteractor!
     var messagesPresenter: MessagesPresenterProtocol!
+    var messagesStore: MessagesStore!
 
     var delegate: ParleyDelegate?
 

@@ -195,12 +195,12 @@ extension MessagesPresenter {
                 correctedSection += 1
             }
             
-            if sections[safe: correctedSection] == nil {
-                sections.append(.messages)
+            if sections[safe: correctedSection] == nil || sections[safe: correctedSection] == .typingIndicator {
+                sections.insert(.messages, at: correctedSection)
             }
             
-            if cells[safe: correctedSection] == nil {
-                cells.append([.dateHeader(time)])
+            if cells[safe: correctedSection] == nil || cells[safe: correctedSection] == [.typingIndicator] {
+                cells.insert([.dateHeader(time)], at: correctedSection)
                 indexPaths.append(IndexPath(row: 0, section: correctedSection))
             }
             
@@ -219,7 +219,7 @@ extension MessagesPresenter {
         }
         
         mutating func insert(section: [Message], date: Date) -> SnapshotChange {
-            let sectionIndexToInsert = lastMessagesSectionIndex() ?? sections.endIndex
+            let sectionIndexToInsert = nextMessagesSectionIndex()
             sections.insert(.messages, at: sectionIndexToInsert)
             cells.insert([.dateHeader(date)], at: sectionIndexToInsert)
             
@@ -228,23 +228,24 @@ extension MessagesPresenter {
             
             for (index, message) in section.enumerated() {
                 indexPaths.append(IndexPath(row: index, section: sectionIndexToInsert))
-                cells[sectionIndexToInsert].insert(makeMessageCell(message), at: index + 1) // offset for date header
+                let messageIndex = index + 1 // offset for date header
+                cells[sectionIndexToInsert].insert(makeMessageCell(message), at: messageIndex)
             }
             
             return SnapshotChange(indexPaths: indexPaths, kind: .added)
         }
         
-        private func lastMessagesSectionIndex() -> Int? {
+        private func nextMessagesSectionIndex() -> Int {
             var sectionIndex = sections.endIndex - 1
             
             while sectionIndex >= 0 {
                 if sections[sectionIndex] == .messages {
-                    return sectionIndex
+                    return sectionIndex + 1
                 }
                 sectionIndex -= 1
             }
             
-            return nil
+            return sections.endIndex
         }
         
         mutating func set(agentTyping: Bool) -> SnapshotChange {
