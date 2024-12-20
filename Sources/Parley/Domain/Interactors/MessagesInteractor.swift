@@ -32,7 +32,6 @@ extension MessagesInteractor {
     @MainActor
     func handleViewDidLoad() {
         messages.set(messages: messagesManager.messages)
-        presenter.set(sections: messages.sections)
         
         if let welcomeMessage = messagesManager.welcomeMessage, !welcomeMessage.isEmpty {
             presenter.set(welcomeMessage: welcomeMessage)
@@ -41,6 +40,8 @@ extension MessagesInteractor {
         if let stickyMessage = messagesManager.stickyMessage, !stickyMessage.isEmpty {
             presenter.present(stickyMessage: stickyMessage)
         }
+        
+        presenter.set(sections: messages.sections)
         
         presenter.presentMessages()
     }

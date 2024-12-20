@@ -36,8 +36,7 @@ class MessagesStore {
 extension MessagesStore {
     
     func rows(section: Int) -> Int {
-        guard let section = cells[safe: section] else { return .zero }
-        return section.count
+        cells[section].count
     }
     
     func get(at indexPath: IndexPath) -> CellKind? {

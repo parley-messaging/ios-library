@@ -58,7 +58,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = snapshot.set(agentTyping: isAgentTyping)
         
         for section in sections {
-            _ = snapshot.insert(section: section.messages)
+            _ = snapshot.insert(section: section.messages, date: section.date)
         }
         
         currentSnapshot = snapshot
@@ -218,33 +218,33 @@ extension MessagesPresenter {
             }
         }
         
-        mutating func insert(section: [Message]) -> SnapshotChange {
-            let sectionIndexToInsert = lastMessagesSectionIndex() + 1
+        mutating func insert(section: [Message], date: Date) -> SnapshotChange {
+            let sectionIndexToInsert = lastMessagesSectionIndex() ?? sections.endIndex
             sections.insert(.messages, at: sectionIndexToInsert)
-            cells.insert([], at: sectionIndexToInsert)
+            cells.insert([.dateHeader(date)], at: sectionIndexToInsert)
             
             var indexPaths = [IndexPath]()
             indexPaths.reserveCapacity(section.count)
             
             for (index, message) in section.enumerated() {
                 indexPaths.append(IndexPath(row: index, section: sectionIndexToInsert))
-                cells[sectionIndexToInsert][index] = makeMessageCell(message)
+                cells[sectionIndexToInsert].insert(makeMessageCell(message), at: index + 1) // offset for date header
             }
             
             return SnapshotChange(indexPaths: indexPaths, kind: .added)
         }
         
-        private func lastMessagesSectionIndex() -> Int {
+        private func lastMessagesSectionIndex() -> Int? {
             var sectionIndex = sections.endIndex - 1
             
             while sectionIndex >= 0 {
                 if sections[sectionIndex] == .messages {
-                    break
+                    return sectionIndex
                 }
                 sectionIndex -= 1
             }
             
-            return sectionIndex
+            return nil
         }
         
         mutating func set(agentTyping: Bool) -> SnapshotChange {
@@ -289,11 +289,12 @@ extension MessagesPresenter {
         
         mutating func set(welcomeMessage: String?) -> SnapshotChange {
             guard self.welcomeMessage != welcomeMessage else { return .noChange }
-            self.welcomeMessage = welcomeMessage
             
             if let welcomeMessage, self.welcomeMessage == nil {
+                self.welcomeMessage = welcomeMessage
                 return addWelcomeMessageCell(welcomeMessage)
             } else if let welcomeMessage, self.welcomeMessage != nil {
+                self.welcomeMessage = welcomeMessage
                 return updateWelcomeMessageCell(welcomeMessage)
             } else {
                 return deleteWelcomeMessageCell()

@@ -171,6 +171,8 @@ public class ParleyView: UIView {
         observeSuggestionsBounds = suggestionsView.observe(\.bounds) { [weak self] _, _ in
             self?.syncMessageTableViewContentInsets()
         }
+        
+        parley.messagesInteractor.handleViewDidLoad()
     }
 
     private func setupPollingIfNecessary() {
@@ -611,6 +613,10 @@ extension ParleyView: ParleyDelegate {
 
 // MARK: UITableViewDataSource
 extension ParleyView: UITableViewDataSource {
+    
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return messagesStore.sections.count
+    }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messagesStore.rows(section: section)
