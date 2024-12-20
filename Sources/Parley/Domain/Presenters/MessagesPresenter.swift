@@ -28,6 +28,7 @@ final class MessagesPresenter {
     // MARK: Properties
     private(set) var isAgentTyping: Bool = false
     private(set) var welcomeMessage: String?
+    private(set) var stickyMessage: String?
     private(set) var isLoadingMessages: Bool = false
     private(set) var currentSnapshot: Snapshot
     
@@ -65,6 +66,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
 
     @MainActor
     func present(stickyMessage: String?) {
+        self.stickyMessage = stickyMessage
         if let stickyMessage {
             display?.display(stickyMessage: stickyMessage)
         } else {
@@ -148,10 +150,6 @@ extension MessagesPresenter {
         private(set) var welcomeMessage: String?
         private(set) var agentTyping = false
         private(set) var isLoading = false
-        
-        var loadingSectionIndex: Int {
-            welcomeMessage != nil ? 1 : 0
-        }
         
         private(set) var sections: [SectionKind]
         private(set) var cells: [[CellKind]]

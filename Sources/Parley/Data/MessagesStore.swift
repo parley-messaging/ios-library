@@ -18,8 +18,8 @@ class MessagesStore {
         case typingIndicator
     }
     
-    private(set) var sections: [SectionKind]
-    private(set) var cells: [[CellKind]]
+    private var sections: [SectionKind]
+    private var cells: [[CellKind]]
     
     init() {
         cells = [[CellKind]]()
@@ -35,19 +35,35 @@ class MessagesStore {
 // MARK: UITableView / UICollectionView methods
 extension MessagesStore {
     
-    func rows(section: Int) -> Int {
+    var numberOfSections: Int {
+        sections.count
+    }
+    
+    func numberOfRows(inSection section: Int) -> Int {
         cells[section].count
     }
     
-    func get(at indexPath: IndexPath) -> CellKind? {
-        cells[indexPath.section][indexPath.row]
-    }
-    
     func getMessage(at indexPath: IndexPath) -> Message? {
-        if case let .message(message) = get(at: indexPath) {
+        if case let .message(message) = self[indexPath: indexPath] {
             return message
         }
         
         return nil
+    }
+    
+    func getCells(inSection section: Int) -> [CellKind] {
+        cells[section]
+    }
+    
+    subscript(section sectionIndex: Int) -> SectionKind? {
+        return sections[sectionIndex]
+    }
+    
+    subscript(section sectionIndex: Int, row rowIndex: Int) -> CellKind? {
+        cells[sectionIndex][rowIndex]
+    }
+    
+    subscript(indexPath ip: IndexPath) -> CellKind? {
+        cells[ip.section][ip.row]
     }
 }

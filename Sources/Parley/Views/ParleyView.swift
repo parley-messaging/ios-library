@@ -615,15 +615,15 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return messagesStore.sections.count
+        return messagesStore.numberOfSections
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messagesStore.rows(section: section)
+        return messagesStore.numberOfRows(inSection: section)
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellKind = messagesStore.get(at: indexPath) else { return .init() }
+        guard let cellKind = messagesStore[indexPath: indexPath] else { return .init() }
         
         switch cellKind {
         case .loading:
@@ -674,7 +674,7 @@ extension ParleyView: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let cell = messagesStore.get(at: indexPath) else { return .zero }
+        guard let cell = messagesStore[indexPath: indexPath] else { return .zero }
         switch cell {
         case .dateHeader, .loading, .typingIndicator, .info:
             return UITableView.automaticDimension
