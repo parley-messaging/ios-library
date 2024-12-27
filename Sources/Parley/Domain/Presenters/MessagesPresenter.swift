@@ -76,8 +76,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     
     @MainActor
     func presentAgentTyping(_ isTyping: Bool) {
+        guard let change = currentSnapshot.set(agentTyping: isTyping) else { return }
         self.isAgentTyping = isTyping
-        let change = currentSnapshot.set(agentTyping: isTyping)
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
@@ -91,13 +91,14 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     
     @MainActor
     func presentLoadingMessages(_ isLoading: Bool) {
-        let change = currentSnapshot.setLoading(isLoading)
+        guard let change = currentSnapshot.setLoading(isLoading) else { return }
+        self.isLoadingMessages = isLoading
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
     
     @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
-        let change = currentSnapshot.insert(message: message, section: posistion.section, row: posistion.row)
+        guard let change = currentSnapshot.insert(message: message, section: posistion.section, row: posistion.row) else { return }
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
@@ -119,6 +120,8 @@ private extension MessagesPresenter {
     
     @MainActor
     func presentSnapshotChange(_ change: Snapshot.SnapshotChange) {
+        guard change.indexPaths.isEmpty == false else { return }
+        
         switch change.kind {
         case .added:
             display?.insertRows(at: change.indexPaths, with: .none)
@@ -140,8 +143,6 @@ extension MessagesPresenter {
             }
             let indexPaths: [IndexPath]
             let kind: SnapshotChangeKind
-            
-            static let noChange = SnapshotChange(indexPaths: [], kind: .changed)
         }
         
         typealias CellKind = MessagesStore.CellKind
@@ -170,8 +171,8 @@ extension MessagesPresenter {
         ///   - message: Message to add
         ///   - section: section to add to, based only on messages
         ///   - row: row to add to, based only on messages
-        mutating func insert(message: Message, section: Int, row: Int) -> SnapshotChange {
-            guard let time = message.time else { return .noChange }
+        mutating func insert(message: Message, section: Int, row: Int) -> SnapshotChange? {
+            guard let time = message.time else { return nil }
             
             var indexPaths = [IndexPath]()
             
@@ -239,8 +240,8 @@ extension MessagesPresenter {
             return sections.endIndex
         }
         
-        mutating func set(agentTyping: Bool) -> SnapshotChange {
-            guard self.agentTyping != agentTyping else { return .noChange }
+        mutating func set(agentTyping: Bool) -> SnapshotChange? {
+            guard self.agentTyping != agentTyping else { return nil }
             self.agentTyping = agentTyping
             return agentTyping ? addAgentTypingCell() : removeAgentTypingCell()
         }
@@ -259,28 +260,26 @@ extension MessagesPresenter {
             return SnapshotChange(indexPaths: [deletetingIndexPath], kind: .deleted)
         }
         
-        mutating func setLoading(_ isLoading: Bool) -> SnapshotChange {
-            guard self.isLoading != isLoading else { return .noChange }
+        mutating func setLoading(_ isLoading: Bool) -> SnapshotChange? {
+            guard self.isLoading != isLoading else { return nil }
             self.isLoading = isLoading
             return isLoading ? addLoadingCell() : removeLoadingCell()
         }
         
         private mutating func addLoadingCell() -> SnapshotChange {
-            let insertedIndexPath = IndexPath(row: 0, section: sections.endIndex)
-            sections.append(.loading)
-            cells.append([.loading])
-            return SnapshotChange(indexPaths: [insertedIndexPath], kind: .added)
+            sections.insert(.loading, at: .zero)
+            cells.insert([.loading], at: .zero)
+            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: 0)], kind: .added)
         }
         
         private mutating func removeLoadingCell() -> SnapshotChange {
-            let deletetingIndexPath = IndexPath(row: 0, section: sections.endIndex - 1)
-            _ = sections.popLast()
-            _ = cells.popLast()
-            return SnapshotChange(indexPaths: [deletetingIndexPath], kind: .deleted)
+            _ = sections.removeFirst()
+            _ = cells.removeFirst()
+            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: 0)], kind: .deleted)
         }
         
-        mutating func set(welcomeMessage: String?) -> SnapshotChange {
-            guard self.welcomeMessage != welcomeMessage else { return .noChange }
+        mutating func set(welcomeMessage: String?) -> SnapshotChange? {
+            guard self.welcomeMessage != welcomeMessage else { return nil }
             
             if let welcomeMessage, self.welcomeMessage == nil {
                 self.welcomeMessage = welcomeMessage

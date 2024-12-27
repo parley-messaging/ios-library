@@ -29,7 +29,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func setAgentTypingOnSnapshotWithoutWelcomeMessage() {
         var snapshot = Snapshot(welcomeMessage: nil)
-        let change = snapshot.set(agentTyping: true)
+        let change = snapshot.set(agentTyping: true)!
         #expect(change.indexPaths == [IndexPath(row: 0, section: 0)])
         #expect(change.kind == .added)
     }
@@ -37,7 +37,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func setAgentTypingOnSnapshotWithWelcomeMessage() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.set(agentTyping: true)
+        let change = snapshot.set(agentTyping: true)!
         #expect(change.indexPaths == [IndexPath(row: 0, section: 1)])
         #expect(change.kind == .added)
     }
@@ -46,7 +46,7 @@ struct MessagesPresentSnapshotTests {
     func removeAgentTypingOnSnapshotWithWelcomeMessage() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
         _ = snapshot.set(agentTyping: true)
-        let change = snapshot.set(agentTyping: false)
+        let change = snapshot.set(agentTyping: false)!
         #expect(change.indexPaths == [IndexPath(row: 0, section: 1)])
         #expect(change.kind == .deleted)
     }
@@ -55,7 +55,7 @@ struct MessagesPresentSnapshotTests {
     func setAgentTypingToTheSameValue() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
         let change = snapshot.set(agentTyping: false)
-        #expect(change == .noChange)
+        #expect(change == nil)
     }
     
     // MARK: Set loading
@@ -63,7 +63,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func enableLoadingMessages_shouldInsertCell() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.setLoading(true)
+        let change = snapshot.setLoading(true)!
         #expect(change.kind == .added)
         guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
         guard case .loading = snapshot.cells[1][0] else { Issue.record() ; return }
@@ -73,14 +73,14 @@ struct MessagesPresentSnapshotTests {
     func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChange() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
         let change = snapshot.setLoading(false)
-        #expect(change == .noChange)
+        #expect(change == nil)
     }
     
     @Test
     func dissableLoadingMessages_shouldDeleteCell() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
         _ = snapshot.setLoading(true)
-        let change = snapshot.setLoading(false)
+        let change = snapshot.setLoading(false)!
         #expect(change.kind == .deleted)
         guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
     }
@@ -90,7 +90,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func insertMessageToEmptySnapshot() {
         var snapshot = Snapshot(welcomeMessage: .none)
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)
+        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
         #expect(change.indexPaths == [
             IndexPath(row: 0, section: 0), // Date header
             IndexPath(row: 1, section: 0), // Message
@@ -103,7 +103,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func insertMessageToSnapshotWithWelcomeMessage() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)
+        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
         #expect(change.indexPaths == [
             IndexPath(row: 0, section: 1),
             IndexPath(row: 1, section: 1),
@@ -117,7 +117,7 @@ struct MessagesPresentSnapshotTests {
     @Test
     func insertTowMessagesSnapshotWithWelcomeMessage() {
         var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)
+        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
         #expect(change.indexPaths == [
             IndexPath(row: 0, section: 1),
             IndexPath(row: 1, section: 1),
@@ -136,7 +136,7 @@ struct MessagesPresentSnapshotTests {
         
         _ = snapshot.set(agentTyping: agentTyping)
         
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 1, row: 0)
+        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 1, row: 0)!
         #expect(change.indexPaths == [
             IndexPath(row: 0, section: 2),
             IndexPath(row: 1, section: 2),

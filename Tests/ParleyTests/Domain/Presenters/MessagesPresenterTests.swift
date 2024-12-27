@@ -421,7 +421,7 @@ struct MessagesPresenterTests {
         #expect(store.getMessage(at: IndexPath(row: 2, section: 1)) == secondMessage, "Fourth cell should be the second message")
     }
     
-    // MARK: Agent Typing
+    // MARK: - Agent Typing
     
     @Test(arguments: Self.testSections)
     @MainActor
@@ -431,6 +431,35 @@ struct MessagesPresenterTests {
         presenter.set(sections: collection.sections)
         
         // When
+        presenter.presentAgentTyping(true)
+        
+        // Then
+        #expect(presenter.isAgentTyping)
+        #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
+        let lastSectionIndex = presenter.currentSnapshot.sections.endIndex - 1
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex] == .typingIndicator)
+        #expect(presenter.currentSnapshot.cells[lastSectionIndex][0] == .typingIndicator)
+        #expect(presenter.currentSnapshot.cells[lastSectionIndex].count == 1)
+        
+        #expect(display.insertRowsCallCount == 1)
+        #expect(display.insertRowsIndexPaths == [
+            IndexPath(row: 0, section: lastSectionIndex)
+        ])
+        
+        #expect(display.reloadCallCount == 0)
+        #expect(display.reloadRowsCallCount == 0)
+        #expect(display.deleteRowsCallCount == 0)
+    }
+    
+    @Test(arguments: Self.testSections)
+    @MainActor
+    mutating func presentAgentTyping_ShouldDoNothing_WhenAgentIsAlreadyTyping(messages: [Message]) {
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        
+        // When
+        presenter.presentAgentTyping(true)
         presenter.presentAgentTyping(true)
         
         // Then
@@ -479,24 +508,122 @@ struct MessagesPresenterTests {
         #expect(display.insertRowsCallCount == 1, "Should be unchanged")
     }
     
+    @Test(arguments: Self.testSections)
     @MainActor
-    mutating func presentAgentNotTyping_ShouldDoNothing_WhenAgentWasNotTyping() {
+    mutating func presentAgentNotTyping_ShouldDoNothing_WhenAgentWasNotTyping(messages: [Message]) {
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        #expect(presenter.isAgentTyping == false)
+        
+        // When
         presenter.presentAgentTyping(false)
         
-        #expect(presenter.isAgentTyping)
-        let lastSectionIndex = presenter.currentSnapshot.sections.endIndex - 1
-        #expect(presenter.currentSnapshot.sections[lastSectionIndex] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex][0] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex].count == 1)
+        // Then
+        #expect(display.hasInterhactedWithDisplay == false)
+    }
+    
+    // MARK: - Present Loading Messages -
+    
+    @Test(arguments: Self.testSections)
+    @MainActor
+    mutating func presentLoading_ShouldUpdateStoreAndInsertRow_WhenIsNotLoading(messages: [Message]) {
+        #expect(presenter.currentSnapshot.sections.count == 0)
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        
+        // When
+        presenter.presentLoadingMessages(true)
+        
+        // Then
+        #expect(presenter.isLoadingMessages)
+        #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
+        #expect(presenter.currentSnapshot.sections[0] == .loading)
+        #expect(presenter.currentSnapshot.cells[0][0] == .loading)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: lastSectionIndex)
+            IndexPath(row: 0, section: 0)
         ])
+        
+        #expect(store[section: 0, row: 0] == .loading)
         
         #expect(display.reloadCallCount == 0)
         #expect(display.reloadRowsCallCount == 0)
         #expect(display.deleteRowsCallCount == 0)
+    }
+    
+    @Test(arguments: Self.testSections)
+    @MainActor
+    mutating func presentLoading_ShouldDoNothing_WhenIsAlreadyLoading(messages: [Message]) {
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        
+        // When
+        presenter.presentLoadingMessages(true)
+        presenter.presentLoadingMessages(true)
+        
+        // Then
+        #expect(presenter.isLoadingMessages)
+        #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
+        #expect(presenter.currentSnapshot.sections[0] == .loading)
+        #expect(presenter.currentSnapshot.cells[0][0] == .loading)
+        
+        #expect(display.insertRowsCallCount == 1)
+        #expect(display.insertRowsIndexPaths == [
+            IndexPath(row: 0, section: 0)
+        ])
+        
+        #expect(store[section: 0, row: 0] == .loading)
+        
+        #expect(display.reloadCallCount == 0)
+        #expect(display.reloadRowsCallCount == 0)
+        #expect(display.deleteRowsCallCount == 0)
+    }
+    
+    @Test(arguments: Self.testSections)
+    @MainActor
+    mutating func presentNotLoading_ShouldUpdateStoreAndDeleteRow_WhenWasLoading(messages: [Message]) {
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        
+        presenter.presentLoadingMessages(true)
+        #expect(display.insertRowsCallCount == 1, "Presenting agent typing should insert a row")
+        let loadingIndexPath = IndexPath(row: 0, section: 0)
+        
+        // When
+        presenter.presentLoadingMessages(false)
+        
+        // Then
+        #expect(presenter.isLoadingMessages == false)
+        #expect(presenter.currentSnapshot.sections.count == collection.sections.count)
+       
+        #expect(display.deleteRowsCallCount == 1)
+        #expect(display.deleteRowsIndexPaths == [loadingIndexPath])
+        
+        #expect(store.numberOfSections == collection.sections.count)
+        
+        #expect(display.reloadCallCount == 0)
+        #expect(display.reloadRowsCallCount == 0)
+        #expect(display.insertRowsCallCount == 1)
+    }
+    
+    @Test(arguments: Self.testSections)
+    @MainActor
+    mutating func presentNotLoading_ShouldDoNothing_WhenIsNotLoading(messages: [Message]) {
+        // Setup
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        #expect(presenter.isAgentTyping == false)
+        
+        // When
+        presenter.presentAgentTyping(false)
+        
+        // Then
+        #expect(display.hasInterhactedWithDisplay == false)
     }
 }
 
