@@ -83,9 +83,10 @@ extension MessagesInteractor {
     func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) async {
         messagesManager.handle(collection, handleType)
         
+        presenter.set(welcomeMessage: collection.welcomeMessage)
         switch handleType {
         case .all:
-            messages.set(messages: messagesManager.messages)
+            messages.set(collection: collection)
             presenter.set(sections: messages.sections)
             await presenter.presentMessages()
         case .before, .after:
@@ -143,7 +144,7 @@ private extension MessagesInteractor {
     }
     
     private func insertNewMessages(messages: [Message]) async {
-        var posisitionsAdded = [ParleyChronologicalMessageCollection.Posisition]()
+        var posisitionsAdded = [ParleyChronologicalMessageCollection.Position]()
         posisitionsAdded.reserveCapacity(messages.count)
         
         for message in messages {

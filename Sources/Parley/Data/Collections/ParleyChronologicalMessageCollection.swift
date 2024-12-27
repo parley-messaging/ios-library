@@ -9,17 +9,17 @@ public struct ParleyChronologicalMessageCollection {
     
     private var indexMap = [Date: Int]()
     private(set) var sections = [Section]()
-    private let calender: Calendar
+    private let calendar: Calendar
     
-    public init(calender: Calendar) {
-        self.calender = calender
+    public init(calendar: Calendar) {
+        self.calendar = calendar
     }
     
-    struct Posisition: Equatable {
+    struct Position: Equatable {
         let section: Int
         let row: Int
         
-        static let zero = Posisition(section: .zero, row: .zero)
+        static let zero = Position(section: .zero, row: .zero)
     }
     
     subscript(section sectionIndex: Int, row rowIndex: Int) -> Message {
@@ -34,13 +34,13 @@ public struct ParleyChronologicalMessageCollection {
 // MARK: Methods
 extension ParleyChronologicalMessageCollection {
     
-    mutating func add(message: Message) -> Posisition {
+    mutating func add(message: Message) -> Position {
         assert(message.time != nil, "time may not be empty")
-        let messageDate = calender.startOfDay(for: message.time!)
+        let messageDate = calendar.startOfDay(for: message.time!)
         
         if let sectionIndex = indexMap[messageDate] {
             let rowIndex = sections[sectionIndex].add(message: message)
-            return Posisition(section: sectionIndex, row: rowIndex)
+            return Position(section: sectionIndex, row: rowIndex)
         } else {
             let newSection = Section(date: messageDate, message: message)
             let insertIndex: Int
@@ -51,7 +51,7 @@ extension ParleyChronologicalMessageCollection {
             }
             sections.insert(newSection, at: insertIndex)
             index()
-            return Posisition(section: insertIndex, row: .zero)
+            return Position(section: insertIndex, row: .zero)
         }
     }
     
@@ -62,7 +62,7 @@ extension ParleyChronologicalMessageCollection {
     mutating func set(messages: [Message]) {
         self.sections.removeAll(keepingCapacity: true)
         
-        let messagesByDate = messages.byDate(calender: calender)
+        let messagesByDate = messages.byDate(calender: calendar)
         self.sections.reserveCapacity(messagesByDate.keys.count)
         let sectionsByDate = messagesByDate.map { (date: Date, messages: [Message]) in
             Section(date: date, messages: messages)
@@ -72,24 +72,24 @@ extension ParleyChronologicalMessageCollection {
         sort()
     }
     
-    func lastPosistion() -> Posisition {
+    func lastPosistion() -> Position {
         guard !sections.isEmpty else { return .zero }
         let lastSection = sections.endIndex - 1
         let lastRow = sections[lastSection].messages.endIndex - 1
-        return Posisition(section: lastSection, row: lastRow)
+        return Position(section: lastSection, row: lastRow)
     }
     
-    mutating func update(message updatedMessage: Message) -> Posisition? {
+    mutating func update(message updatedMessage: Message) -> Position? {
         guard let messagePosistion = find(message: updatedMessage) else { return nil }
         sections[messagePosistion.section].messages.remove(at: messagePosistion.row)
          return add(message: updatedMessage)
     }
     
-    func find(message messageToFind: Message) -> Posisition? {
+    func find(message messageToFind: Message) -> Position? {
         for (sectionIndex, section) in sections.enumerated() {
             for (row, message) in section.messages.enumerated() {
                 if message.id == messageToFind.id || message.uuid == messageToFind.uuid {
-                    return Posisition(section: sectionIndex, row: row)
+                    return Position(section: sectionIndex, row: row)
                 }
             }
         }
@@ -179,5 +179,20 @@ extension ParleyChronologicalMessageCollection {
         static func < (lhs: Section, rhs: Section) -> Bool {
             lhs.date < rhs.date
         }
+    }
+}
+
+extension ParleyChronologicalMessageCollection: CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        var description: String = ""
+        for section in sections {
+            description += "*\(section.date.asDate())*\n"
+            
+            for message in section.messages {
+                description += "\t\(message.debugDescription)\n"
+            }
+        }
+        return description
     }
 }

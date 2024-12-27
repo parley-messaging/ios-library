@@ -249,11 +249,40 @@ extension Message: CustomDebugStringConvertible {
             messageDescription.append("title: \(title.prefix(10))\n")
         }
         
-        if let message {
+        if let type {
+            switch type {
+            case .info:
+                if let message {
+                    messageDescription.append("ℹ️ \(message)")
+                } else {
+                    messageDescription.append("ℹ️")
+                }
+            case .user:
+                messageDescription.append("💬 [user]")
+                if let message {
+                    appendMessage(message: message)
+                }
+            case .agent:
+                messageDescription.append("💬 [agent]")
+                if let message {
+                    appendMessage(message: message)
+                }
+            case .auto:
+                messageDescription.append("[auto]")
+            case .systemMessageUser:
+                messageDescription.append("[system message user]")
+            case .systemMessageAgent:
+                messageDescription.append("[system message agent]")
+            default:
+                break
+            }
+        }
+        
+        func appendMessage(message: String) {
             if message.count > 25 {
-                messageDescription.append("💬 \(message.prefix(25))...")
+                messageDescription.append(" \(message.prefix(25))...")
             } else {
-                messageDescription.append("💬 \(message)")
+                messageDescription.append(" \(message)")
             }
         }
         
@@ -269,10 +298,6 @@ extension Message: CustomDebugStringConvertible {
             messageDescription.append(" (ignore)")
         }
         messageDescription.append(" (status: \(status))")
-        
-        if let type {
-            messageDescription.append(" (type: \(type.rawValue))")
-        }
         
         return messageDescription
     }

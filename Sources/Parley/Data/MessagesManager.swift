@@ -21,7 +21,7 @@ protocol MessagesManagerProtocol: AnyObject {
 
 final class MessagesManager: MessagesManagerProtocol {
 
-    enum HandleType {
+    enum HandleType: CaseIterable {
         case all
         case before
         case after

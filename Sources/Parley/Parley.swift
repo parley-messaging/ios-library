@@ -136,7 +136,7 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
         messagesInteractor = MessagesInteractor(
             presenter: messagesPresenter!,
             messagesManager: messagesManager!,
-            messageCollection: ParleyChronologicalMessageCollection(calender: .autoupdatingCurrent),
+            messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
             messagesRepository: messageRepository!,
             reachabilityProvider: self
         )

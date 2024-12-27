@@ -26,23 +26,6 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
         displayHideStickyMessageCallCount > 0
     }
     
-    func RESET() {
-        insertRowsCallCount = 0
-        insertRowsIndexPaths = nil
-        
-        deleteRowsCallCount = 0
-        deleteRowsIndexPaths = nil
-        
-        reloadRowsCallCount = 0
-        reloadRowsIndexPaths = nil
-        
-        reloadCallCount = 0
-        
-        displayStickyMessageCallCount = 0
-        
-        displayHideStickyMessageCallCount = 0
-    }
-    
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         insertRowsCallCount += 1
         insertRowsIndexPaths = indexPaths

@@ -13,8 +13,8 @@ protocol MessagesPresenterProtocol: AnyObject {
     
     @MainActor func presentLoadingMessages(_ isLoading: Bool)
     
-    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition)
-    @MainActor func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition)
+    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position)
+    @MainActor func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Position)
     
     @MainActor func presentMessages()
 }
@@ -83,8 +83,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     }
     
     @MainActor
-    func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition) {
-        let change = currentSnapshot.update(message: message, section: posistion.section, row: posistion.row)
+    func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
+        let change = currentSnapshot.set(message: message, section: posistion.section, row: posistion.row)
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
@@ -96,7 +96,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         presentSnapshotChange(change)
     }
     
-    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Posisition) {
+    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
         let change = currentSnapshot.insert(message: message, section: posistion.section, row: posistion.row)
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
@@ -313,7 +313,7 @@ extension MessagesPresenter {
             return SnapshotChange(indexPaths: [deletedIndexPath], kind: .deleted)
         }
         
-        mutating func update(message: Message, section: Int, row: Int) -> SnapshotChange {
+        mutating func set(message: Message, section: Int, row: Int) -> SnapshotChange {
             var correctedSection = section
             let correctedRow = row + 1 // Offset for date header
             

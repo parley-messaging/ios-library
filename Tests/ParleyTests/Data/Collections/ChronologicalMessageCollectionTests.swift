@@ -201,7 +201,7 @@ class ChronologicalMessageCollectionTests {
 private extension ChronologicalMessageCollectionTests {
     
     func makeCollection() -> ParleyChronologicalMessageCollection {
-        ParleyChronologicalMessageCollection(calender: .current)
+        ParleyChronologicalMessageCollection(calendar: .current)
     }
     
     func checkChronologicalOrder(_ collection: ParleyChronologicalMessageCollection) {

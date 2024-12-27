@@ -19,7 +19,7 @@ struct MessagesInteractorTests {
         interactor = MessagesInteractor(
             presenter: presenter,
             messagesManager: messagesManager,
-            messageCollection: ParleyChronologicalMessageCollection(calender: .current),
+            messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
             reachabilityProvider: reachibilityProvider
         )
