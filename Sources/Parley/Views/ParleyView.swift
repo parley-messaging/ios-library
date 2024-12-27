@@ -920,11 +920,21 @@ extension ParleyView {
 @MainActor extension ParleyView: ParleyMessagesDisplay {
         
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
+        messagesTableView.beginUpdates()
+        for newSectionIndexPath in indexPaths.filter({ $0.row == .zero }) {
+            messagesTableView.insertSections(IndexSet(integer: newSectionIndexPath.section), with: animation)
+        }
         messagesTableView.insertRows(at: indexPaths, with: animation)
+        messagesTableView.endUpdates()
     }
     
     func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
+        messagesTableView.beginUpdates()
+        for deletedSectionIndexPath in indexPaths.filter({ $0.row == .zero }) {
+            messagesTableView.deleteSections(IndexSet(integer: deletedSectionIndexPath.section), with: animation)
+        }
         messagesTableView.deleteRows(at: indexPaths, with: animation)
+        messagesTableView.endUpdates()
     }
     
     func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
