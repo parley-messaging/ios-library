@@ -169,16 +169,9 @@ final class MessagesManager: MessagesManagerProtocol {
             let originalMessagesIndex = originalMessages
                 .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid })
         else { return }
-
+        
         originalMessages[originalMessagesIndex] = message
         messageDataSource?.update(message)
-    }
-
-    private func createInfoMessages(_ message: String) -> Message {
-        let infoMessage = Message()
-        infoMessage.type = .info
-        infoMessage.message = message
-        return infoMessage
     }
 
     func canLoadMore() -> Bool {

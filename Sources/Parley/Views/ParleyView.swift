@@ -645,7 +645,7 @@ extension ParleyView: UITableViewDataSource {
             messageTableViewCell.delegate = self
             
             switch message.type {
-            case .agent, .agentTyping, .systemMessageAgent:
+            case .agent, .systemMessageAgent:
                 messageTableViewCell.appearance = appearance.agentMessage
             default:
                 messageTableViewCell.appearance = appearance.userMessage

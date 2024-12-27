@@ -10,18 +10,6 @@ public final class Message: Codable, Equatable {
     }
 
     enum MessageType: Int, Codable {
-        /// A message from the user that is still being sent.
-        case loading = -3
-
-        /// Agent typing indicator
-        case agentTyping = -2
-
-        /// Date header
-        case date = -1
-
-        /// Informational message
-        case info = 0
-
         /// Message from the user
         case user = 1
 
@@ -164,9 +152,7 @@ public final class Message: Codable, Equatable {
         switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
             true
-        case .agentTyping, .loading:
-            false
-        case .date, .info, .agent, .user:
+        case .agent, .user:
             (
                 title == nil &&
                     message == nil &&
@@ -196,10 +182,6 @@ extension Message: Comparable {
 
     public static func < (lhs: Message, rhs: Message) -> Bool {
         switch lhs.type {
-        case .info, .loading:
-            false
-        case .agentTyping:
-            true
         default:
             if lhs.time == nil && rhs.time == nil {
                 false
@@ -251,12 +233,6 @@ extension Message: CustomDebugStringConvertible {
         
         if let type {
             switch type {
-            case .info:
-                if let message {
-                    messageDescription.append("ℹ️ \(message)")
-                } else {
-                    messageDescription.append("ℹ️")
-                }
             case .user:
                 messageDescription.append("💬 [user]")
                 if let message {
@@ -273,8 +249,6 @@ extension Message: CustomDebugStringConvertible {
                 messageDescription.append("[system message user]")
             case .systemMessageAgent:
                 messageDescription.append("[system message agent]")
-            default:
-                break
             }
         }
         
