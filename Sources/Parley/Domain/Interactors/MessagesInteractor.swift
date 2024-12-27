@@ -98,6 +98,7 @@ extension MessagesInteractor {
     
     @MainActor
     func handleNewMessage(_ message: Message) {
+        messagesManager.add(message)
         let posistion = messages.add(message: message)
         presenter.presentAdd(message: message, at: posistion)
     }

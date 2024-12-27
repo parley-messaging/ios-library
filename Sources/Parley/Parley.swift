@@ -552,19 +552,21 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
                 }
                 Task {
                     await messagesInteractor.handleAgentStoppedTyping()
+                    await messagesInteractor.handleNewMessage(storedMessage)
                 }
             }) { _ in
-
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
                 Task {
                     await messagesInteractor.handleAgentStoppedTyping()
+                    await messagesInteractor.handleNewMessage(message)
                 }
             }
         } else {
             Task {
                 await messagesInteractor.handleAgentStoppedTyping()
+                await messagesInteractor.handleNewMessage(message)
             }
         }
     }
