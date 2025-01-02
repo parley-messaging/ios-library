@@ -2,6 +2,7 @@ import UIKit
 @testable import Parley
 
 class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
+
     private(set) var insertRowsCallCount = 0
     private(set) var insertRowsIndexPaths: [IndexPath]?
     
@@ -16,6 +17,14 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     private(set) var displayStickyMessageCallCount = 0
     
     private(set) var displayHideStickyMessageCallCount = 0
+    
+    private(set) var scrollToCallCount = 0
+    private(set) var scrollToLatestArguments: (IndexPath, UITableView.ScrollPosition, animated: Bool)?
+    
+    private(set) var displayQuickRepliesCallCount = 0
+    private(set) var displayQuickRepliesLatestArguments: [String]?
+    
+    private(set) var displayHideQuickRepliesCallCount = 0
     
     var hasInterhactedWithDisplay: Bool {
         insertRowsCallCount > 0 || insertRowsIndexPaths != nil ||
@@ -51,5 +60,19 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     func displayHideStickyMessage() {
         displayHideStickyMessageCallCount += 1
+    }
+
+    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
+        scrollToCallCount += 1
+        scrollToLatestArguments = (indexPaths, position, animated)
+    }
+    
+    func display(quickReplies: [String]) {
+        displayQuickRepliesCallCount += 1
+        displayQuickRepliesLatestArguments = quickReplies
+    }
+    
+    func displayHideQuickReplies() {
+        displayHideQuickRepliesCallCount += 1
     }
 }

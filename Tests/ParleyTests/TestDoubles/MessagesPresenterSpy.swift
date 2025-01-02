@@ -11,12 +11,20 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     private(set) var presentLoadingMessagesCallCount = 0
 
     private(set) var presentAddMessageCallCount = 0
-    private(set) var presentAddLatestArguments: (Message, ParleyChronologicalMessageCollection.Position)?
+    private(set) var presentAddLatestArgument: Message?
     
     private(set) var presentUpdateMessageCallCount = 0
-    private(set) var presentUpdateLatestArguments: (Message, ParleyChronologicalMessageCollection.Position)?
+    private(set) var presentUpdateLatestArgument: Message?
     
     private(set) var presentMessagesCallCount  = 0
+    
+    private(set) var setIsScrolledToBottomCallCount = 0
+    private(set) var isScrolledToBottomLatestArgument: Bool = false
+    
+    private(set) var presentQuickRepliesCallCount = 0
+    private(set) var presentQuickRepliesLatestArgument: [String]?
+    
+    private(set) var presentHideQuickRepliesCallCount = 0
     
     func set(display: ParleyMessagesDisplay) { }
     
@@ -40,17 +48,31 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
         presentLoadingMessagesCallCount += 1
     }
     
-    func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
+    func presentAdd(message: Message) {
         presentAddMessageCallCount += 1
-        presentAddLatestArguments = (message, posistion)
+        presentAddLatestArgument = message
     }
     
-    func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
+    func presentUpdate(message: Message) {
         presentUpdateMessageCallCount += 1
-        presentUpdateLatestArguments = (message, posistion)
+        presentUpdateLatestArgument = message
     }
     
     func presentMessages() {
         presentMessagesCallCount += 1
+    }
+    
+    func set(isScrolledToBottom: Bool) {
+        setIsScrolledToBottomCallCount += 1
+        isScrolledToBottomLatestArgument = isScrolledToBottom
+    }
+    
+    func present(quickReplies: [String]) {
+        presentQuickRepliesCallCount += 1
+        presentQuickRepliesLatestArgument = quickReplies
+    }
+    
+    func presentHideQuickReplies() {
+        presentHideQuickRepliesCallCount += 1
     }
 }

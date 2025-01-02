@@ -60,6 +60,7 @@ struct MessagesPresenterTests {
     private static let welcomeMessage = "Welcome!"
     private static let stickyMessage = "Sticky message"
     
+    @MainActor
     init() {
         store = MessagesStore()
         display = ParleyMessagesDisplaySpy()
@@ -126,6 +127,7 @@ struct MessagesPresenterTests {
     }
     
     @Test(arguments: Self.testSections)
+    @MainActor
     mutating func settingMessages_ShouldNotDisplayAnyMessages_WhenPresentMessagesIsNotCalled(messages: [Message]) {
         collection.set(messages: messages)
         
@@ -155,11 +157,12 @@ struct MessagesPresenterTests {
         // Setup
         let message = Message.makeTestData(time: Date(timeIntSince1970: 1))
         let posistion = collection.add(message: message)
+        let date = collection.sections[posistion.section].date
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         // When
-        presenter.presentAdd(message: message, at: posistion)
+        presenter.presentAdd(section: [message], date: date)
         
         // Then
         guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -183,13 +186,15 @@ struct MessagesPresenterTests {
     mutating func insertMessageInEmptyChatWithWelcomeMessage_ShouldUpdateStoreAndInsertRowOnDisplay() {
         // Setup
         let message = Message.makeTestData(time: Date(timeIntSince1970: 1))
-        let posistion = collection.add(message: message)
+        let position = collection.add(message: message)
+        let date = collection.sections[position.section].date
+        
         presenter.set(welcomeMessage: Self.welcomeMessage)
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         // When
-        presenter.presentAdd(message: message, at: posistion)
+        presenter.presentAdd(section: [message], date: date)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -222,7 +227,7 @@ struct MessagesPresenterTests {
         let position = collection.add(message: message)
         
         // When
-        presenter.presentAdd(message: message, at: position)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -250,10 +255,10 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         let message = Message.makeTestData(time: Date(timeIntSince1970: 2))
-        let position = collection.add(message: message)
+        _ = collection.add(message: message)
         
         // When
-        presenter.presentAdd(message: message, at: position)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -284,9 +289,10 @@ struct MessagesPresenterTests {
         
         let message = Message.makeTestData(time: Date(timeIntSince1970: 86401))
         let position = collection.add(message: message)
+        let date = collection.sections[position.section].date
         
         // When
-        presenter.presentAdd(message: message, at: position)
+        presenter.presentAdd(section: [message], date: date)
         
         // Then
         guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -320,10 +326,11 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         let message = Message.makeTestData(time: Date(timeIntSince1970: 86401))
-        let position = collection.add(message: message)
+        let posistion = collection.add(message: message)
+        let date = collection.sections[posistion.section].date
         
         // When
-        presenter.presentAdd(message: message, at: position)
+        presenter.presentAdd(section: [message], date: date)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -353,17 +360,17 @@ struct MessagesPresenterTests {
     @MainActor
     mutating func updateMessage_ShouldUpdateStoreAndReloadRow() {
         // Setup
-        let message = Message.makeTestData(id: 2, time: Date(timeIntSince1970: 1), message: "First Message", type: .user, status: .pending)
-        let pos = collection.add(message: message)
+        let message = Message.makeTestData(id: 2, time: Date(timeIntSince1970: 1), title: nil, message: "First Message", type: .user, status: .pending)
+        _ = collection.add(message: message)
         presenter.set(welcomeMessage: Self.welcomeMessage)
         presenter.set(sections: collection.sections)
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let updatedMessage = Message.makeTestData(id: message.id, time: message.time, message: message.title, type: .user, status: .success)
+        let updatedMessage = Message.makeTestData(id: message.id, time: message.time, title: message.title, message: message.message, type: .user, status: .success)
         
         // When
-        presenter.presentUpdate(message: updatedMessage, at: pos)
+        presenter.presentUpdate(message: updatedMessage)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -388,7 +395,7 @@ struct MessagesPresenterTests {
     
     @Test
     @MainActor
-    mutating func test_ShouldBeCorrectlyConfigured_WhenStartingWithAMessageCollection() async {
+    mutating func test_ShouldBeCorrectlyConfigured_WhenStartingWithAMessageCollection() {
         // Setup
         let firstMessage = createUserMessage("Hello!")
         let secondMessage = createUserMessage("How are you?")
@@ -408,7 +415,7 @@ struct MessagesPresenterTests {
             reachabilityProvider: ReachibilityProviderStub()
         )
         // When
-        await interactor.handle(collection: collection, .all)
+        interactor.handle(collection: collection, .all)
         
         // Expect
         #expect(presenter.welcomeMessage == Self.welcomeMessage)
@@ -624,6 +631,27 @@ struct MessagesPresenterTests {
         
         // Then
         #expect(display.hasInterhactedWithDisplay == false)
+    }
+    
+    @Test
+    @MainActor
+    mutating func presentQuickReplies_ShouldDisplayQuickReplies() {
+        let quickReplies = ["Yes", "No"]
+        
+        presenter.present(quickReplies: quickReplies)
+        
+        #expect(display.displayQuickRepliesCallCount == 1)
+        #expect(display.displayQuickRepliesLatestArguments == quickReplies)
+        #expect(display.displayHideQuickRepliesCallCount == 0)
+    }
+    
+    @Test
+    @MainActor
+    mutating func presentHideQuickReplies_ShouldHideQuickReplies() {
+        presenter.presentHideQuickReplies()
+        
+        #expect(display.displayQuickRepliesCallCount == 0)
+        #expect(display.displayHideQuickRepliesCallCount == 1)
     }
 }
 

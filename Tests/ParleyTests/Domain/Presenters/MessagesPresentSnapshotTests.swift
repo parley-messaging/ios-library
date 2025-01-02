@@ -7,153 +7,215 @@ struct MessagesPresentSnapshotTests {
     
     typealias Snapshot = MessagesPresenter.Snapshot
     
+    static let welcomeMessage: String = "Welcome message"
+    
     @Test
-    func createEmptySnapshot() {
+    func createSnapshot_ShouldBeEmpty() {
         let snapshot = Snapshot(welcomeMessage: nil)
         #expect(snapshot.cells.isEmpty)
         #expect(snapshot.sections.isEmpty)
+        #expect(snapshot.isEmpty)
     }
     
     
     // MARK: Welcome message
     
     @Test
-    func createSnapshotWithWelcomeMessage() {
-        let snapshot = Snapshot(welcomeMessage: "Welcome")
-        #expect(snapshot.cells.count == 1)
-        #expect(snapshot.sections.count == 1)
+    func createSnapshotWithWelcomeMessage_ShouldCreateCorrectSectionsAndCells() {
+        let snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        expectSnapshotContainsOnlyWelcomeMessage(snapshot)
     }
     
     // MARK: Agent Typing
     
     @Test
-    func setAgentTypingOnSnapshotWithoutWelcomeMessage() {
+    func setAgentTypingOnSnapshotWithoutWelcomeMessage_Should() {
         var snapshot = Snapshot(welcomeMessage: nil)
         let change = snapshot.set(agentTyping: true)!
-        #expect(change.indexPaths == [IndexPath(row: 0, section: 0)])
-        #expect(change.kind == .added)
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 0)
+            ], kind: .added)
+        )
+        #expect(snapshot.sections == [.typingIndicator])
+        #expect(snapshot.cells == [[.typingIndicator]])
     }
     
     @Test
     func setAgentTypingOnSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         let change = snapshot.set(agentTyping: true)!
-        #expect(change.indexPaths == [IndexPath(row: 0, section: 1)])
-        #expect(change.kind == .added)
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 1)
+            ], kind: .added)
+        )
+        
+        #expect(snapshot.sections == [.info, .typingIndicator])
+        #expect(snapshot.cells == [[.info(Self.welcomeMessage)], [.typingIndicator]])
     }
     
     @Test
     func removeAgentTypingOnSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         _ = snapshot.set(agentTyping: true)
         let change = snapshot.set(agentTyping: false)!
-        #expect(change.indexPaths == [IndexPath(row: 0, section: 1)])
-        #expect(change.kind == .deleted)
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 1)
+            ], kind: .deleted)
+        )
+        expectSnapshotContainsOnlyWelcomeMessage(snapshot)
     }
     
     @Test
     func setAgentTypingToTheSameValue() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         let change = snapshot.set(agentTyping: false)
         #expect(change == nil)
+        expectSnapshotContainsOnlyWelcomeMessage(snapshot)
     }
     
     // MARK: Set loading
     
     @Test
-    func enableLoadingMessages_shouldInsertCell() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+    func enableLoadingMessages_shouldInsertCell_WithWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         let change = snapshot.setLoading(true)!
-        #expect(change.kind == .added)
-        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
-        guard case .loading = snapshot.cells[1][0] else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 1)
+        ], kind: .added))
+        #expect(snapshot.sections == [.info, .loading])
+        #expect(snapshot.cells == [[.info(Self.welcomeMessage)], [.loading]])
     }
     
     @Test
-    func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChange() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
+    func enableLoadingMessages_shouldInsertCell_WithoutWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        let change = snapshot.setLoading(true)!
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 0)
+            ], kind: .added)
+        )
+        #expect(snapshot.sections == [.loading])
+        #expect(snapshot.cells == [[.loading]])
+    }
+    
+    @Test
+    func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChange_WithWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         let change = snapshot.setLoading(false)
+        #expect(change == nil)
+        expectSnapshotContainsOnlyWelcomeMessage(snapshot)
+    }
+    
+    @Test
+    func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChangeWithoutWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        let change = snapshot.setLoading(false)
+        #expect(change == nil)
+        #expect(snapshot.isEmpty)
+    }
+    
+    @Test
+    func dissableLoadingMessages_shouldDeleteCell_WithWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        _ = snapshot.setLoading(true)
+        let change = snapshot.setLoading(false)!
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 1)
+            ], kind: .deleted)
+        )
+        expectSnapshotContainsOnlyWelcomeMessage(snapshot)
+    }
+    
+    @Test
+    func dissableLoadingMessages_shouldDeleteCell_WithoutWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        _ = snapshot.setLoading(true)
+        let change = snapshot.setLoading(false)!
+        #expect(
+            change == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 0, section: 0)
+            ], kind: .deleted)
+        )
+        #expect(snapshot.isEmpty)
+    }
+    
+    // MARK: Append message
+    
+    @Test(arguments: [Self.welcomeMessage, nil], [true, false])
+    func appendMessage_ShouldFail_WhenThereIsNoMessageSection(welcomeMessage: String?, loading: Bool) {
+        var snapshot = Snapshot(welcomeMessage: welcomeMessage)
+        _ = snapshot.setLoading(loading)
+        
+        #expect(snapshot.sections.contains(.messages) == false)
+        
+        let message = Message.makeTestData(time: Date())
+        let change = snapshot.append(message: message)
+        
         #expect(change == nil)
     }
     
     @Test
-    func dissableLoadingMessages_shouldDeleteCell() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        _ = snapshot.setLoading(true)
-        let change = snapshot.setLoading(false)!
-        #expect(change.kind == .deleted)
-        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
-    }
-    
-    // MARK: Insert messages
-    
-    @Test
-    func insertMessageToEmptySnapshot() {
-        var snapshot = Snapshot(welcomeMessage: .none)
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
-        #expect(change.indexPaths == [
-            IndexPath(row: 0, section: 0), // Date header
-            IndexPath(row: 1, section: 0), // Message
-        ])
-        #expect(change.kind == .added)
-        guard case .dateHeader = snapshot.cells[0][0] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[0][1] else { Issue.record() ; return }
-    }
-    
-    @Test
-    func insertMessageToSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
-        #expect(change.indexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1),
-        ])
-        #expect(change.kind == .added)
-        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.cells[1][0] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[1][1] else { Issue.record() ; return }
+    func appendMessage_ShouldAppendMessage_WhenMessageSectionExsists_WithoutMWelcomeMessage() throws {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        let firstMessageDate = Date(timeIntSince1970: 1)!
+        let firstMessage = Message.makeTestData(time: firstMessageDate)
+        _ = snapshot.append(section: [firstMessage], date: firstMessageDate)
+        
+        let secondMessageDate = Date(timeIntSince1970: 2)!
+        let secondMessage = Message.makeTestData(time: secondMessageDate)
+        let change = snapshot.append(message: secondMessage)
+        
+        #expect(
+            change! == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 2, section: 0), // Appended Message
+            ], kind: .added)
+        )
+        #expect(snapshot.sections == [.messages])
+        #expect(snapshot.cells == [[
+            .dateHeader(firstMessageDate),
+            .message(firstMessage),
+            .message(secondMessage)
+        ]])
     }
     
     @Test
-    func insertTowMessagesSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 0, row: 0)!
-        #expect(change.indexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1),
-        ])
-        #expect(change.kind == .added)
-        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.cells[1][0] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[1][1] else { Issue.record() ; return }
+    func appendMessage_ShouldAppendMessage_WhenMessageSectionExsists_WithWelcomeMessage() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        let firstMessageDate = Date(timeIntSince1970: 1)!
+        let firstMessage = Message.makeTestData(time: firstMessageDate)
+        _ = snapshot.append(section: [firstMessage], date: firstMessageDate)
+        
+        let secondMessageDate = Date(timeIntSince1970: 2)!
+        let secondMessage = Message.makeTestData(time: secondMessageDate)
+        let change = snapshot.append(message: secondMessage)
+        
+        #expect(
+            change! == Snapshot.SnapshotChange(indexPaths: [
+                IndexPath(row: 2, section: 1), // Appended Message
+            ], kind: .added)
+        )
+        #expect(snapshot.sections == [.info, .messages])
+        #expect(snapshot.cells == [
+            [
+                .info(Self.welcomeMessage)
+            ],
+            [
+                .dateHeader(firstMessageDate),
+                .message(firstMessage),
+                .message(secondMessage)
+        ]])
     }
+}
+
+private extension MessagesPresentSnapshotTests {
     
-    @Test("Insert one message in a new section", arguments: [true, false])
-    func insertOneMessageInANewSectionWithWelcomeMessage(agentTyping: Bool) {
-        var snapshot = Snapshot(welcomeMessage: "Welcome message")
-        _ = snapshot.insert(message: .makeTestData(time: .init(timeIntSince1970: 1)), section: 0, row: 0)
-        _ = snapshot.insert(message: .makeTestData(time: .init(timeIntSince1970: 2)), section: 0, row: 1)
-        
-        _ = snapshot.set(agentTyping: agentTyping)
-        
-        let change = snapshot.insert(message: .makeTestData(time: Date()), section: 1, row: 0)!
-        #expect(change.indexPaths == [
-            IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2),
-        ])
-        #expect(change.kind == .added)
-        guard case .info = snapshot.cells[0][0] else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.cells[1][0] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[1][1] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[1][2] else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.cells[2][0] else { Issue.record() ; return }
-        guard case .message = snapshot.cells[2][1] else { Issue.record() ; return }
-        
-        if agentTyping {
-            guard case .typingIndicator = snapshot.cells[3][0] else { Issue.record() ; return }
-        } else {
-            #expect(snapshot.cells.count == 3)
-            #expect(snapshot.sections.count == 3)
-        }
+    func expectSnapshotContainsOnlyWelcomeMessage(_ snapshot: Snapshot) {
+        #expect(snapshot.sections == [.info])
+        #expect(snapshot.cells == [[.info(Self.welcomeMessage)]])
     }
 }

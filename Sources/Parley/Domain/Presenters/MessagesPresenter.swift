@@ -3,6 +3,8 @@ import Foundation
 protocol MessagesPresenterProtocol: AnyObject {
     func set(display: ParleyMessagesDisplay)
     
+    func set(isScrolledToBottom: Bool)
+    
     func set(welcomeMessage: String?)
     
     func set(sections: [ParleyChronologicalMessageCollection.Section])
@@ -13,10 +15,12 @@ protocol MessagesPresenterProtocol: AnyObject {
     
     @MainActor func presentLoadingMessages(_ isLoading: Bool)
     
-    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position)
-    @MainActor func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Position)
+    @MainActor func presentAdd(message: Message)
+    @MainActor func presentUpdate(message: Message)
     
     @MainActor func presentMessages()
+    @MainActor func present(quickReplies: [String])
+    @MainActor func presentHideQuickReplies()
 }
 
 final class MessagesPresenter {
@@ -31,6 +35,7 @@ final class MessagesPresenter {
     private(set) var stickyMessage: String?
     private(set) var isLoadingMessages: Bool = false
     private(set) var currentSnapshot: Snapshot
+    private var isScrolledToBottom: Bool = false
     
     init(store: MessagesStore, display: ParleyMessagesDisplay?) {
         self.store = store
@@ -40,6 +45,10 @@ final class MessagesPresenter {
     
     func set(display: ParleyMessagesDisplay) {
         self.display = display
+    }
+    
+    func set(isScrolledToBottom: Bool) {
+        self.isScrolledToBottom = isScrolledToBottom
     }
 }
 
@@ -57,7 +66,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = snapshot.setLoading(isLoadingMessages)
         _ = snapshot.set(agentTyping: isAgentTyping)
         
-        for section in sections {
+        for var section in sections {
+            section.messages.removeAll(where: { $0.quickReplies?.isEmpty == false })
             _ = snapshot.append(section: section.messages, date: section.date)
         }
         
@@ -83,8 +93,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     }
     
     @MainActor
-    func presentUpdate(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
-        let change = currentSnapshot.set(message: message, section: posistion.section, row: posistion.row)
+    func presentUpdate(message: Message) {
+        guard let change = currentSnapshot.set(message: message) else { return }
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
     }
@@ -97,10 +107,22 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         presentSnapshotChange(change)
     }
     
-    @MainActor func presentAdd(message: Message, at posistion: ParleyChronologicalMessageCollection.Position) {
-        guard let change = currentSnapshot.insert(message: message, section: posistion.section, row: posistion.row) else { return }
+    @MainActor func presentAdd(message: Message) {
+        guard let change = currentSnapshot.append(message: message) else { return }
         store.apply(snapshot: currentSnapshot)
         presentSnapshotChange(change)
+        if isScrolledToBottom, let lastIndexPath = change.indexPaths.last {
+            display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
+        }
+    }
+    
+    @MainActor func presentAdd(section: [Message], date: Date) {
+        let change = currentSnapshot.append(section: section, date: date)
+        store.apply(snapshot: currentSnapshot)
+        presentSnapshotChange(change)
+        if isScrolledToBottom, let lastIndexPath = change.indexPaths.last {
+            display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
+        }
     }
     
     @MainActor
@@ -112,6 +134,14 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         store.apply(snapshot: currentSnapshot)
         
         display?.reload()
+    }
+    
+    @MainActor func present(quickReplies: [String]) {
+        display?.display(quickReplies: quickReplies)
+    }
+    
+    @MainActor func presentHideQuickReplies() {
+        display?.displayHideQuickReplies()
     }
 }
 
@@ -155,6 +185,10 @@ extension MessagesPresenter {
         private(set) var sections: [SectionKind]
         private(set) var cells: [[CellKind]]
         
+        var isEmpty: Bool {
+            sections.isEmpty && cells.isEmpty
+        }
+        
         init(welcomeMessage: String?) {
             self.welcomeMessage = welcomeMessage
             sections = [SectionKind]()
@@ -166,47 +200,37 @@ extension MessagesPresenter {
             }
         }
         
-        /// Inserts a message with a specified (section, row)
+        /// append a message to the last message section, if available.
         /// - Parameters:
         ///   - message: Message to add
-        ///   - section: section to add to, based only on messages
-        ///   - row: row to add to, based only on messages
-        mutating func insert(message: Message, section: Int, row: Int) -> SnapshotChange? {
-            guard let time = message.time else { return nil }
+        /// - returns: A change, or none if there is no message section.
+        mutating func append(message: Message) -> SnapshotChange? {
+            guard let cell = makeMessageCell(message) else { return nil }
             
             var indexPaths = [IndexPath]()
             
-            var correctedSection = section
-            let correctedRow = row + 1 // Offset for date header
-            
-            if welcomeMessage != nil {
-                correctedSection += 1
-            }
-            
-            if isLoading {
-                correctedSection += 1
-            }
-            
-            if sections[safe: correctedSection] == nil || sections[safe: correctedSection] == .typingIndicator {
-                sections.insert(.messages, at: correctedSection)
-            }
-            
-            if cells[safe: correctedSection] == nil || cells[safe: correctedSection] == [.typingIndicator] {
-                cells.insert([.dateHeader(time)], at: correctedSection)
-                indexPaths.append(IndexPath(row: 0, section: correctedSection))
-            }
-            
-            cells[correctedSection].insert(makeMessageCell(message), at: correctedRow)
-            indexPaths.append(IndexPath(row: correctedRow, section: correctedSection))
+            guard let lastSectionIndex = lastMessagesSectionIndex() else { return nil }
+            cells[lastSectionIndex].append(cell)
+            indexPaths.append(IndexPath(row: cells[lastSectionIndex].endIndex - 1, section: lastSectionIndex))
             
             return SnapshotChange(indexPaths: indexPaths, kind: .added)
         }
         
-        private func makeMessageCell(_ message: Message) -> MessagesStore.CellKind {
+        private func makeMessageCell(_ message: Message) -> MessagesStore.CellKind? {
+            guard !hasQuickReplies(message) else { return nil }
+
             if let carousel = message.carousel, !carousel.isEmpty {
-                MessagesStore.CellKind.carousel(mainMessage: message, carousel: carousel)
+                return MessagesStore.CellKind.carousel(mainMessage: message, carousel: carousel)
             } else {
-                MessagesStore.CellKind.message(message)
+                return MessagesStore.CellKind.message(message)
+            }
+        }
+        
+        private func hasQuickReplies(_ message: Message) -> Bool {
+            if let quickReplies = message.quickReplies {
+                return !quickReplies.isEmpty
+            } else {
+                return false
             }
         }
         
@@ -218,10 +242,13 @@ extension MessagesPresenter {
             var indexPaths = [IndexPath]()
             indexPaths.reserveCapacity(section.count)
             
+            indexPaths.append(IndexPath(row: 0, section: sectionIndexToInsert))
+            
             for (index, message) in section.enumerated() {
-                indexPaths.append(IndexPath(row: index, section: sectionIndexToInsert))
+                guard let cell = makeMessageCell(message) else { continue }
                 let messageIndex = index + 1 // offset for date header
-                cells[sectionIndexToInsert].insert(makeMessageCell(message), at: messageIndex)
+                indexPaths.append(IndexPath(row: messageIndex, section: sectionIndexToInsert))
+                cells[sectionIndexToInsert].insert(cell, at: messageIndex)
             }
             
             return SnapshotChange(indexPaths: indexPaths, kind: .added)
@@ -238,6 +265,19 @@ extension MessagesPresenter {
             }
             
             return sections.endIndex
+        }
+        
+        private func lastMessagesSectionIndex() -> Int? {
+            var sectionIndex = sections.endIndex - 1
+            
+            while sectionIndex >= 0 {
+                if sections[sectionIndex] == .messages {
+                    return sectionIndex
+                }
+                sectionIndex -= 1
+            }
+            
+            return nil
         }
         
         mutating func set(agentTyping: Bool) -> SnapshotChange? {
@@ -267,15 +307,17 @@ extension MessagesPresenter {
         }
         
         private mutating func addLoadingCell() -> SnapshotChange {
-            sections.insert(.loading, at: .zero)
-            cells.insert([.loading], at: .zero)
-            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: 0)], kind: .added)
+            let sectionIndexToInsert = welcomeMessage == nil ? 0 : 1
+            sections.insert(.loading, at: sectionIndexToInsert)
+            cells.insert([.loading], at: sectionIndexToInsert)
+            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: sectionIndexToInsert)], kind: .added)
         }
         
         private mutating func removeLoadingCell() -> SnapshotChange {
-            _ = sections.removeFirst()
-            _ = cells.removeFirst()
-            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: 0)], kind: .deleted)
+            let sectionIndexToRemove = welcomeMessage == nil ? 0 : 1
+            sections.remove(at: sectionIndexToRemove)
+            cells.remove(at: sectionIndexToRemove)
+            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: sectionIndexToRemove)], kind: .deleted)
         }
         
         mutating func set(welcomeMessage: String?) -> SnapshotChange? {
@@ -312,23 +354,23 @@ extension MessagesPresenter {
             return SnapshotChange(indexPaths: [deletedIndexPath], kind: .deleted)
         }
         
-        mutating func set(message: Message, section: Int, row: Int) -> SnapshotChange {
-            var correctedSection = section
-            let correctedRow = row + 1 // Offset for date header
+        mutating func set(message updatedMessage: Message) -> SnapshotChange? {
+            guard let updatedCell = makeMessageCell(updatedMessage) else { return nil }
             
-            if welcomeMessage != nil {
-                correctedSection += 1
+            for (sectionIndex, section) in cells.enumerated() {
+                for (cellIndex, cell) in section.enumerated() {
+                    if case let .message(message) = cell {
+                        if message.id == updatedMessage.id || message.uuid == updatedMessage.uuid {
+                            cells[sectionIndex][cellIndex] = updatedCell
+                            return SnapshotChange(indexPaths: [
+                                IndexPath(row: cellIndex, section: sectionIndex)
+                            ], kind: .changed)
+                        }
+                    }
+                }
             }
             
-            if isLoading {
-                correctedSection += 1
-            }
-            
-            cells[correctedSection][correctedRow] = makeMessageCell(message)
-            
-            return SnapshotChange(indexPaths: [
-                IndexPath(row: correctedRow, section: correctedSection)
-            ], kind: .changed)
+            return nil
         }
     }
 }

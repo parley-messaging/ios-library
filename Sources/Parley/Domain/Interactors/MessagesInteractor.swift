@@ -7,9 +7,23 @@ class MessagesInteractor {
     private let messageRepository: MessageRepositoryProtocol
     private let reachabilityProvider: ReachibilityProvider
     
-    private(set) var agentTyping: Bool = false
-    private(set) var isLoadingMessages: Bool = false
+    private(set) var agentTyping = false
+    private(set) var isLoadingMessages = false
     private(set) var messages: ParleyChronologicalMessageCollection
+    private(set) var isScrolledAtBottom = false
+    
+    private(set) var presentedQuickReplies: [String]?
+    
+    private var quickReplies: [String]? {
+        guard let lastMessagePosistion = messages.lastPosistion() else { return nil }
+        let message = messages[lastMessagePosistion]
+        
+        if let quickReplies = message.quickReplies, !quickReplies.isEmpty {
+            return quickReplies
+        } else {
+            return nil
+        }
+    }
     
     init(
         presenter: MessagesPresenterProtocol,
@@ -43,6 +57,8 @@ extension MessagesInteractor {
         
         presenter.set(sections: messages.sections)
         
+        presentQuickRepliesState()
+        
         presenter.presentMessages()
     }
     
@@ -73,14 +89,15 @@ extension MessagesInteractor {
         presenter.presentLoadingMessages(isLoadingMessages)
         
         if let collection = try? await findMessage(before: lastMessageId) {
-            await handle(collection: collection, .before)
+            handle(collection: collection, .before)
         }
             
         isLoadingMessages = false
         presenter.presentLoadingMessages(isLoadingMessages)
     }
     
-    func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) async {
+    @MainActor
+    func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) {
         messagesManager.handle(collection, handleType)
         
         presenter.set(welcomeMessage: collection.welcomeMessage)
@@ -88,35 +105,39 @@ extension MessagesInteractor {
         case .all:
             messages.set(collection: collection)
             presenter.set(sections: messages.sections)
-            await presenter.presentMessages()
+            presenter.presentMessages()
+            presentQuickRepliesState()
         case .before, .after:
-            await insertNewMessages(messages: collection.messages)
+            insertNewMessages(messages: collection.messages)
         }
         
-        await presenter.present(stickyMessage: collection.stickyMessage)
+        presenter.present(stickyMessage: collection.stickyMessage)
     }
     
     @MainActor
     func handleNewMessage(_ message: Message) {
         messagesManager.add(message)
         let posistion = messages.add(message: message)
-        presenter.presentAdd(message: message, at: posistion)
+        
+        presentQuickRepliesState()
+        
+        if (message.quickReplies ?? []).isEmpty {
+            presenter.presentAdd(message: message)
+        }
     }
     
     func handleMessageSent(_ message: Message) async {
         message.status = .success
         messagesManager.update(message)
-        if let posistion = messages.update(message: message) {
-            await presenter.presentUpdate(message: message, at: posistion)
-        }
+        _ = messages.update(message: message)
+        await presenter.presentUpdate(message: message)
     }
     
     func handleMessageFailedToSend(_ message: Message) async {
         message.status = .failed
         messagesManager.update(message)
-        if let posistion = messages.update(message: message) {
-            await presenter.presentUpdate(message: message, at: posistion)
-        }
+        _ = messages.update(message: message)
+        await presenter.presentUpdate(message: message)
     }
     
     @MainActor
@@ -124,6 +145,12 @@ extension MessagesInteractor {
         messages.clear()
         presenter.set(sections: messages.sections)
         presenter.presentMessages()
+        presentQuickRepliesState()
+    }
+    
+    @MainActor
+    func isScrolledToBottom(_ isScrolledToBottom: Bool) {
+        presenter.set(isScrolledToBottom: isScrolledToBottom)
     }
 }
 
@@ -144,7 +171,7 @@ private extension MessagesInteractor {
         }
     }
     
-    private func insertNewMessages(messages: [Message]) async {
+    func insertNewMessages(messages: [Message]) {
         var posisitionsAdded = [ParleyChronologicalMessageCollection.Position]()
         posisitionsAdded.reserveCapacity(messages.count)
         
@@ -153,5 +180,22 @@ private extension MessagesInteractor {
         }
         
         presenter.set(sections: self.messages.sections)
+    }
+    
+    func isQuickReplyMessage(_ message: Message) -> Bool {
+        message.quickReplies?.isEmpty == false
+    }
+    
+    @MainActor
+    func presentQuickRepliesState() {
+        if let quickReplies {
+            guard presentedQuickReplies != quickReplies else { return }
+            presenter.present(quickReplies: quickReplies)
+            presentedQuickReplies = quickReplies
+        } else {
+            guard presentedQuickReplies != nil else { return }
+            presenter.presentHideQuickReplies()
+            presentedQuickReplies = nil
+        }
     }
 }

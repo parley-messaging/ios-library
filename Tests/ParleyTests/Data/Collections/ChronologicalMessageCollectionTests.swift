@@ -8,10 +8,9 @@ class ChronologicalMessageCollectionTests {
     @Test
     func creationIsEmpty() {
         let collection = makeCollection()
-        let lastPosistion = collection.lastPosistion()
         
         #expect(collection.sections.isEmpty)
-        #expect(lastPosistion == .init(section: .zero, row: .zero))
+        #expect(collection.lastPosistion() == nil)
     }
     
     @Test

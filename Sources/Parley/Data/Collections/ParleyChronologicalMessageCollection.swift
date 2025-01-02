@@ -29,6 +29,14 @@ public struct ParleyChronologicalMessageCollection {
             sections[sectionIndex].messages[rowIndex] = newMessage
         }
     }
+    
+    subscript(position: Position) -> Message {
+        get {
+            sections[position.section].messages[position.row]
+        } set(newMessage) {
+            sections[position.section].messages[position.row] = newMessage
+        }
+    }
 }
 
 // MARK: Methods
@@ -72,17 +80,20 @@ extension ParleyChronologicalMessageCollection {
         sort()
     }
     
-    func lastPosistion() -> Position {
-        guard !sections.isEmpty else { return .zero }
-        let lastSection = sections.endIndex - 1
-        let lastRow = sections[lastSection].messages.endIndex - 1
+    func lastPosistion() -> Position? {
+        let lastSection = sections.count - 1
+        guard lastSection >= .zero else { return nil }
+        
+        let lastRow = sections[lastSection].messages.count - 1
+        guard lastRow >= .zero else { return nil }
+        
         return Position(section: lastSection, row: lastRow)
     }
     
     mutating func update(message updatedMessage: Message) -> Position? {
         guard let messagePosistion = find(message: updatedMessage) else { return nil }
         sections[messagePosistion.section].messages.remove(at: messagePosistion.row)
-         return add(message: updatedMessage)
+        return add(message: updatedMessage)
     }
     
     func find(message messageToFind: Message) -> Position? {

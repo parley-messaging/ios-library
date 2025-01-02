@@ -1,14 +1,19 @@
 import UIKit
 import UniformTypeIdentifiers
 
+@MainActor
 protocol ParleyMessagesDisplay: AnyObject {
-    @MainActor func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    @MainActor func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    @MainActor func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    @MainActor func reload()
+    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool)
+    func reload()
     
-    @MainActor func display(stickyMessage: String)
-    @MainActor func displayHideStickyMessage()
+    func display(quickReplies: [String])
+    func displayHideQuickReplies()
+    
+    func display(stickyMessage: String)
+    func displayHideStickyMessage()
 }
 
 public class ParleyView: UIView {
@@ -79,6 +84,10 @@ public class ParleyView: UIView {
     
     private var messagesStore: MessagesStore {
         parley.messagesStore
+    }
+    
+    private var messagesInteracor: MessagesInteractor {
+        parley.messagesInteractor
     }
 
     private var messagesManager: MessagesManagerProtocol? {
@@ -305,23 +314,6 @@ public class ParleyView: UIView {
         suggestionsView.isHidden ? 0 : suggestionsView.frame.height
     }
 
-    private func syncSuggestionsView() {
-        if
-            let message = messagesManager?.latestMessage,
-            let quickReplies = message.quickReplies,
-            !quickReplies.isEmpty
-        {
-            if UIAccessibility.isVoiceOverRunning {
-                messagesTableView.scroll(to: .bottom, animated: false)
-            }
-            suggestionsView.isHidden = false
-            suggestionsView.render(quickReplies)
-        } else {
-            suggestionsView.render([])
-            suggestionsView.isHidden = true
-        }
-    }
-
     // MARK: Observers
     private func addObservers() {
         NotificationCenter.default.addObserver(
@@ -482,37 +474,6 @@ extension ParleyView: ParleyDelegate {
         )
     }
 
-    func didReceiveMessage(_ indexPath: [IndexPath]) {
-        syncSuggestionsView()
-
-        messagesTableView.insertRows(at: indexPath, with: .none)
-        messagesTableView.scroll(to: .bottom, animated: false)
-    }
-
-    func didReceiveMessages() {
-        syncSuggestionsView()
-
-        let scrollToBottom = messagesTableView.isAtBottom
-
-        messagesTableView.reloadData()
-
-        if scrollToBottom {
-            messagesTableView.scroll(to: .bottom, animated: false)
-        }
-    }
-
-    func didLoadMore() {
-        let firstVisible = messagesTableView.indexPathsForVisibleRows?.first?.row
-        let fromCount = messagesTableView.numberOfRows(inSection: 0)
-        messagesTableView.reloadData()
-
-        guard let firstVisible else { return }
-        let toCount = messagesTableView.numberOfRows(inSection: 0)
-        let diff = toCount - fromCount
-        // Show to the latest retrieved message to keep at the correct scroll offset
-        messagesTableView.scrollToRow(at: IndexPath(row: firstVisible + diff, section: 0), at: .top, animated: false)
-    }
-
     func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
@@ -570,7 +531,7 @@ extension ParleyView: ParleyDelegate {
 
             messagesTableView.reloadData()
 
-            syncSuggestionsView()
+//            syncSuggestionsView()
 
             messagesTableView.scroll(to: .bottom, animated: false)
 
@@ -727,6 +688,8 @@ extension ParleyView: UITableViewDelegate {
         } else {
             isAlreadyAtTop = false
         }
+        
+        messagesInteracor.isScrolledToBottom(messagesTableView.isAtBottom)
 
         updateSuggestionsAlpha()
     }
@@ -921,8 +884,8 @@ extension ParleyView {
         
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         messagesTableView.beginUpdates()
-        for newSectionIndexPath in indexPaths.filter({ $0.row == .zero }) {
-            messagesTableView.insertSections(IndexSet(integer: newSectionIndexPath.section), with: animation)
+        for newSection in convertToIndexSet(indexPaths) {
+            messagesTableView.insertSections(newSection, with: animation)
         }
         messagesTableView.insertRows(at: indexPaths, with: animation)
         messagesTableView.endUpdates()
@@ -930,19 +893,43 @@ extension ParleyView {
     
     func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         messagesTableView.beginUpdates()
-        for deletedSectionIndexPath in indexPaths.filter({ $0.row == .zero }) {
-            messagesTableView.deleteSections(IndexSet(integer: deletedSectionIndexPath.section), with: animation)
+        for oldSection in convertToIndexSet(indexPaths) {
+            messagesTableView.deleteSections(oldSection, with: animation)
         }
         messagesTableView.deleteRows(at: indexPaths, with: animation)
         messagesTableView.endUpdates()
+    }
+    
+    private func convertToIndexSet(_ indexPaths: [IndexPath]) -> [IndexSet] {
+        indexPaths
+            .filter({ $0.row == .zero })
+            .map(\.section)
+            .map(IndexSet.init(integer:))
     }
     
     func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         messagesTableView.reloadRows(at: indexPaths, with: animation)
     }
     
+    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
+        messagesTableView.scrollToRow(at: indexPaths, at: position, animated: true)
+    }
+    
     func reload() {
         messagesTableView.reloadData()
+    }
+    
+    func display(quickReplies: [String]) {
+        if UIAccessibility.isVoiceOverRunning {
+            messagesTableView.scroll(to: .bottom, animated: false)
+        }
+        suggestionsView.isHidden = false
+        suggestionsView.render(quickReplies)
+    }
+    
+    func displayHideQuickReplies() {
+        suggestionsView.render([])
+        suggestionsView.isHidden = true
     }
     
     func display(stickyMessage: String) {
