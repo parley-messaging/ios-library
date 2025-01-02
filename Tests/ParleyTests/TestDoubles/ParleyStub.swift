@@ -6,12 +6,18 @@ final class ParleyStub: ParleyProtocol {
         messagesManager: MessagesManagerProtocol,
         messageRepository: MessageRepositoryProtocol,
         mediaLoader: MediaLoaderProtocol,
-        localizationManager: LocalizationManager
+        localizationManager: LocalizationManager,
+        messagesInteractor: MessagesInteractor,
+        messagesPresenter: MessagesPresenterProtocol,
+        messagesStore: MessagesStore
     ) {
         self.messagesManager = messagesManager
         self.messageRepository = messageRepository
         self.mediaLoader = mediaLoader
         self.localizationManager = localizationManager
+        self.messagesInteractor = messagesInteractor
+        self.messagesPresenter = messagesPresenter
+        self.messagesStore = messagesStore
     }
 
     var state: Parley.State = .configured

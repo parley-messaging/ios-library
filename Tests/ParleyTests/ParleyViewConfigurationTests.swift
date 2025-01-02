@@ -2,12 +2,31 @@ import XCTest
 @testable import Parley
 
 final class ParleyViewConfigurationTests: XCTestCase {
+    
     func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() {
+        
+        let messagesManager = MessagesManagerStub()
+        let messageRepositoryStub = MessageRepositoryStub()
+        let reachabilityProvideStub = ReachibilityProviderStub()
+        
+        let messagesStore = MessagesStore()
+        let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
+        let messagesInteractor = MessagesInteractor(
+            presenter: messagePresenter,
+            messagesManager: messagesManager,
+            messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
+            messagesRepository: messageRepositoryStub,
+            reachabilityProvider: reachabilityProvideStub
+        )
+        
         let parleyStub = ParleyStub(
-            messagesManager: MessagesManagerStub(),
-            messageRepository: MessageRepositoryStub(),
+            messagesManager: messagesManager,
+            messageRepository: messageRepositoryStub,
             mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
+            localizationManager: ParleyLocalizationManager(),
+            messagesInteractor: messagesInteractor,
+            messagesPresenter: messagePresenter,
+            messagesStore: messagesStore
         )
 
         let pollingServiceStub = PollingServiceStub()

@@ -82,7 +82,7 @@ public class ParleyView: UIView {
     private var isAlreadyAtTop = false
     private var mostRecentSimplifiedDeviceOrientation: UIDeviceOrientation.Simplified = UIDevice.current.orientation.simplifiedOrientation ?? .portrait
     
-    private var messagesStore: MessagesStore {
+    private var messagesStore: MessagesStore! {
         parley.messagesStore
     }
     
@@ -161,7 +161,7 @@ public class ParleyView: UIView {
     }()
 
     private func setup() {
-        parley.messagesPresenter.set(display: self)
+        parley.messagesPresenter?.set(display: self)
         loadXib()
 
         apply(appearance)
@@ -181,7 +181,7 @@ public class ParleyView: UIView {
             self?.syncMessageTableViewContentInsets()
         }
         
-        parley.messagesInteractor.handleViewDidLoad()
+        parley.messagesInteractor?.handleViewDidLoad()
     }
 
     private func setupPollingIfNecessary() {
@@ -576,11 +576,11 @@ extension ParleyView: ParleyDelegate {
 extension ParleyView: UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return messagesStore.numberOfSections
+        return messagesStore?.numberOfSections ?? .zero
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messagesStore.numberOfRows(inSection: section)
+        return messagesStore?.numberOfRows(inSection: section) ?? .zero
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
