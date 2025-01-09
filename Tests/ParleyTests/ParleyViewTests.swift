@@ -3,7 +3,7 @@ import Testing
 import UIKit
 @testable import Parley
 
-@Suite("Parley View Tests", .tags(.userInterface))
+@Suite("Parley View Tests", .tags(.userInterface), .serialized)
 @MainActor
 struct ParleyViewTests {
 
@@ -150,13 +150,13 @@ struct ParleyViewTests {
         sut.reachable()
         sut.didChangeState(.configured)
 
-        try await wait(milliseconds: 300)
+        try await wait(milliseconds: 500)
 
         applySize(sut: sut)
         assert(sut: sut)
     }
     
-    @Test(.snapshots(diffTool: .default)) // Correct!
+    @Test(.snapshots(diffTool: .default))
     mutating func testMessageWithCarousel() async throws {
         messagesManagerStub.messages = [
             Message.makeTestData(

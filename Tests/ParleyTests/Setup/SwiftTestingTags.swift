@@ -18,5 +18,4 @@ extension SnapshotTestingConfiguration.DiffTool {
     static let compareDifferenceOverlay = Self {
         "compare -compose src \"\($0)\" \"\($1)\" png:- | open -f -a Preview.app"
     }
-
 }
