@@ -116,9 +116,12 @@ extension MessagesInteractor {
     
     @MainActor
     func handleNewMessage(_ message: Message) {
-        messagesManager.add(message)
-        let posistion = messages.add(message: message)
+        if message.time == nil {
+            message.time = Date()
+        }
         
+        messagesManager.add(message)
+        messages.add(message: message)
         presentQuickRepliesState()
         
         if (message.quickReplies ?? []).isEmpty {

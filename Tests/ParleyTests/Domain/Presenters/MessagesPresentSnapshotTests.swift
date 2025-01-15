@@ -8,11 +8,12 @@ struct MessagesPresentSnapshotTests {
     typealias Snapshot = MessagesPresenter.Snapshot
     
     static let welcomeMessage: String = "Welcome message"
+    let calander: Calendar = .autoupdatingCurrent
+    static let dayInSeconds: TimeInterval = 86_400
     
     @Test
     func createSnapshot_ShouldBeEmpty() {
         let snapshot = Snapshot(welcomeMessage: nil)
-        #expect(snapshot.cells.isEmpty)
         #expect(snapshot.sections.isEmpty)
         #expect(snapshot.isEmpty)
     }
@@ -37,8 +38,8 @@ struct MessagesPresentSnapshotTests {
                 IndexPath(row: 0, section: 0)
             ], kind: .added)
         )
-        #expect(snapshot.sections == [.typingIndicator])
-        #expect(snapshot.cells == [[.typingIndicator]])
+        #expect(snapshot.sections.count == 1)
+        #expect(snapshot.sections.first?.sectionKind == .typingIndicator)
     }
     
     @Test
@@ -50,9 +51,9 @@ struct MessagesPresentSnapshotTests {
                 IndexPath(row: 0, section: 1)
             ], kind: .added)
         )
-        
-        #expect(snapshot.sections == [.info, .typingIndicator])
-        #expect(snapshot.cells == [[.info(Self.welcomeMessage)], [.typingIndicator]])
+        #expect(snapshot.sections.count == 2)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .typingIndicator)
     }
     
     @Test
@@ -85,8 +86,9 @@ struct MessagesPresentSnapshotTests {
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
             IndexPath(row: 0, section: 1)
         ], kind: .added))
-        #expect(snapshot.sections == [.info, .loading])
-        #expect(snapshot.cells == [[.info(Self.welcomeMessage)], [.loading]])
+        #expect(snapshot.sections.count == 2)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .loading)
     }
     
     @Test
@@ -98,8 +100,8 @@ struct MessagesPresentSnapshotTests {
                 IndexPath(row: 0, section: 0)
             ], kind: .added)
         )
-        #expect(snapshot.sections == [.loading])
-        #expect(snapshot.cells == [[.loading]])
+        #expect(snapshot.sections.count == 1)
+        #expect(snapshot.sections[0].sectionKind == .loading)
     }
     
     @Test
@@ -144,78 +146,122 @@ struct MessagesPresentSnapshotTests {
         #expect(snapshot.isEmpty)
     }
     
-    // MARK: Append message
-    
-    @Test(arguments: [Self.welcomeMessage, nil], [true, false])
-    func appendMessage_ShouldFail_WhenThereIsNoMessageSection(welcomeMessage: String?, loading: Bool) {
-        var snapshot = Snapshot(welcomeMessage: welcomeMessage)
-        _ = snapshot.setLoading(loading)
-        
-        #expect(snapshot.sections.contains(.messages) == false)
-        
-        let message = Message.makeTestData(time: Date())
-        let change = snapshot.append(message: message)
-        
-        #expect(change == nil)
-    }
+    // MARK: Insert message
     
     @Test
-    func appendMessage_ShouldAppendMessage_WhenMessageSectionExsists_WithoutMWelcomeMessage() throws {
+    func insertMessage_ShoulInsert_WhenSnapshotIsEmpty() {
         var snapshot = Snapshot(welcomeMessage: nil)
-        let firstMessageDate = Date(timeIntSince1970: 1)!
-        let firstMessage = Message.makeTestData(time: firstMessageDate)
-        _ = snapshot.append(section: [firstMessage], date: firstMessageDate)
+        let message = Message.makeTestData(time: Date())
         
-        let secondMessageDate = Date(timeIntSince1970: 2)!
-        let secondMessage = Message.makeTestData(time: secondMessageDate)
-        let change = snapshot.append(message: secondMessage)
+        let change = snapshot.insert(message: message)
         
-        #expect(
-            change! == Snapshot.SnapshotChange(indexPaths: [
-                IndexPath(row: 2, section: 0), // Appended Message
-            ], kind: .added)
-        )
-        #expect(snapshot.sections == [.messages])
-        #expect(snapshot.cells == [[
-            .dateHeader(firstMessageDate),
-            .message(firstMessage),
-            .message(secondMessage)
-        ]])
+        #expect(snapshot.sections.count == 1)
+        #expect(snapshot.sections[0].cells.count == 2)
+        guard case .dateHeader = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[0].cells[1].kind else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 0),
+            IndexPath(row: 1, section: 0),
+        ], kind: .added))
     }
     
     @Test
-    func appendMessage_ShouldAppendMessage_WhenMessageSectionExsists_WithWelcomeMessage() throws {
+    func insertMessage_ShoulInsertAfterWelcomeMessage() throws {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
-        let firstMessageDate = Date(timeIntSince1970: 1)!
-        let firstMessage = Message.makeTestData(time: firstMessageDate)
-        _ = snapshot.append(section: [firstMessage], date: firstMessageDate)
+        let message = Message.makeTestData(time: Date())
         
-        let secondMessageDate = Date(timeIntSince1970: 2)!
-        let secondMessage = Message.makeTestData(time: secondMessageDate)
-        let change = snapshot.append(message: secondMessage)
+        let change = snapshot.insert(message: message)
         
-        #expect(
-            change! == Snapshot.SnapshotChange(indexPaths: [
-                IndexPath(row: 2, section: 1), // Appended Message
-            ], kind: .added)
-        )
-        #expect(snapshot.sections == [.info, .messages])
-        #expect(snapshot.cells == [
-            [
-                .info(Self.welcomeMessage)
-            ],
-            [
-                .dateHeader(firstMessageDate),
-                .message(firstMessage),
-                .message(secondMessage)
-        ]])
+        #expect(snapshot.sections.count == 2)
+        #expect(snapshot.sections[0].cells.count == 1)
+        #expect(snapshot.sections[1].cells.count == 2)
+        guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[1].cells[1].kind else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 1),
+            IndexPath(row: 1, section: 1),
+        ], kind: .added))
+    }
+    
+    @Test
+    func insertMessage_ShoulInsertAfterLoadingIndicator() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        _ = snapshot.setLoading(true)
+        let message = Message.makeTestData(time: Date())
+        
+        let change = snapshot.insert(message: message)
+        
+        #expect(snapshot.sections.count == 3)
+        #expect(snapshot.sections[0].cells.count == 1)
+        #expect(snapshot.sections[1].cells.count == 1)
+        #expect(snapshot.sections[2].cells.count == 2)
+        guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
+        guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 2),
+            IndexPath(row: 1, section: 2),
+        ], kind: .added))
+    }
+    
+    @Test
+    func insertMessage_ShoulInsertBeforeAgentTypingIndicator() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        _ = snapshot.setLoading(true)
+        _ = snapshot.set(agentTyping: true)
+        let message = Message.makeTestData(time: Date())
+        
+        let change = snapshot.insert(message: message)
+        
+        #expect(snapshot.sections.count == 4)
+        #expect(snapshot.sections[0].cells.count == 1)
+        #expect(snapshot.sections[1].cells.count == 1)
+        #expect(snapshot.sections[2].cells.count == 2)
+        #expect(snapshot.sections[3].cells.count == 1)
+        guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
+        guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        guard case .typingIndicator = snapshot.sections[3].cells[0].kind else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 2),
+            IndexPath(row: 1, section: 2),
+        ], kind: .added))
+    }
+    
+    @Test
+    func insertMessage_ShoulInsert_WhenSnapshotContainsWelcomeMessageAndLoadingIndicator() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        _ = snapshot.setLoading(true)
+        let message = Message.makeTestData(time: Date())
+        
+        let change = snapshot.insert(message: message)
+        
+        #expect(snapshot.sections.count == 3)
+        #expect(snapshot.sections[0].cells.count == 1)
+        #expect(snapshot.sections[1].cells.count == 1)
+        #expect(snapshot.sections[2].cells.count == 2)
+        guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
+        guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
+        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        #expect(change == Snapshot.SnapshotChange(indexPaths: [
+            IndexPath(row: 0, section: 2),
+            IndexPath(row: 1, section: 2),
+        ], kind: .added))
     }
 }
 
 private extension MessagesPresentSnapshotTests {
     
     func expectSnapshotContainsOnlyWelcomeMessage(_ snapshot: Snapshot) {
-        #expect(snapshot.sections == [.info])
-        #expect(snapshot.cells == [[.info(Self.welcomeMessage)]])
+        #expect(snapshot.sections.count == 1)
+        #expect(snapshot.sections[0].sectionKind == .info)
+    }
+    
+    func startOfDay(_ date: Date = Date()) -> Date {
+        calander.startOfDay(for: date)
     }
 }

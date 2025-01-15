@@ -162,7 +162,7 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         // When
-        presenter.presentAdd(section: [message], date: date)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -194,7 +194,7 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         // When
-        presenter.presentAdd(section: [message], date: date)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -292,7 +292,7 @@ struct MessagesPresenterTests {
         let date = collection.sections[position.section].date
         
         // When
-        presenter.presentAdd(section: [message], date: date)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -330,7 +330,7 @@ struct MessagesPresenterTests {
         let date = collection.sections[posistion.section].date
         
         // When
-        presenter.presentAdd(section: [message], date: date)
+        presenter.presentAdd(message: message)
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
@@ -444,9 +444,9 @@ struct MessagesPresenterTests {
         #expect(presenter.isAgentTyping)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
         let lastSectionIndex = presenter.currentSnapshot.sections.endIndex - 1
-        #expect(presenter.currentSnapshot.sections[lastSectionIndex] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex][0] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex].count == 1)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].sectionKind == .typingIndicator)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells[0].kind == .typingIndicator)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells.count == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
@@ -473,9 +473,9 @@ struct MessagesPresenterTests {
         #expect(presenter.isAgentTyping)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
         let lastSectionIndex = presenter.currentSnapshot.sections.endIndex - 1
-        #expect(presenter.currentSnapshot.sections[lastSectionIndex] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex][0] == .typingIndicator)
-        #expect(presenter.currentSnapshot.cells[lastSectionIndex].count == 1)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].sectionKind == .typingIndicator)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells[0].kind == .typingIndicator)
+        #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells.count == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
@@ -546,8 +546,8 @@ struct MessagesPresenterTests {
         // Then
         #expect(presenter.isLoadingMessages)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
-        #expect(presenter.currentSnapshot.sections[0] == .loading)
-        #expect(presenter.currentSnapshot.cells[0][0] == .loading)
+        #expect(presenter.currentSnapshot.sections[0].sectionKind == .loading)
+        #expect(presenter.currentSnapshot.sections[0].cells[0].kind == .loading)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
@@ -575,8 +575,8 @@ struct MessagesPresenterTests {
         // Then
         #expect(presenter.isLoadingMessages)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count + 1)
-        #expect(presenter.currentSnapshot.sections[0] == .loading)
-        #expect(presenter.currentSnapshot.cells[0][0] == .loading)
+        #expect(presenter.currentSnapshot.sections[0].sectionKind == .loading)
+        #expect(presenter.currentSnapshot.sections[0].cells[0].kind == .loading)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [

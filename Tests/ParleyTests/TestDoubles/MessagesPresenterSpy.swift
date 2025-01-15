@@ -4,8 +4,12 @@ import Foundation
 
 class MessagesPresenterSpy: MessagesPresenterProtocol {
 
+    private(set) var setIsScrolledToBottomCallCount = 0
+    private(set) var isScrolledToBottomLatestArgument: Bool = false
+    
     private(set) var setWelcomeMessageCallCount = 0
     private(set) var presentSetSectionsCallCount = 0
+    
     private(set) var presentStickyMessageCallCount = 0
     private(set) var didPresentAgentTypingCallsCount = 0
     private(set) var presentLoadingMessagesCallCount = 0
@@ -18,15 +22,17 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     
     private(set) var presentMessagesCallCount  = 0
     
-    private(set) var setIsScrolledToBottomCallCount = 0
-    private(set) var isScrolledToBottomLatestArgument: Bool = false
-    
     private(set) var presentQuickRepliesCallCount = 0
     private(set) var presentQuickRepliesLatestArgument: [String]?
     
     private(set) var presentHideQuickRepliesCallCount = 0
     
     func set(display: ParleyMessagesDisplay) { }
+    
+    func set(isScrolledToBottom: Bool) {
+        setIsScrolledToBottomCallCount += 1
+        isScrolledToBottomLatestArgument = isScrolledToBottom
+    }
     
     func set(welcomeMessage: String?) {
         setWelcomeMessageCallCount += 1
@@ -60,11 +66,6 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     
     func presentMessages() {
         presentMessagesCallCount += 1
-    }
-    
-    func set(isScrolledToBottom: Bool) {
-        setIsScrolledToBottomCallCount += 1
-        isScrolledToBottomLatestArgument = isScrolledToBottom
     }
     
     func present(quickReplies: [String]) {

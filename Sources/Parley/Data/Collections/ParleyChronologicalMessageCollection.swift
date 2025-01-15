@@ -42,6 +42,7 @@ public struct ParleyChronologicalMessageCollection {
 // MARK: Methods
 extension ParleyChronologicalMessageCollection {
     
+    @discardableResult
     mutating func add(message: Message) -> Position {
         assert(message.time != nil, "time may not be empty")
         let messageDate = calendar.startOfDay(for: message.time!)

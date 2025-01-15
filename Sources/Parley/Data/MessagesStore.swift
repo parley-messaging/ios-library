@@ -27,8 +27,15 @@ class MessagesStore {
     }
     
     func apply(snapshot: MessagesPresenter.Snapshot) {
-        self.sections = snapshot.sections
-        self.cells = snapshot.cells
+        sections.removeAll(keepingCapacity: true)
+        cells.removeAll(keepingCapacity: true)
+        self.sections.reserveCapacity(snapshot.sections.endIndex - 1)
+        
+        for section in snapshot.sections {
+            sections.append(section.sectionKind)
+            let cellKinds = section.cells.map(\.kind)
+            cells.append(cellKinds)
+        }
     }
 }
 
