@@ -150,10 +150,19 @@ final class MessagesManager: MessagesManagerProtocol {
         var indexPaths: [IndexPath] = []
 
         if isFirstMessageOfToday(message) {
-            let dateIndex = lastIndex == nil ? 0 : addIndex + 1
+            var dateIndex = lastIndex == nil ? 0 : addIndex + 1
             indexPaths.append(IndexPath(row: dateIndex, section: 0))
+
             let dateMessage = createDateMessage(message.time ?? Date())
-            messages.insert(dateMessage, at: dateIndex)
+            if let (index, lastMessage) = lastNotIgnoredMessage(ignoring: [.agentTyping]), lastMessage.type == .date {
+                // Replace consecutive date headers with no vissble messages in between them
+                messages.remove(at: index)
+                messages.insert(dateMessage, at: index)
+                dateIndex = index
+            } else {
+                messages.insert(dateMessage, at: dateIndex)
+            }
+            
             addIndex = dateIndex + 1
         } else {
             addIndex += 1
@@ -175,6 +184,20 @@ final class MessagesManager: MessagesManagerProtocol {
             lastMessageIndex -= 1
         }
         return (lastMessageIndex, lastMessage)
+    }
+    
+    private func lastNotIgnoredMessage(ignoring: [Message.MessageType] = []) -> (index: Int, message: Message)? {
+        var index = messages.count - 1
+        while (index >= .zero) {
+            let message = messages[index]
+            guard message.ignore() == false else { index -= 1 ; continue }
+            if let messageType = message.type, ignoring.contains(messageType) {
+                index -= 1
+                continue
+            }
+            return (index, message)
+        }
+        return nil
     }
 
     private func isFirstMessageOfToday(_ message: Message) -> Bool {
