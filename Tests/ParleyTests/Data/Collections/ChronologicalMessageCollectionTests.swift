@@ -151,7 +151,7 @@ class ChronologicalMessageCollectionTests {
         
         for i in range {
             let message = Message()
-            message.time = Date(timeIntervalSince1970: TimeInterval(i * 86_400))
+            message.time = Date(daysSince1970: i)
             messages.append(message)
         }
         
@@ -171,7 +171,7 @@ class ChronologicalMessageCollectionTests {
         
         for i in range {
             let message = Message()
-            message.time = Date(timeIntervalSince1970: TimeInterval(i * 86_400))
+            message.time = Date(daysSince1970: i)
             messages.append(Message())
         }
         

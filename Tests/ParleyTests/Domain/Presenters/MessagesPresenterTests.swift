@@ -9,46 +9,42 @@ struct MessagesPresenterTests {
         [],
         [.makeTestData(time: Date(timeIntSince1970: 1))],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 86401)),
+            .makeTestData(time: Date(daysSince1970: 1)),
+            .makeTestData(time: Date(daysSince1970: 2)),
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2))
+            .makeTestData(time: Date(daysSince1970: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 1))
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2)),
-            .makeTestData(time: Date(timeIntSince1970: 86401)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 5)),
+            .makeTestData(time: Date(daysSince1970: 2, offset: 0)),
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2)),
-            .makeTestData(time: Date(timeIntSince1970: 3)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2)),
-            .makeTestData(time: Date(timeIntSince1970: 3)),
-            .makeTestData(time: Date(timeIntSince1970: 86401)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
+            .makeTestData(time: Date(daysSince1970: 2, offset: 0)),
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2)),
-            .makeTestData(time: Date(timeIntSince1970: 3)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 3)),
         ],
         [
-            .makeTestData(time: Date(timeIntSince1970: 86401)),
-            .makeTestData(time: Date(timeIntSince1970: 86402)),
-            .makeTestData(time: Date(timeIntSince1970: 86403)),
-        ],
-        [
-            .makeTestData(time: Date(timeIntSince1970: 1)),
-            .makeTestData(time: Date(timeIntSince1970: 2)),
-            .makeTestData(time: Date(timeIntSince1970: 3)),
-            .makeTestData(time: Date(timeIntSince1970: 86401)),
-            .makeTestData(time: Date(timeIntSince1970: 86402)),
-            .makeTestData(time: Date(timeIntSince1970: 86403)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
+            .makeTestData(time: Date(daysSince1970: 1, offset: 3)),
+            .makeTestData(time: Date(daysSince1970: 2, offset: 1)),
+            .makeTestData(time: Date(daysSince1970: 2, offset: 2)),
+            .makeTestData(time: Date(daysSince1970: 2, offset: 3)),
         ]
     ]
     
@@ -56,6 +52,7 @@ struct MessagesPresenterTests {
     private let display: ParleyMessagesDisplaySpy
     private let presenter: MessagesPresenter
     private var collection: ParleyChronologicalMessageCollection
+    private let calendar: Calendar = .current
     
     private static let welcomeMessage = "Welcome!"
     private static let stickyMessage = "Sticky message"
@@ -85,7 +82,7 @@ struct MessagesPresenterTests {
     }
     
     @Test
-    func presenter_ShouldhaveCorrectDefaultConfigurtion() {
+    func presenter_ShouldHaveCorrectDefaultConfiguration() {
         #expect(presenter.isAgentTyping == false)
         #expect(presenter.welcomeMessage == nil)
         #expect(presenter.isLoadingMessages == false)
@@ -156,8 +153,7 @@ struct MessagesPresenterTests {
     mutating func insertMessageInEmptyChat_ShouldUpdateStoreAndInsertRowsOnDisplay() {
         // Setup
         let message = Message.makeTestData(time: Date(timeIntSince1970: 1))
-        let posistion = collection.add(message: message)
-        let date = collection.sections[posistion.section].date
+        let position = collection.add(message: message)
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
@@ -187,7 +183,6 @@ struct MessagesPresenterTests {
         // Setup
         let message = Message.makeTestData(time: Date(timeIntSince1970: 1))
         let position = collection.add(message: message)
-        let date = collection.sections[position.section].date
         
         presenter.set(welcomeMessage: Self.welcomeMessage)
         presenter.presentMessages()
@@ -224,7 +219,7 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         let message = Message.makeTestData(time: Date(timeIntSince1970: 2))
-        let position = collection.add(message: message)
+        _ = collection.add(message: message)
         
         // When
         presenter.presentAdd(message: message)
@@ -287,9 +282,8 @@ struct MessagesPresenterTests {
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let message = Message.makeTestData(time: Date(timeIntSince1970: 86401))
+        let message = Message.makeTestData(time: Date(daysSince1970: 1, offset: 1))
         let position = collection.add(message: message)
-        let date = collection.sections[position.section].date
         
         // When
         presenter.presentAdd(message: message)
@@ -325,9 +319,8 @@ struct MessagesPresenterTests {
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let message = Message.makeTestData(time: Date(timeIntSince1970: 86401))
-        let posistion = collection.add(message: message)
-        let date = collection.sections[posistion.section].date
+        let message = Message.makeTestData(time:  Date(daysSince1970: 1, offset: 1))
+        let position = collection.add(message: message)
         
         // When
         presenter.presentAdd(message: message)
@@ -652,6 +645,49 @@ struct MessagesPresenterTests {
         
         #expect(display.displayQuickRepliesCallCount == 0)
         #expect(display.displayHideQuickRepliesCallCount == 1)
+    }
+    
+    @Test(arguments: 0..<Self.testSections.count)
+    mutating func presentSetMessages_ShouldResultInSectionsOrderOldestToNewest(index: Int) {
+        let messages = Self.testSections[index]
+        guard messages.isEmpty == false else { return }
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        
+        var previousSectionDate: Date?
+        for section in presenter.currentSnapshot.sections {
+            guard let sectionDate = section.date else { continue }
+            if previousSectionDate == nil {
+                previousSectionDate = sectionDate
+            } else {
+                #expect(previousSectionDate! < sectionDate)
+                previousSectionDate = sectionDate
+            }
+        }
+    }
+    
+    @Test(arguments: 1..<Self.testSections.count)
+    @MainActor
+    mutating func presentSetMessages_ShouldResultInMessagesOrderOldestToNewest(index: Int) throws {
+        let messages = Self.testSections[index]
+        print(messages.count)
+        try #require(messages.isEmpty == false)
+        
+        collection.set(messages: messages)
+        presenter.set(sections: collection.sections)
+        #expect(presenter.currentSnapshot.sections.isEmpty == false)
+        var previousCellDate: Date?
+        for section in presenter.currentSnapshot.sections {
+            for cell in section.cells {
+                guard let cellDate = cell.date else { continue }
+                if previousCellDate == nil {
+                    previousCellDate = cellDate
+                } else {
+                    #expect(previousCellDate! < cellDate)
+                    previousCellDate = cellDate
+                }
+            }
+        }
     }
 }
 

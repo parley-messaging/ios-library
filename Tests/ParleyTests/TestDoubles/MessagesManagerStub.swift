@@ -36,7 +36,7 @@ extension MessagesManagerStub {
     func update(_ message: Message) {}
 
     func add(_ message: Message) -> Bool {
-        return false
+        return true
     }
 
     func getOldestMessage() -> Message? {

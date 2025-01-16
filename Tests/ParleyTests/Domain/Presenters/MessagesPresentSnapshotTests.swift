@@ -9,7 +9,6 @@ struct MessagesPresentSnapshotTests {
     
     static let welcomeMessage: String = "Welcome message"
     let calander: Calendar = .autoupdatingCurrent
-    static let dayInSeconds: TimeInterval = 86_400
     
     @Test
     func createSnapshot_ShouldBeEmpty() {
@@ -275,7 +274,7 @@ struct MessagesPresentSnapshotTests {
     }
 
     @Test
-    func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessage() {
+    func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessage() throws {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
         let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
@@ -283,13 +282,13 @@ struct MessagesPresentSnapshotTests {
         let insertedIndex = snapshot.insertSection(messages: section)
         
         #expect(insertedIndex == 1)
-        #expect(snapshot.sections.count == 2)
+        try #require(snapshot.sections.count == 2)
         #expect(snapshot.sections[0].sectionKind == .info)
         #expect(snapshot.sections[1].sectionKind == .messages)
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[1].date == startOfDay)
-        #expect(snapshot.sections[1].cells.count == 3)
+        try #require(snapshot.sections[1].cells.count == 3)
         #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
         #expect(snapshot.sections[1].cells[1].kind == .message(message1))
         #expect(snapshot.sections[1].cells[2].kind == .message(message2))
@@ -325,13 +324,13 @@ struct MessagesPresentSnapshotTests {
     func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
         var snapshot = Snapshot(welcomeMessage: nil)
         
-        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
-        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
-        _ = snapshot.insertSection(messages: [s2message1, s2message2])
+        let section2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
+        let section2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
+        _ = snapshot.insertSection(messages: [section2message1, section2message2])
         
-        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
-        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
-        let section1InsertIndex = snapshot.insertSection(messages:  [s1message1, s1message2])
+        let section1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
+        let section1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
+        let section1InsertIndex = snapshot.insertSection(messages:  [section1message1, section1message2])
         
         #expect(section1InsertIndex == 0)
         try #require(snapshot.sections.count == 2)
@@ -341,8 +340,8 @@ struct MessagesPresentSnapshotTests {
         #expect(snapshot.sections[0].date == startOfDay)
         try #require(snapshot.sections[0].cells.count == 3)
         #expect(snapshot.sections[0].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[0].cells[1].kind == .message(s1message1))
-        #expect(snapshot.sections[0].cells[2].kind == .message(s1message2))
+        #expect(snapshot.sections[0].cells[1].kind == .message(section1message1))
+        #expect(snapshot.sections[0].cells[2].kind == .message(section1message2))
     }
     
     @Test

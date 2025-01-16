@@ -61,7 +61,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     }
     
     func set(sections: [ParleyChronologicalMessageCollection.Section]) {
-        var snapshot = Snapshot(welcomeMessage: welcomeMessage, calendar: .autoupdatingCurrent)
+        var snapshot = Snapshot(welcomeMessage: welcomeMessage, calendar: currentSnapshot.calendar)
         _ = snapshot.set(welcomeMessage: welcomeMessage)
         _ = snapshot.setLoading(isLoadingMessages)
         _ = snapshot.set(agentTyping: isAgentTyping)
@@ -392,10 +392,14 @@ extension MessagesPresenter {
         private(set) var isLoading = false
         
         private(set) var sections: [Section]
-        private let calendar: Calendar
+        let calendar: Calendar
         
         var isEmpty: Bool {
             sections.isEmpty
+        }
+        
+        var typingIndicatorIndex: Int? {
+            sections.firstIndex(where: { $0.sectionKind == .typingIndicator })
         }
         
         init(welcomeMessage: String?, calendar: Calendar = .autoupdatingCurrent) {
@@ -411,26 +415,29 @@ extension MessagesPresenter {
         
         mutating func insertSection(messages: [Message]) -> Int? {
             guard
-                let section = Section.messages(messages: messages, calendar: calendar),
-                let sectionDate = section.date
+                let newSection = Section.messages(messages: messages, calendar: calendar),
+                let newSectionDate = newSection.date
             else { return nil }
             
-            var index = sections.endIndex - 1
-            while index >= 0 {
-                defer { index -= 1 }
-                guard let otherSectionDate = sections[index].date else { continue }
-                if otherSectionDate > sectionDate {
-                    sections.insert(section, at: index)
-                    return index
+            let insertionIndex = sections.firstIndex(where: { existingSection in
+                if existingSection.sectionKind == .typingIndicator {
+                    return true
                 }
-            }
+                guard let existingSectionDate = existingSection.date else {
+                    return false
+                }
+                return existingSectionDate > newSectionDate
+            })
             
-            if let typingIndicatorIndex = sections.firstIndex(where: { $0.sectionKind == .typingIndicator }) {
-                sections.insert(section, at: typingIndicatorIndex)
+            if let index = insertionIndex {
+                sections.insert(newSection, at: index)
+                return index
+            } else if let typingIndicatorIndex {
+                sections.insert(newSection, at: typingIndicatorIndex)
                 return typingIndicatorIndex
             } else {
-                sections.append(section)
-                return sections.count - 1
+                sections.append(newSection)
+                return sections.endIndex - 1
             }
         }
         
@@ -447,9 +454,9 @@ extension MessagesPresenter {
             let sectionDate = startOfDay(date)
             var indexPaths = [IndexPath]()
             
-            if let exsistingSectionIndex = getSectionIndex(for: sectionDate) {
-                let index = sections[exsistingSectionIndex].insert(cell: cell)
-                indexPaths.append(IndexPath(row: index, section: exsistingSectionIndex))
+            if let existingSectionIndex = getSectionIndex(for: sectionDate) {
+                let index = sections[existingSectionIndex].insert(cell: cell)
+                indexPaths.append(IndexPath(row: index, section: existingSectionIndex))
                 return SnapshotChange(indexPaths: indexPaths, kind: .added)
             } else {
                 let newSectionIndex = newMessageSectionIndex(for: sectionDate)
@@ -506,9 +513,9 @@ extension MessagesPresenter {
         }
         
         private mutating func removeAgentTypingCell() -> SnapshotChange {
-            let deletetingIndexPath = IndexPath(row: 0, section: sections.endIndex - 1)
+            let deletingIndexPath = IndexPath(row: 0, section: sections.endIndex - 1)
             _ = sections.popLast()
-            return SnapshotChange(indexPaths: [deletetingIndexPath], kind: .deleted)
+            return SnapshotChange(indexPaths: [deletingIndexPath], kind: .deleted)
         }
         
         mutating func setLoading(_ isLoading: Bool) -> SnapshotChange? {
