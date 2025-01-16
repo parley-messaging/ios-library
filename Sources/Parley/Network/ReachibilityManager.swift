@@ -1,3 +1,3 @@
-protocol ReachibilityProvider {
+protocol ReachabilityProvider {
     var reachable: Bool { get }
 }

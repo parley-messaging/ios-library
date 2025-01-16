@@ -7,7 +7,7 @@ final class MessagesManagerStub: MessagesManagerProtocol {
     // MARK: Stub Configuration
     private var canLoadMoreMessages: Bool = false
     
-    // MARK: MessagesManagerProtocol Poroperties
+    // MARK: MessagesManagerProtocol Properties
     var latestMessage: Message? { nil }
     var welcomeMessage: String?
     
@@ -35,7 +35,8 @@ extension MessagesManagerStub {
 
     func update(_ message: Message) {}
 
-    func add(_ message: Message) {
+    func add(_ message: Message) -> Bool {
+        return false
     }
 
     func getOldestMessage() -> Message? {

@@ -25,7 +25,7 @@ protocol ParleyProtocol {
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
-public final class Parley: ParleyProtocol, ReachibilityProvider {
+public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     enum State {
         case unconfigured

@@ -25,7 +25,7 @@ struct ParleyViewTests {
         let notificationServiceStub = NotificationServiceStub()
         let pollingServiceStub = PollingServiceStub()
         let messageRepositoryStub = MessageRepositoryStub()
-        let reachabilityProvideStub = ReachibilityProviderStub()
+        let reachabilityProvideStub = ReachabilityProviderStub()
         let messagesStore = MessagesStore()
         let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
         

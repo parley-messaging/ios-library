@@ -5,7 +5,7 @@ class MessagesInteractor {
     private let presenter: MessagesPresenterProtocol
     private let messagesManager: MessagesManagerProtocol
     private let messageRepository: MessageRepositoryProtocol
-    private let reachabilityProvider: ReachibilityProvider
+    private let reachabilityProvider: ReachabilityProvider
     
     private(set) var agentTyping = false
     private(set) var isLoadingMessages = false
@@ -30,7 +30,7 @@ class MessagesInteractor {
         messagesManager: MessagesManagerProtocol,
         messageCollection: ParleyChronologicalMessageCollection,
         messagesRepository: MessageRepositoryProtocol,
-        reachabilityProvider: ReachibilityProvider
+        reachabilityProvider: ReachabilityProvider
     ) {
         self.presenter = presenter
         self.messagesManager = messagesManager

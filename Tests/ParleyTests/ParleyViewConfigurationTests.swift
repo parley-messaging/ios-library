@@ -7,7 +7,7 @@ final class ParleyViewConfigurationTests: XCTestCase {
         
         let messagesManager = MessagesManagerStub()
         let messageRepositoryStub = MessageRepositoryStub()
-        let reachabilityProvideStub = ReachibilityProviderStub()
+        let reachabilityProvideStub = ReachabilityProviderStub()
         
         let messagesStore = MessagesStore()
         let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)

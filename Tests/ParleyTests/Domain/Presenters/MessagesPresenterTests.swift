@@ -81,7 +81,7 @@ struct MessagesPresenterTests {
         #expect(display.displayStickyMessageCallCount == 0)
         #expect(display.displayHideStickyMessageCallCount == 0)
         
-        #expect(display.hasInterhactedWithDisplay == false)
+        #expect(display.hasInteractedWithDisplay == false)
     }
     
     @Test
@@ -134,7 +134,7 @@ struct MessagesPresenterTests {
         presenter.set(sections: collection.sections)
         
         #expect(store.numberOfSections == 0)
-        #expect(display.hasInterhactedWithDisplay == false, "Display should not be called when not calling presentMessages")
+        #expect(display.hasInteractedWithDisplay == false, "Display should not be called when not calling presentMessages")
     }
     
     @Test
@@ -412,7 +412,7 @@ struct MessagesPresenterTests {
             messagesManager: MessagesManagerStub(),
             messageCollection: self.collection,
             messagesRepository: MessageRepositoryStub(),
-            reachabilityProvider: ReachibilityProviderStub()
+            reachabilityProvider: ReachabilityProviderStub()
         )
         // When
         interactor.handle(collection: collection, .all)
@@ -527,7 +527,7 @@ struct MessagesPresenterTests {
         presenter.presentAgentTyping(false)
         
         // Then
-        #expect(display.hasInterhactedWithDisplay == false)
+        #expect(display.hasInteractedWithDisplay == false)
     }
     
     // MARK: - Present Loading Messages -
@@ -630,7 +630,7 @@ struct MessagesPresenterTests {
         presenter.presentAgentTyping(false)
         
         // Then
-        #expect(display.hasInterhactedWithDisplay == false)
+        #expect(display.hasInteractedWithDisplay == false)
     }
     
     @Test

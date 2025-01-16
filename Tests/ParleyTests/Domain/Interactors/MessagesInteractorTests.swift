@@ -8,27 +8,27 @@ struct MessagesInteractorTests {
     private let presenter: MessagesPresenterSpy
     private let messagesManager: MessagesManagerStub
     private let interactor: MessagesInteractor
-    private var reachibilityProvider: ReachibilityProviderStub
+    private var reachabilityProvider: ReachabilityProviderStub
     private var messageRepositoryStub: MessageRepositoryStub
     
     init() {
         presenter = MessagesPresenterSpy()
         messagesManager = MessagesManagerStub()
-        reachibilityProvider = ReachibilityProviderStub()
+        reachabilityProvider = ReachabilityProviderStub()
         messageRepositoryStub = MessageRepositoryStub()
         interactor = MessagesInteractor(
             presenter: presenter,
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
-            reachabilityProvider: reachibilityProvider
+            reachabilityProvider: reachabilityProvider
         )
         
         setDefaults()
     }
     
     private mutating func setDefaults() {
-        reachibilityProvider.whenReachable(true)
+        reachabilityProvider.whenReachable(true)
         messagesManager.whenCanLoadMore(false)
     }
     

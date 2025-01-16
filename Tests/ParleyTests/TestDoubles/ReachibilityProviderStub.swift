@@ -1,11 +1,11 @@
 @testable import Parley
 
-struct ReachibilityProviderStub: ReachibilityProvider {
+struct ReachabilityProviderStub: ReachabilityProvider {
     
     private(set) var reachable: Bool = true
 }
 
-extension ReachibilityProviderStub {
+extension ReachabilityProviderStub {
     
     mutating func whenReachable(_ result: Bool) {
         reachable = result

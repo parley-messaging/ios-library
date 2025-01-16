@@ -531,8 +531,6 @@ extension ParleyView: ParleyDelegate {
 
             messagesTableView.reloadData()
 
-//            syncSuggestionsView()
-
             messagesTableView.scroll(to: .bottom, animated: false)
 
             DispatchQueue.main.async { [weak self] in

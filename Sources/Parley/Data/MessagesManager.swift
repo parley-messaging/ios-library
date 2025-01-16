@@ -149,13 +149,6 @@ final class MessagesManager: MessagesManagerProtocol {
             keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
         }
     }
-    
-    struct ParleyAddMessageResult {
-        let sectionIndex: Int
-        let rowIndex: Int
-        let section: ParleyMessageSection
-        let didAddSection: Bool
-    }
 
     func add(_ message: Message) -> Bool {
         guard !originalMessages.contains(message) else { return false }
@@ -170,7 +163,7 @@ final class MessagesManager: MessagesManagerProtocol {
             let originalMessagesIndex = originalMessages
                 .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid })
         else { return }
-        
+
         originalMessages[originalMessagesIndex] = message
         messageDataSource?.update(message)
     }

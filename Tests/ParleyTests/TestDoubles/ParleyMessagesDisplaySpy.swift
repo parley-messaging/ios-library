@@ -26,7 +26,7 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     private(set) var displayHideQuickRepliesCallCount = 0
     
-    var hasInterhactedWithDisplay: Bool {
+    var hasInteractedWithDisplay: Bool {
         insertRowsCallCount > 0 || insertRowsIndexPaths != nil ||
         deleteRowsCallCount > 0 || deleteRowsIndexPaths != nil ||
         reloadRowsCallCount > 0 || reloadRowsIndexPaths != nil ||
