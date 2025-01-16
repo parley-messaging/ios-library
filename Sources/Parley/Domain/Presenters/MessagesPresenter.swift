@@ -68,7 +68,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         
         for var section in sections {
             section.messages.removeAll(where: { $0.quickReplies?.isEmpty == false })
-            _ = snapshot.insertSection(messages: section.messages)
+            let result = snapshot.insertSection(messages: section.messages)
+            assert(result != nil, "Failed to insert section.")
         }
         
         currentSnapshot = snapshot
@@ -357,7 +358,11 @@ extension MessagesPresenter {
             }
             
             static func message(_ message: Message, calendar: Calendar = .autoupdatingCurrent) -> Cell? {
-                guard !hasQuickReplies(message) else { return nil }
+                guard
+                    !hasQuickReplies(message),
+                    message.ignore() == false
+                else { return nil }
+                
                 let kind = MessagesStore.CellKind.message(message)
                 return Cell(date: message.time, kind: kind, calender: calendar)
             }
@@ -405,20 +410,28 @@ extension MessagesPresenter {
         }
         
         mutating func insertSection(messages: [Message]) -> Int? {
-            guard let section = Section.messages(messages: messages, calendar: calendar) else { return nil }
+            guard
+                let section = Section.messages(messages: messages, calendar: calendar),
+                let sectionDate = section.date
+            else { return nil }
             
-            var index = 0
-            while index < sections.count {
-                defer { index += 1 }
+            var index = sections.endIndex - 1
+            while index >= 0 {
+                defer { index -= 1 }
                 guard let otherSectionDate = sections[index].date else { continue }
-                if let sectionDate = section.date, otherSectionDate < sectionDate {
+                if otherSectionDate > sectionDate {
                     sections.insert(section, at: index)
                     return index
                 }
             }
             
-            sections.append(section)
-            return sections.count - 1
+            if let typingIndicatorIndex = sections.firstIndex(where: { $0.sectionKind == .typingIndicator }) {
+                sections.insert(section, at: typingIndicatorIndex)
+                return typingIndicatorIndex
+            } else {
+                sections.append(section)
+                return sections.count - 1
+            }
         }
         
         /// append a message to the last message section, if available.

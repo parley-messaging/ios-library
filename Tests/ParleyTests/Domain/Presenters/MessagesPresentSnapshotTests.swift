@@ -252,6 +252,174 @@ struct MessagesPresentSnapshotTests {
             IndexPath(row: 1, section: 2),
         ], kind: .added))
     }
+    
+    // MARK: Insert Section
+    
+    @Test
+    func insertSection_ShouldInsert_WhenSnapshotIsEmpty() {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let section = [message1, message2]
+        let insertedIndex = snapshot.insertSection(messages: section)
+        #expect(insertedIndex == 0)
+        #expect(snapshot.sections.count == 1)
+        #expect(snapshot.sections[0].sectionKind == .messages)
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
+        #expect(snapshot.sections[0].date == startOfDay)
+        #expect(snapshot.sections[0].cells.count == 3)
+        #expect(snapshot.sections[0].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[0].cells[1].kind == .message(message1))
+        #expect(snapshot.sections[0].cells[2].kind == .message(message2))
+    }
+
+    @Test
+    func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessage() {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let section = [message1, message2]
+        let insertedIndex = snapshot.insertSection(messages: section)
+        
+        #expect(insertedIndex == 1)
+        #expect(snapshot.sections.count == 2)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .messages)
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
+        #expect(snapshot.sections[1].date == startOfDay)
+        #expect(snapshot.sections[1].cells.count == 3)
+        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[1].cells[1].kind == .message(message1))
+        #expect(snapshot.sections[1].cells[2].kind == .message(message2))
+    }
+    
+    @Test
+    func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessageAndAgentTyping() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        _ = snapshot.set(agentTyping: true)
+        
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let section = [message1, message2]
+        let insertedIndex = snapshot.insertSection(messages: section)
+        
+        #expect(insertedIndex == 1)
+        try #require(snapshot.sections.count == 3)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .messages)
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
+        #expect(snapshot.sections[1].date == startOfDay)
+        try #require(snapshot.sections[1].cells.count == 3)
+        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[1].cells[1].kind == .message(message1))
+        #expect(snapshot.sections[1].cells[2].kind == .message(message2))
+        
+        #expect(snapshot.sections[2].cells.count == 1)
+        #expect(snapshot.sections[2].sectionKind == .typingIndicator)
+    }
+    
+    @Test
+    func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
+        _ = snapshot.insertSection(messages: [s2message1, s2message2])
+        
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
+        let section1InsertIndex = snapshot.insertSection(messages:  [s1message1, s1message2])
+        
+        #expect(section1InsertIndex == 0)
+        try #require(snapshot.sections.count == 2)
+        #expect(snapshot.sections.allSatisfy({ $0.sectionKind == .messages }))
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
+        #expect(snapshot.sections[0].date == startOfDay)
+        try #require(snapshot.sections[0].cells.count == 3)
+        #expect(snapshot.sections[0].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[0].cells[1].kind == .message(s1message1))
+        #expect(snapshot.sections[0].cells[2].kind == .message(s1message2))
+    }
+    
+    @Test
+    func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
+        var snapshot = Snapshot(welcomeMessage: nil)
+        
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        _ = snapshot.insertSection(messages: [s1message1, s1message2])
+        
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hi")
+        let section2InsertIndex = snapshot.insertSection(messages:  [s2message1, s2message2])
+        
+        #expect(section2InsertIndex == 1)
+        try #require(snapshot.sections.count == 2)
+        #expect(snapshot.sections.allSatisfy({ $0.sectionKind == .messages }))
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 1))
+        #expect(snapshot.sections[1].date == startOfDay)
+        try #require(snapshot.sections[1].cells.count == 3)
+        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[1].cells[1].kind == .message(s2message1))
+        #expect(snapshot.sections[1].cells[2].kind == .message(s2message2))
+    }
+    
+    @Test
+    func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
+        _ = snapshot.insertSection(messages: [s2message1, s2message2])
+        
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
+        let section1InsertIndex = snapshot.insertSection(messages:  [s1message1, s1message2])
+        
+        #expect(section1InsertIndex == 1)
+        try #require(snapshot.sections.count == 3)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .messages)
+        #expect(snapshot.sections[2].sectionKind == .messages)
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
+        #expect(snapshot.sections[1].date == startOfDay)
+        try #require(snapshot.sections[1].cells.count == 3)
+        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[1].cells[1].kind == .message(s1message1))
+        #expect(snapshot.sections[1].cells[2].kind == .message(s1message2))
+    }
+    
+    @Test
+    func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        _ = snapshot.insertSection(messages: [s1message1, s1message2])
+        
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hi")
+        let section2InsertIndex = snapshot.insertSection(messages:  [s2message1, s2message2])
+        
+        #expect(section2InsertIndex == 2)
+        try #require(snapshot.sections.count == 3)
+        #expect(snapshot.sections[0].sectionKind == .info)
+        #expect(snapshot.sections[1].sectionKind == .messages)
+        #expect(snapshot.sections[2].sectionKind == .messages)
+        
+        let startOfDay = calander.startOfDay(for: Date(daysSince1970: 1))
+        #expect(snapshot.sections[2].date == startOfDay)
+        try #require(snapshot.sections[2].cells.count == 3)
+        #expect(snapshot.sections[2].cells[0].kind == .dateHeader(startOfDay))
+        #expect(snapshot.sections[2].cells[1].kind == .message(s2message1))
+        #expect(snapshot.sections[2].cells[2].kind == .message(s2message2))
+    }
 }
 
 private extension MessagesPresentSnapshotTests {
