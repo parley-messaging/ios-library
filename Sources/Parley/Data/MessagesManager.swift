@@ -64,15 +64,14 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func getOldestMessage() -> Message? {
-        for message in messages {
-            switch message.type {
+        messages.first(where: {
+            switch $0.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
-                return message
+                true
             default:
-                continue
+                false
             }
-        }
-        return nil
+        })
     }
 
     init(
@@ -252,7 +251,7 @@ extension MessagesManager {
         ]
 
         messages.removeAll()
-//        originalMessages.append(userMessage_shortPending) // Will be send
+//        originalMessages.append(userMessage_shortPending) // Will be sent
 //        originalMessages.append(agentMessage_fullMessageWithActions)
         messages.append(agentMessage_messageWithCarouselSmall)
 //        originalMessages.append(agentMessage_messageWithCarouselImages)

@@ -202,7 +202,8 @@ extension ParleyChronologicalMessageCollection: CustomDebugStringConvertible {
             description += "*\(section.date.asDate())*\n"
             
             for message in section.messages {
-                description += "\t\(message.debugDescription)\n"
+                guard let messageText = message.message else { continue }
+                description += "\t\(messageText.prefix(20))\n"
             }
         }
         return description
