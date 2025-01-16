@@ -15,7 +15,7 @@ protocol MessagesManagerProtocol: AnyObject {
     func canLoadMore() -> Bool
     func handle(_ messageCollection: MessageCollection, _ handleType: MessagesManager.HandleType)
     func update(_ message: Message)
-    func add(_ message: Message)
+    func add(_ message: Message) -> Bool
     func getOldestMessage() -> Message?
 }
 
@@ -157,11 +157,12 @@ final class MessagesManager: MessagesManagerProtocol {
         let didAddSection: Bool
     }
 
-    func add(_ message: Message) {
-        guard !originalMessages.contains(message) else { return }
+    func add(_ message: Message) -> Bool {
+        guard !originalMessages.contains(message) else { return false }
         
         originalMessages.append(message)
         messageDataSource?.insert(message, at: 0)
+        return true
     }
 
     func update(_ message: Message) {

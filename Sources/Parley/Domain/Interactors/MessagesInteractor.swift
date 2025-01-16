@@ -120,7 +120,7 @@ extension MessagesInteractor {
             message.time = Date()
         }
         
-        messagesManager.add(message)
+        guard messagesManager.add(message) else { return }
         messages.add(message: message)
         presentQuickRepliesState()
         

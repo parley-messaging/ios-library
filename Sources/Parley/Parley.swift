@@ -512,9 +512,7 @@ public final class Parley: ParleyProtocol, ReachibilityProvider {
         guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
         userStopTypingTimer?.fire();
         
-        Task {
-            await messagesInteractor.handleNewMessage(message)
-        }
+        await messagesInteractor.handleNewMessage(message)
     }
 
     private func failedToSend(message: Message, error: Error) async {
