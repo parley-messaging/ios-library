@@ -27,9 +27,7 @@ final class MessagesManager: MessagesManagerProtocol {
         case after
     }
 
-    private var originalMessages: [Message] = []
-    var messages: [Message] { originalMessages }
-
+    private(set) var messages: [Message] = []
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
@@ -38,14 +36,14 @@ final class MessagesManager: MessagesManagerProtocol {
 
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
-        originalMessages.last { message in
+        messages.last { message in
             message.id != nil && message.status == .success
         }
     }
     
     /// Latest non-ignored message
     var latestMessage: Message? {
-        for message in originalMessages {
+        for message in messages {
             if !message.ignore() {
                 return message
             }
@@ -55,7 +53,7 @@ final class MessagesManager: MessagesManagerProtocol {
 
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
-        originalMessages.reduce([Message]()) { partialResult, message in
+        messages.reduce([Message]()) { partialResult, message in
             switch message.status {
             case .failed, .pending:
                 partialResult + [message]
@@ -66,7 +64,7 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func getOldestMessage() -> Message? {
-        for message in originalMessages {
+        for message in messages {
             switch message.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
                 return message
@@ -86,10 +84,10 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func loadCachedData() {
-        originalMessages.removeAll(keepingCapacity: true)
+        messages.removeAll(keepingCapacity: true)
 
         if let cachedMessages = messageDataSource?.all() {
-            originalMessages
+            messages
                 .append(
                     contentsOf: cachedMessages
                         .sorted(by: <)
@@ -108,7 +106,7 @@ final class MessagesManager: MessagesManagerProtocol {
 
     func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
         let newMessages = messageCollection.messages.filter { message in
-            if originalMessages.contains(where: { $0.id == message.id }) {
+            if messages.contains(where: { $0.id == message.id }) {
                 return false
             }
             return true
@@ -116,18 +114,18 @@ final class MessagesManager: MessagesManagerProtocol {
 
         switch handleType {
         case .before:
-            originalMessages.insert(contentsOf: newMessages, at: .zero)
+            messages.insert(contentsOf: newMessages, at: .zero)
         case .all, .after:
             let pendingMessages = pendingMessages
-            originalMessages.removeAll { message -> Bool in
+            messages.removeAll { message -> Bool in
                 message.status == .pending || message.status == .failed
             }
 
-            originalMessages.append(contentsOf: newMessages)
-            originalMessages.append(contentsOf: pendingMessages)
+            messages.append(contentsOf: newMessages)
+            messages.append(contentsOf: pendingMessages)
         }
 
-        messageDataSource?.save(originalMessages)
+        messageDataSource?.save(messages)
         stickyMessage = messageCollection.stickyMessage
         updateWelcomeMessage(messageCollection.welcomeMessage)
 
@@ -151,20 +149,20 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func add(_ message: Message) -> Bool {
-        guard !originalMessages.contains(message) else { return false }
+        guard !messages.contains(message) else { return false }
         
-        originalMessages.append(message)
+        messages.append(message)
         messageDataSource?.insert(message, at: 0)
         return true
     }
 
     func update(_ message: Message) {
         guard
-            let originalMessagesIndex = originalMessages
+            let originalMessagesIndex = messages
                 .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid })
         else { return }
 
-        originalMessages[originalMessagesIndex] = message
+        messages[originalMessagesIndex] = message
         messageDataSource?.update(message)
     }
 
@@ -177,7 +175,7 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func clear() {
-        originalMessages.removeAll()
+        messages.removeAll()
         welcomeMessage = nil
         stickyMessage = nil
         paging = nil
@@ -253,10 +251,10 @@ extension MessagesManager {
             ),
         ]
 
-        originalMessages.removeAll()
+        messages.removeAll()
 //        originalMessages.append(userMessage_shortPending) // Will be send
 //        originalMessages.append(agentMessage_fullMessageWithActions)
-        originalMessages.append(agentMessage_messageWithCarouselSmall)
+        messages.append(agentMessage_messageWithCarouselSmall)
 //        originalMessages.append(agentMessage_messageWithCarouselImages)
     }
 
