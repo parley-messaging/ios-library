@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.2.4 - Released 17 Jan 2025
+
+- **IMPORTANT**: When using custom appearance, adjust the `let appearance = ParleyViewAppearance(...)` to a `var`.
+- [Styling] Changed most Appearance classes to structs, allowing easier creation of the appearance classes.
+- [Styling] Added `style` to DateTableViewCellAppearance to configure the dateformatter style of the date headers (fixes #109).
+- [Message] Improved gradient behind agent name when adjusting text scaling (fixes #111).
+- [Compose] Fixed placeholder going out of bounds in some cases (fixes #124).
+- [Accessibility] Links are now underlined to improve accessibility (fixes #104).
+- [Strings] Fixed some typos (fixes #171).
+- [Accessibility] Added localization to use for VoiceOver for the compose placeholder (fixes #170).
+- [Implementation] Fixed a case where calling `reset` or `purgeLocalMemory` could cause a crash if not called on the main thread (fixes #141).
+- [Accessibility] Allow opening media and files when using VoiceOver (fixes #169).
+- [Viewer] Fixed an issue when rotating the device when the image viewer is showing (fixes #129).
+- [Styling] Added `sendButtonSize` to ParleyComposeViewAppearance (partially adresses #108).
+- [Styling] Added `sendButtonShape` to ParleyComposeViewAppearance (partially adresses #108).
+- [Chat] Fixed an issue causing consecutive date headers to be shown (fixes #128).
+- [Typing] Added `dots` which is a `AgentTypingTableViewCellAppearance.DotsAppearance` to AgentTypingTableViewCellAppearance to allow styling the typing message (fixes #105).
+- **DEPRECATION**: Using `AgentTypingTableViewCellAppearance.dotColor` is now deprecated, use `AgentTypingTableViewCellAppearance.dots` instead.
+
 ## 4.2.3 - Released 28 Oct 2024
 
 - Fixed images flickering when device orientation changes from to faceUp/faceDown.

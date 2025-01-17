@@ -379,7 +379,7 @@ self.parleyView.mediaEnabled = false
 Parley provides a `ParleyViewAppearance` that can be set on the `ParleyView` to customize the chat appearance. `ParleyViewAppearance` can be initialized with a regular, italic and bold font which are customizable. Take a look at [ChatViewController.swift](Example/ParleyExample/Controllers/ChatViewController.swift#L32) for an example of how to use the `ParleyViewAppearance`.
 
 ```swift
-let appearance = ParleyViewAppearance(fontRegularName: "Montserrat-Regular", fontItalicName: "Montserrat-Italic", fontBoldName: "Montserrat-Bold")
+var appearance = ParleyViewAppearance(fontRegularName: "Montserrat-Regular", fontItalicName: "Montserrat-Italic", fontBoldName: "Montserrat-Bold")
 appearance.offlineNotification.show = true
 appearance.pushDisabledNotification.show = true
 

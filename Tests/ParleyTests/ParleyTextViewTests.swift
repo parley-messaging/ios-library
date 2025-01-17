@@ -39,7 +39,7 @@ final class ParleyTextViewTests: XCTestCase {
     func testCombinationOfBoldAndItalicAndLinkStyleWithNonDefaultStyle() throws {
         let sut = makeSut()
 
-        let appearance = ParleyTextViewAppearance()
+        var appearance = ParleyTextViewAppearance()
 
         appearance.regularFont = try XCTUnwrap(UIFont(name: "Times New Roman", size: 13))
         appearance.italicFont = .italicSystemFont(ofSize: 5)
@@ -57,7 +57,7 @@ final class ParleyTextViewTests: XCTestCase {
     func testDynamicFontScalingDefaultStyle() {
         let sut = makeSut()
 
-        let appearance = ParleyTextViewAppearance()
+        var appearance = ParleyTextViewAppearance()
 
         appearance.regularFont = .systemFont(ofSize: 14)
         appearance.italicFont = .italicSystemFont(ofSize: 5)
