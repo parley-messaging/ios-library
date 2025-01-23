@@ -1,6 +1,6 @@
 import UIKit
 
-public class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
+public final class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
 
     public enum Align {
         case left

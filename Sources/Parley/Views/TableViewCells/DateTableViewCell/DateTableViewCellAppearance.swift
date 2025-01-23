@@ -1,6 +1,6 @@
 import UIKit
 
-public class DateTableViewCellAppearance {
+public struct DateTableViewCellAppearance {
 
     public var backgroundColor = UIColor(red: 0.29, green: 0.37, blue: 0.51, alpha: 0.5)
     public var cornerRadius: Float = 5

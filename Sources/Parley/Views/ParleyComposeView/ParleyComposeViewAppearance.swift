@@ -1,7 +1,7 @@
 import UIKit
 
-public class ParleyComposeViewAppearance {
-    
+public struct ParleyComposeViewAppearance {
+
     public enum SendButtonShape {
         case circle
         case roundedRectangle(cornerRadius: CGFloat)
