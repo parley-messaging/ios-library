@@ -86,7 +86,7 @@ public class ParleyView: UIView {
         parley.messagesStore
     }
     
-    private var messagesInteracor: MessagesInteractor {
+    private var messagesInteracor: MessagesInteractor? {
         parley.messagesInteractor
     }
 
@@ -680,13 +680,13 @@ extension ParleyView: UITableViewDelegate {
             guard !isAlreadyAtTop else { return }
             isAlreadyAtTop = true
             Task {
-                await messagesInteracor.handleLoadMessages()
+                await messagesInteracor?.handleLoadMessages()
             }
         } else {
             isAlreadyAtTop = false
         }
         
-        messagesInteracor.setScrolledToBottom(messagesTableView.isAtBottom)
+        messagesInteracor?.setScrolledToBottom(messagesTableView.isAtBottom)
 
         updateSuggestionsAlpha()
     }
