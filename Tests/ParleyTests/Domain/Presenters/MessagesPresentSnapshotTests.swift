@@ -257,8 +257,8 @@ struct MessagesPresentSnapshotTests {
     @Test
     func insertSection_ShouldInsert_WhenSnapshotIsEmpty() {
         var snapshot = Snapshot(welcomeMessage: nil)
-        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
-        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         let section = [message1, message2]
         let insertedIndex = snapshot.insertSection(messages: section)
         #expect(insertedIndex == 0)
@@ -276,8 +276,8 @@ struct MessagesPresentSnapshotTests {
     @Test
     func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessage() throws {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
-        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
-        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         let section = [message1, message2]
         let insertedIndex = snapshot.insertSection(messages: section)
         
@@ -299,8 +299,8 @@ struct MessagesPresentSnapshotTests {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         _ = snapshot.set(agentTyping: true)
         
-        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
-        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
+        let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         let section = [message1, message2]
         let insertedIndex = snapshot.insertSection(messages: section)
         
@@ -324,12 +324,12 @@ struct MessagesPresentSnapshotTests {
     func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
         var snapshot = Snapshot(welcomeMessage: nil)
         
-        let section2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
-        let section2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
+        let section2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
+        let section2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hello")
         _ = snapshot.insertSection(messages: [section2message1, section2message2])
         
-        let section1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
-        let section1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
+        let section1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "Frist day")
+        let section1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hi")
         let section1InsertIndex = snapshot.insertSection(messages:  [section1message1, section1message2])
         
         #expect(section1InsertIndex == 0)
@@ -348,12 +348,12 @@ struct MessagesPresentSnapshotTests {
     func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
         var snapshot = Snapshot(welcomeMessage: nil)
         
-        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
-        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         _ = snapshot.insertSection(messages: [s1message1, s1message2])
         
-        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
-        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hi")
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hi")
         let section2InsertIndex = snapshot.insertSection(messages:  [s2message1, s2message2])
         
         #expect(section2InsertIndex == 1)
@@ -372,12 +372,12 @@ struct MessagesPresentSnapshotTests {
     func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         
-        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
-        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hello")
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hello")
         _ = snapshot.insertSection(messages: [s2message1, s2message2])
         
-        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "Frist day")
-        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hi")
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "Frist day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hi")
         let section1InsertIndex = snapshot.insertSection(messages:  [s1message1, s1message2])
         
         #expect(section1InsertIndex == 1)
@@ -398,12 +398,12 @@ struct MessagesPresentSnapshotTests {
     func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
         var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
         
-        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 5), message: "First day")
-        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offset: 10), message: "Hello")
+        let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
+        let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         _ = snapshot.insertSection(messages: [s1message1, s1message2])
         
-        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 5), message: "Second day")
-        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offset: 10), message: "Hi")
+        let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
+        let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hi")
         let section2InsertIndex = snapshot.insertSection(messages:  [s2message1, s2message2])
         
         #expect(section2InsertIndex == 2)

@@ -14,37 +14,37 @@ struct MessagesPresenterTests {
         ],
         [
             .makeTestData(time: Date(daysSince1970: 1)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 1))
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1))
         ],
         [
-            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 5)),
-            .makeTestData(time: Date(daysSince1970: 2, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5)),
+            .makeTestData(time: Date(daysSince1970: 2, offsetSeconds: 0)),
         ],
         [
-            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 2)),
         ],
         [
-            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
-            .makeTestData(time: Date(daysSince1970: 2, offset: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 2)),
+            .makeTestData(time: Date(daysSince1970: 2, offsetSeconds: 0)),
         ],
         [
-            .makeTestData(time: Date(daysSince1970: 1, offset: 0)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 3)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 0)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 2)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 3)),
         ],
         [
-            .makeTestData(time: Date(daysSince1970: 1, offset: 1)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 2)),
-            .makeTestData(time: Date(daysSince1970: 1, offset: 3)),
-            .makeTestData(time: Date(daysSince1970: 2, offset: 1)),
-            .makeTestData(time: Date(daysSince1970: 2, offset: 2)),
-            .makeTestData(time: Date(daysSince1970: 2, offset: 3)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 2)),
+            .makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 3)),
+            .makeTestData(time: Date(daysSince1970: 2, offsetSeconds: 1)),
+            .makeTestData(time: Date(daysSince1970: 2, offsetSeconds: 2)),
+            .makeTestData(time: Date(daysSince1970: 2, offsetSeconds: 3)),
         ]
     ]
     
@@ -282,7 +282,7 @@ struct MessagesPresenterTests {
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let message = Message.makeTestData(time: Date(daysSince1970: 1, offset: 1))
+        let message = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1))
         let position = collection.add(message: message)
         
         // When
@@ -319,7 +319,7 @@ struct MessagesPresenterTests {
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let message = Message.makeTestData(time:  Date(daysSince1970: 1, offset: 1))
+        let message = Message.makeTestData(time:  Date(daysSince1970: 1, offsetSeconds: 1))
         let position = collection.add(message: message)
         
         // When
