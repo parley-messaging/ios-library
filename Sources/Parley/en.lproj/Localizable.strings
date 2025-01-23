@@ -38,7 +38,7 @@
 // MARK: - Accessibility - Voice Over
 // Message Compose View
 "parley_voice_over_type_message_label" = "Type a message";
-"parley_voice_over_camera_button_label" = "Picture";
+"parley_voice_over_camera_button_label" = "Image or document";
 "parley_voice_over_send_button_label" = "Send";
 "parley_voice_over_send_button_disabled_hint" = "Disabled";
 "parley_voice_over_dismiss_keyboard_action" = "Dismiss keyboard";
