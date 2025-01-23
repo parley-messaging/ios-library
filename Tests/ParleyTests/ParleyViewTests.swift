@@ -1,14 +1,60 @@
 import SnapshotTesting
-import XCTest
-
+import Testing
+import UIKit
 @testable import Parley
 
-final class ParleyViewTests: XCTestCase {
-    override class func setUp() {
-//        isRecording = true
-    }
+@Suite("Parley View Tests", .tags(.userInterface), .serialized)
+@MainActor
+struct ParleyViewTests {
 
     private let secondsOfMinute = 60
+    private var sut: ParleyView!
+    private let messagesManagerStub: MessagesManagerStub
+    private var interactor: MessagesInteractor!
+    private var parleyStub: ParleyStub!
+    
+    init() {
+        messagesManagerStub = MessagesManagerStub()
+    }
+    
+    private mutating func setup(
+        mediaLoader: MediaLoaderStub? = nil
+    ) {
+        let mediaLoader = mediaLoader ?? MediaLoaderStub()
+        let localizationManager = ParleyLocalizationManager()
+        let notificationServiceStub = NotificationServiceStub()
+        let pollingServiceStub = PollingServiceStub()
+        let messageRepositoryStub = MessageRepositoryStub()
+        let reachabilityProvideStub = ReachabilityProviderStub()
+        let messagesStore = MessagesStore()
+        let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
+        
+        interactor = MessagesInteractor(
+            presenter: messagePresenter,
+            messagesManager: messagesManagerStub,
+            messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
+            messagesRepository: messageRepositoryStub,
+            reachabilityProvider: reachabilityProvideStub
+        )
+        
+        parleyStub = ParleyStub(
+            messagesManager: messagesManagerStub,
+            messageRepository: messageRepositoryStub,
+            mediaLoader: mediaLoader,
+            localizationManager: localizationManager,
+            messagesInteractor: interactor,
+            messagesPresenter: messagePresenter,
+            messagesStore: messagesStore
+        )
+        
+        sut = ParleyView(
+            parley: parleyStub,
+            pollingService: pollingServiceStub,
+            notificationService: notificationServiceStub
+        )
+        
+        messagePresenter.set(display: sut)
+    }
 
     private let infoMessage = """
     **Welcome!**
@@ -19,24 +65,13 @@ final class ParleyViewTests: XCTestCase {
     Due to high inquiry volumes, our response times may be longer than usual. We appreciate your patience and will get back to you as soon as possible. Thank you for your understanding.
     """
 
-    func testEmptyParleyView() {
-        let messagesManagerStub = MessagesManagerStub()
-
-        messagesManagerStub.messages = [
-            Message.makeTestData(message: infoMessage, type: .info),
-        ]
-
-        let sut = ParleyView(
-            parley: ParleyStub(
-                messagesManager: messagesManagerStub,
-                messageRepository: MessageRepositoryStub(),
-                mediaLoader: MediaLoaderStub(),
-                localizationManager: ParleyLocalizationManager()
-            ),
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
-
+    @Test
+    mutating func testEmptyParleyView() {
+        messagesManagerStub.messages = []
+        messagesManagerStub.welcomeMessage = infoMessage
+        
+        setup()
+        
         sut.reachable()
         sut.didChangeState(.configured)
         sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
@@ -46,14 +81,12 @@ final class ParleyViewTests: XCTestCase {
         assert(sut: sut)
     }
 
-    func testParleyView() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testParleyView() {
         messagesManagerStub.stickyMessage = stickyMessage
-
+        messagesManagerStub.welcomeMessage = infoMessage
+        
         messagesManagerStub.messages = [
-            Message.makeTestData(message: infoMessage, type: .info),
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -77,35 +110,25 @@ final class ParleyViewTests: XCTestCase {
                 type: .user,
                 status: .pending,
                 agent: nil
-            ),
-            Message.makeTestData(type: .agentTyping),
+            )
         ]
-
-        let sut = ParleyView(
-            parley: ParleyStub(
-                messagesManager: messagesManagerStub,
-                messageRepository: MessageRepositoryStub(),
-                mediaLoader: MediaLoaderStub(),
-                localizationManager: ParleyLocalizationManager()
-            ),
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        
+        setup()
 
         sut.reachable()
         sut.didChangeState(.configured)
         sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
 
         applySize(sut: sut)
-
+        
+        interactor.handleAgentBeganTyping()
+        
         assert(sut: sut)
     }
-
-    func testMessageWithImage() throws {
-        let messagesManagerStub = MessagesManagerStub()
-
+    
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testMessageWithImage() async throws {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -118,37 +141,24 @@ final class ParleyViewTests: XCTestCase {
         ]
 
         let mediaLoaderStub = MediaLoaderStub()
-        let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
-        let data = try XCTUnwrap(image.pngData())
-
+        let image = try #require(UIImage(named: "Parley", in: .module, compatibleWith: nil))
+        let data = try #require(image.pngData())
         mediaLoaderStub.loadResult = data
-
-        let sut = ParleyView(
-            parley: ParleyStub(
-                messagesManager: messagesManagerStub,
-                messageRepository: MessageRepositoryStub(),
-                mediaLoader: mediaLoaderStub,
-                localizationManager: ParleyLocalizationManager()
-            ),
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        
+        setup(mediaLoader: mediaLoaderStub)
 
         sut.reachable()
         sut.didChangeState(.configured)
 
-        wait()
+        try await wait(milliseconds: 500)
 
         applySize(sut: sut)
-
         assert(sut: sut)
     }
-
-    func testMessageWithCarousel() throws {
-        let messagesManagerStub = MessagesManagerStub()
-
+    
+    @Test(.snapshots(diffTool: .default))
+    mutating func testMessageWithCarousel() async throws {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -175,56 +185,34 @@ final class ParleyViewTests: XCTestCase {
                 ],
                 type: .user,
                 agent: nil
-            ),
-            Message.makeTestData(type: .agentTyping),
+            )
         ]
 
         let mediaLoaderStub = MediaLoaderStub()
-        let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
-        let data = try XCTUnwrap(image.pngData())
-
+        let image = try #require(UIImage(named: "Parley", in: .module, compatibleWith: nil))
+        let data = try #require(image.pngData())
         mediaLoaderStub.loadResult = data
-
-        let sut = ParleyView(
-            parley: ParleyStub(
-                messagesManager: messagesManagerStub,
-                messageRepository: MessageRepositoryStub(),
-                mediaLoader: mediaLoaderStub,
-                localizationManager: ParleyLocalizationManager()
-            ),
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
-
+        
+        setup(mediaLoader: mediaLoaderStub)
+        
         sut.reachable()
         sut.didChangeState(.configured)
-
-        wait()
-
+        
+        try await wait(milliseconds: 30)
+        
         applySize(sut: sut)
-
+        
+        interactor.handleAgentBeganTyping()
+        
         assert(sut: sut)
     }
     
-    func testAgentTypingIndicatorAppearance() {
-        let messagesManagerStub = MessagesManagerStub()
-        
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testAgentTypingIndicatorAppearance() {
         messagesManagerStub.stickyMessage = stickyMessage
-
-        messagesManagerStub.messages = [
-            Message.makeTestData(type: .agentTyping)
-        ]
-
-        let sut = ParleyView(
-            parley: ParleyStub(
-                messagesManager: messagesManagerStub,
-                messageRepository: MessageRepositoryStub(),
-                mediaLoader: MediaLoaderStub(),
-                localizationManager: ParleyLocalizationManager()
-            ),
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        messagesManagerStub.messages = []
+        
+        setup()
         
         sut.appearance.typingBalloon.dots = .init(
             color: .systemRed,
@@ -241,15 +229,14 @@ final class ParleyViewTests: XCTestCase {
         sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
 
         applySize(sut: sut)
+        interactor.handleAgentBeganTyping()
 
         assert(sut: sut)
     }
 
-    func testOfflineView() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testOfflineView() {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -260,13 +247,8 @@ final class ParleyViewTests: XCTestCase {
             ),
         ]
 
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
-
+        setup()
+        
         parleyStub.reachable = false
 
         let sut = ParleyView(
@@ -282,12 +264,10 @@ final class ParleyViewTests: XCTestCase {
 
         assert(sut: sut)
     }
-
-    func testPushDisabled() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testPushDisabled() {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -295,23 +275,12 @@ final class ParleyViewTests: XCTestCase {
                 message: "This is my question.",
                 type: .user,
                 agent: nil
-            ),
+            )
         ]
-
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
+        
+        setup()
 
         parleyStub.pushEnabled = false
-
-        let sut = ParleyView(
-            parley: parleyStub,
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
 
         sut.reachable()
         sut.didChangeState(.configured)
@@ -321,11 +290,9 @@ final class ParleyViewTests: XCTestCase {
         assert(sut: sut)
     }
 
-    func testUnConfiguredState() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testUnConfiguredState() {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -333,21 +300,10 @@ final class ParleyViewTests: XCTestCase {
                 message: "This is my question.",
                 type: .user,
                 agent: nil
-            ),
+            )
         ]
-
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
-
-        let sut = ParleyView(
-            parley: parleyStub,
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        
+        setup()
 
         sut.reachable()
         sut.didChangeState(.unconfigured)
@@ -356,18 +312,17 @@ final class ParleyViewTests: XCTestCase {
 
         assert(sut: sut)
     }
-
+    
+    @Test(.snapshots(diffTool: .compareSideBySide))
     func testUnConfiguredStateOfNonStubbedParleyView() {
         let sut = ParleyView()
         applySize(sut: sut)
         assert(sut: sut)
     }
 
-    func testConfiguringState() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testConfiguringState() {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -375,21 +330,10 @@ final class ParleyViewTests: XCTestCase {
                 message: "This is my question.",
                 type: .user,
                 agent: nil
-            ),
+            )
         ]
-
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
-
-        let sut = ParleyView(
-            parley: parleyStub,
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        
+        setup()
 
         sut.reachable()
         sut.didChangeState(.configuring)
@@ -399,11 +343,9 @@ final class ParleyViewTests: XCTestCase {
         assert(sut: sut)
     }
 
-    func testFailedState() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testFailedState() {
         messagesManagerStub.messages = [
-            Message.makeTestData(time: Date(timeIntSince1970: 1), type: .date),
             Message.makeTestData(
                 id: 1,
                 time: Date(timeIntSince1970: 1),
@@ -414,18 +356,7 @@ final class ParleyViewTests: XCTestCase {
             ),
         ]
 
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
-
-        let sut = ParleyView(
-            parley: parleyStub,
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        setup()
 
         sut.reachable()
         sut.didChangeState(.failed)
@@ -435,23 +366,10 @@ final class ParleyViewTests: XCTestCase {
         assert(sut: sut)
     }
 
-    func testConfiguredStateWithNoMessages() {
-        let messagesManagerStub = MessagesManagerStub()
-
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testConfiguredStateWithNoMessages() {
         messagesManagerStub.messages = []
-
-        let parleyStub = ParleyStub(
-            messagesManager: messagesManagerStub,
-            messageRepository: MessageRepositoryStub(),
-            mediaLoader: MediaLoaderStub(),
-            localizationManager: ParleyLocalizationManager()
-        )
-
-        let sut = ParleyView(
-            parley: parleyStub,
-            pollingService: PollingServiceStub(),
-            notificationService: NotificationServiceStub()
-        )
+        setup()
 
         sut.reachable()
         sut.didChangeState(.configured)
@@ -481,5 +399,9 @@ final class ParleyViewTests: XCTestCase {
             testName: testName,
             line: line
         )
+    }
+    
+    private func wait(milliseconds: UInt64) async throws {
+        try await Task.sleep(nanoseconds: milliseconds * 1_000_000)
     }
 }

@@ -5,6 +5,8 @@ protocol MessagesManagerProtocol: AnyObject {
     var messages: [Message] { get }
     var pendingMessages: [Message] { get }
     var lastSentMessage: Message? { get }
+    
+    var welcomeMessage: String? { get }
     var stickyMessage: String? { get }
 
     func loadCachedData()
@@ -12,23 +14,19 @@ protocol MessagesManagerProtocol: AnyObject {
     func canLoadMore() -> Bool
     func handle(_ messageCollection: MessageCollection, _ handleType: MessagesManager.HandleType)
     func update(_ message: Message)
-    func add(_ message: Message) -> [IndexPath]
-    func addTypingMessage() -> [IndexPath]
+    func add(_ message: Message) -> Bool
     func getOldestMessage() -> Message?
-    func removeTypingMessage() -> [IndexPath]?
 }
 
 final class MessagesManager: MessagesManagerProtocol {
 
-    enum HandleType {
+    enum HandleType: CaseIterable {
         case all
         case before
         case after
     }
 
-    private var originalMessages: [Message] = []
     private(set) var messages: [Message] = []
-
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
     private(set) var paging: MessageCollection.Paging?
@@ -37,14 +35,16 @@ final class MessagesManager: MessagesManagerProtocol {
 
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
-        originalMessages.last { message in
-            message.id != nil && message.status == .success
-        }
+        messages
+            .sorted(by: <)
+            .last { message in
+                message.id != nil && message.status == .success
+            }
     }
 
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
-        originalMessages.reduce([Message]()) { partialResult, message in
+        messages.sorted(by: <).reduce([Message]()) { partialResult, message in
             switch message.status {
             case .failed, .pending:
                 partialResult + [message]
@@ -55,7 +55,7 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func getOldestMessage() -> Message? {
-        messages.first(where: {
+        messages.sorted(by: <).first(where: {
             switch $0.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
                 true
@@ -74,10 +74,10 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func loadCachedData() {
-        originalMessages.removeAll(keepingCapacity: true)
+        messages.removeAll(keepingCapacity: true)
 
         if let cachedMessages = messageDataSource?.all() {
-            originalMessages
+            messages
                 .append(
                     contentsOf: cachedMessages
                         .sorted(by: <)
@@ -92,13 +92,11 @@ final class MessagesManager: MessagesManagerProtocol {
         } else {
             paging = nil
         }
-
-        formatMessages()
     }
 
     func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
         let newMessages = messageCollection.messages.filter { message in
-            if originalMessages.contains(where: { $0.id == message.id }) {
+            if messages.contains(where: { $0.id == message.id }) {
                 return false
             }
             return true
@@ -106,18 +104,18 @@ final class MessagesManager: MessagesManagerProtocol {
 
         switch handleType {
         case .before:
-            originalMessages.insert(contentsOf: newMessages, at: .zero)
+            messages.insert(contentsOf: newMessages, at: .zero)
         case .all, .after:
             let pendingMessages = pendingMessages
-            originalMessages.removeAll { message -> Bool in
+            messages.removeAll { message -> Bool in
                 message.status == .pending || message.status == .failed
             }
 
-            originalMessages.append(contentsOf: newMessages)
-            originalMessages.append(contentsOf: pendingMessages)
+            messages.append(contentsOf: newMessages)
+            messages.append(contentsOf: pendingMessages)
         }
 
-        messageDataSource?.save(originalMessages)
+        messageDataSource?.save(messages)
         stickyMessage = messageCollection.stickyMessage
         updateWelcomeMessage(messageCollection.welcomeMessage)
 
@@ -129,8 +127,6 @@ final class MessagesManager: MessagesManagerProtocol {
                 keyValueDataSource?.removeObject(forKey: kParleyCacheKeyPaging)
             }
         }
-
-        formatMessages()
     }
 
     private func updateWelcomeMessage(_ message: String?) {
@@ -142,173 +138,22 @@ final class MessagesManager: MessagesManagerProtocol {
         }
     }
 
-    func add(_ message: Message) -> [IndexPath] {
-        guard !originalMessages.contains(message) else { return [] }
-
-        let lastIndex = lastMessage()?.index
-        var addIndex = lastIndex ?? 0
-        var indexPaths: [IndexPath] = []
-
-        if isFirstMessageOfToday(message) {
-            var dateIndex = lastIndex == nil ? 0 : addIndex + 1
-            indexPaths.append(IndexPath(row: dateIndex, section: 0))
-
-            let dateMessage = createDateMessage(message.time ?? Date())
-            if let (index, lastMessage) = lastNotIgnoredMessage(ignoring: [.agentTyping]), lastMessage.type == .date {
-                // Replace consecutive date headers with no vissble messages in between them
-                messages.remove(at: index)
-                messages.insert(dateMessage, at: index)
-                dateIndex = index
-            } else {
-                messages.insert(dateMessage, at: dateIndex)
-            }
-            
-            addIndex = dateIndex + 1
-        } else {
-            addIndex += 1
-        }
-
-        indexPaths.append(IndexPath(row: addIndex, section: 0))
-        messages.insert(message, at: addIndex)
-
-        originalMessages.append(message)
+    func add(_ message: Message) -> Bool {
+        guard !messages.contains(message) else { return false }
+        
+        messages.append(message)
         messageDataSource?.insert(message, at: 0)
-
-        return indexPaths
-    }
-
-    private func lastMessage() -> (index: Int, message: Message)? {
-        guard let lastMessage = messages.last else { return nil }
-        var lastMessageIndex = messages.count - 1
-        if lastMessage.type == .agentTyping {
-            lastMessageIndex -= 1
-        }
-        return (lastMessageIndex, lastMessage)
-    }
-    
-    private func lastNotIgnoredMessage(ignoring: [Message.MessageType] = []) -> (index: Int, message: Message)? {
-        var index = messages.count - 1
-        while (index >= .zero) {
-            let message = messages[index]
-            guard message.ignore() == false else { index -= 1 ; continue }
-            if let messageType = message.type, ignoring.contains(messageType) {
-                index -= 1
-                continue
-            }
-            return (index, message)
-        }
-        return nil
-    }
-
-    private func isFirstMessageOfToday(_ message: Message) -> Bool {
-        guard
-            !messages.isEmpty,
-            let (lastMessageIndex, lastMessage) = lastMessage() else { return true }
-
-        guard let messageTime = message.time else { return false }
-
-        let calendar = Calendar.current
-        let lastDate = (messages.count > lastMessageIndex ? lastMessage.time : nil) ?? Date()
-        let messageDatesMatch = calendar.isDate(lastDate, inSameDayAs: messageTime)
-        let isFirstMessageAfterInfoMessage = messages.count > lastMessageIndex && lastMessage.type == .info
-
-        return isFirstMessageAfterInfoMessage || !messageDatesMatch
+        return true
     }
 
     func update(_ message: Message) {
         guard
-            let originalMessagesIndex = originalMessages
-                .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid }),
-            let messagesIndex = messages.firstIndex(where: { currentMessage in currentMessage.uuid == message.uuid }) else { return }
+            let originalMessagesIndex = messages
+                .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid })
+        else { return }
 
-        originalMessages[originalMessagesIndex] = message
-        messages[messagesIndex] = message
-
+        messages[originalMessagesIndex] = message
         messageDataSource?.update(message)
-    }
-
-    /// Adds a typing indicator message
-    /// - Returns: The `IndexPath`'s to add.
-    func addTypingMessage() -> [IndexPath] {
-        guard messages.last?.type != .agentTyping else { return [] }
-        messages.append(createTypingMessage())
-        return [IndexPath(row: messages.count - 1, section: 0)]
-    }
-
-    /// Removes the typing indicator message
-    /// - Returns: the `IndexPath`'s to remove.
-    func removeTypingMessage() -> [IndexPath]? {
-        guard messages.last?.type == .agentTyping else { return nil }
-        let tyingIndicatorIndex = messages.count - 1
-        messages.removeLast()
-        return [IndexPath(row: tyingIndicatorIndex, section: 0)]
-    }
-
-    func formatMessages() {
-        var formattedMessages: [Message] = []
-
-        if canLoadMore() {
-            formattedMessages.append(createLoadingMessage())
-        } else if let welcomeMessage = welcomeMessage {
-            formattedMessages.append(createInfoMessages(welcomeMessage))
-        }
-
-        let messagesByDate = getMessagesByDate()
-
-        for date in messagesByDate.keys.sorted(by: <) {
-            for message in messagesByDate[date]!.sorted(by: <) {
-                formattedMessages.append(message)
-            }
-        }
-
-        if messages.last?.type == .agentTyping {
-            formattedMessages.append(createTypingMessage())
-        }
-
-        messages = formattedMessages
-    }
-
-    private func getMessagesByDate() -> [Date: [Message]] {
-        let calendar = Calendar.current
-
-        var messagesByDate = [Date: [Message]]()
-        for message in originalMessages {
-            guard let time = message.time else { continue }
-            let date: Date = calendar.startOfDay(for: time)
-            if messagesByDate[date] == nil {
-                messagesByDate[date] = [createDateMessage(date)]
-            }
-            messagesByDate[date]?.append(message)
-        }
-
-        return messagesByDate
-    }
-
-    private func createTypingMessage() -> Message {
-        let typingMessage = Message()
-        typingMessage.type = .agentTyping
-        return typingMessage
-    }
-
-    private func createDateMessage(_ date: Date) -> Message {
-        let dateMessage = Message()
-        dateMessage.time = date
-        dateMessage.message = date.asDate()
-        dateMessage.type = .date
-        return dateMessage
-    }
-
-    private func createInfoMessages(_ message: String) -> Message {
-        let infoMessage = Message()
-        infoMessage.type = .info
-        infoMessage.message = message
-        return infoMessage
-    }
-
-    private func createLoadingMessage() -> Message {
-        let loadingMessage = Message()
-        loadingMessage.type = .loading
-        return loadingMessage
     }
 
     func canLoadMore() -> Bool {
@@ -320,7 +165,6 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func clear() {
-        originalMessages.removeAll()
         messages.removeAll()
         welcomeMessage = nil
         stickyMessage = nil
@@ -397,11 +241,11 @@ extension MessagesManager {
             ),
         ]
 
-        originalMessages.removeAll()
-//        originalMessages.append(userMessage_shortPending) // Will be send
-//        originalMessages.append(agentMessage_fullMessageWithActions)
-        originalMessages.append(agentMessage_messageWithCarouselSmall)
-//        originalMessages.append(agentMessage_messageWithCarouselImages)
+        messages.removeAll()
+//      messages.append(userMessage_shortPending) // Will be sent
+//        messages.append(agentMessage_fullMessageWithActions)
+        messages.append(agentMessage_messageWithCarouselSmall)
+//        messages.append(agentMessage_messageWithCarouselImages)
     }
 
     fileprivate func createMessage(

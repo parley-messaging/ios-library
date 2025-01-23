@@ -10,6 +10,10 @@ protocol ParleyProtocol {
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
     var mediaLoader: MediaLoaderProtocol! { get }
+    
+    var messagesInteractor: MessagesInteractor! { get }
+    var messagesPresenter: MessagesPresenterProtocol! { get }
+    var messagesStore: MessagesStore! { get }
 
     var delegate: ParleyDelegate? { get set }
 
@@ -17,11 +21,10 @@ protocol ParleyProtocol {
     func send(_ message: Message, isNewMessage: Bool) async
     func send(_ text: String, silent: Bool)
     func userStartTyping()
-    func loadMoreMessages(_ lastMessageId: Int)
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
-public final class Parley: ParleyProtocol {
+public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     enum State {
         case unconfigured
@@ -41,7 +44,7 @@ public final class Parley: ParleyProtocol {
     private var isLoading = false
 
     private var reachability: Reachability?
-    private var reachable = false {
+    internal var reachable = false {
         didSet {
             if reachable {
                 delegate?.reachable()
@@ -68,6 +71,10 @@ public final class Parley: ParleyProtocol {
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
+    
+    private(set) var messagesInteractor: MessagesInteractor!
+    private(set) var messagesPresenter: MessagesPresenterProtocol!
+    private(set) var messagesStore: MessagesStore!
 
     private(set) var alwaysPolling = false
     private(set) var pushToken: String? = nil
@@ -122,6 +129,16 @@ public final class Parley: ParleyProtocol {
         mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
         mediaRepository.dataSource = mediaDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
+        
+        messagesStore = MessagesStore()
+        messagesPresenter = MessagesPresenter(store: messagesStore, display: nil)
+        messagesInteractor = MessagesInteractor(
+            presenter: messagesPresenter!,
+            messagesManager: messagesManager!,
+            messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
+            messagesRepository: messageRepository!,
+            reachabilityProvider: self
+        )
         addObservers()
     }
 
@@ -259,7 +276,6 @@ public final class Parley: ParleyProtocol {
                 guard let self else { return }
                 let onSecondSuccess: () -> Void = { [weak self] in
                     guard let self else { return }
-                    delegate?.didReceiveMessages()
 
                     send(messagesManager.pendingMessages)
 
@@ -270,14 +286,14 @@ public final class Parley: ParleyProtocol {
                 }
 
                 if let lastMessage = messagesManager.lastSentMessage, let id = lastMessage.id {
-                    messageRepository.findAfter(id, onSuccess: { [weak messagesManager] messageCollection in
-                        messagesManager?.handle(messageCollection, .after)
+                    messageRepository.findAfter(id, onSuccess: { [weak self] messageCollection in
+                        self?.messagesManager?.handle(messageCollection, .after)
 
                         onSecondSuccess()
                     }, onFailure: onFailure)
                 } else {
-                    messageRepository.findAll(onSuccess: { [weak messagesManager] messageCollection in
-                        messagesManager?.handle(messageCollection, .all)
+                    messageRepository.findAll(onSuccess: { [weak self] messageCollection in
+                        self?.messagesManager?.handle(messageCollection, .all)
 
                         onSecondSuccess()
                     }, onFailure: onFailure)
@@ -345,10 +361,11 @@ public final class Parley: ParleyProtocol {
     }
 
     private func clearMessagesAndDataSources() {
-        messagesManager?.clear()
         messageDataSource?.clear()
         keyValueDataSource?.clear()
-        delegate?.didReceiveMessages()
+        Task {
+            await messagesInteractor.clear()
+        }
     }
 
     // MARK: Devices
@@ -379,33 +396,6 @@ public final class Parley: ParleyProtocol {
     }
 
     // MARK: Messages
-
-    func loadMoreMessages(_ lastMessageId: Int) {
-        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
-        guard
-            reachable,
-            !isLoading,
-            messagesManager.canLoadMore() else { return }
-
-        isLoading = true
-        messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
-            self?.handleFetchedMessageCollection(messageCollection)
-        }, onFailure: { [weak self] _ in
-            self?.isLoading = false
-        })
-    }
-
-    private func handleFetchedMessageCollection(_ collection: MessageCollection) {
-        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
-
-        isLoading = false
-        Task {
-            messagesManager.handle(collection, .before)
-            await MainActor.run {
-                delegate?.didLoadMore()
-            }
-        }
-    }
 
     func send(_ messages: [Message]) {
         Task {
@@ -489,22 +479,14 @@ public final class Parley: ParleyProtocol {
     }
 
     private func handleMessageSent(_ message: Message) async {
-        message.status = .success
-        messagesManager?.update(message)
-        await MainActor.run {
-            delegate?.didUpdate(message)
-            delegate?.didSent(message)
-        }
+        await messagesInteractor.handleMessageSent(message)
     }
 
     private func addNewMessage(_ message: Message) async {
-        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
-        userStopTypingTimer?.fire()
-
-        let indexPaths = messagesManager.add(message)
-        await MainActor.run {
-            delegate?.willSend(indexPaths)
-        }
+        guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
+        userStopTypingTimer?.fire();
+        
+        await messagesInteractor.handleNewMessage(message)
     }
 
     private func failedToSend(message: Message, error: Error) async {
@@ -513,18 +495,14 @@ public final class Parley: ParleyProtocol {
         }
 
         if !isCachingEnabled() || !isOfflineError(error) {
-            message.status = .failed
-            messagesManager?.update(message)
-            await MainActor.run {
-                delegate?.didUpdate(message)
-            }
+            await messagesInteractor.handleMessageFailedToSend(message)
         }
     }
 
     // MARK: Remote messages
 
     private func handleMessage(_ userInfo: [String: Any]) {
-        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
+        guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
         guard
             let id = userInfo["id"] as? Int,
             let typeId = userInfo["typeId"] as? Int else { return }
@@ -540,31 +518,28 @@ public final class Parley: ParleyProtocol {
         if isLoading { return } // Ignore remote messages when configuring chat.
 
         if let id = message.id {
-            messageRepository.find(id, onSuccess: { [weak self] storedMessage in
-                guard let self else { return }
+            messageRepository.find(id, onSuccess: { storedMessage in
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: storedMessage) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
-                delegate?.didStopTyping()
-
-                let indexPaths = messagesManager.add(storedMessage)
-                delegate?.didReceiveMessage(indexPaths)
-            }) { [weak self] _ in
-                guard let self else { return }
-
+                Task {
+                    await messagesInteractor.handleAgentStoppedTyping()
+                    await messagesInteractor.handleNewMessage(storedMessage)
+                }
+            }) { _ in
                 if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
-                delegate?.didStopTyping()
-
-                let indexPaths = messagesManager.add(message)
-                delegate?.didReceiveMessage(indexPaths)
+                Task {
+                    await messagesInteractor.handleAgentStoppedTyping()
+                    await messagesInteractor.handleNewMessage(message)
+                }
             }
         } else {
-            delegate?.didStopTyping()
-
-            let indexPaths = messagesManager.add(message)
-            delegate?.didReceiveMessage(indexPaths)
+            Task {
+                await messagesInteractor.handleAgentStoppedTyping()
+                await messagesInteractor.handleNewMessage(message)
+            }
         }
     }
 
@@ -626,7 +601,9 @@ public final class Parley: ParleyProtocol {
                 notification: .announcement,
                 argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
             )
-            delegate?.didStartTyping()
+            Task {
+                await messagesInteractor.handleAgentBeganTyping()
+            }
         }
     }
 
@@ -638,7 +615,9 @@ public final class Parley: ParleyProtocol {
         agentStopTypingTimer?.invalidate()
         agentStopTypingTimer = nil
 
-        delegate?.didStopTyping()
+        Task {
+            await messagesInteractor.handleAgentStoppedTyping()
+        }
     }
 }
 

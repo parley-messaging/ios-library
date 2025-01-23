@@ -16,6 +16,7 @@ final class MessagesTableView: UITableView {
     }
 
     func scroll(to: ScrollPosition, animated: Bool) {
+        guard numberOfSections > .zero else { return }
         switch to {
         case .bottom:
             let section = max(0, numberOfSections - 1)

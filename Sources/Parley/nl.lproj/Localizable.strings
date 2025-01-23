@@ -38,7 +38,7 @@
 // MARK: - Accessibility - Voice Over
 // Message Compose View
 "parley_voice_over_type_message_label" = "Typ een bericht";
-"parley_voice_over_camera_button_label" = "Foto";
+"parley_voice_over_camera_button_label" = "Afbeelding of document";
 "parley_voice_over_send_button_label" = "Verzenden";
 "parley_voice_over_send_button_disabled_hint" = "uitgeschakeld";
 "parley_voice_over_dismiss_keyboard_action" = "Toetsenbord verbergen";

@@ -20,10 +20,16 @@ final class PollingService: PollingServiceProtocol {
     weak var delegate: ParleyDelegate?
     private let messageRepository: MessageRepositoryProtocol
     private let messagesManager: MessagesManagerProtocol
+    private let messagesInteractor: MessagesInteractor
 
-    init(messageRepository: MessageRepositoryProtocol, messagesManager: MessagesManagerProtocol) {
+    init(
+        messageRepository: MessageRepositoryProtocol,
+        messagesManager: MessagesManagerProtocol,
+        messagesInteractor: MessagesInteractor
+    ) {
         self.messageRepository = messageRepository
         self.messagesManager = messagesManager
+        self.messagesInteractor = messagesInteractor
     }
 
     private var loopRepeated = 0 {
@@ -81,7 +87,7 @@ final class PollingService: PollingServiceProtocol {
 
         messageRepository.findAfter(
             id,
-            onSuccess: { [weak self, weak delegate, weak messagesManager] messageCollection in
+            onSuccess: { [weak self] messageCollection in
                 guard !messageCollection.messages.isEmpty else {
                     self?.loopRepeated += 1
                     return
@@ -89,8 +95,10 @@ final class PollingService: PollingServiceProtocol {
                 self?.loopRepeated = 0
                 self?.timerInterval = .twoSeconds
                 self?.setTimer(interval: .twoSeconds)
-                messagesManager?.handle(messageCollection, .after)
-                delegate?.didReceiveMessages()
+                
+                Task {
+                    await self?.messagesInteractor.handle(collection: messageCollection, .after)
+                }
             },
             onFailure: { _ in
                 print("Polling failed to retrieve latest messages")
