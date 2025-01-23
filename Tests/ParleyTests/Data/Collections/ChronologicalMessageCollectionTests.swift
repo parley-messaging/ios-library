@@ -189,11 +189,11 @@ class ChronologicalMessageCollectionTests {
         var collection = makeCollection()
         _ = collection.add(message: .makeTestData())
         
-        #expect(collection.getAllMessages().count == 1)
+        #expect(getAllMessages(collection).count == 1)
         
         collection.clear()
         
-        #expect(collection.getAllMessages().count == 0)
+        #expect(getAllMessages(collection).count == 0)
     }
 }
 
@@ -216,5 +216,9 @@ private extension ChronologicalMessageCollectionTests {
                 lastMessage = message
             }
         }
+    }
+    
+    func getAllMessages(_ collection: ParleyChronologicalMessageCollection) -> [Message] {
+        Array(collection.sections.map(\.messages).joined())
     }
 }

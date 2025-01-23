@@ -5,7 +5,6 @@ protocol MessagesManagerProtocol: AnyObject {
     var messages: [Message] { get }
     var pendingMessages: [Message] { get }
     var lastSentMessage: Message? { get }
-    var latestMessage: Message? { get }
     
     var welcomeMessage: String? { get }
     var stickyMessage: String? { get }
@@ -36,24 +35,16 @@ final class MessagesManager: MessagesManagerProtocol {
 
     /// The last messages that has been successfully sent.
     var lastSentMessage: Message? {
-        messages.last { message in
-            message.id != nil && message.status == .success
-        }
-    }
-    
-    /// Latest non-ignored message
-    var latestMessage: Message? {
-        for message in messages {
-            if !message.ignore() {
-                return message
+        messages
+            .sorted(by: <)
+            .last { message in
+                message.id != nil && message.status == .success
             }
-        }
-        return nil
     }
 
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
-        messages.reduce([Message]()) { partialResult, message in
+        messages.sorted(by: <).reduce([Message]()) { partialResult, message in
             switch message.status {
             case .failed, .pending:
                 partialResult + [message]
@@ -64,7 +55,7 @@ final class MessagesManager: MessagesManagerProtocol {
     }
 
     func getOldestMessage() -> Message? {
-        messages.first(where: {
+        messages.sorted(by: <).first(where: {
             switch $0.type {
             case .agent, .systemMessageAgent, .user, .systemMessageUser:
                 true
@@ -251,10 +242,10 @@ extension MessagesManager {
         ]
 
         messages.removeAll()
-//        originalMessages.append(userMessage_shortPending) // Will be sent
-//        originalMessages.append(agentMessage_fullMessageWithActions)
+//      messages.append(userMessage_shortPending) // Will be sent
+//        messages.append(agentMessage_fullMessageWithActions)
         messages.append(agentMessage_messageWithCarouselSmall)
-//        originalMessages.append(agentMessage_messageWithCarouselImages)
+//        messages.append(agentMessage_messageWithCarouselImages)
     }
 
     fileprivate func createMessage(

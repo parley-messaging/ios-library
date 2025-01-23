@@ -677,17 +677,16 @@ extension ParleyView: UITableViewDelegate {
         let scrollY = scrollView.contentOffset.y
 
         if scrollY < height / 2 {
-            guard
-                !isAlreadyAtTop,
-                let lastMessageId = messagesManager?.getOldestMessage()?.id else { return }
-
+            guard !isAlreadyAtTop else { return }
             isAlreadyAtTop = true
-            parley.loadMoreMessages(lastMessageId)
+            Task {
+                await messagesInteracor.handleLoadMessages()
+            }
         } else {
             isAlreadyAtTop = false
         }
         
-        messagesInteracor.isScrolledToBottom(messagesTableView.isAtBottom)
+        messagesInteracor.setScrolledToBottom(messagesTableView.isAtBottom)
 
         updateSuggestionsAlpha()
     }

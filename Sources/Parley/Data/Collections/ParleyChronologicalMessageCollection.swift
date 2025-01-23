@@ -7,7 +7,7 @@ protocol ParleyMessageSection {
 
 public struct ParleyChronologicalMessageCollection {
     
-    private var indexMap = [Date: Int]()
+    private var indexMap = [Date: [Section].Index]()
     private(set) var sections = [Section]()
     private let calendar: Calendar
     
@@ -69,15 +69,15 @@ extension ParleyChronologicalMessageCollection {
     }
     
     mutating func set(messages: [Message]) {
-        self.sections.removeAll(keepingCapacity: true)
+        sections.removeAll(keepingCapacity: true)
         
         let messagesByDate = messages.byDate(calender: calendar)
-        self.sections.reserveCapacity(messagesByDate.keys.count)
+        sections.reserveCapacity(messagesByDate.keys.count)
         let sectionsByDate = messagesByDate.map { (date: Date, messages: [Message]) in
             Section(date: date, messages: messages)
         }
         
-        self.sections = sectionsByDate
+        sections = sectionsByDate
         sort()
     }
     
@@ -91,6 +91,7 @@ extension ParleyChronologicalMessageCollection {
         return Position(section: lastSection, row: lastRow)
     }
     
+    @discardableResult
     mutating func update(message updatedMessage: Message) -> Position? {
         guard let messagePosistion = find(message: updatedMessage) else { return nil }
         sections[messagePosistion.section].messages.remove(at: messagePosistion.row)
@@ -106,14 +107,6 @@ extension ParleyChronologicalMessageCollection {
             }
         }
         return nil
-    }
-    
-    func getAllMessages() -> [Message] {
-        var messages = [Message]()
-        for section in sections {
-            messages.append(contentsOf: section.messages)
-        }
-        return messages
     }
     
     mutating func clear() {
@@ -143,7 +136,7 @@ extension ParleyChronologicalMessageCollection {
 
     struct Section: ParleyMessageSection, Comparable {
         let date: Date
-        var messages: [Message]
+        fileprivate(set) var messages: [Message]
         
         init(date: Date, message: Message) {
             self.date = date
@@ -162,6 +155,7 @@ extension ParleyChronologicalMessageCollection {
              
             var index = messages.endIndex
             
+            // Find correct index from bottom up
             while index > 0 {
                 let previousIndex = index - 1
                 let previousMessage = messages[previousIndex]

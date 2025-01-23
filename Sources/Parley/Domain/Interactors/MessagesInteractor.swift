@@ -1,6 +1,6 @@
 import Foundation
 
-class MessagesInteractor {
+final class MessagesInteractor {
     
     private let presenter: MessagesPresenterProtocol
     private let messagesManager: MessagesManagerProtocol
@@ -38,6 +38,11 @@ class MessagesInteractor {
         self.messageRepository = messagesRepository
         self.reachabilityProvider = reachabilityProvider
     }
+    
+    @MainActor
+    func setScrolledToBottom(_ isScrolledToBottom: Bool) {
+        presenter.set(isScrolledToBottom: isScrolledToBottom)
+    }
 }
 
 // MARK: Methods
@@ -66,14 +71,14 @@ extension MessagesInteractor {
     func handleAgentBeganTyping() {
         guard agentTyping == false else { return }
         agentTyping = true
-        presentAgentTyping()
+        presenter.presentAgentTyping(agentTyping)
     }
     
     @MainActor
     func handleAgentStoppedTyping() {
         guard agentTyping else { return }
         agentTyping = false
-        presentAgentTyping()
+        presenter.presentAgentTyping(agentTyping)
     }
     
     @MainActor
@@ -82,13 +87,13 @@ extension MessagesInteractor {
             reachabilityProvider.reachable,
             !isLoadingMessages,
             messagesManager.canLoadMore(),
-            let lastMessageId = messagesManager.getOldestMessage()?.id
+            let oldestMessageId = messagesManager.getOldestMessage()?.id
         else { return }
         
         isLoadingMessages = true
         presenter.presentLoadingMessages(isLoadingMessages)
         
-        if let collection = try? await findMessage(before: lastMessageId) {
+        if let collection = try? await findMessage(before: oldestMessageId) {
             handle(collection: collection, .before)
         }
             
@@ -105,11 +110,12 @@ extension MessagesInteractor {
         case .all:
             messages.set(collection: collection)
             presenter.set(sections: messages.sections)
-            presenter.presentMessages()
-            presentQuickRepliesState()
         case .before, .after:
             insertNewMessages(messages: collection.messages)
         }
+
+        presenter.presentMessages()
+        presentQuickRepliesState()
         
         presenter.present(stickyMessage: collection.stickyMessage)
     }
@@ -124,7 +130,7 @@ extension MessagesInteractor {
         messages.add(message: message)
         presentQuickRepliesState()
         
-        if (message.quickReplies ?? []).isEmpty {
+        if message.hasQuickReplies == false {
             presenter.presentAdd(message: message)
         }
     }
@@ -132,37 +138,28 @@ extension MessagesInteractor {
     func handleMessageSent(_ message: Message) async {
         message.status = .success
         messagesManager.update(message)
-        _ = messages.update(message: message)
+        messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
     func handleMessageFailedToSend(_ message: Message) async {
         message.status = .failed
         messagesManager.update(message)
-        _ = messages.update(message: message)
+        messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
     @MainActor
     func clear() {
         messages.clear()
+        messagesManager.clear()
         presenter.set(sections: messages.sections)
         presenter.presentMessages()
         presentQuickRepliesState()
     }
-    
-    @MainActor
-    func isScrolledToBottom(_ isScrolledToBottom: Bool) {
-        presenter.set(isScrolledToBottom: isScrolledToBottom)
-    }
 }
 
 private extension MessagesInteractor {
-    
-    @MainActor
-    func presentAgentTyping() {
-        presenter.presentAgentTyping(agentTyping)
-    }
     
     func findMessage(before messageId: Int) async throws -> MessageCollection {
         try await withCheckedThrowingContinuation { continuation in
@@ -183,10 +180,6 @@ private extension MessagesInteractor {
         }
         
         presenter.set(sections: self.messages.sections)
-    }
-    
-    func isQuickReplyMessage(_ message: Message) -> Bool {
-        message.quickReplies?.isEmpty == false
     }
     
     @MainActor

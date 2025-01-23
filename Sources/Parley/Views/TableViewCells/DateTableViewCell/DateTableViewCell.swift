@@ -22,10 +22,6 @@ final class DateTableViewCell: UITableViewCell {
         apply(appearance)
     }
 
-    func render(_ message: Message) {
-        timeLabel.text = message.time?.asDate(style: appearance.style)
-    }
-    
     func render(_ date: Date) {
         timeLabel.text = date.asDate(style: appearance.style)
     }

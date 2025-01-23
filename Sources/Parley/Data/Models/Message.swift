@@ -17,7 +17,6 @@ public final class Message: Codable, Equatable {
         case agent = 2
 
         /// Automatic message from the backend system.
-        /// Comparable to the `info` field in that is used for informational content.
         case auto = 3
 
         /// Message from the system, as the user
@@ -62,6 +61,9 @@ public final class Message: Codable, Equatable {
     var carousel: [Message]?
 
     var quickReplies: [String]?
+    var hasQuickReplies: Bool {
+        (quickReplies ?? []).isEmpty == false
+    }
 
     var type: MessageType?
     var status: MessageStatus = .success
@@ -181,17 +183,14 @@ public final class Message: Codable, Equatable {
 extension Message: Comparable {
 
     public static func < (lhs: Message, rhs: Message) -> Bool {
-        switch lhs.type {
-        default:
-            if lhs.time == nil && rhs.time == nil {
-                false
-            } else if lhs.time == nil {
-                true
-            } else if rhs.time == nil {
-                false
-            } else {
-                lhs.time! < rhs.time!
-            }
+        if lhs.time == nil && rhs.time == nil {
+            false
+        } else if lhs.time == nil {
+            true
+        } else if rhs.time == nil {
+            false
+        } else {
+            lhs.time! < rhs.time!
         }
     }
 

@@ -66,9 +66,11 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = snapshot.setLoading(isLoadingMessages)
         _ = snapshot.set(agentTyping: isAgentTyping)
         
-        for var section in sections {
-            section.messages.removeAll(where: { $0.quickReplies?.isEmpty == false })
-            let result = snapshot.insertSection(messages: section.messages)
+        for section in sections {
+            let sectionWithoutQuickReplies = section.messages.filter {
+                $0.quickReplies == nil || $0.quickReplies?.isEmpty == true
+            }
+            let result = snapshot.insertSection(messages: sectionWithoutQuickReplies)
             assert(result != nil, "Failed to insert section.")
         }
         
@@ -432,9 +434,6 @@ extension MessagesPresenter {
             if let index = insertionIndex {
                 sections.insert(newSection, at: index)
                 return index
-            } else if let typingIndicatorIndex {
-                sections.insert(newSection, at: typingIndicatorIndex)
-                return typingIndicatorIndex
             } else {
                 sections.append(newSection)
                 return sections.endIndex - 1

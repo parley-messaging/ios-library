@@ -21,7 +21,6 @@ protocol ParleyProtocol {
     func send(_ message: Message, isNewMessage: Bool) async
     func send(_ text: String, silent: Bool)
     func userStartTyping()
-    func loadMoreMessages(_ lastMessageId: Int)
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
@@ -362,7 +361,6 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     }
 
     private func clearMessagesAndDataSources() {
-        messagesManager?.clear()
         messageDataSource?.clear()
         keyValueDataSource?.clear()
         Task {
@@ -398,30 +396,6 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     }
 
     // MARK: Messages
-
-    func loadMoreMessages(_ lastMessageId: Int) {
-        guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
-        guard
-            reachable,
-            !isLoading,
-            messagesManager.canLoadMore() else { return }
-
-        isLoading = true
-        messageRepository.findBefore(lastMessageId, onSuccess: { [weak self] messageCollection in
-            self?.handleFetchedMessageCollection(messageCollection)
-        }, onFailure: { [weak self] _ in
-            self?.isLoading = false
-        })
-    }
-
-    private func handleFetchedMessageCollection(_ collection: MessageCollection) {
-        guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
-
-        isLoading = false
-        Task {
-            await messagesInteractor.handle(collection: collection, .before)
-        }
-    }
 
     func send(_ messages: [Message]) {
         Task {
