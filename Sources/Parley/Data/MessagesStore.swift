@@ -71,6 +71,6 @@ extension MessagesStore {
     }
     
     subscript(indexPath ip: IndexPath) -> CellKind? {
-        cells[ip.section][ip.row]
+        cells[safe: ip.section]?[safe: ip.row]
     }
 }
