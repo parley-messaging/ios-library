@@ -318,3 +318,157 @@ final class ParleyRemote {
         try? JSONDecoder().decode(ParleyErrorResponse.self, from: responseData)
     }
 }
+
+// MARK: Async Methods
+extension ParleyRemote {
+    
+    func execute<T: Codable>(
+        _ method: ParleyHTTPRequestMethod,
+        path: String,
+        body: Encodable? = nil,
+        keyPath: ParleyResponseKeyPath? = .data
+    ) async throws -> T {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
+        let bodyData = mapBodyToData(body: body)
+        let headers = try createHeaders()
+        let result = await networkSession.request(
+            getUrl(path),
+            data: bodyData,
+            method: method,
+            headers: headers
+        )
+                        
+        return try handleResult(result: result, keyPath: keyPath)
+    }
+    
+    func execute(_ method: ParleyHTTPRequestMethod, path: String) async throws {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        let headers = try createHeaders()
+        
+        let result = await networkSession.request(
+            getUrl(path),
+            data: nil,
+            method: method,
+            headers: headers
+        )
+        let response = try result.get()
+        do {
+            try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
+        } catch {
+            if
+                let data = response.body,
+                let apiError = Self.decodeBackendError(responseData: data)
+            {
+                throw apiError
+            } else {
+                throw error
+            }
+        }
+    }
+
+    func execute<T: Codable>(
+        _ method: ParleyHTTPRequestMethod = .post,
+        path: String,
+        data: Data,
+        name: String,
+        fileName: String,
+        type: ParleyMediaType
+    ) async throws -> T {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        
+        var multipartFormData = MultipartFormData()
+        multipartFormData.add(
+            key: "media",
+            fileName: fileName,
+            fileMimeType: type.rawValue,
+            fileData: data
+        )
+        var headers = try createHeaders()
+        headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
+        
+        let result = await networkSession.upload(
+            data: multipartFormData.httpBody,
+            to: getUrl(path),
+            method: method,
+            headers: headers
+        )
+        
+        return try handleResult(result: result, keyPath: .data)
+    }
+    
+    func execute<T: Codable>(
+        _ method: ParleyHTTPRequestMethod = .post,
+        path: String,
+        multipartFormData: @escaping (inout MultipartFormData) -> Void,
+        keyPath: ParleyResponseKeyPath? = .data
+    ) async throws -> T {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        
+        var multipartForm = MultipartFormData()
+        multipartFormData(&multipartForm)
+        
+        var headers = try createHeaders()
+        headers[HTTPHeaders.contentType.rawValue] = multipartForm.httpContentTypeHeaderValue
+
+        let result = await networkSession.upload(
+            data: multipartForm.httpBody,
+            to: getUrl(path),
+            method: method,
+            headers: headers
+        )
+        
+        return try handleResult(result: result, keyPath: keyPath)
+    }
+    
+    private func handleResult<T: Codable>(
+        result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>,
+        keyPath: ParleyResponseKeyPath?
+    ) throws -> T {
+        let response = try result.get()
+        do {
+            let decodedResponse = try response
+                .validate(statusCode: Self.successFullHTTPErrorStatusCodes)
+                .decodeAtKeyPath(of: T.self, keyPath: keyPath)
+            return decodedResponse
+        } catch {
+            if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
+                throw apiError
+            } else {
+                throw error
+            }
+        }
+    }
+    
+    func execute(
+        _ method: ParleyHTTPRequestMethod,
+        path: String,
+        type: ParleyMediaType
+    ) async throws -> Data {
+        let url = getUrl(path)
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
+        
+        let headers = try createHeaders()
+        
+        let result = await networkSession.request(
+            url,
+            data: nil,
+            method: .get,
+            headers: headers
+        )
+        
+        switch result {
+        case .success(let response):
+            if let data = response.body {
+                return data
+            } else {
+                throw ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)
+            }
+        case .failure(let error):
+            if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
+                throw apiError
+            } else {
+                throw error
+            }
+        }
+    }
+}
