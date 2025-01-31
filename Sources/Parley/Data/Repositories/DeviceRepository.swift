@@ -18,3 +18,11 @@ final class DeviceRepository {
         deviceService.store(device, onSuccess: onSuccess, onFailure: onFailure)
     }
 }
+
+// MARK: Async Methods
+extension DeviceRepository {
+    
+    func register(device: Device) async throws -> Device {
+        try await deviceService.store(device)
+    }
+}
