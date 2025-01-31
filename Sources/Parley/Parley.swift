@@ -548,7 +548,9 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
             userStartTypingDate == nil || Date().timeIntervalSince1970 - userStartTypingDate!
                 .timeIntervalSince1970 > kParleyEventStartTypingTriggerAfter
         {
-            eventRemoteService.fire(UserTypingEvent.startTyping, onSuccess: { }, onFailure: { _ in })
+            Task {
+                try? await eventRemoteService.fire(.startTyping)
+            }
 
             userStartTypingDate = Date()
         }
@@ -560,7 +562,9 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
         ) { _ in
             if !self.reachable { return }
 
-            self.eventRemoteService.fire(UserTypingEvent.stopTyping, onSuccess: { }, onFailure: { _ in })
+            Task {
+                try? await self.eventRemoteService.fire(.stopTyping)
+            }
 
             self.userStartTypingDate = nil
             self.userStopTypingTimer = nil

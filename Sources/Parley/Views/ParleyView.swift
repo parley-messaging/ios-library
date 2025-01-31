@@ -196,14 +196,15 @@ public class ParleyView: UIView {
         )
         self.pollingService = pollingService
 
-        pollingService.delegate = self
-
         if parley.alwaysPolling {
-            pollingService.startRefreshing()
+            Task {
+                await pollingService.startRefreshing()
+            }
         } else {
-            notificationService.notificationsEnabled { [weak self] isEnabled in
+            Task {
+                let isEnabled = await notificationService.notificationsEnabled()
                 guard !isEnabled else { return }
-                self?.pollingService?.startRefreshing()
+                await pollingService.startRefreshing()
             }
         }
     }
@@ -542,11 +543,10 @@ extension ParleyView: ParleyDelegate {
     }
 
     func didChangePushEnabled(_ pushEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
+        Task { @MainActor in
             if offlineNotificationView.isHidden == false { return }
             if let pollingService {
-                pushEnabled ? pollingService.stopRefreshing() : pollingService.startRefreshing()
+                pushEnabled ? await pollingService.stopRefreshing() : await pollingService.startRefreshing()
             }
 
             pushDisabledNotificationView.hide(pushEnabled)

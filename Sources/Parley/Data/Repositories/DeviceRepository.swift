@@ -10,18 +10,6 @@ final class DeviceRepository {
         deviceService = DeviceRemoteService(remote: remote)
     }
 
-    func register(
-        device: Device,
-        onSuccess: @escaping (_ device: Device) -> Void,
-        onFailure: @escaping (_ error: Error) -> Void
-    ) {
-        deviceService.store(device, onSuccess: onSuccess, onFailure: onFailure)
-    }
-}
-
-// MARK: Async Methods
-extension DeviceRepository {
-    
     func register(device: Device) async throws -> Device {
         try await deviceService.store(device)
     }
