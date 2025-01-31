@@ -493,7 +493,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     // MARK: Remote messages
 
-    private func handleMessage(_ userInfo: [String: Any]) {
+    private func handleMessage(_ userInfo: [String: Any]) async {
         guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
         guard
             let id = userInfo["id"] as? Int,
@@ -509,29 +509,21 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
         if isLoading { return } // Ignore remote messages when configuring chat.
 
+        var bestEffortMessage: Message = message
         if let id = message.id {
-            messageRepository.find(id, onSuccess: { storedMessage in
-                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: storedMessage) {
-                    UIAccessibility.post(notification: .announcement, argument: announcement)
-                }
-                Task {
-                    await messagesInteractor.handleAgentStoppedTyping()
-                    await messagesInteractor.handleNewMessage(storedMessage)
-                }
-            }) { _ in
-                if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: message) {
-                    UIAccessibility.post(notification: .announcement, argument: announcement)
-                }
-                Task {
-                    await messagesInteractor.handleAgentStoppedTyping()
-                    await messagesInteractor.handleNewMessage(message)
-                }
+            if let storedMessage = try? await messageRepository.find(id) {
+                bestEffortMessage = storedMessage
             }
+            
+            if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: bestEffortMessage) {
+                await UIAccessibility.post(notification: .announcement, argument: announcement)
+            }
+            
+            await messagesInteractor.handleAgentStoppedTyping()
+            await messagesInteractor.handleNewMessage(bestEffortMessage)
         } else {
-            Task {
-                await messagesInteractor.handleAgentStoppedTyping()
-                await messagesInteractor.handleNewMessage(message)
-            }
+            await messagesInteractor.handleAgentStoppedTyping()
+            await messagesInteractor.handleNewMessage(bestEffortMessage)
         }
     }
 
@@ -639,7 +631,9 @@ extension Parley {
 
         switch messageType {
         case MessageTypeEvent.message.rawValue:
-            shared.handleMessage(object)
+            Task {
+                await shared.handleMessage(object)
+            }
         case MessageTypeEvent.event.rawValue:
             shared.handleEvent(object["name"] as? String)
         default:

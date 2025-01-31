@@ -9,16 +9,14 @@ extension Parley {
         networkConfig: ParleyNetworkConfig? = nil,
         onSuccess: (() -> Void)? = nil,
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
-        let localNetworkConfig = if let networkConfig { networkConfig } else { ParleyNetworkConfig() }
+    ) async -> Parley.ConfigurationResult {
+        let localNetworkConfig = networkConfig ?? ParleyNetworkConfig()
 
-        configure(
+        return await configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             networkConfig: localNetworkConfig,
-            networkSession: AlamofireNetworkSession(networkConfig: localNetworkConfig),
-            onSuccess: onSuccess,
-            onFailure: onFailure
+            networkSession: AlamofireNetworkSession(networkConfig: localNetworkConfig)
         )
     }
 }
