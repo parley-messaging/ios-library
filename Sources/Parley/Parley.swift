@@ -220,10 +220,8 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     private func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String?,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil,
         clearCache: Bool = false
-    ) {
+    ) async -> ConfigurationResult {
         debugPrint("Parley.\(#function)")
 
         if clearCache {
@@ -235,26 +233,24 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
         self.secret = secret
         self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
 
-        configure(onSuccess: onSuccess, onFailure: onFailure)
+        return await configure()
     }
 
     private func configureWhenNeeded() {
         guard state == .failed || state == .configured else {
             return
         }
-
-        configure()
+        Task {
+            await configure()
+        }
     }
 
-    private func configure(
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+    private func configure() async -> ConfigurationResult {
         guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
 
         debugPrint("Parley.\(#function)")
 
-        guard !isLoading else { return }
+        guard !isLoading else { return .failure(.init(code: -1, message: "Parley is loading")) }
         isLoading = true
 
         setupReachability()
@@ -275,51 +271,33 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
                 state = .configuring
             }
         }
+        
+        do {
+            _ = try await deviceRepository.register(device: makeDeviceData())
+            
+            if let lastMessage = messagesManager.lastSentMessage, let id = lastMessage.id {
+                let messageCollection = try await messageRepository.findAfter(id)
+                messagesManager.handle(messageCollection, .after)
+            } else {
+                let messageCollection = try await messageRepository.findAll()
+                messagesManager.handle(messageCollection, .all)
+            }
+            
+            send(messagesManager.pendingMessages)
 
-        let onFailure: (_ error: Error) -> Void = { [weak self] error in
-            guard let self else { return }
+            isLoading = false
+            state = .configured
+            return .success(())
+        } catch {
             isLoading = false
 
             if isOfflineError(error) && isCachingEnabled() {
-                onSuccess?()
+                return .success(())
             } else {
                 state = .failed
-
-                onFailure?((error as NSError).code, error.getFormattedMessage())
+                return .failure(ConfigurationError(error: error))
             }
         }
-
-        deviceRepository.register(
-            device: makeDeviceData(),
-            onSuccess: { [weak self] _ in
-                guard let self else { return }
-                let onSecondSuccess: () -> Void = { [weak self] in
-                    guard let self else { return }
-
-                    send(messagesManager.pendingMessages)
-
-                    isLoading = false
-                    state = .configured
-
-                    onSuccess?()
-                }
-
-                if let lastMessage = messagesManager.lastSentMessage, let id = lastMessage.id {
-                    messageRepository.findAfter(id, onSuccess: { [weak self] messageCollection in
-                        self?.messagesManager?.handle(messageCollection, .after)
-
-                        onSecondSuccess()
-                    }, onFailure: onFailure)
-                } else {
-                    messageRepository.findAll(onSuccess: { [weak self] messageCollection in
-                        self?.messagesManager?.handle(messageCollection, .all)
-
-                        onSecondSuccess()
-                    }, onFailure: onFailure)
-                }
-            },
-            onFailure: onFailure
-        )
     }
 
     private func updateSecretInDataSource() {
@@ -340,14 +318,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     private func reconfigure() async -> ConfigurationResult {
         clearChat()
-        return await withCheckedContinuation { continuation in
-            configure(onSuccess: {
-                continuation.resume(returning: .success(()))
-            }, onFailure: { code, message in
-                let error = ConfigurationError(code: code, message: message)
-                continuation.resume(returning: .failure(error))
-            })
-        }
+        return await configure()
     }
 
     private func clearChat() {
@@ -851,21 +822,12 @@ extension Parley {
         networkSession: ParleyNetworkSession
     ) async -> ConfigurationResult {
         shared.initialize(networkConfig: networkConfig, networkSession: networkSession)
-
-        return await withCheckedContinuation { (continuation: ConfigurationContinuation) in
-            shared.configure(
-                secret,
-                uniqueDeviceIdentifier: uniqueDeviceIdentifier,
-                onSuccess: {
-                    continuation.resume(returning: .success(()))
-                },
-                onFailure: { code, message in
-                    let error = ConfigurationError(code: code, message: message)
-                    continuation.resume(returning: .failure(error))
-                },
-                clearCache: true
-            )
-        }
+        
+        return await shared.configure(
+            secret,
+            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+            clearCache: true
+        )
     }
 
     /**
