@@ -12,3 +12,11 @@ final class EventRemoteService {
         remote.execute(.post, path: "services/event/\(name.rawValue)", onSuccess: onSuccess, onFailure: onFailure)
     }
 }
+
+// MARK: Async Methods
+extension EventRemoteService {
+    
+    func fire(_ name: UserTypingEvent) async throws {
+        try await remote.execute(.post, path: "services/event/\(name.rawValue)")
+    }
+}
