@@ -25,6 +25,25 @@ protocol ParleyProtocol {
 }
 
 public final class Parley: ParleyProtocol, ReachabilityProvider {
+    
+    public typealias ConfigurationResult = Result<Void, ConfigurationError>
+    typealias ConfigurationContinuation = CheckedContinuation<ConfigurationResult, Never>
+    
+    public struct ConfigurationError: Error {
+        let code: Int
+        let message: String
+        
+        init(error: Error) {
+            let nsError = error as NSError
+            code = nsError.code
+            message = error.getFormattedMessage()
+        }
+        
+        init(code: Int, message: String) {
+            self.code = code
+            self.message = message
+        }
+    }
 
     enum State {
         case unconfigured
@@ -319,12 +338,16 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
         }
     }
 
-    private func reconfigure(
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+    private func reconfigure() async -> ConfigurationResult {
         clearChat()
-        configure(onSuccess: onSuccess, onFailure: onFailure)
+        return await withCheckedContinuation { continuation in
+            configure(onSuccess: {
+                continuation.resume(returning: .success(()))
+            }, onFailure: { code, message in
+                let error = ConfigurationError(code: code, message: message)
+                continuation.resume(returning: .failure(error))
+            })
+        }
     }
 
     private func clearChat() {
@@ -370,18 +393,16 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     // MARK: Devices
 
-    private func registerDevice(
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+    private func registerDevice() async -> ConfigurationResult {
         if state == .configuring || state == .configured {
-            deviceRepository?.register(device: makeDeviceData(), onSuccess: { _ in
-                onSuccess?()
-            }, onFailure: { error in
-                onFailure?((error as NSError).code, error.getFormattedMessage())
-            })
+            do {
+                _ = try await deviceRepository.register(device: makeDeviceData())
+                return .success(())
+            } catch {
+                return .failure(ConfigurationError(error: error))
+            }
         } else {
-            onSuccess?()
+            return .success(())
         }
     }
 
@@ -724,16 +745,14 @@ extension Parley {
      */
     public static func setPushToken(
         _ pushToken: String,
-        pushType: Device.PushType = .fcm,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
-        if shared.pushToken == pushToken { return }
+        pushType: Device.PushType = .fcm
+    ) async -> ConfigurationResult {
+        if shared.pushToken == pushToken { return .success(()) }
 
         shared.pushToken = pushToken
         shared.pushType = pushType
 
-        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        return await shared.registerDevice()
     }
 
     /**
@@ -744,18 +763,14 @@ extension Parley {
         - onSuccess: Execution block when pushEnabled is updated.
         - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public static func setPushEnabled(
-        _ enabled: Bool,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
-        guard shared.pushEnabled != enabled else { return }
+    public static func setPushEnabled(_ enabled: Bool) async -> ConfigurationResult {
+        guard shared.pushEnabled != enabled else { return .success(()) }
 
         shared.pushEnabled = enabled
 
         shared.delegate?.didChangePushEnabled(enabled)
 
-        shared.registerDevice(onSuccess: onSuccess, onFailure: onFailure)
+        return await shared.registerDevice()
     }
 
     /**
@@ -769,17 +784,15 @@ extension Parley {
      */
     public static func setUserInformation(
         _ authorization: String,
-        additionalInformation: [String: String]? = nil,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+        additionalInformation: [String: String]? = nil
+    )  async -> ConfigurationResult {
         shared.userAuthorization = authorization
         shared.userAdditionalInformation = additionalInformation
 
         if shared.state == .configured {
-            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+            return await shared.reconfigure()
         } else {
-            onSuccess?()
+            return .success(())
         }
     }
 
@@ -790,17 +803,14 @@ extension Parley {
        - onSuccess: Execution block when user information is cleared.
        - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    public static func clearUserInformation(
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+    public static func clearUserInformation() async -> ConfigurationResult {
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
 
         if shared.state == .configured {
-            shared.reconfigure(onSuccess: onSuccess, onFailure: onFailure)
+            return await shared.reconfigure()
         } else {
-            onSuccess?()
+            return .success(())
         }
     }
 
@@ -838,19 +848,24 @@ extension Parley {
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig,
-        networkSession: ParleyNetworkSession,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
+        networkSession: ParleyNetworkSession
+    ) async -> ConfigurationResult {
         shared.initialize(networkConfig: networkConfig, networkSession: networkSession)
 
-        shared.configure(
-            secret,
-            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
-            onSuccess: onSuccess,
-            onFailure: onFailure,
-            clearCache: true
-        )
+        return await withCheckedContinuation { (continuation: ConfigurationContinuation) in
+            shared.configure(
+                secret,
+                uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+                onSuccess: {
+                    continuation.resume(returning: .success(()))
+                },
+                onFailure: { code, message in
+                    let error = ConfigurationError(code: code, message: message)
+                    continuation.resume(returning: .failure(error))
+                },
+                clearCache: true
+            )
+        }
     }
 
     /**
@@ -864,32 +879,30 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func reset(
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
-    ) {
-        Task {
-            await shared.mediaLoader?.reset()
-        }
+    public static func reset() async -> ConfigurationResult {
+        await shared.mediaLoader?.reset()
 
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
         shared.mediaRepository?.reset()
         shared.removeObservers()
-
-        shared.registerDevice(onSuccess: {
+        
+        let result = await shared.registerDevice()
+        
+        switch result {
+        case .success:
             shared.secret = nil
             shared.state = .unconfigured
-            onSuccess?()
-        }, onFailure: { code, message in
+        case .failure:
             shared.secret = nil
             shared.state = .unconfigured
-            onFailure?(code, message)
-        })
+        }
 
-        DispatchQueue.main.async {
+        await MainActor.run {
             Self.shared.clearChat()
         }
+        
+        return result
     }
 
     /**
@@ -902,19 +915,16 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
-        Task {
-            await shared.mediaLoader?.reset()
-            shared.userAuthorization = nil
-            shared.userAdditionalInformation = nil
-            shared.mediaRepository?.reset()
-            shared.secret = nil
-            shared.removeObservers()
-            await MainActor.run {
-                shared.clearChat()
-                shared.state = .unconfigured
-            }
-            completion?()
+    public static func purgeLocalMemory() async {
+        await shared.mediaLoader?.reset()
+        shared.userAuthorization = nil
+        shared.userAdditionalInformation = nil
+        shared.mediaRepository?.reset()
+        shared.secret = nil
+        shared.removeObservers()
+        await MainActor.run {
+            shared.clearChat()
+            shared.state = .unconfigured
         }
     }
 
