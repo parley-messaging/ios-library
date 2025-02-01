@@ -1,19 +1,20 @@
 import Alamofire
 import Foundation
 import Parley
-import XCTest
+import Testing
 @testable import ParleyNetwork
 
-final class AlamofireHTTPMethodTests: XCTestCase {
-    func testMappings() {
-        [
-            (parleyMethod: ParleyHTTPRequestMethod.get, alamofireMethod: Alamofire.HTTPMethod.get),
-            (parleyMethod: ParleyHTTPRequestMethod.post, alamofireMethod: Alamofire.HTTPMethod.post),
-            (parleyMethod: ParleyHTTPRequestMethod.delete, alamofireMethod: Alamofire.HTTPMethod.delete),
-            (parleyMethod: ParleyHTTPRequestMethod.head, alamofireMethod: Alamofire.HTTPMethod.head),
-            (parleyMethod: ParleyHTTPRequestMethod.put, alamofireMethod: Alamofire.HTTPMethod.put),
-        ].forEach {
-            XCTAssertEqual(Alamofire.HTTPMethod($0.parleyMethod), $0.alamofireMethod)
-        }
+@Suite
+struct AlamofireHTTPMethodTests {
+    
+    @Test(arguments: [
+        (parleyMethod: ParleyHTTPRequestMethod.get, alamofireMethod: Alamofire.HTTPMethod.get),
+        (parleyMethod: ParleyHTTPRequestMethod.post, alamofireMethod: Alamofire.HTTPMethod.post),
+        (parleyMethod: ParleyHTTPRequestMethod.delete, alamofireMethod: Alamofire.HTTPMethod.delete),
+        (parleyMethod: ParleyHTTPRequestMethod.head, alamofireMethod: Alamofire.HTTPMethod.head),
+        (parleyMethod: ParleyHTTPRequestMethod.put, alamofireMethod: Alamofire.HTTPMethod.put)
+    ])
+    func testMappings(mapping: (parleyMethod: ParleyHTTPRequestMethod, alamofireMethod: Alamofire.HTTPMethod)) {
+        #expect(Alamofire.HTTPMethod(mapping.parleyMethod) == mapping.alamofireMethod)
     }
 }
