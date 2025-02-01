@@ -1,385 +1,200 @@
 import Foundation
-import XCTest
+import Testing
 @testable import Parley
 
-final class ParleyRemoteTests: XCTestCase {
-
+@Suite
+struct ParleyRemoteTests {
+    
     private var sut: ParleyRemote!
-
-    override func setUpWithError() throws {
-        sut = makeSut()
-    }
-
-    override func tearDownWithError() throws {
-        sut = nil
+    
+    init() throws {
+        self.sut = makeSut()
     }
 
     // MARK: - Execute request
 
-    func testExecuteWithTypedResponseSuccess() throws {
+    @Test
+    mutating func testExecuteWithTypedResponseSuccess() async throws {
+        print("test_ex_1")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
-        sut = makeSut(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
-        )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-
-        sut.execute(
-            .get,
-            path: "path",
-            keyPath: .none,
-            onSuccess: { (items: [MediaResponse]) in
-                XCTAssertEqual(items.count, 1)
-                onSuccessCalled = true
-            },
-            onFailure: { _ in
-                onFailureCalled = true
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callRequestCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: [MediaResponse(media: "test")]
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        wait { parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
-        XCTAssertTrue(onSuccessCalled)
-        XCTAssertFalse(onFailureCalled)
+        sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.requestDataMethodHeadersResult = .success(try createResponse(response: response))
+        let result: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
+        #expect(result.count == 1)
     }
 
-    func testExecuteWithTypedResponseFailureWhenSecretIsNotSet() throws {
+    @Test
+    mutating func testExecuteWithTypedResponseFailureWhenSecretIsNotSet() async throws {
+        print("test_ex_2")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            createSecretMock: { nil },
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
+            createSecretMock: { nil }
         )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-        var onFailureError: Error? = nil
-
-        sut.execute(
-            .get,
-            path: "path",
-            keyPath: .none,
-            onSuccess: { (items: [MediaResponse]) in
-                XCTAssertEqual(items.count, 1)
-                onSuccessCalled = true
-            },
-            onFailure: { error in
-                onFailureCalled = true
-                onFailureError = error
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callRequestCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: [MediaResponse(media: "test")]
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        XCTAssertFalse(onSuccessCalled)
-        XCTAssertTrue(onFailureCalled)
-        XCTAssertEqual(onFailureError as? ParleyRemoteError, .secretNotSet)
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.requestDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(performing: {
+            let _: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
+        }, throws: { error in
+            return (error as? ParleyRemoteError) == .secretNotSet
+        })
     }
 
-    func testExecuteWithTypedResponseFailure() throws {
+    @Test
+    mutating func testExecuteWithTypedResponseFailure() async throws {
+        print("test_ex_3")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
         sut = makeSut(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
+            parleyNetworkSessionSpy: parleyNetworkSessionSpy
         )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-
-        sut.execute(
-            .get,
-            path: "path",
-            keyPath: .none,
-            onSuccess: { (_: [MediaResponse]) in
-                onSuccessCalled = true
-            },
-            onFailure: { _ in
-                onFailureCalled = true
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callRequestCompletion(parleyNetworkSessionSpy: parleyNetworkSessionSpy, response: ["test"])
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        wait { parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
-        XCTAssertFalse(onSuccessCalled)
-        XCTAssertTrue(onFailureCalled)
+        
+        let response = ["test"]
+        parleyNetworkSessionSpy.requestDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(throws: Error.self, performing: {
+            let _: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
+        })
     }
-
-    func testExecuteWithNoTypedResponse() throws {
+    
+    @Test
+    mutating func testExecuteWithNoTypedResponse() async throws {
+        print("test_ex_4")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
-        sut = makeSut(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
-        )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-
-        sut.execute(
-            .post,
-            path: "example/path",
-            onSuccess: {
-                onSuccessCalled = true
-            },
-            onFailure: { _ in
-                onFailureCalled = true
-            }
-        )
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callRequestCompletion(parleyNetworkSessionSpy: parleyNetworkSessionSpy, response: ["test"])
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        wait { parleyNetworkSessionSpy.requestDataMethodHeadersCompletionCalled }
-        XCTAssertTrue(onSuccessCalled)
-        XCTAssertFalse(onFailureCalled)
+        
+        sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
+        
+        let response = ["test"]
+        parleyNetworkSessionSpy.requestDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        try await sut.execute(.post, path: "example/path")
     }
-
-    func testExecuteWithNoTypedResponseWhenSecretIsNotSet() throws {
+    
+    @Test
+    mutating func testExecuteWithNoTypedResponseWhenSecretIsNotSet() async throws {
+        print("test_ex_5")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
+        
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            createSecretMock: { nil },
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
+            createSecretMock: { nil }
         )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-        var onFailureError: Error? = nil
-
-        sut.execute(
-            .post,
-            path: "example/path",
-            onSuccess: {
-                onSuccessCalled = true
-            },
-            onFailure: { error in
-                onFailureCalled = true
-                onFailureError = error
-            }
-        )
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callRequestCompletion(parleyNetworkSessionSpy: parleyNetworkSessionSpy, response: ["test"])
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        XCTAssertFalse(onSuccessCalled)
-        XCTAssertTrue(onFailureCalled)
-        XCTAssertEqual(onFailureError as? ParleyRemoteError, .secretNotSet)
+        
+        let response = ["test"]
+        parleyNetworkSessionSpy.requestDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(performing: {
+            try await sut.execute(.post, path: "example/path")
+        }, throws: { error in
+            return (error as? ParleyRemoteError) == .secretNotSet
+        })
     }
-
-    func testExecuteWithMultipartFormData() throws {
+    
+    @Test
+    mutating func testExecuteWithMultipartFormData() async throws {
+        print("test_ex_6")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
-        sut = makeSut(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
-        )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
+        
+        sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
         var multipartFormDataCalled = false
-
-        sut.execute(
-            .post,
-            path: "example/path",
-            multipartFormData: { _ in
-                multipartFormDataCalled = true
-            },
-            onSuccess: { (_: [MediaResponse]) in
-                onSuccessCalled = true
-            },
-            onFailure: { error in
-                onFailureCalled = true
-                print(error)
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callUploadCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: ParleyResponse(data: [MediaResponse(media: "test")])
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        wait { parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionCalled }
-        XCTAssertTrue(onSuccessCalled)
-        XCTAssertFalse(onFailureCalled)
-        XCTAssertTrue(multipartFormDataCalled)
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.uploadDataMethodHeadersResult = .success(try createResponse(response: response))
+        let _: [MediaResponse] = try await sut.execute(.post, path: "", multipartFormData: { _ in
+            multipartFormDataCalled = true
+        }, keyPath: .none)
+        
+        #expect(multipartFormDataCalled)
     }
-
-    func testExecuteWithMultipartFormDataWhenSecretIsNotSet() throws {
+    
+    @Test
+    mutating func testExecuteWithMultipartFormDataWhenSecretIsNotSet() async throws {
+        print("test_ex_7")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
+        
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            createSecretMock: { nil },
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
+            createSecretMock: { nil }
         )
-
-        var onSuccessCalled = false
-        var onFailureCalled = false
-        var onFailureError: Error? = nil
+        
         var multipartFormDataCalled = false
-
-        sut.execute(
-            .post,
-            path: "example/path",
-            multipartFormData: { _ in
-                multipartFormDataCalled = true
-            },
-            onSuccess: { (_: [MediaResponse]) in
-                onSuccessCalled = true
-            },
-            onFailure: { error in
-                onFailureCalled = true
-                onFailureError = error
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callUploadCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: ParleyResponse(data: [MediaResponse(media: "test")])
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        XCTAssertFalse(onSuccessCalled)
-        XCTAssertTrue(onFailureCalled)
-        XCTAssertEqual(onFailureError as? ParleyRemoteError, .secretNotSet)
-        XCTAssertTrue(multipartFormDataCalled)
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.uploadDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(performing: {
+            let _: [MediaResponse] = try await sut.execute(
+                .post,
+                path: "example/path",
+                multipartFormData: { _ in
+                    multipartFormDataCalled = true
+                })
+        }, throws: { error in
+            return (error as? ParleyRemoteError) == .secretNotSet
+        })
+        #expect(multipartFormDataCalled)
     }
-
-    func testExecuteWithImageData() throws {
+    
+    @Test
+    mutating func testExecuteWithImageData() async throws {
+        print("test_ex_8")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
+        
+        sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.uploadDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(throws: Error.self, performing: {
+            let _: [MediaResponse] = try await sut.execute(
+                path: "media",
+                data: Data(),
+                name: "image",
+                fileName: "image.jpg",
+                type: .imageJPeg
+            )
+        })
+    }
+    
+    @Test
+    mutating func testExecuteWithImageDataWhenSecretIsNotSet() async throws {
+        print("test_ex_9")
+        let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
+        
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
+            createSecretMock: { nil }
         )
+        
+        let response = [MediaResponse(media: "test")]
+        parleyNetworkSessionSpy.uploadDataMethodHeadersResult = .success(try createResponse(response: response))
+        
+        await #expect(performing: {
+            let _: [MediaResponse] = try await sut.execute(
+                path: "media",
+                data: Data(),
+                name: "image",
+                fileName: "image.jpg",
+                type: .imageJPeg
+            )
+        }, throws: { error in
+            return (error as? ParleyRemoteError) == .secretNotSet
+        })
+    }
+}
 
-        var resultCalled = false
-
-        sut.execute(
-            path: "media",
-            data: Data(),
-            name: "image",
-            fileName: "image.jpg",
-            type: .imageJPeg,
-            result: { (_: Result<[MediaResponse], Error>) in
-                resultCalled = true
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callUploadCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: ParleyResponse(data: [MediaResponse(media: "test")])
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        wait { parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionCalled }
-        XCTAssertTrue(resultCalled)
+// MARK: - Privates
+extension ParleyRemoteTests {
+    
+    func createResponse(response: Encodable) throws -> ParleyHTTPDataResponse {
+        let encodedResponse = try CodableHelper.shared.encode(response)
+        return createResponse(body: encodedResponse)
     }
 
-    func testExecuteWithImageDataWhenSecretIsNotSet() throws {
-        let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
-        let mainQueueSpy = QueueSpy()
-        let backgroundQueueSpy = QueueSpy()
-
-        sut = makeSut(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            createSecretMock: { nil },
-            mainQueueSpy: mainQueueSpy,
-            backgroundQueueSpy: backgroundQueueSpy
-        )
-
-        var resultCalled = false
-        var resultError: Error? = nil
-
-        sut.execute(
-            path: "media",
-            data: Data(),
-            name: "image",
-            fileName: "image.jpg",
-            type: .imageJPeg,
-            result: { (value: Result<[MediaResponse], Error>) in
-                resultCalled = true
-                switch value {
-                case .failure(let error):
-                    resultError = error
-                case .success:
-                    break
-                }
-            }
-        )
-
-        backgroundQueueSpy.asyncExecuteReceivedWork?()
-        try callUploadCompletion(
-            parleyNetworkSessionSpy: parleyNetworkSessionSpy,
-            response: ParleyResponse(data: [MediaResponse(media: "test")])
-        )
-        mainQueueSpy.asyncExecuteReceivedWork?()
-
-        XCTAssertTrue(resultCalled)
-        XCTAssertEqual(resultError as? ParleyRemoteError, .secretNotSet)
-    }
-
-    // MARK: - MultipartFormData
-
-    private func callRequestCompletion(parleyNetworkSessionSpy: ParleyNetworkSessionSpy, response: Encodable) throws {
-        let arguments = parleyNetworkSessionSpy.requestDataMethodHeadersCompletionReceivedArguments
-        try arguments?.completion(.success(createResponse(body: CodableHelper.shared.encode(response))))
-    }
-
-    private func callUploadCompletion(parleyNetworkSessionSpy: ParleyNetworkSessionSpy, response: Encodable) throws {
-        let arguments = parleyNetworkSessionSpy.uploadDataToMethodHeadersCompletionReceivedArguments
-        try arguments?.completion(.success(createResponse(body: CodableHelper.shared.encode(response))))
-    }
-
-    private func createResponse(
+    func createResponse(
         body: Data = Data(),
         statusCode: Int = 200,
         headers: [String: String] = [:]
@@ -387,7 +202,7 @@ final class ParleyRemoteTests: XCTestCase {
         ParleyHTTPDataResponse(body: body, statusCode: statusCode, headers: headers)
     }
 
-    private func makeSut(
+    func makeSut(
         networkConfig: ParleyNetworkConfig = ParleyNetworkConfig(
             url: "https://api.parley.nu/",
             path: "/example",
@@ -396,18 +211,14 @@ final class ParleyRemoteTests: XCTestCase {
         parleyNetworkSessionSpy: ParleyNetworkSessionSpy = ParleyNetworkSessionSpy(),
         createSecretMock: @escaping (() -> String?) = { "secret" },
         createUniqueDeviceIdentifierMock: @escaping (() -> String?) = { "id" },
-        createUserAuthorizationTokenMock: @escaping (() -> String?) = { "token" },
-        mainQueueSpy: QueueSpy = QueueSpy(),
-        backgroundQueueSpy: QueueSpy = QueueSpy()
+        createUserAuthorizationTokenMock: @escaping (() -> String?) = { "token" }
     ) -> ParleyRemote {
         ParleyRemote(
             networkConfig: networkConfig,
             networkSession: parleyNetworkSessionSpy,
             createSecret: createSecretMock,
             createUniqueDeviceIdentifier: createUniqueDeviceIdentifierMock,
-            createUserAuthorizationToken: createUserAuthorizationTokenMock,
-            mainQueue: mainQueueSpy,
-            backgroundQueue: backgroundQueueSpy
+            createUserAuthorizationToken: createUserAuthorizationTokenMock
         )
     }
 }
