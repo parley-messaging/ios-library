@@ -15,7 +15,6 @@ struct ParleyRemoteTests {
 
     @Test
     mutating func testExecuteWithTypedResponseSuccess() async throws {
-        print("test_ex_1")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
         
@@ -27,7 +26,6 @@ struct ParleyRemoteTests {
 
     @Test
     mutating func testExecuteWithTypedResponseFailureWhenSecretIsNotSet() async throws {
-        print("test_ex_2")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy,
@@ -46,7 +44,6 @@ struct ParleyRemoteTests {
 
     @Test
     mutating func testExecuteWithTypedResponseFailure() async throws {
-        print("test_ex_3")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         sut = makeSut(
             parleyNetworkSessionSpy: parleyNetworkSessionSpy
@@ -62,7 +59,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithNoTypedResponse() async throws {
-        print("test_ex_4")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
@@ -75,7 +71,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithNoTypedResponseWhenSecretIsNotSet() async throws {
-        print("test_ex_5")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(
@@ -95,7 +90,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithMultipartFormData() async throws {
-        print("test_ex_6")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
@@ -112,7 +106,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithMultipartFormDataWhenSecretIsNotSet() async throws {
-        print("test_ex_7")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(
@@ -140,7 +133,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithImageData() async throws {
-        print("test_ex_8")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
@@ -161,7 +153,6 @@ struct ParleyRemoteTests {
     
     @Test
     mutating func testExecuteWithImageDataWhenSecretIsNotSet() async throws {
-        print("test_ex_9")
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         
         sut = makeSut(
