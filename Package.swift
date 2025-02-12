@@ -1,4 +1,4 @@
-// swift-tools-version:5.10.0
+// swift-tools-version:6.0.0
 
 import PackageDescription
 
@@ -31,6 +31,9 @@ let package = Package(
             dependencies: [
                 .product(name: "Reachability", package: "Reachability.swift"),
                 "MarkdownKit",
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -57,5 +60,5 @@ let package = Package(
             dependencies: ["ParleyNetwork"]
         ),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v6]
 )
