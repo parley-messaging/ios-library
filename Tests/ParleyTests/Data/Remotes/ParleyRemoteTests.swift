@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import Parley
 
-@Suite
+@Suite(.tags(.networking))
 struct ParleyRemoteTests {
     
     private var sut: ParleyRemote!
