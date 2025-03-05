@@ -596,13 +596,6 @@ extension ParleyView: UITableViewDataSource {
             loadingTableViewCell.appearance = appearance.loading
 
             return loadingTableViewCell
-        case .dateHeader(let date):
-            let dateTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
-            dateTableViewCell.appearance = appearance.date
-            dateTableViewCell.render(date)
-
-            return dateTableViewCell
         case .message(let message), .carousel(mainMessage: let message, _):
             let messageTableViewCell = tableView
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
@@ -639,8 +632,8 @@ extension ParleyView: UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard
-            let cellKind = messagesStore[indexPath: IndexPath(item: .zero, section: section)],
-            case let MessagesStore.CellKind.dateHeader(date) = cellKind
+            let sectionKind = messagesStore[section: section],
+            case let MessagesStore.SectionKind.messages(date) = sectionKind
         else { return nil }
         
         let view = DateHeaderView(frame: .zero)
@@ -651,7 +644,7 @@ extension ParleyView: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let cell = messagesStore[indexPath: indexPath] else { return .zero }
         switch cell {
-        case .dateHeader, .loading, .typingIndicator, .info:
+        case .loading, .typingIndicator, .info:
             return UITableView.automaticDimension
         case .message(let message), .carousel(mainMessage: let message, carousel: _):
             return message.ignore() ? 0 : UITableView.automaticDimension
