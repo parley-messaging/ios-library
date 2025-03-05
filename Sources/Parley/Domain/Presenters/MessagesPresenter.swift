@@ -197,7 +197,7 @@ extension MessagesPresenter {
             mutating func insert(cell: Cell) -> Int {
                 switch cell.kind {
                 case .info:
-                    return insert(cell: cell)
+                    return insertInfo(cell)
                 case .loading:
                     return insertLoading(cell)
                 case .typingIndicator:
@@ -438,8 +438,7 @@ extension MessagesPresenter {
                 let newSectionIndex = newMessageSectionIndex(for: sectionDate)
                 guard let section = Section.messages(messages: [message], calendar: calendar) else { return nil }
                 sections.insert(section, at: newSectionIndex)
-                indexPaths.append(IndexPath(row: 0, section: newSectionIndex)) // Date Header
-                indexPaths.append(IndexPath(row: 1, section: newSectionIndex)) // Message Cell
+                indexPaths.append(IndexPath(row: 0, section: newSectionIndex))
                 return SnapshotChange(indexPaths: indexPaths, kind: .added)
             }
         }
