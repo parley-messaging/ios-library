@@ -242,6 +242,11 @@ public class ParleyView: UIView {
         messagesTableView.separatorStyle = .none
         messagesTableView.keyboardDismissMode = .interactive
         messagesTableView.alwaysBounceVertical = false
+        messagesTableView.estimatedSectionHeaderHeight = 30
+        messagesTableView.sectionHeaderHeight = UITableView.automaticDimension
+        if #available(iOS 15.0, *) {
+            messagesTableView.sectionHeaderTopPadding = 0
+        }
 
         messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [
             .initial,
@@ -630,6 +635,17 @@ extension ParleyView: UITableViewDataSource {
 
             return infoTableViewCell
         }
+    }
+    
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard
+            let cellKind = messagesStore[indexPath: IndexPath(item: .zero, section: section)],
+            case let MessagesStore.CellKind.dateHeader(date) = cellKind
+        else { return nil }
+        
+        let view = DateHeaderView(frame: .zero)
+        view.configure(date: date.asDate(style: appearance.date.style), appearance: appearance.date)
+        return view
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
