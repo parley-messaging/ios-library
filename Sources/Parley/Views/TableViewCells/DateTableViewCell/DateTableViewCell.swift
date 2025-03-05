@@ -10,7 +10,7 @@ final class DateTableViewCell: UITableViewCell {
     @IBOutlet private weak var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var rightLayoutConstraint: NSLayoutConstraint!
 
-    var appearance = DateTableViewCellAppearance() {
+    var appearance = DateHeaderAppearance() {
         didSet {
             apply(appearance)
         }
@@ -26,7 +26,7 @@ final class DateTableViewCell: UITableViewCell {
         timeLabel.text = date.asDate(style: appearance.style)
     }
 
-    private func apply(_ appearance: DateTableViewCellAppearance) {
+    private func apply(_ appearance: DateHeaderAppearance) {
         timeView.backgroundColor = appearance.backgroundColor
         timeView.layer.cornerRadius = CGFloat(appearance.cornerRadius)
 

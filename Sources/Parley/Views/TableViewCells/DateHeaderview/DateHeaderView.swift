@@ -2,6 +2,8 @@ import UIKit
 
 final class DateHeaderView: UIView {
     
+    static let estimatedHeight: CGFloat = 30
+    
     // MARK: UI Elements
     private let pillView = UIView()
     private let dateLabel = UILabel()
@@ -31,7 +33,7 @@ final class DateHeaderView: UIView {
 // MARK: - Methods
 extension DateHeaderView {
     
-    func configure(date: String, appearance: DateTableViewCellAppearance) {
+    func configure(date: String, appearance: DateHeaderAppearance) {
         dateLabel.text = date
         apply(appearance: appearance)
     }
@@ -52,9 +54,8 @@ private extension DateHeaderView {
         
         NSLayoutConstraint.activate([
             pillView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            pillView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            pillView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
-            
+            pillView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            pillView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
             pillView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 8),
             pillView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -8),
         ])
@@ -72,7 +73,7 @@ private extension DateHeaderView {
         NSLayoutConstraint.activate(allConstraints)
     }
     
-    func apply(appearance: DateTableViewCellAppearance) {
+    func apply(appearance: DateHeaderAppearance) {
         pillView.backgroundColor = appearance.backgroundColor
         pillView.layer.cornerRadius = CGFloat(appearance.cornerRadius)
 
