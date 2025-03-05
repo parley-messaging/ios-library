@@ -226,7 +226,6 @@ public class ParleyView: UIView {
     private func setupMessagesTableView() {
         let cellIdentifiers = [
             InfoTableViewCell.reuseIdentifier,
-            DateTableViewCell.reuseIdentifier,
             LoadingTableViewCell.reuseIdentifier,
 
             MessageTableViewCell.reuseIdentifier,
