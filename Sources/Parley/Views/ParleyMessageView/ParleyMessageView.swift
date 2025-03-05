@@ -581,10 +581,8 @@ final class ParleyMessageView: UIView {
             arrangedSubview.removeFromSuperview()
         }
 
-        if
-            message.hasButtons,
+        if message.hasButtons {
             let messageButtons = message.buttons
-        {
             buttonsView.isHidden = false
             if
                 !message.hasFile &&
@@ -858,7 +856,7 @@ final class ParleyMessageView: UIView {
 
     @objc
     private func buttonAction(sender: UIButton) {
-        guard let messageButton = message.buttons?[sender.tag] else { return }
+        let messageButton = message.buttons[sender.tag]
         delegate?.didSelect(messageButton)
     }
 }

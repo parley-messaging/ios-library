@@ -1,10 +1,11 @@
 import Foundation
 
+@ParleyDomainActor
 final class MessagesInteractor {
     
     private let presenter: MessagesPresenterProtocol
     private let messagesManager: MessagesManagerProtocol
-    private let messageRepository: MessageRepositoryProtocol
+    private let messageRepository: MessageRepository
     private let reachabilityProvider: ReachabilityProvider
     
     private(set) var agentTyping = false
@@ -18,8 +19,8 @@ final class MessagesInteractor {
         guard let lastMessagePosistion = messages.lastPosistion() else { return nil }
         let message = messages[lastMessagePosistion]
         
-        if let quickReplies = message.quickReplies, !quickReplies.isEmpty {
-            return quickReplies
+        if !message.quickReplies.isEmpty {
+            return message.quickReplies
         } else {
             return nil
         }
@@ -29,7 +30,7 @@ final class MessagesInteractor {
         presenter: MessagesPresenterProtocol,
         messagesManager: MessagesManagerProtocol,
         messageCollection: ParleyChronologicalMessageCollection,
-        messagesRepository: MessageRepositoryProtocol,
+        messagesRepository: MessageRepository,
         reachabilityProvider: ReachabilityProvider
     ) {
         self.presenter = presenter
@@ -39,7 +40,6 @@ final class MessagesInteractor {
         self.reachabilityProvider = reachabilityProvider
     }
     
-    @MainActor
     func setScrolledToBottom(_ isScrolledToBottom: Bool) {
         presenter.set(isScrolledToBottom: isScrolledToBottom)
     }
@@ -48,62 +48,57 @@ final class MessagesInteractor {
 // MARK: Methods
 extension MessagesInteractor {
     
-    @MainActor
-    func handleViewDidLoad() {
-        messages.set(messages: messagesManager.messages)
+    func handleViewDidLoad() async {
+        await messages.set(messages: messagesManager.messages)
         
-        if let welcomeMessage = messagesManager.welcomeMessage, !welcomeMessage.isEmpty {
+        if let welcomeMessage = await messagesManager.welcomeMessage, !welcomeMessage.isEmpty {
             presenter.set(welcomeMessage: welcomeMessage)
         }
         
-        if let stickyMessage = messagesManager.stickyMessage, !stickyMessage.isEmpty {
-            presenter.present(stickyMessage: stickyMessage)
+        if let stickyMessage = await messagesManager.stickyMessage, !stickyMessage.isEmpty {
+            await presenter.present(stickyMessage: stickyMessage)
         }
         
         presenter.set(sections: messages.sections)
         
-        presentQuickRepliesState()
+        await presentQuickRepliesState()
         
-        presenter.presentMessages()
+        await presenter.presentMessages()
     }
     
-    @MainActor
-    func handleAgentBeganTyping() {
+    func handleAgentBeganTyping() async {
         guard agentTyping == false else { return }
         agentTyping = true
-        presenter.presentAgentTyping(agentTyping)
+        await presenter.presentAgentTyping(agentTyping)
     }
     
-    @MainActor
-    func handleAgentStoppedTyping() {
+    func handleAgentStoppedTyping() async {
         guard agentTyping else { return }
         agentTyping = false
-        presenter.presentAgentTyping(agentTyping)
+        await presenter.presentAgentTyping(agentTyping)
     }
     
-    @MainActor
     func handleLoadMessages() async {
         guard
-            reachabilityProvider.reachable,
+            await reachabilityProvider.reachable,
             !isLoadingMessages,
-            messagesManager.canLoadMore(),
-            let oldestMessageId = messagesManager.getOldestMessage()?.id
+            await messagesManager.canLoadMore(),
+            let oldestMessageId = await messagesManager.getOldestMessage()?.remoteId
         else { return }
         
         isLoadingMessages = true
-        presenter.presentLoadingMessages(isLoadingMessages)
+        await presenter.presentLoadingMessages(isLoadingMessages)
         
         if let collection = try? await messageRepository.findBefore(oldestMessageId) {
-            handle(collection: collection, .before)
+            await handle(collection: collection, .before)
         }
             
         isLoadingMessages = false
-        presenter.presentLoadingMessages(isLoadingMessages)
+        await presenter.presentLoadingMessages(isLoadingMessages)
     }
     
-    @MainActor
-    func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) {
-        messagesManager.handle(collection, handleType)
+    func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) async {
+        await messagesManager.handle(collection, handleType)
         
         presenter.set(welcomeMessage: collection.welcomeMessage)
         switch handleType {
@@ -111,57 +106,51 @@ extension MessagesInteractor {
             messages.set(collection: collection)
             presenter.set(sections: messages.sections)
         case .before, .after:
-            insertNewMessages(messages: collection.messages)
+            await insertNewMessages(messages: collection.messages)
         }
 
-        presenter.presentMessages()
-        presentQuickRepliesState()
+        await presenter.presentMessages()
+        await presentQuickRepliesState()
         
-        presenter.present(stickyMessage: collection.stickyMessage)
+        await presenter.present(stickyMessage: collection.stickyMessage)
     }
     
-    @MainActor
-    func handleNewMessage(_ message: Message) {
-        if message.time == nil {
-            message.time = Date()
-        }
-        
-        guard messagesManager.add(message) else { return }
+    func handleNewMessage(_ message: Message) async {
+        guard await messagesManager.add(message) else { return }
         messages.add(message: message)
-        presentQuickRepliesState()
+        await presentQuickRepliesState()
         
         if message.hasQuickReplies == false {
-            presenter.presentAdd(message: message)
+            await presenter.presentAdd(message: message)
         }
     }
     
-    func handleMessageSent(_ message: Message) async {
+    func handleMessageSent(_ message: inout Message) async {
         message.status = .success
-        messagesManager.update(message)
+        await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
-    func handleMessageFailedToSend(_ message: Message) async {
+    func handleMessageFailedToSend(_ message: inout Message) async {
         message.status = .failed
-        messagesManager.update(message)
+        await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
-    @MainActor
-    func clear() {
+    func clear() async {
         messages.clear()
-        messagesManager.clear()
+        await messagesManager.clear()
         presenter.set(sections: messages.sections)
-        presenter.presentMessages()
-        presentQuickRepliesState()
+        await presenter.presentMessages()
+        await presentQuickRepliesState()
     }
 }
 
 private extension MessagesInteractor {
     
-    func insertNewMessages(messages: [Message]) {
+    func insertNewMessages(messages: [Message]) async {
         var posisitionsAdded = [ParleyChronologicalMessageCollection.Position]()
         posisitionsAdded.reserveCapacity(messages.count)
         
@@ -172,15 +161,14 @@ private extension MessagesInteractor {
         presenter.set(sections: self.messages.sections)
     }
     
-    @MainActor
-    func presentQuickRepliesState() {
+    func presentQuickRepliesState() async {
         if let quickReplies {
             guard presentedQuickReplies != quickReplies else { return }
-            presenter.present(quickReplies: quickReplies)
+            await presenter.present(quickReplies: quickReplies)
             presentedQuickReplies = quickReplies
         } else {
             guard presentedQuickReplies != nil else { return }
-            presenter.presentHideQuickReplies()
+            await presenter.presentHideQuickReplies()
             presentedQuickReplies = nil
         }
     }

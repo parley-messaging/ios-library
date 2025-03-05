@@ -1,26 +1,30 @@
 import Foundation
 
-class MediaRepository {
+final actor MediaRepository {
 
     enum MediaRepositoryError: Error {
         case invalidRemoteURL
     }
 
-    weak var dataSource: ParleyMediaDataSource?
+    private(set) weak var dataSource: ParleyMediaDataSource?
     private var messageRemoteService: MessageRemoteService
+    
+    func set(dataSource: ParleyMediaDataSource?) {
+        self.dataSource = dataSource
+    }
 
     init(messageRemoteService: MessageRemoteService) {
         self.messageRemoteService = messageRemoteService
     }
 
-    func store(media: MediaModel) -> ParleyStoredMedia {
+    func store(media: MediaModel) async -> ParleyStoredMedia {
         let storedMedia = ParleyStoredMedia.from(media: media)
-        store(media: storedMedia)
+        await store(media: storedMedia)
         return storedMedia
     }
 
-    func getStoredMedia(for media: MediaObject) -> ParleyStoredMedia? {
-        dataSource?.media(id: media.id)
+    func getStoredMedia(for media: MediaObject) async -> ParleyStoredMedia? {
+        await dataSource?.media(id: media.id)
     }
 
     func getRemoteMedia(for media: MediaObject) async throws -> Data {
@@ -28,9 +32,7 @@ class MediaRepository {
         let mediaType = media.getMediaType()
         let networkMedia = try await fetchMedia(url: mediaURL, type: mediaType)
 
-        await MainActor.run {
-            storeMedia(data: networkMedia, for: media)
-        }
+        await storeMedia(data: networkMedia, for: media)
 
         return networkMedia
     }
@@ -42,12 +44,12 @@ class MediaRepository {
             fileName: storedMedia.filename
         )
         let mediaResponse = try mediaResult.get()
-        move(storedMedia, to: mediaResponse.media)
+        await move(storedMedia, to: mediaResponse.media)
         return mediaResponse.media
     }
 
-    func reset() {
-        dataSource?.clear()
+    func reset() async {
+        await dataSource?.clear()
     }
 }
 
@@ -71,19 +73,19 @@ extension MediaRepository {
         url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
     }
 
-    private func move(_ local: ParleyStoredMedia, to remoteId: String) {
-        dataSource?.delete(id: local.id)
+    private func move(_ local: ParleyStoredMedia, to remoteId: String) async {
+        await dataSource?.delete(id: local.id)
         let storedMedia = ParleyStoredMedia(filename: remoteId, data: local.data, type: local.type)
-        store(media: storedMedia)
+        await store(media: storedMedia)
     }
 
-    private func storeMedia(data: Data, for media: MediaObject) {
+    private func storeMedia(data: Data, for media: MediaObject) async {
         guard let filePath = ParleyStoredMedia.FilePath.from(media: media) else { return }
         let storedMedia = ParleyStoredMedia(filename: filePath.name, data: data, type: filePath.type)
-        store(media: storedMedia)
+        await store(media: storedMedia)
     }
 
-    private func store(media: ParleyStoredMedia) {
-        dataSource?.save(media: media)
+    private func store(media: ParleyStoredMedia) async {
+        await dataSource?.save(media: media)
     }
 }

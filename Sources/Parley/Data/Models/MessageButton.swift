@@ -1,5 +1,5 @@
-struct MessageButton: Codable {
-    enum MessageButtonType: String, Codable {
+struct MessageButton: Sendable {
+    enum MessageButtonType: String {
         case reply
         case phoneNumber
         case webUrl
@@ -9,7 +9,7 @@ struct MessageButton: Codable {
     let payload: String?
     let type: MessageButtonType
 
-    init(title: String, payload: String, type: MessageButtonType = .reply) {
+    init(title: String, payload: String?, type: MessageButtonType = .reply) {
         self.title = title
         self.payload = payload
         self.type = type

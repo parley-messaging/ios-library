@@ -19,13 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UNUserNotificationCenter.current().delegate = self
 
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { pushEnabled, _ in
-                Parley.setPushEnabled(pushEnabled)
-            }
-        )
+        Task {
+            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+            let notificationCenter = UNUserNotificationCenter.current()
+            guard let enabled = try? await notificationCenter.requestAuthorization(options: authOptions) else { return }
+            _ = await Parley.setPushEnabled(enabled)
+        }
 
         application.registerForRemoteNotifications()
         // Stop: Configuring Firebase Cloud Messaging
@@ -37,7 +36,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
             let pushEnabled = notificationSettings.authorizationStatus == .authorized
 
-            Parley.setPushEnabled(pushEnabled)
+            Task {
+                await Parley.setPushEnabled(pushEnabled)
+            }
         }
     }
 }
@@ -49,7 +50,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
-        _ = Parley.handle(userInfo)
+        Task {
+            _ = await Parley.handle(userInfo)
+        }
     }
 
     func userNotificationCenter(
@@ -69,7 +72,8 @@ extension AppDelegate: MessagingDelegate {
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken pushToken: String?) {
         guard let pushToken = pushToken else { return }
-
-        Parley.setPushToken(pushToken)
+        Task {
+            await Parley.setPushToken(pushToken)
+        }
     }
 }

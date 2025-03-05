@@ -17,7 +17,7 @@ import UIKit
 ///    networkSession: YourImplementationOfParleyNetworkSession(),
 /// )
 /// ```
-public protocol ParleyNetworkSession {
+public protocol ParleyNetworkSession: Sendable {
     
     func request(
         _ url: URL,

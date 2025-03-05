@@ -5,21 +5,21 @@ enum ParleyRemoteError: Error, Equatable {
     case secretNotSet
 }
 
-final class ParleyRemote {
+final class ParleyRemote: Sendable {
     let networkSession: ParleyNetworkSession
-    private var networkConfig: ParleyNetworkConfig
-    private let createSecret: () -> String?
-    private let createUniqueDeviceIdentifier: () -> String?
-    private let createUserAuthorizationToken: () -> String?
+    private let networkConfig: ParleyNetworkConfig
+    private let createSecret: @Sendable () async -> String?
+    private let createUniqueDeviceIdentifier: @Sendable () async -> String?
+    private let createUserAuthorizationToken: @Sendable () async -> String?
     
     private static let successFullHTTPErrorStatusCodes = 200...299
 
     init(
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession,
-        createSecret: @escaping () -> String?,
-        createUniqueDeviceIdentifier: @escaping () -> String?,
-        createUserAuthorizationToken: @escaping () -> String?
+        createSecret: @Sendable @escaping () async -> String?,
+        createUniqueDeviceIdentifier: @Sendable @escaping () async -> String?,
+        createUserAuthorizationToken: @Sendable @escaping () async -> String?
     ) {
         self.networkConfig = networkConfig
         self.networkSession = networkSession
@@ -40,7 +40,7 @@ extension ParleyRemote {
     ) async throws -> T {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
         let bodyData = mapBodyToData(body: body)
-        let headers = try createHeaders()
+        let headers = try await createHeaders()
         let result = await networkSession.request(
             getUrl(path),
             data: bodyData,
@@ -53,7 +53,7 @@ extension ParleyRemote {
     
     func execute(_ method: ParleyHTTPRequestMethod, path: String) async throws {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        let headers = try createHeaders()
+        let headers = try await createHeaders()
         
         let result = await networkSession.request(
             getUrl(path),
@@ -93,7 +93,7 @@ extension ParleyRemote {
             fileMimeType: type.rawValue,
             fileData: data
         )
-        var headers = try createHeaders()
+        var headers = try await createHeaders()
         headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
         
         let result = await networkSession.upload(
@@ -117,7 +117,7 @@ extension ParleyRemote {
         var multipartForm = MultipartFormData()
         multipartFormData(&multipartForm)
         
-        var headers = try createHeaders()
+        var headers = try await createHeaders()
         headers[HTTPHeaders.contentType.rawValue] = multipartForm.httpContentTypeHeaderValue
 
         let result = await networkSession.upload(
@@ -138,7 +138,7 @@ extension ParleyRemote {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         
-        let headers = try createHeaders()
+        let headers = try await createHeaders()
         
         let result = await networkSession.request(
             url,
@@ -167,23 +167,23 @@ extension ParleyRemote {
 // MARK: Privates
 private extension ParleyRemote {
     
-    func createHeaders() throws -> [String: String] {
+    func createHeaders() async throws -> [String: String] {
         var headers = networkConfig.headers
-        guard let secret = createSecret() else {
+        guard let secret = await createSecret() else {
             throw ParleyRemoteError.secretNotSet
         }
-        headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(getDeviceId())"
+        headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(await getDeviceId())"
         headers[HTTPHeaders.contentType.rawValue] = "application/json; charset=utf-8"
 
-        if let userAuthorization = createUserAuthorizationToken() {
+        if let userAuthorization = await createUserAuthorizationToken() {
             headers[HTTPHeaders.authorization.rawValue] = userAuthorization
         }
 
         return headers
     }
 
-    func getDeviceId() -> String {
-        if let configuredDeviceId = createUniqueDeviceIdentifier() {
+    func getDeviceId() async -> String {
+        if let configuredDeviceId = await createUniqueDeviceIdentifier() {
             return configuredDeviceId
         }
 

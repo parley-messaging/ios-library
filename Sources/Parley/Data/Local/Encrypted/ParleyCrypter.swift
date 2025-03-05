@@ -1,7 +1,7 @@
-import CryptoKit
+@preconcurrency import CryptoKit
 import Foundation
 
-public class ParleyCrypter {
+public final class ParleyCrypter: Sendable {
 
     enum ParleyCrypterError: Error {
         case failedToEncrypt

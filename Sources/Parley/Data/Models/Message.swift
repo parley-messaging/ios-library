@@ -1,37 +1,38 @@
 import Foundation
 import UIKit
 
-public final class Message: Codable, Equatable {
+public struct Message: Equatable, Sendable, Identifiable {
+    
+    typealias RemoteId = Int
 
-    enum MessageStatus: Int, Codable {
-        case failed = 0
-        case pending = 1
-        case success = 2
+    enum MessageStatus: Int {
+        case failed
+        case pending
+        case success
     }
 
-    enum MessageType: Int, Codable {
+    enum MessageType: Int {
         /// Message from the user
-        case user = 1
+        case user
 
         /// Message from the agent
-        case agent = 2
+        case agent
 
         /// Automatic message from the backend system.
-        case auto = 3
+        case auto
 
         /// Message from the system, as the user
-        case systemMessageUser = 4
+        case systemMessageUser
 
         /// Message from the system, as the agent
-        case systemMessageAgent = 5
+        case systemMessageAgent
     }
 
-    var id: Int?
+    let remoteId: RemoteId?
+    let localId: UUID
+    public var id: UUID { localId }
 
-    /// Used to identify pending or failed messages.
-    var uuid: String?
-
-    var time: Date?
+    var time: Date
 
     var title: String?
     var message: String?
@@ -50,104 +51,56 @@ public final class Message: Codable, Equatable {
     var hasFile: Bool {
         media?.getMediaType().isImageType == false
     }
-
+    
+    var buttons: [MessageButton]
     var hasButtons: Bool {
-        guard let buttons else { return false }
         return !buttons.isEmpty
     }
 
-    var buttons: [MessageButton]?
+    var carousel: [Message]
 
-    var carousel: [Message]?
-
-    var quickReplies: [String]?
+    var quickReplies: [String]
     var hasQuickReplies: Bool {
-        (quickReplies ?? []).isEmpty == false
+        quickReplies.isEmpty == false
     }
 
-    var type: MessageType?
+    var type: MessageType
     var status: MessageStatus = .success
 
     var agent: Agent?
 
     var referrer: String?
-
-    public init() {
-        uuid = UUID().uuidString
-        time = Date()
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case messageId
-        case uuid
-        case time
-        case title
-        case message
-        case responseInfoType
-        case media
-        case buttons
-        case carousel
-        case quickReplies
-        case type = "typeId"
-        case status
-        case agent
-        case referrer
-    }
-
-    public required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-
-        if let id = try? values.decodeIfPresent(Int.self, forKey: .id) {
-            self.id = id
-        } else if let id = try? values.decodeIfPresent(Int.self, forKey: .messageId) {
-            self.id = id
-        } else if let id = try? values.decodeIfPresent(String.self, forKey: .messageId) {
-            self.id = Int(id)
-        }
-
-        uuid = try values.decodeIfPresent(String.self, forKey: .uuid)
-
-        if let timeInt = try values.decodeIfPresent(Int.self, forKey: .time) {
-            time = Date(timeIntSince1970: timeInt)
-        } else {
-            time = nil
-        }
-        title = try values.decodeIfPresent(String.self, forKey: .title)
-        message = try values.decodeIfPresent(String.self, forKey: .message)
-        if message?.isEmpty == true {
-            message = nil
-        }
-        responseInfoType = try values.decodeIfPresent(String.self, forKey: .responseInfoType)
-        media = try values.decodeIfPresent(MediaObject.self, forKey: .media)
-        buttons = try values.decodeIfPresent([MessageButton].self, forKey: .buttons)
-        carousel = try values.decodeIfPresent([Message].self, forKey: .carousel)
-        quickReplies = try values.decodeIfPresent([String].self, forKey: .quickReplies)
-        type = try values.decodeIfPresent(Message.MessageType.self, forKey: .type)
-        status = try values.decodeIfPresent(Message.MessageStatus.self, forKey: .status) ?? .success
-        agent = try values.decodeIfPresent(Agent.self, forKey: .agent)
-        referrer = try values.decodeIfPresent(String.self, forKey: .referrer)
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encodeIfPresent(id, forKey: .id)
-        try container.encodeIfPresent(uuid, forKey: .uuid)
-        if let time {
-            try container.encode(Int(time.timeIntervalSince1970), forKey: .time)
-        }
-        try container.encodeIfPresent(title, forKey: .title)
-        try container.encodeIfPresent(message, forKey: .message)
-        try container.encodeIfPresent(responseInfoType, forKey: .responseInfoType)
-        try container.encodeIfPresent(media, forKey: .media)
-        try container.encodeIfPresent(buttons, forKey: .buttons)
-        try container.encodeIfPresent(carousel, forKey: .carousel)
-        try container.encodeIfPresent(quickReplies, forKey: .quickReplies)
-        try container.encodeIfPresent(type?.rawValue, forKey: .type)
-        try container.encodeIfPresent(status.rawValue, forKey: .status)
-        try container.encodeIfPresent(agent, forKey: .agent)
-        try container.encodeIfPresent(referrer, forKey: .referrer)
+    
+    private init(
+        remoteId: Int?,
+        localId: UUID,
+        time: Date,
+        title: String?,
+        message: String?,
+        responseInfoType: String?,
+        media: MediaObject?,
+        buttons: [MessageButton],
+        carousel: [Message],
+        quickReplies: [String],
+        type: MessageType,
+        status: MessageStatus,
+        agent: Agent?,
+        referrer: String?
+    ) {
+        self.remoteId = remoteId
+        self.localId = localId
+        self.time = time
+        self.title = title
+        self.message = message
+        self.responseInfoType = responseInfoType
+        self.media = media
+        self.buttons = buttons
+        self.carousel = carousel
+        self.quickReplies = quickReplies
+        self.type = type
+        self.status = status
+        self.agent = agent
+        self.referrer = referrer
     }
 
     public func ignore() -> Bool {
@@ -157,22 +110,16 @@ public final class Message: Codable, Equatable {
         case .agent, .user:
             (
                 title == nil &&
-                    message == nil &&
-                    buttons?.count ?? 0 == 0 &&
-                    carousel?.count ?? 0 == 0 &&
-                    media == nil
+                message == nil &&
+                buttons.isEmpty &&
+                carousel.isEmpty &&
+                media == nil
             )
-        case .none:
-            true
         }
     }
 
     public static func == (lhs: Message, rhs: Message) -> Bool {
-        if let uuid = rhs.uuid {
-            lhs.uuid == uuid
-        } else {
-            lhs.id == rhs.id
-        }
+        lhs.localId == rhs.localId
     }
 
     public func getFormattedMessage() -> String? {
@@ -180,18 +127,117 @@ public final class Message: Codable, Equatable {
     }
 }
 
+// MARK: Initializers
+extension Message {
+    
+    static func newTextMessage(_ message: String, type: MessageType, status: MessageStatus = .pending) -> Message {
+        Message(
+            localId: UUID(),
+            time: Date(),
+            message: message,
+            media: nil,
+            type: .user,
+            status: status
+        )
+    }
+    
+    static func newMediaMessage(_ media: MediaObject, status: MessageStatus) -> Message {
+        Message(
+            localId: UUID(),
+            time: Date(),
+            message: nil,
+            media: media,
+            type: .user,
+            status: status
+        )
+    }
+    
+    static func exsisting(
+        remoteId: Int?,
+        localId: UUID,
+        time: Date,
+        title: String?,
+        message: String?,
+        responseInfoType: String?,
+        media: MediaObject?,
+        buttons: [MessageButton],
+        carousel: [Message],
+        quickReplies: [String],
+        type: MessageType,
+        status: MessageStatus,
+        agent: Agent?,
+        referrer: String?
+    ) -> Message {
+        Message(
+            remoteId: remoteId,
+            localId: localId,
+            time: time,
+            title: title,
+            message: message,
+            responseInfoType: responseInfoType,
+            media: media,
+            buttons: buttons,
+            carousel: carousel,
+            quickReplies: quickReplies,
+            type: type,
+            status: status,
+            agent: agent,
+            referrer: referrer
+        )
+    }
+    
+    static func push(
+        remoteId: Int?,
+        message: String?,
+        type: MessageType
+    ) -> Message {
+        Message(
+            remoteId: remoteId,
+            localId: UUID(),
+            time: Date(),
+            title: nil,
+            message: message,
+            responseInfoType: nil,
+            media: nil,
+            buttons: [],
+            carousel: [],
+            quickReplies: [],
+            type: type,
+            status: .success,
+            agent: nil,
+            referrer: nil
+        )
+    }
+    
+    private init(
+        localId: UUID,
+        time: Date,
+        message: String?,
+        media: MediaObject?,
+        type: MessageType,
+        status: MessageStatus
+    ) {
+        self.remoteId = nil
+        self.localId = localId
+        self.time = time
+        self.title = nil
+        self.message = message
+        self.responseInfoType = nil
+        self.media = media
+        self.buttons = []
+        self.carousel = []
+        self.quickReplies = []
+        self.type = type
+        self.status = status
+        self.agent = nil
+        self.referrer = nil
+    }
+}
+
 extension Message: Comparable {
 
     public static func < (lhs: Message, rhs: Message) -> Bool {
-        if lhs.time == nil && rhs.time == nil {
-            false
-        } else if lhs.time == nil {
-            true
-        } else if rhs.time == nil {
-            false
-        } else {
-            lhs.time! < rhs.time!
-        }
+        lhs.time < rhs.time
     }
 
     public static func > (lhs: Message, rhs: Message) -> Bool {
@@ -205,10 +251,7 @@ extension [Message] {
         var messagesByDate: [Date: [Message]] = [:]
         
         for message in self {
-            guard let time = message.time else {
-                continue
-            }
-            let date = calender.startOfDay(for: time)
+            let date = calender.startOfDay(for: message.time)
             
             if messagesByDate[date] == nil {
                 messagesByDate[date] = []

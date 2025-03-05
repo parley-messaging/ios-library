@@ -44,8 +44,7 @@ extension ParleyChronologicalMessageCollection {
     
     @discardableResult
     mutating func add(message: Message) -> Position {
-        assert(message.time != nil, "time may not be empty")
-        let messageDate = calendar.startOfDay(for: message.time!)
+        let messageDate = calendar.startOfDay(for: message.time)
         
         if let sectionIndex = indexMap[messageDate] {
             let rowIndex = sections[sectionIndex].add(message: message)
@@ -101,7 +100,7 @@ extension ParleyChronologicalMessageCollection {
     func find(message messageToFind: Message) -> Position? {
         for (sectionIndex, section) in sections.enumerated() {
             for (row, message) in section.messages.enumerated() {
-                if message.id == messageToFind.id || message.uuid == messageToFind.uuid {
+                if message.id == messageToFind.id {
                     return Position(section: sectionIndex, row: row)
                 }
             }
@@ -146,12 +145,11 @@ extension ParleyChronologicalMessageCollection {
         
         init(date: Date, messages: [Message]) {
             self.date = date
-            self.messages = messages.filter({ $0.time != nil })
+            self.messages = messages
             self.sort()
         }
         
         mutating func add(message: Message) -> Int {
-            assert(message.time != nil, "time may not be empty")
              
             var index = messages.endIndex
             
@@ -160,7 +158,7 @@ extension ParleyChronologicalMessageCollection {
                 let previousIndex = index - 1
                 let previousMessage = messages[previousIndex]
                 
-                if previousMessage.time! > message.time! {
+                if previousMessage.time > message.time {
                     index -= 1
                     continue
                 } else {
@@ -174,7 +172,7 @@ extension ParleyChronologicalMessageCollection {
         }
         
         mutating func set(messages: [Message]) {
-            self.messages = messages.filter({ $0.time != nil })
+            self.messages = messages
             sort()
         }
         

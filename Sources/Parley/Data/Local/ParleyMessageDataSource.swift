@@ -1,10 +1,10 @@
-public protocol ParleyMessageDataSource: AnyObject, ParleyDataSource {
+public protocol ParleyMessageDataSource: AnyObject, ParleyDataSource, Sendable {
 
-    func all() -> [Message]?
+    func all() async -> [Message]?
 
-    func save(_ messages: [Message])
+    func save(_ messages: [Message]) async
 
-    func insert(_ message: Message, at index: Int)
+    func insert(_ message: Message, at index: Int) async
 
-    func update(_ message: Message)
+    func update(_ message: Message) async
 }

@@ -141,7 +141,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                 totalHeight += appearance.separatorInset?.top ?? 0
                 totalHeight += appearance.separatorInset?.bottom ?? 0
             }
-            message.buttons?.forEach({ (button: MessageButton) in
+            message.buttons.forEach({ (button: MessageButton) in
                 totalHeight += appearance.buttonInsets?.top ?? 0
                 totalHeight += appearance.buttonInsets?.bottom ?? 0
                 totalHeight += button.title.height(withConstrainedWidth: buttonWidth, font: appearance.buttonFont)
@@ -159,8 +159,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             totalHeight += appearance.metaInsets?.top ?? 0
             totalHeight += appearance.metaInsets?.bottom ?? 0
 
-            totalHeight += (message.time?.asTime() ?? "")
-                .height(withConstrainedWidth: contentWidth, font: appearance.timeFont)
+            totalHeight += message.time.asTime().height(withConstrainedWidth: contentWidth, font: appearance.timeFont)
         }
 
         if message.message != nil || message.title != nil || message.hasImage {

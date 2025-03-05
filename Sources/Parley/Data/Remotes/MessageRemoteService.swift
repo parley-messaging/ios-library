@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class MessageRemoteService {
+final class MessageRemoteService: MessageRepository, Sendable {
 
     private let remote: ParleyRemote
 
@@ -10,23 +10,33 @@ final class MessageRemoteService {
     }
     
     func find(_ id: Int) async throws -> Message {
-        try await remote.execute(.get, path: "messages/\(id)")
+        let message: MessageResponse = try await remote.execute(.get, path: "messages/\(id)")
+        return message.toDomainModel(id: UUID())
     }
     
     func findAll() async throws -> MessageCollection {
-        try await remote.execute(.get, path: "messages", keyPath: nil)
+        let collection: MessageCollectionResponse = try await remote.execute(.get, path: "messages", keyPath: nil)
+        return collection.toDomainModel()
     }
     
     func findBefore(_ id: Int) async throws -> MessageCollection {
-        try await remote.execute(.get, path: "messages/before:\(id)", keyPath: nil)
+        let collection: MessageCollectionResponse = try await remote.execute(.get, path: "messages/before:\(id)", keyPath: nil)
+        return collection.toDomainModel()
     }
     
     func findAfter(_ id: Int) async throws -> MessageCollection {
-        try await remote.execute(.get, path: "messages/after:\(id)", keyPath: nil)
+        let collection: MessageCollectionResponse = try await remote.execute(.get, path: "messages/after:\(id)", keyPath: nil)
+        return collection.toDomainModel()
     }
     
     func store(_ message: Message) async throws -> Message {
-        try await remote.execute(.post, path: "messages", body: message)
+        let request = NewMessageRequest(message: message)
+        let storedMessage: MessageResponse = try await remote.execute(
+            .post,
+            path: "messages",
+            body: request
+        )
+        return storedMessage.toDomainModel(id: message.id)
     }
     
     func upload(data: Data, type: ParleyMediaType, fileName: String) async -> Result<MediaResponse, Error> {

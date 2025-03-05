@@ -1,6 +1,6 @@
 import Foundation
 
-final class EventRemoteService {
+final class EventRemoteService: Sendable {
 
     private let remote: ParleyRemote
 

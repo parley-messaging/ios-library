@@ -21,8 +21,10 @@ final class InfoTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        accessibilityLabel = ParleyLocalizationKey.voiceOverMessageInformational.localized()
-        apply(appearance)
+        Task { @MainActor in
+            accessibilityLabel = ParleyLocalizationKey.voiceOverMessageInformational.localized()
+            apply(appearance)
+        }
     }
 
     func render(_ message: Message) {

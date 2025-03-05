@@ -86,8 +86,7 @@ extension Message {
         }
 
         private static func createTimeLabelIfAvailable(_ message: Message) -> String? {
-            guard let time = message.time else { return nil }
-            return ParleyLocalizationKey.voiceOverMessageTime.localized(arguments: time.asTime())
+            ParleyLocalizationKey.voiceOverMessageTime.localized(arguments: message.time.asTime())
         }
     }
 }
@@ -100,7 +99,7 @@ extension Message.Accessibility {
 
         switch message.type {
         case .agent, .systemMessageAgent:
-            if message.quickReplies?.isEmpty == false {
+            if message.quickReplies.isEmpty == false {
                 return ParleyLocalizationKey.voiceOverAnnouncementQuickRepliesReceived.localized()
             } else {
                 messageArray = [
@@ -141,16 +140,16 @@ extension Message.Accessibility {
     ///  - message: A chat message to base the custom accessibility actions on.
     ///  - actionHandler: action handler for when a button has been activated.
     /// - Returns: An array of custom actions, nil if the message has no buttons.
+    @MainActor
     static func getAccessibilityCustomActions(
         for message: Message,
         actionHandler: @escaping ((_ message: Message, _ button: MessageButton) -> Void)
     ) -> [UIAccessibilityCustomAction]? {
-        guard let buttons = message.buttons, !buttons.isEmpty else { return nil }
+        guard !message.buttons.isEmpty else { return nil }
 
         var actions = [UIAccessibilityCustomAction]()
-        for button in buttons {
-            let action = UIAccessibilityCustomAction(name: button.title, actionHandler: { [weak message] _ in
-                guard let message else { return false }
+        for button in message.buttons {
+            let action = UIAccessibilityCustomAction(name: button.title, actionHandler: { _ in
                 actionHandler(message, button)
                 return true
             })

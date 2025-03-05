@@ -72,13 +72,15 @@ public class ParleyComposeView: UIView {
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized()
 
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
-                let isEnabled = change.newValue
-
-                if isEnabled == true {
-                    self?.sendButton.accessibilityHint = nil
-                } else {
-                    self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint
-                        .localized()
+                Task { @MainActor in
+                    let isEnabled = change.newValue
+                    
+                    if isEnabled == true {
+                        self?.sendButton.accessibilityHint = nil
+                    } else {
+                        self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint
+                            .localized()
+                    }
                 }
             }
         }
@@ -519,7 +521,7 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
 
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
-
+        
         PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] data, _, _, _ in
             guard let data, let image = UIImage(data: data) else { dismissFailedToSelect() ; return }
             picker.dismiss(animated: true, completion: {

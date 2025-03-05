@@ -70,8 +70,9 @@ final class SuggestionCollectionViewCell: UICollectionViewCell {
     // MARK: View
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        apply(appearance)
+        Task { @MainActor in
+            apply(appearance)
+        }
     }
 
     static func calculateHeight(_ appearance: SuggestionCollectionViewCellAppearance, _ suggestion: String) -> CGFloat {

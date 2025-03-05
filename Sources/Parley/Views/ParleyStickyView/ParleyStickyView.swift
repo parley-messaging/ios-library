@@ -122,9 +122,10 @@ final class ParleyStickyView: UIView {
                 let self else { return }
 
             let totalVerticalInsets: CGFloat = totalVerticalContentInsets
-            contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
-
-            layoutIfNeeded()
+            Task { @MainActor in
+                contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
+                layoutIfNeeded()
+            }
         }
     }
 }

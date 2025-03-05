@@ -18,8 +18,9 @@ final class DateTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        apply(appearance)
+        Task { @MainActor in
+            apply(appearance)
+        }
     }
 
     func render(_ date: Date) {

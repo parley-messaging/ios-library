@@ -1,16 +1,18 @@
 import Foundation
 import UIKit
 
-protocol KeyboardAccessoryViewDelegate: AnyObject {
+@MainActor protocol KeyboardAccessoryViewDelegate: AnyObject, Sendable {
     func keyboardDidShow(_ frame: CGRect)
     func keyboardFrameChanged(_ frame: CGRect)
     func keyboardDidHide(_ frame: CGRect)
 }
 
+@MainActor
 extension KeyboardAccessoryViewDelegate {
     func keyboardDidShow(_ frame: CGRect) { }
 }
 
+@MainActor
 final class KeyboardAccessoryView: UIView {
 
     weak var delegate: KeyboardAccessoryViewDelegate?
@@ -76,8 +78,10 @@ final class KeyboardAccessoryView: UIView {
     ) {
         if let theChange = change as [NSKeyValueChangeKey: AnyObject]? {
             if theChange[NSKeyValueChangeKey.newKey] != nil {
-                if delegate != nil && superview?.frame != nil {
-                    delegate?.keyboardFrameChanged((superview?.frame)!)
+                Task { @MainActor in
+                    if let frame = superview?.frame {
+                        delegate?.keyboardFrameChanged((superview?.frame)!)
+                    }
                 }
             }
         }

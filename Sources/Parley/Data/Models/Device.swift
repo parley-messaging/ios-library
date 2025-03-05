@@ -1,8 +1,8 @@
 import Foundation
 
-public struct Device: Codable, Equatable {
+public struct Device: Codable, Equatable, Sendable {
 
-    public enum PushType: Int, Codable, Equatable {
+    public enum PushType: Int, Codable, Equatable, Sendable {
         case customWebhook = 4
         case customWebhookBehindOAuth = 5
         case fcm = 6

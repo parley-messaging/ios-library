@@ -1,10 +1,10 @@
 import Foundation
 
-protocol ShareManagerProtocol {
+protocol ShareManagerProtocol: Sendable {
     func share(media: MediaObject) async throws -> URL
 }
 
-class ShareManager: ShareManagerProtocol {
+final class ShareManager: ShareManagerProtocol {
 
     enum ShareManagerError: Error {
         case unableToSaveFile(id: String)
@@ -19,12 +19,12 @@ class ShareManager: ShareManagerProtocol {
     }
 
     func share(media: MediaObject) async throws -> URL {
-        if fileManager.file(for: media) != nil, let url = fileManager.path(for: media) {
+        if await fileManager.file(for: media) != nil, let url = await fileManager.path(for: media) {
             return url
         }
 
         let data = try await mediaLoader.load(media: media)
-        guard let url = fileManager.save(fileData: data, for: media) else {
+        guard let url = await fileManager.save(fileData: data, for: media) else {
             throw ShareManagerError.unableToSaveFile(id: media.id)
         }
 

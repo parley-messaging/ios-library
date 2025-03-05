@@ -1,6 +1,7 @@
 import Foundation
 
-protocol MessagesPresenterProtocol: AnyObject {
+@ParleyDomainActor
+protocol MessagesPresenterProtocol: AnyObject, Sendable {
     func set(display: ParleyMessagesDisplay)
     
     func set(isScrolledToBottom: Bool)
@@ -9,20 +10,21 @@ protocol MessagesPresenterProtocol: AnyObject {
     
     func set(sections: [ParleyChronologicalMessageCollection.Section])
     
-    @MainActor func present(stickyMessage: String?)
+    func present(stickyMessage: String?) async
     
-    @MainActor func presentAgentTyping(_ isTyping: Bool)
+    func presentAgentTyping(_ isTyping: Bool) async
     
-    @MainActor func presentLoadingMessages(_ isLoading: Bool)
+    func presentLoadingMessages(_ isLoading: Bool) async
     
-    @MainActor func presentAdd(message: Message)
-    @MainActor func presentUpdate(message: Message)
+    func presentAdd(message: Message) async
+    func presentUpdate(message: Message) async
     
-    @MainActor func presentMessages()
-    @MainActor func present(quickReplies: [String])
-    @MainActor func presentHideQuickReplies()
+    func presentMessages() async
+    func present(quickReplies: [String]) async
+    func presentHideQuickReplies() async
 }
 
+@ParleyDomainActor
 final class MessagesPresenter {
     
     // MARK: DI
@@ -68,7 +70,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         
         for section in sections {
             let sectionWithoutQuickReplies = section.messages.filter {
-                $0.quickReplies == nil || $0.quickReplies?.isEmpty == true
+                $0.quickReplies.isEmpty
             }
             let result = snapshot.insertSection(messages: sectionWithoutQuickReplies)
             assert(result != nil, "Failed to insert section.")
@@ -77,82 +79,76 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         currentSnapshot = snapshot
     }
 
-    @MainActor
-    func present(stickyMessage: String?) {
+    func present(stickyMessage: String?) async {
         self.stickyMessage = stickyMessage
         if let stickyMessage {
-            display?.display(stickyMessage: stickyMessage)
+            await display?.display(stickyMessage: stickyMessage)
         } else {
-            display?.displayHideStickyMessage()
+            await display?.displayHideStickyMessage()
         }
     }
     
-    @MainActor
-    func presentAgentTyping(_ isTyping: Bool) {
+    func presentAgentTyping(_ isTyping: Bool) async {
         guard let change = currentSnapshot.set(agentTyping: isTyping) else { return }
         self.isAgentTyping = isTyping
-        store.apply(snapshot: currentSnapshot)
-        presentSnapshotChange(change)
+        await store.apply(snapshot: currentSnapshot)
+        await presentSnapshotChange(change)
     }
     
-    @MainActor
-    func presentUpdate(message: Message) {
+    func presentUpdate(message: Message) async {
         guard let change = currentSnapshot.set(message: message) else { return }
-        store.apply(snapshot: currentSnapshot)
-        presentSnapshotChange(change)
+        await store.apply(snapshot: currentSnapshot)
+        await presentSnapshotChange(change)
     }
     
-    @MainActor
-    func presentLoadingMessages(_ isLoading: Bool) {
+    func presentLoadingMessages(_ isLoading: Bool) async {
         guard let change = currentSnapshot.setLoading(isLoading) else { return }
         self.isLoadingMessages = isLoading
-        store.apply(snapshot: currentSnapshot)
-        presentSnapshotChange(change)
+        await store.apply(snapshot: currentSnapshot)
+        await presentSnapshotChange(change)
     }
     
-    @MainActor func presentAdd(message: Message) {
+    func presentAdd(message: Message) async {
         guard let change = currentSnapshot.insert(message: message) else { return }
-        store.apply(snapshot: currentSnapshot)
-        presentSnapshotChange(change)
+        await store.apply(snapshot: currentSnapshot)
+        await presentSnapshotChange(change)
         if isScrolledToBottom, let lastIndexPath = change.indexPaths.last {
-            display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
+            await display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
         }
     }
     
-    @MainActor
-    func presentMessages() {
+    func presentMessages() async {
         _ = currentSnapshot.set(welcomeMessage: welcomeMessage)
         _ = currentSnapshot.setLoading(isLoadingMessages)
         _ = currentSnapshot.set(agentTyping: isAgentTyping)
         
-        store.apply(snapshot: currentSnapshot)
+        await store.apply(snapshot: currentSnapshot)
         
-        display?.reload()
+        await display?.reload()
     }
     
-    @MainActor func present(quickReplies: [String]) {
-        display?.display(quickReplies: quickReplies)
+    func present(quickReplies: [String]) async {
+        await display?.display(quickReplies: quickReplies)
     }
     
-    @MainActor func presentHideQuickReplies() {
-        display?.displayHideQuickReplies()
+    func presentHideQuickReplies() async {
+        await display?.displayHideQuickReplies()
     }
 }
 
 // MARK: Privates
 private extension MessagesPresenter {
     
-    @MainActor
-    func presentSnapshotChange(_ change: Snapshot.SnapshotChange) {
+    func presentSnapshotChange(_ change: Snapshot.SnapshotChange) async {
         guard change.indexPaths.isEmpty == false else { return }
         
         switch change.kind {
         case .added:
-            display?.insertRows(at: change.indexPaths, with: .none)
+            await display?.insertRows(at: change.indexPaths, with: .none)
         case .changed:
-            display?.reloadRows(at: change.indexPaths, with: .none)
+            await display?.reloadRows(at: change.indexPaths, with: .none)
         case .deleted:
-            display?.deleteRows(at: change.indexPaths, with: .none)
+            await display?.deleteRows(at: change.indexPaths, with: .none)
         }
     }
 }
@@ -361,7 +357,7 @@ extension MessagesPresenter {
             
             static func message(_ message: Message, calendar: Calendar = .autoupdatingCurrent) -> Cell? {
                 guard
-                    !hasQuickReplies(message),
+                    message.hasQuickReplies == false,
                     message.ignore() == false
                 else { return nil }
                 
@@ -370,22 +366,13 @@ extension MessagesPresenter {
             }
             
             static func carousel(_ message: Message, calendar: Calendar = .autoupdatingCurrent) -> Cell? {
-                guard let carousel = message.carousel else { return nil }
-                let kind = CellKind.carousel(mainMessage: message, carousel: carousel)
-                let date = message.time ?? carousel.compactMap(\.time).first
+                let kind = CellKind.carousel(mainMessage: message, carousel: message.carousel)
+                let date = message.time
                 return Cell(date: date, kind: kind, calender: calendar)
             }
             
             static func typingIndicator(calendar: Calendar = .autoupdatingCurrent) -> Cell {
                 Cell(date: nil, kind: .typingIndicator, calender: calendar)
-            }
-            
-            private static func hasQuickReplies(_ message: Message) -> Bool {
-                if let quickReplies = message.quickReplies {
-                    return !quickReplies.isEmpty
-                } else {
-                    return false
-                }
             }
         }
         
@@ -446,11 +433,10 @@ extension MessagesPresenter {
         /// - returns: A change, or none if there is no message section.
         mutating func insert(message: Message) -> SnapshotChange? {
             guard
-                let cell = Cell.message(message, calendar: calendar),
-                let date = message.time
+                let cell = Cell.message(message, calendar: calendar)
             else { return nil }
             
-            let sectionDate = startOfDay(date)
+            let sectionDate = startOfDay(message.time)
             var indexPaths = [IndexPath]()
             
             if let existingSectionIndex = getSectionIndex(for: sectionDate) {
@@ -568,16 +554,13 @@ extension MessagesPresenter {
         }
         
         mutating func set(message updatedMessage: Message) -> SnapshotChange? {
-            guard
-                let messageDate = updatedMessage.time,
-                let updatedCell = Cell.message(updatedMessage)
-            else { return nil }
-            let sectionDate = startOfDay(messageDate)
+            guard let updatedCell = Cell.message(updatedMessage) else { return nil }
+            let sectionDate = startOfDay(updatedMessage.time)
             guard let sectionIndex = getSectionIndex(for: sectionDate) else { return nil }
             for (index, cell) in sections[sectionIndex].cells.enumerated() {
                 switch cell.kind {
                 case .message(let oldMessage):
-                    if oldMessage.id == updatedMessage.id || oldMessage.uuid == updatedMessage.uuid {
+                    if oldMessage.id == updatedMessage.id {
                         sections[sectionIndex].set(cell: updatedCell, at: index)
                         return SnapshotChange(indexPaths: [IndexPath(row: index, section: sectionIndex)], kind: .changed)
                     }
