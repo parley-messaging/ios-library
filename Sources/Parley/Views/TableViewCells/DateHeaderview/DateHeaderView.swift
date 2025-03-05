@@ -28,6 +28,7 @@ final class DateHeaderView: UIView {
 private extension DateHeaderView {
     
     func setup(appearance: DateHeaderAppearance) {
+        setupAccesibility()
         setupPillView()
         setupDateLabel(appearance)
         apply(appearance: appearance)
@@ -36,6 +37,7 @@ private extension DateHeaderView {
     func setupAccesibility() {
         isAccessibilityElement = true
         accessibilityTraits = .header
+        dateLabel.isAccessibilityElement = false
     }
     
     func setupPillView() {
