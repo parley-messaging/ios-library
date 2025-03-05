@@ -2,17 +2,16 @@ import Foundation
 
 class MessagesStore {
     
-    enum SectionKind {
+    enum SectionKind: Equatable {
         case info
         case loading
-        case messages
+        case messages(Date)
         case typingIndicator
     }
     
     enum CellKind: Equatable {
         case info(String)
         case loading
-        case dateHeader(Date)
         case message(Message)
         case carousel(mainMessage: Message, carousel: [Message])
         case typingIndicator
@@ -63,7 +62,7 @@ extension MessagesStore {
     }
     
     subscript(section sectionIndex: Int) -> SectionKind? {
-        return sections[sectionIndex]
+        return sections[safe: sectionIndex]
     }
     
     subscript(section sectionIndex: Int, row rowIndex: Int) -> CellKind? {

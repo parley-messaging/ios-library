@@ -20,7 +20,7 @@ public struct ParleyViewAppearance {
 
     public var typingBalloon = AgentTypingTableViewCellAppearance()
     public var loading = LoadingTableViewCellAppearance()
-    public var date = DateTableViewCellAppearance()
+    public var date = DateHeaderAppearance()
     public var info = InfoTableViewCellAppearance()
 
     public init(fontRegularName: String? = nil, fontItalicName: String? = nil, fontBoldName: String? = nil) {

@@ -35,4 +35,13 @@ extension UIView {
     /// - Important: Call `watchForVoiceOverDidChangeNotification(observer:)` to get callbacks.
     @objc
     func voiceOverDidChange(isVoiceOverRunning: Bool) { }
+    
+    func pinToSides(in view: UIView, insets: UIEdgeInsets = .zero) {        
+        NSLayoutConstraint.activate([
+            self.topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top),
+            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: insets.right),
+            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: insets.bottom),
+            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
+        ])
+    }
 }

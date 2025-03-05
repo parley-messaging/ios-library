@@ -153,7 +153,7 @@ struct MessagesPresenterTests {
     mutating func insertMessageInEmptyChat_ShouldUpdateStoreAndInsertRowsOnDisplay() {
         // Setup
         let message = Message.makeTestData(time: Date(timeIntSince1970: 1))
-        let position = collection.add(message: message)
+        _ = collection.add(message: message)
         presenter.presentMessages()
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
@@ -161,16 +161,15 @@ struct MessagesPresenterTests {
         presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 0, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 0] else { Issue.record() ; return }
+        guard case .message = store[section: 0, row: 0] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 1)
-        #expect(store.numberOfRows(inSection: 0) == 2)
+        #expect(store.numberOfRows(inSection: 0) == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 0),
-            IndexPath(row: 1, section: 0),
+            IndexPath(row: 0, section: 0)
         ])
         
         #expect(display.deleteRowsCallCount == 0)
@@ -193,16 +192,15 @@ struct MessagesPresenterTests {
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 1] else { Issue.record() ; return }
+        guard case .message = store[section: 1, row: 0] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 2)
         #expect(store.numberOfRows(inSection: 0) == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1),
+            IndexPath(row: 0, section: 1)
         ])
         
         #expect(display.deleteRowsCallCount == 0)
@@ -225,15 +223,15 @@ struct MessagesPresenterTests {
         presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
+        guard case .messages = store[section: 0] else { Issue.record() ; return }
+        guard case .message = store[section: 0, row: 0] else { Issue.record() ; return }
         guard case .message = store[section: 0, row: 1] else { Issue.record() ; return }
-        guard case .message = store[section: 0, row: 2] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 1)
-        #expect(store.numberOfRows(inSection: 0) == 3)
+        #expect(store.numberOfRows(inSection: 0) == 2)
         
         #expect(display.insertRowsCallCount == 1)
-        #expect(display.insertRowsIndexPaths == [IndexPath(row: 2, section: 0)])
+        #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 0)])
         
         #expect(display.deleteRowsCallCount == 0)
         #expect(display.reloadCallCount == 1, "Should be unchanged")
@@ -258,16 +256,16 @@ struct MessagesPresenterTests {
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record() ; return }
+        guard case .messages = store[section: 1] else { Issue.record() ; return }
+        guard case .message = store[section: 1, row: 0] else { Issue.record() ; return }
         guard case .message = store[section: 1, row: 1] else { Issue.record() ; return }
-        guard case .message = store[section: 1, row: 2] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 2)
         #expect(store.numberOfRows(inSection: 0) == 1)
-        #expect(store.numberOfRows(inSection: 1) == 3)
+        #expect(store.numberOfRows(inSection: 1) == 2)
         
         #expect(display.insertRowsCallCount == 1)
-        #expect(display.insertRowsIndexPaths == [IndexPath(row: 2, section: 1)])
+        #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 1)])
         
         #expect(display.deleteRowsCallCount == 0)
         #expect(display.reloadCallCount == 1, "Should be unchanged")
@@ -283,26 +281,25 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         let message = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 1))
-        let position = collection.add(message: message)
+        _ = collection.add(message: message)
         
         // When
         presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 0, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 0] else { Issue.record() ; return }
+        guard case .message = store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 1] else { Issue.record() ; return }
+        guard case .message = store[section: 1, row: 0] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 2)
-        #expect(store.numberOfRows(inSection: 0) == 2)
-        #expect(store.numberOfRows(inSection: 1) == 2)
+        #expect(store.numberOfRows(inSection: 0) == 1)
+        #expect(store.numberOfRows(inSection: 1) == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1)
+            IndexPath(row: 0, section: 1)
         ])
         
         #expect(display.deleteRowsCallCount == 0)
@@ -320,7 +317,7 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         let message = Message.makeTestData(time:  Date(daysSince1970: 1, offsetSeconds: 1))
-        let position = collection.add(message: message)
+        _ = collection.add(message: message)
         
         // When
         presenter.presentAdd(message: message)
@@ -328,21 +325,20 @@ struct MessagesPresenterTests {
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 1] else { Issue.record() ; return }
+        guard case .message = store[section: 1, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = store[section: 2, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 2, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 2] else { Issue.record() ; return }
+        guard case .message = store[section: 2, row: 0] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 3)
         #expect(store.numberOfRows(inSection: 0) == 1)
-        #expect(store.numberOfRows(inSection: 1) == 2)
-        #expect(store.numberOfRows(inSection: 2) == 2)
+        #expect(store.numberOfRows(inSection: 1) == 1)
+        #expect(store.numberOfRows(inSection: 2) == 1)
         
         #expect(display.insertRowsCallCount == 1)
         #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2)
+            IndexPath(row: 0, section: 2)
         ])
         
         #expect(display.deleteRowsCallCount == 0)
@@ -367,23 +363,23 @@ struct MessagesPresenterTests {
         
         // Then
         guard case .info = store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = store[section: 1] else { Issue.record() ; return }
+        guard case .message = store[section: 1, row: 0] else { Issue.record() ; return }
         
         #expect(store.numberOfSections == 2)
         #expect(store.numberOfRows(inSection: 0) == 1)
-        #expect(store.numberOfRows(inSection: 1) == 2)
+        #expect(store.numberOfRows(inSection: 1) == 1)
         
         #expect(display.reloadRowsCallCount == 1)
         #expect(display.reloadRowsIndexPaths == [
-            IndexPath(row: 1, section: 1)
+            IndexPath(row: 0, section: 1)
         ])
         
         #expect(display.insertRowsCallCount == 0)
         #expect(display.deleteRowsCallCount == 0)
         #expect(display.reloadCallCount == 1, "Should be unchanged")
         
-        #expect(store.getMessage(at: IndexPath(row: 1, section: 1))!.status == .success)
+        #expect(store.getMessage(at: IndexPath(row: 0, section: 1))!.status == .success)
     }
     
     @Test
@@ -416,9 +412,9 @@ struct MessagesPresenterTests {
         #expect(display.reloadCallCount == 1)
     
         guard case .info = store[section: 0, row: 0] else { Issue.record("First cell should be the welcome message.") ; return }
-        guard case .dateHeader = store[section: 1, row: 0] else { Issue.record("Second cell should be the date header.") ; return }
-        #expect(store.getMessage(at: IndexPath(row: 1, section: 1)) == firstMessage, "Third cell should be the first message")
-        #expect(store.getMessage(at: IndexPath(row: 2, section: 1)) == secondMessage, "Fourth cell should be the second message")
+        guard case .messages = store[section: 1] else { Issue.record("Second cell should be the date header.") ; return }
+        #expect(store.getMessage(at: IndexPath(row: 0, section: 1)) == firstMessage, "Third cell should be the first message")
+        #expect(store.getMessage(at: IndexPath(row: 1, section: 1)) == secondMessage, "Fourth cell should be the second message")
     }
     
     // MARK: - Agent Typing
