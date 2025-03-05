@@ -635,13 +635,7 @@ extension ParleyView: UITableViewDataSource {
             case let MessagesStore.SectionKind.messages(date) = sectionKind
         else { return nil }
         
-        let formattedDate = date.asDate(style: appearance.date.style)
-        let view = DateHeaderView(frame: .zero)
-        view.isAccessibilityElement = true
-        view.accessibilityTraits = .header
-        view.accessibilityLabel = formattedDate
-        view.configure(date: formattedDate, appearance: appearance.date)
-        return view
+        return DateHeaderView(appearance: appearance.date, date: date)
     }
     
     public func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {

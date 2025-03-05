@@ -8,43 +8,34 @@ final class DateHeaderView: UIView {
     private let pillView = UIView()
     private let dateLabel = UILabel()
     
-    private var topLayoutConstraint: NSLayoutConstraint!
-    private var leftLayoutConstraint: NSLayoutConstraint!
-    private var bottomLayoutConstraint: NSLayoutConstraint!
-    private var rightLayoutConstraint: NSLayoutConstraint!
-    private var allConstraints: [NSLayoutConstraint] {
-        [
-            topLayoutConstraint, bottomLayoutConstraint,
-            leftLayoutConstraint, rightLayoutConstraint
-        ]
+    init(appearance: DateHeaderAppearance, date: Date) {
+        super.init(frame: .zero)
+        setup(appearance: appearance)
+        configure(date: date, style: appearance.style)
     }
     
-    override init(frame: CGRect) {
+    private override init(frame: CGRect) {
         super.init(frame: frame)
-        setup()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setup()
-    }
-}
-
-// MARK: - Methods
-extension DateHeaderView {
-    
-    func configure(date: String, appearance: DateHeaderAppearance) {
-        dateLabel.text = date
-        apply(appearance: appearance)
+        setup(appearance: DateHeaderAppearance())
     }
 }
 
 // MARK: - Privates
 private extension DateHeaderView {
     
-    func setup() {
+    func setup(appearance: DateHeaderAppearance) {
         setupPillView()
-        setupDateLabel()
+        setupDateLabel(appearance)
+        apply(appearance: appearance)
+    }
+    
+    func setupAccesibility() {
+        isAccessibilityElement = true
+        accessibilityTraits = .header
     }
     
     func setupPillView() {
@@ -61,16 +52,21 @@ private extension DateHeaderView {
         ])
     }
     
-    func setupDateLabel() {
+    func setupDateLabel(_ appearance: DateHeaderAppearance) {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         pillView.addSubview(dateLabel)
         
-        topLayoutConstraint = dateLabel.topAnchor.constraint(equalTo: pillView.topAnchor)
-        leftLayoutConstraint = dateLabel.leadingAnchor.constraint(equalTo: pillView.leadingAnchor)
-        rightLayoutConstraint = dateLabel.trailingAnchor.constraint(equalTo: pillView.trailingAnchor)
-        bottomLayoutConstraint = dateLabel.bottomAnchor.constraint(equalTo: pillView.bottomAnchor)
+        let topInset = appearance.contentInset?.top ?? 0
+        let leftInset = appearance.contentInset?.left ?? 0
+        let rightInset = (appearance.contentInset?.right ?? 0) * -1
+        let bottomInset = (appearance.contentInset?.bottom ?? 0) * -1
         
-        NSLayoutConstraint.activate(allConstraints)
+        NSLayoutConstraint.activate([
+            dateLabel.topAnchor.constraint(equalTo: pillView.topAnchor, constant: topInset),
+            dateLabel.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: leftInset),
+            dateLabel.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: rightInset),
+            dateLabel.bottomAnchor.constraint(equalTo: pillView.bottomAnchor, constant: bottomInset)
+        ])
     }
     
     func apply(appearance: DateHeaderAppearance) {
@@ -81,10 +77,11 @@ private extension DateHeaderView {
         dateLabel.textColor = appearance.textColor
 
         dateLabel.adjustsFontForContentSizeCategory = true
-        
-        topLayoutConstraint.constant = appearance.contentInset?.top ?? 0
-        leftLayoutConstraint.constant = appearance.contentInset?.left ?? 0
-        bottomLayoutConstraint.constant = (appearance.contentInset?.bottom ?? 0) * -1
-        rightLayoutConstraint.constant = (appearance.contentInset?.right ?? 0) * -1
+    }
+    
+    func configure(date: Date, style: DateFormatter.Style) {
+        let formattedDate = date.asDate(style: style)
+        accessibilityLabel = formattedDate
+        dateLabel.text = formattedDate
     }
 }
