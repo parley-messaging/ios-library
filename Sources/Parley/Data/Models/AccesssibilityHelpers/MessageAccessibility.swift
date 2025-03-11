@@ -7,7 +7,6 @@ extension Message {
     enum Accessibility {
 
         static func getAccessibilityLabelDescription(for message: Message) -> String? {
-            guard message.type != .date else { return nil }
             return [
                 createAccessibilityLabelForMessageType(message),
                 createAccessibilityMessageLabelBody(message),
@@ -23,20 +22,16 @@ extension Message {
             switch message.type {
             case .agent, .systemMessageAgent:
                 if let agentName = message.agent?.name {
-                    ParleyLocalizationKey.voiceOverMessageFromAgentName.localized(arguments: agentName)
+                    return ParleyLocalizationKey.voiceOverMessageFromAgentName.localized(arguments: agentName)
                 } else {
-                    ParleyLocalizationKey.voiceOverMessageFromAgent.localized()
+                    return ParleyLocalizationKey.voiceOverMessageFromAgent.localized()
                 }
             case .user, .systemMessageUser:
-                ParleyLocalizationKey.voiceOverMessageFromYou.localized()
-            case .loading:
-                ParleyLocalizationKey.voiceOverMessageLoading.localized()
-            case .agentTyping:
-                ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized()
-            case .info, .auto:
-                ParleyLocalizationKey.voiceOverMessageInformational.localized()
+                return ParleyLocalizationKey.voiceOverMessageFromYou.localized()
+            case .auto:
+                return ParleyLocalizationKey.voiceOverMessageInformational.localized()
             default:
-                nil
+                return nil
             }
         }
 
@@ -114,7 +109,7 @@ extension Message.Accessibility {
                     Self.createActionsAttachedLabelIfAvailable(message),
                 ]
             }
-        case .info, .auto:
+        case .auto:
             messageArray = [
                 ParleyLocalizationKey.voiceOverAnnouncementInfoMessageReceived.localized(),
                 message.message,

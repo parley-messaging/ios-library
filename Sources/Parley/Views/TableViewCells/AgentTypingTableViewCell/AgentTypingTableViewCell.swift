@@ -48,6 +48,7 @@ final class AgentTypingTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        accessibilityLabel = ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized()
         apply(appearance)
     }
 

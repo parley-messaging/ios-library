@@ -10,18 +10,6 @@ public final class Message: Codable, Equatable {
     }
 
     enum MessageType: Int, Codable {
-        /// A message from the user that is still being sent.
-        case loading = -3
-
-        /// Agent typing indicator
-        case agentTyping = -2
-
-        /// Date header
-        case date = -1
-
-        /// Informational message
-        case info = 0
-
         /// Message from the user
         case user = 1
 
@@ -29,7 +17,6 @@ public final class Message: Codable, Equatable {
         case agent = 2
 
         /// Automatic message from the backend system.
-        /// Comparable to the `info` field in that is used for informational content.
         case auto = 3
 
         /// Message from the system, as the user
@@ -74,6 +61,9 @@ public final class Message: Codable, Equatable {
     var carousel: [Message]?
 
     var quickReplies: [String]?
+    var hasQuickReplies: Bool {
+        (quickReplies ?? []).isEmpty == false
+    }
 
     var type: MessageType?
     var status: MessageStatus = .success
@@ -164,9 +154,7 @@ public final class Message: Codable, Equatable {
         switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
             true
-        case .agentTyping, .loading:
-            false
-        case .date, .info, .agent, .user:
+        case .agent, .user:
             (
                 title == nil &&
                     message == nil &&
@@ -195,25 +183,40 @@ public final class Message: Codable, Equatable {
 extension Message: Comparable {
 
     public static func < (lhs: Message, rhs: Message) -> Bool {
-        switch lhs.type {
-        case .info, .loading:
+        if lhs.time == nil && rhs.time == nil {
             false
-        case .agentTyping:
+        } else if lhs.time == nil {
             true
-        default:
-            if lhs.time == nil && rhs.time == nil {
-                false
-            } else if lhs.time == nil {
-                true
-            } else if rhs.time == nil {
-                false
-            } else {
-                lhs.time! < rhs.time!
-            }
+        } else if rhs.time == nil {
+            false
+        } else {
+            lhs.time! < rhs.time!
         }
     }
 
     public static func > (lhs: Message, rhs: Message) -> Bool {
         !(lhs < rhs)
+    }
+}
+
+extension [Message] {
+    
+    func byDate(calender: Calendar) -> [Date: [Message]] {
+        var messagesByDate: [Date: [Message]] = [:]
+        
+        for message in self {
+            guard let time = message.time else {
+                continue
+            }
+            let date = calender.startOfDay(for: time)
+            
+            if messagesByDate[date] == nil {
+                messagesByDate[date] = []
+            }
+            
+            messagesByDate[date]?.append(message)
+        }
+        
+        return messagesByDate
     }
 }

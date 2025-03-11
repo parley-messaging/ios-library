@@ -8,4 +8,9 @@ extension Date {
         }
         self = Date(timeIntervalSince1970: TimeInterval(timeIntSince1970))
     }
+
+    init(daysSince1970 days: Int, offsetSeconds: Int = 0) {
+        let seconds = (days * 86_400) + offsetSeconds
+        self = Date(timeIntervalSince1970: TimeInterval(seconds))
+    }
 }
