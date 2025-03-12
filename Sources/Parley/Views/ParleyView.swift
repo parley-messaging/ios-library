@@ -86,7 +86,7 @@ public class ParleyView: UIView {
         parley.messagesStore
     }
     
-    private var messagesInteracor: MessagesInteractor? {
+    private var messagesInteractor: MessagesInteractor? {
         parley.messagesInteractor
     }
 
@@ -226,7 +226,6 @@ public class ParleyView: UIView {
     private func setupMessagesTableView() {
         let cellIdentifiers = [
             InfoTableViewCell.reuseIdentifier,
-            DateTableViewCell.reuseIdentifier,
             LoadingTableViewCell.reuseIdentifier,
 
             MessageTableViewCell.reuseIdentifier,
@@ -242,6 +241,11 @@ public class ParleyView: UIView {
         messagesTableView.separatorStyle = .none
         messagesTableView.keyboardDismissMode = .interactive
         messagesTableView.alwaysBounceVertical = false
+        messagesTableView.estimatedSectionHeaderHeight = DateHeaderView.estimatedHeight
+        messagesTableView.sectionHeaderHeight = UITableView.automaticDimension
+        if #available(iOS 15.0, *) {
+            messagesTableView.sectionHeaderTopPadding = 0
+        }
 
         messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [
             .initial,
@@ -591,13 +595,6 @@ extension ParleyView: UITableViewDataSource {
             loadingTableViewCell.appearance = appearance.loading
 
             return loadingTableViewCell
-        case .dateHeader(let date):
-            let dateTableViewCell = tableView
-                .dequeueReusableCell(withIdentifier: DateTableViewCell.reuseIdentifier) as! DateTableViewCell
-            dateTableViewCell.appearance = appearance.date
-            dateTableViewCell.render(date)
-
-            return dateTableViewCell
         case .message(let message), .carousel(mainMessage: let message, _):
             let messageTableViewCell = tableView
                 .dequeueReusableCell(withIdentifier: MessageTableViewCell.reuseIdentifier) as! MessageTableViewCell
@@ -631,11 +628,29 @@ extension ParleyView: UITableViewDataSource {
             return infoTableViewCell
         }
     }
+    
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard
+            let sectionKind = messagesStore[section: section],
+            case let MessagesStore.SectionKind.messages(date) = sectionKind
+        else { return nil }
+        
+        return DateHeaderView(appearance: appearance.date, date: date)
+    }
+    
+    public func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+        guard
+            let sectionKind = messagesStore[section: section],
+            case MessagesStore.SectionKind.messages = sectionKind
+        else { return .zero }
+        
+        return DateHeaderView.estimatedHeight
+    }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let cell = messagesStore[indexPath: indexPath] else { return .zero }
         switch cell {
-        case .dateHeader, .loading, .typingIndicator, .info:
+        case .loading, .typingIndicator, .info:
             return UITableView.automaticDimension
         case .message(let message), .carousel(mainMessage: let message, carousel: _):
             return message.ignore() ? 0 : UITableView.automaticDimension
@@ -680,13 +695,13 @@ extension ParleyView: UITableViewDelegate {
             guard !isAlreadyAtTop else { return }
             isAlreadyAtTop = true
             Task {
-                await messagesInteracor?.handleLoadMessages()
+                await messagesInteractor?.handleLoadMessages()
             }
         } else {
             isAlreadyAtTop = false
         }
         
-        messagesInteracor?.setScrolledToBottom(messagesTableView.isAtBottom)
+        messagesInteractor?.setScrolledToBottom(messagesTableView.isAtBottom)
 
         updateSuggestionsAlpha()
     }
