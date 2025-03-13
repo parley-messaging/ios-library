@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.2.5 - Released 13 Mar 2025
+
+- [Core] The core has been adjusted with how messages are setup, grouped, and shown. Thisi mproves separation in code (required for some current and upcoming changes, visually no changes).
+- [Date Headers] Date headers are now headers in the chat which are persistent on top when viewing messages of a specific day.
+- [Accessibility] Improved VoiceOver navigation on date headers.
+- **DEPRECATION**: `DateTableViewCellAppearance`has been renamed to `DateHeaderAppearance`.
+
 ## 4.2.4 - Released 17 Jan 2025
 
 - **IMPORTANT**: When using custom appearance, adjust the `let appearance = ParleyViewAppearance(...)` to a `var`.
