@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ParleyHTTPDataResponse: ResponseValidator {
+public struct ParleyHTTPDataResponse: ResponseValidator, Sendable {
 
     public let statusCode: Int
     public let headers: [String: String]

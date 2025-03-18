@@ -17,14 +17,14 @@ import UIKit
 ///    networkSession: YourImplementationOfParleyNetworkSession(),
 /// )
 /// ```
-public protocol ParleyNetworkSession {
+public protocol ParleyNetworkSession: Sendable {
 
     func request(
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )
 
     func upload(
@@ -32,6 +32,6 @@ public protocol ParleyNetworkSession {
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )
 }
