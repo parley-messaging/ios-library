@@ -4,7 +4,7 @@ import UIKit
 import Combine
 
 protocol ParleyProtocol: Actor {
-    var state: ParleyActor.State { get }
+    var state: Parley.State { get }
     var alwaysPolling: Bool { get }
     var pushEnabled: Bool { get }
 
@@ -16,8 +16,8 @@ protocol ParleyProtocol: Actor {
     var messagesPresenter: MessagesPresenterProtocol! { get }
     var messagesStore: MessagesStore! { get }
 
-    var delegate: ParleyDelegate? { get }
-    func set(delegate: ParleyDelegate?) async
+    @MainActor var delegate: ParleyDelegate? { get }
+    @MainActor func set(delegate: ParleyDelegate?) async
 
     func isCachingEnabled() -> Bool
     func send(_ message: inout Message, isNewMessage: Bool) async
@@ -46,8 +46,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             self.message = message
         }
     }
-
-    enum State {
+    
+    public enum State: Sendable {
         case unconfigured
         case configuring
         case configured
@@ -92,18 +92,22 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private(set) var userAdditionalInformation: [String: String]?
     private var reachibilityWatcher: AnyCancellable?
 
+    @MainActor
     private(set) weak var delegate: ParleyDelegate?
+    
+    @MainActor
     func set(delegate: ParleyDelegate?) async {
         self.delegate = delegate
-        guard let delegate = self.delegate else { return }
-
-        await delegate.didChangeState(state)
-
-        if let reachibilityService {
+        
+        await MainActor.run { [state] in
+            delegate?.didChangeState(state)
+        }
+        
+        if let reachibilityService = await self.reachibilityService {
             if reachibilityService.reachable {
-                await delegate.reachable()
+                delegate?.reachable()
             } else {
-                await delegate.unreachable()
+                delegate?.unreachable()
             }
         }
     }
@@ -161,7 +165,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         reachibilityService = try? ReachabilityService()
         try? reachibilityService?.startNotifier()
         reachibilityWatcher = reachibilityService?.reachabilityPublisher().sink(receiveValue: { [weak self] isReachable in
-            Task { [weak self] in
+            Task { @MainActor [weak self] in
                 guard let self else { return }
                 if isReachable {
                     await self.delegate?.reachable()
@@ -299,7 +303,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     
     private func set(state: State) async {
         self.state = state
-        await delegate?.didChangeState(state)
+        await MainActor.run {
+            delegate?.didChangeState(state)
+        }
     }
 
     private func updateSecretInDataSource() async {
@@ -311,7 +317,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     }
 
     private func updateUserAuthorizationInDataSource() async {
-        if let userAuthorization {
+        if let userAuthorization = self.userAuthorization {
             await keyValueDataSource?.set(userAuthorization, forKey: kParleyCacheKeyUserAuthorization)
         } else {
             await keyValueDataSource?.removeObject(forKey: kParleyCacheKeyUserAuthorization)
@@ -667,9 +673,8 @@ extension ParleyActor {
         self.messageDataSource = messageDataSource
         self.keyValueDataSource = keyValueDataSource
         self.mediaDataSource = mediaDataSource
-            
-        await self.reachable ? self.delegate?.reachable() : self.delegate?.unreachable()
         
+        await notifiyReachable(reachable)
     }
 
     public func disableOfflineMessaging() async {
@@ -679,8 +684,19 @@ extension ParleyActor {
         await mediaDataSource?.clear()
         mediaDataSource = nil
         await mediaRepository?.set(dataSource: nil)
-
-        await reachable ? delegate?.reachable() : delegate?.unreachable()
+        await notifiyReachable(reachable)
+    }
+    
+    private func notifiyReachable(_ isReachable: Bool) async {
+        if isReachable {
+            await MainActor.run {
+                self.delegate?.reachable()
+            }
+        } else {
+            await MainActor.run {
+                self.delegate?.unreachable()
+            }
+        }
     }
     
     public func setPushToken(
@@ -700,7 +716,9 @@ extension ParleyActor {
 
         pushEnabled = enabled
 
-        await delegate?.didChangePushEnabled(enabled)
+        await MainActor.run {
+            delegate?.didChangePushEnabled(enabled)
+        }
 
         return await registerDevice()
     }

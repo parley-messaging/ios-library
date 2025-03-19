@@ -1,31 +1,25 @@
-import XCTest
-
+import Testing
 @testable import Parley
 
-final class ParleyTests: XCTestCase {
+@Suite("Parley Tests")
+struct ParleyTests {
 
-    private var localizationManagerSpy: LocalizationManagerSpy!
-
-    override func setUpWithError() throws {
-        localizationManagerSpy = LocalizationManagerSpy()
+    private let localizationManagerSpy: LocalizationManagerSpy
+    
+    init() {
+        self.localizationManagerSpy = LocalizationManagerSpy()
     }
 
-    override func tearDownWithError() throws {
-        localizationManagerSpy = nil
-
-        Parley.setLocalizationManager(ParleyLocalizationManager())
-    }
-
-    func testSetLocalizationManager() {
+    func testSetLocalizationManager() async {
         let localizationKeyReturnValue = "test!"
 
-        XCTAssertNotEqual(ParleyLocalizationKey.cancel.localized(), ParleyLocalizationKey.cancel.rawValue)
-        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount, 0)
+        #expect(ParleyLocalizationKey.cancel.localized() != ParleyLocalizationKey.cancel.rawValue)
+        #expect(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount == 0)
 
-        Parley.setLocalizationManager(localizationManagerSpy)
+        await Parley.setLocalizationManager(localizationManagerSpy)
         localizationManagerSpy.getLocalizationKeyArgumentsReturnValue = localizationKeyReturnValue
 
-        XCTAssertEqual(ParleyLocalizationKey.cancel.localized(), localizationKeyReturnValue)
-        XCTAssertEqual(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount, 1)
+        #expect(ParleyLocalizationKey.cancel.localized() == localizationKeyReturnValue)
+        #expect(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount == 1)
     }
 }

@@ -1,10 +1,11 @@
 import Foundation
 
-protocol ParleyDelegate: AnyObject, Sendable {
+@MainActor
+public protocol ParleyDelegate: AnyObject {
 
-    @MainActor func didChangeState(_ state: ParleyActor.State) async
-    @MainActor func didChangePushEnabled(_ pushEnabled: Bool)
+    func didChangeState(_ state: Parley.State)
+    func didChangePushEnabled(_ pushEnabled: Bool)
 
-    @MainActor func reachable() async
-    @MainActor func unreachable() async
+    func reachable()
+    func unreachable()
 }

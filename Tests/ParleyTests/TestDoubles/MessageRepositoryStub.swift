@@ -1,6 +1,6 @@
 @testable import Parley
 
-final class MessageRepositoryStub: MessageRepositoryProtocol {
+final actor MessageRepositoryStub: MessageRepository {
     
     private var find = [Int: Result<Message, Error>]()
     private var findAll: Result<MessageCollection, Error>!

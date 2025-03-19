@@ -11,11 +11,11 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
         let result = await Parley.configure("secret")
         try result.get()
         
-        #expect(Parley.shared.networkConfig.headers == [:])
-        #expect(Parley.shared.networkConfig.url == kParleyNetworkUrl)
-        #expect(Parley.shared.networkConfig.path == kParleyNetworkPath)
+        await #expect(ParleyActor.shared.networkConfig.headers == [:])
+        await #expect(ParleyActor.shared.networkConfig.url == kParleyNetworkUrl)
+        await #expect(ParleyActor.shared.networkConfig.path == kParleyNetworkPath)
 
-        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+        await #expect(ParleyActor.shared.remote.networkSession is AlamofireNetworkSession)
     }
 
     func testSettingCustomConfig() async throws {
@@ -34,10 +34,10 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
         
         try result.get()
 
-        #expect(Parley.shared.networkConfig.headers == headers)
-        #expect(Parley.shared.networkConfig.url == url)
-        #expect(Parley.shared.networkConfig.path == path)
+        await #expect(ParleyActor.shared.networkConfig.headers == headers)
+        await #expect(ParleyActor.shared.networkConfig.url == url)
+        await #expect(ParleyActor.shared.networkConfig.path == path)
 
-        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+        await #expect(ParleyActor.shared.remote.networkSession is AlamofireNetworkSession)
     }
 }

@@ -4,7 +4,7 @@ struct NewMessageRequest: Codable {
     
     let time: Int
     let message: String?
-    let type: MessageResponse.MessageType
+    let type: MessageResponse.MessageType?
     let referrer: String?
     
     init(message: Message) {

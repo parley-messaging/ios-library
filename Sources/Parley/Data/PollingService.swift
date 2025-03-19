@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 @MainActor
-protocol PollingServiceProtocol: AnyObject {
+protocol PollingServiceProtocol: Sendable, AnyObject {
     func startRefreshing() async
     func stopRefreshing() async
 }

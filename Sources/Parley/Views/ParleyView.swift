@@ -469,6 +469,7 @@ public class ParleyView: UIView {
 }
 
 // MARK: ParleyDelegate
+@MainActor
 extension ParleyView: ParleyDelegate {
 
     func didSent(_ message: Message) {
@@ -479,16 +480,17 @@ extension ParleyView: ParleyDelegate {
         )
     }
 
-    @MainActor
-    func didChangeState(_ state: ParleyActor.State) async {
+    
+    public func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
         if state == .unconfigured {
             pollingService = nil
         }
 
-        
-        await setupPollingIfNecessary()
+        Task {
+            await setupPollingIfNecessary()
+        }
 
         switch state {
         case .unconfigured:
@@ -533,8 +535,10 @@ extension ParleyView: ParleyDelegate {
             activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
 
-            stickyView.text = await messagesManager?.stickyMessage
-            stickyView.isHidden = await messagesManager?.stickyMessage == nil
+            Task { @MainActor in
+                stickyView.text = await messagesManager?.stickyMessage
+                stickyView.isHidden = await messagesManager?.stickyMessage == nil
+            }
 
             messagesTableView.reloadData()
 
@@ -548,7 +552,7 @@ extension ParleyView: ParleyDelegate {
         }
     }
 
-    func didChangePushEnabled(_ pushEnabled: Bool) {
+    public func didChangePushEnabled(_ pushEnabled: Bool) {
         Task { @MainActor in
             if offlineNotificationView.isHidden == false { return }
             if let pollingService {
@@ -559,20 +563,25 @@ extension ParleyView: ParleyDelegate {
         }
     }
 
-    func reachable() async {
-        await pushDisabledNotificationView.hide(parley.pushEnabled)
-        offlineNotificationView.hide()
-
-        composeView.isEnabled = true
-        suggestionsView.isEnabled = true
+    @MainActor
+    public func reachable() {
+        Task { @MainActor in
+            let pushEnabled = await parley.pushEnabled
+            pushDisabledNotificationView.hide(pushEnabled)
+            composeView.isEnabled = true
+            suggestionsView.isEnabled = true
+        }
     }
 
-    func unreachable() async {
+    @MainActor
+    public func unreachable() {
         pushDisabledNotificationView.hide()
         offlineNotificationView.show()
 
-        composeView.isEnabled = await parley.isCachingEnabled()
-        suggestionsView.isEnabled = await parley.isCachingEnabled()
+        Task { @MainActor in
+            composeView.isEnabled = await parley.isCachingEnabled()
+            suggestionsView.isEnabled = await parley.isCachingEnabled()
+        }
     }
 }
 

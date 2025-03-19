@@ -52,8 +52,8 @@ extension ParleyChronologicalMessageCollection {
         } else {
             let newSection = Section(date: messageDate, message: message)
             let insertIndex: Int
-            if let largerThanIndex = sections.firstIndex(where: { newSection.date < $0.date }) {
-                insertIndex = largerThanIndex + 1
+            if let smallerThanIndex = sections.firstIndex(where: { newSection.date < $0.date }) {
+                insertIndex = smallerThanIndex
             } else {
                 insertIndex = sections.endIndex
             }

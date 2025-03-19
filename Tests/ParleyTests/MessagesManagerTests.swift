@@ -1,7 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import Parley
 
-final class MessagesManagerTests: XCTestCase {
+@Suite("Messages Manager Tests")
+struct MessagesManagerTests {
 
     struct MessagesManagerTestsError: Error {
         let message: String
@@ -10,27 +12,29 @@ final class MessagesManagerTests: XCTestCase {
     private let MESSAGE_WELCOME_TEXT = "Welcome message"
     private let MESSAGE_STICKY_TEXT = "Sticky message"
 
-    private var messagesManager: MessagesManager!
-    private var messageDataSource: ParleyMessageDataSource!
-    private var keyValueDataSource: ParleyKeyValueDataSource!
-
-    override func setUp() {
+    private let messagesManager: MessagesManager
+    private let messageDataSource: ParleyMessageDataSource
+    private let keyValueDataSource: ParleyKeyValueDataSource
+    
+    init() {
         messageDataSource = ParleyMessageDataSourceMock()
         keyValueDataSource = ParleyInMemoryKeyValueDataSource()
         messagesManager = MessagesManager(messageDataSource: messageDataSource, keyValueDataSource: keyValueDataSource)
     }
 
-    func testMessagesManager_ShouldBeEmpty_WhenCreated() {
-        XCTAssertTrue(messagesManager.messages.isEmpty)
-        XCTAssertNil(messagesManager.welcomeMessage)
-        XCTAssertNil(messagesManager.stickyMessage)
-        XCTAssertNil(messagesManager.paging)
-        XCTAssertNil(messagesManager.lastSentMessage)
-        XCTAssertTrue(messagesManager.pendingMessages.isEmpty)
-        XCTAssertNil(messagesManager.getOldestMessage())
+    @Test
+    func testMessagesManager_ShouldBeEmpty_WhenCreated() async {
+        #expect(await messagesManager.messages.isEmpty)
+        #expect(await messagesManager.welcomeMessage == nil)
+        #expect(await messagesManager.stickyMessage == nil)
+        #expect(await messagesManager.paging == nil)
+        #expect(await messagesManager.lastSentMessage == nil)
+        #expect(await messagesManager.pendingMessages.isEmpty)
+        #expect(await messagesManager.getOldestMessage() == nil)
     }
 
-    func testMessageManager_ShouldBeCorrectlyConfigured_WhenStartingWithAMessageCollection() {
+    @Test
+    func testMessageManager_ShouldBeCorrectlyConfigured_WhenStartingWithAMessageCollection() async {
         let firstMessage = createUserMessage("Hello!")
         let secondMessage = createUserMessage("How are you?")
         let collection = MessageCollection(
@@ -40,99 +44,102 @@ final class MessagesManagerTests: XCTestCase {
             stickyMessage: MESSAGE_STICKY_TEXT,
             welcomeMessage: MESSAGE_WELCOME_TEXT
         )
-        messagesManager.handle(collection, .all)
+        await messagesManager.handle(collection, .all)
 
-        XCTAssertEqual(messagesManager.welcomeMessage, MESSAGE_WELCOME_TEXT)
-        XCTAssertEqual(messagesManager.stickyMessage, MESSAGE_STICKY_TEXT)
-        XCTAssertEqual(messagesManager.messages[0], firstMessage, "First message should be the first user message.")
-        XCTAssertEqual(messagesManager.messages[1], secondMessage, "Second message should be the second user message.")
+        #expect(await messagesManager.welcomeMessage == MESSAGE_WELCOME_TEXT)
+        #expect(await messagesManager.stickyMessage == MESSAGE_STICKY_TEXT)
+        #expect(await messagesManager.messages[0] == firstMessage, "First message should be the first user message.")
+        #expect(await messagesManager.messages[1] == secondMessage, "Second message should be the second user message.")
     }
 
-    func testWelcomeMessage_ShouldBeSet_WhenSettingTheWelcomeMessage() {
-        setWelcomeMessage()
-        messagesManager.loadCachedData()
-        XCTAssertEqual(messagesManager.welcomeMessage, MESSAGE_WELCOME_TEXT)
-        XCTAssertTrue(messagesManager.messages.isEmpty, "Messages should remain empty")
+    @Test
+    func testWelcomeMessage_ShouldBeSet_WhenSettingTheWelcomeMessage() async {
+        await setWelcomeMessage()
+        await messagesManager.loadCachedData()
+        #expect(await messagesManager.welcomeMessage == MESSAGE_WELCOME_TEXT)
+        #expect(await messagesManager.messages.isEmpty, "Messages should remain empty")
     }
 
-    func testAddUserMessage_ShouldReturnTrue_WhenAddingInfoMessageAndFirstUserMessage() {
-        let didInsertMessage = addInfoMessageAndFirstUserMessage()
-        XCTAssertTrue(didInsertMessage)
+    @Test
+    func testAddUserMessage_ShouldReturnTrue_WhenAddingInfoMessageAndFirstUserMessage() async {
+        let didInsertMessage = await addInfoMessageAndFirstUserMessage()
+        #expect(didInsertMessage)
     }
 
-    func testMessage_ShouldBeIgnored_WhenTryingToAddTheSameMessageTwice() {
+    @Test
+    func testMessage_ShouldBeIgnored_WhenTryingToAddTheSameMessageTwice() async {
         let message = createUserMessage("Good morning")
         
-        let didAddFirstMessage = messagesManager.add(message)
-        XCTAssertTrue(didAddFirstMessage)
-        XCTAssertEqual(messagesManager.messages.count, 1, "Should have added one message.")
+        let didAddFirstMessage = await messagesManager.add(message)
+        #expect(didAddFirstMessage)
+        #expect(await messagesManager.messages.count == 1, "Should have added one message.")
         
-        let didAddFirstMessageAgain = messagesManager.add(message)
-        XCTAssertFalse(didAddFirstMessageAgain)
-        XCTAssertEqual(messagesManager.messages.count, 1, "Array of messages should remain the same.")
+        let didAddFirstMessageAgain = await messagesManager.add(message)
+        #expect(didAddFirstMessageAgain == false)
+        #expect(await messagesManager.messages.count == 1, "Array of messages should remain the same.")
     }
 
-    func testGetOldestMessage_ShouldReturnCorrectValueAtAllTimes_WhenInsertingMessages() {
-        XCTAssertNil(messagesManager.getOldestMessage())
+    @Test
+    func testGetOldestMessage_ShouldReturnCorrectValueAtAllTimes_WhenInsertingMessages() async {
+        #expect(await messagesManager.getOldestMessage() == nil)
 
-        setWelcomeMessage()
-        messagesManager.loadCachedData()
-        XCTAssertNil(messagesManager.getOldestMessage())
+        await setWelcomeMessage()
+        await messagesManager.loadCachedData()
+        #expect(await messagesManager.getOldestMessage() == nil)
 
         let firstMessage = createUserMessage("Good morning")
-        _ = messagesManager.add(firstMessage)
-        XCTAssertEqual(firstMessage, messagesManager.getOldestMessage())
+        _ = await messagesManager.add(firstMessage)
+        guard await messagesManager.getOldestMessage() == firstMessage else { Issue.record() ; return }
 
         let secondMessage = createUserMessage("Second message")
-        _ = messagesManager.add(secondMessage)
-        XCTAssertEqual(firstMessage, messagesManager.getOldestMessage())
+        _ = await messagesManager.add(secondMessage)
+        #expect(await messagesManager.getOldestMessage() == firstMessage)
     }
 
-    func testUpdateMessage_ShouldUpdateMessage_WhenGivenANewMessageObjectEqualUUID() {
-        let originalMessage = Message()
-        originalMessage.type = .user
-        originalMessage.uuid = UUID().uuidString
+    @Test
+    func testUpdateMessage_ShouldUpdateMessage_WhenGivenANewMessageObjectEqualUUID() async {
         let originalMessageText = "First original message"
-        originalMessage.message = originalMessageText
+        let originalMessage = Message.newTextMessage(originalMessageText, type: .user, status: .pending)
 
-        _ = messagesManager.add(originalMessage)
+        _ = await messagesManager.add(originalMessage)
         // A date message gets added, last message is the user's message.
-        XCTAssertEqual(messagesManager.messages.last?.uuid, originalMessage.uuid)
+        #expect(await messagesManager.messages.last?.id == originalMessage.id)
 
-        let updatedMessage = Message()
-        updatedMessage.type = .user
-        updatedMessage.uuid = originalMessage.uuid
         let updatedMessageText = "Updated message text"
-        updatedMessage.message = updatedMessageText
-        messagesManager.update(updatedMessage)
+        let updatedMessage = Message.makeTestData(
+            id: originalMessage.id,
+            time: Date(),
+            message: updatedMessageText,
+            type: .user,
+            status: .pending
+        )
+        await messagesManager.update(updatedMessage)
 
-        XCTAssertNotEqual(messagesManager.messages.last!.message, originalMessageText)
-        XCTAssertEqual(messagesManager.messages.last!.message, updatedMessageText)
-        XCTAssertEqual(messagesManager.messages.last!.uuid, originalMessage.uuid)
+        await #expect(messagesManager.messages.last!.message != originalMessageText)
+        await #expect(messagesManager.messages.last!.message == updatedMessageText)
+        await #expect(messagesManager.messages.last!.id == originalMessage.id)
     }
 }
 
 extension MessagesManagerTests {
 
     @discardableResult
-    private func addInfoMessageAndFirstUserMessage() -> Bool {
-        setWelcomeMessage()
-        messagesManager.loadCachedData()
+    private func addInfoMessageAndFirstUserMessage() async -> Bool {
+        await setWelcomeMessage()
+        await messagesManager.loadCachedData()
 
         let firstMessage = createUserMessage("Good morning")
-        return messagesManager.add(firstMessage)
+        return await messagesManager.add(firstMessage)
     }
 
-    private func setWelcomeMessage() {
-        keyValueDataSource.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo)
+    private func setWelcomeMessage() async {
+        await keyValueDataSource.set(MESSAGE_WELCOME_TEXT, forKey: kParleyCacheKeyMessageInfo)
     }
 
     private func createUserMessage(_ message: String, date: Date = Date()) -> Message {
-        let userMessage = Message()
-        userMessage.message = message
-        userMessage.time = date
-        userMessage.type = .user
-        return userMessage
+        var message = Message.newTextMessage(message, type: .user, status: .pending)
+        message.time = date
+        return message
     }
 
     private func getYesterdayDate() throws -> Date {

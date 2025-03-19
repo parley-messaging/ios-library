@@ -1,10 +1,10 @@
 @testable import Parley
 
-final class ParleyStub: ParleyProtocol {
+final actor ParleyStub: ParleyProtocol {
 
     init(
         messagesManager: MessagesManagerProtocol,
-        messageRepository: MessageRepositoryProtocol,
+        messageRepository: MessageRepository,
         mediaLoader: MediaLoaderProtocol,
         localizationManager: LocalizationManager,
         messagesInteractor: MessagesInteractor,
@@ -20,20 +20,22 @@ final class ParleyStub: ParleyProtocol {
         self.messagesStore = messagesStore
     }
 
-    var state: Parley.State = .configured
-    var reachable = true
-    var alwaysPolling = false
-    var pushEnabled = true
+    private(set) var state: Parley.State = .configured
+    
+    private(set) var reachable = true
+    private(set) var alwaysPolling = false
+    private(set) var pushEnabled = true
 
-    var messagesManager: MessagesManagerProtocol?
-    var messageRepository: MessageRepositoryProtocol!
-    var mediaLoader: MediaLoaderProtocol!
-    var localizationManager: LocalizationManager
-    var messagesInteractor: MessagesInteractor!
-    var messagesPresenter: MessagesPresenterProtocol!
-    var messagesStore: MessagesStore!
+    private(set) var messagesManager: MessagesManagerProtocol?
+    private(set) var messageRepository: MessageRepository!
+    private(set) var mediaLoader: MediaLoaderProtocol!
+    private(set) var localizationManager: LocalizationManager
+    private(set) var messagesInteractor: MessagesInteractor!
+    private(set) var messagesPresenter: MessagesPresenterProtocol!
+    private(set) var messagesStore: MessagesStore!
 
-    var delegate: ParleyDelegate?
+    @MainActor
+    private(set) var delegate: ParleyDelegate?
 
     func isCachingEnabled() -> Bool {
         true
@@ -47,5 +49,38 @@ final class ParleyStub: ParleyProtocol {
 
     func setLocalizationManager(_ localizationManager: LocalizationManager) {
         self.localizationManager = localizationManager
+    }
+   
+    @MainActor
+    func set(delegate: (any ParleyDelegate)?) async {
+        self.delegate = delegate
+    }
+    
+    func send(_ message: inout Message, isNewMessage: Bool) async {
+        
+    }
+}
+
+// MARK: Setters
+extension ParleyStub {
+    
+    func set(state: Parley.State) {
+        self.state = state
+    }
+    
+    func set(reachable: Bool) {
+        self.reachable = reachable
+    }
+    
+    func set(alwaysPolling: Bool) {
+        self.alwaysPolling = alwaysPolling
+    }
+    
+    func set(pushEnabled: Bool) {
+        self.pushEnabled = pushEnabled
+    }
+    
+    func set(messagesManager: MessagesManagerProtocol?) {
+        self.messagesManager = messagesManager
     }
 }

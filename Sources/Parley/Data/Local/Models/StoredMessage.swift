@@ -36,7 +36,8 @@ struct StoredMessage: Codable, Identifiable {
             }
         }
         
-        static func from(_ type: Message.MessageType) -> Self {
+        static func from(_ type: Message.MessageType?) -> Self? {
+        guard let type else { return nil }
             switch type {
             case .user: return .user
             case .agent: return .agent
@@ -59,7 +60,7 @@ struct StoredMessage: Codable, Identifiable {
     var buttons: [StoredMessageButton]
     var carousel: [Self]
     var quickReplies: [String]
-    var type: MessageType
+    var type: MessageType?
     var status: MessageStatus
     var agent: StoredAgent?
     var referrer: String?
@@ -95,7 +96,7 @@ struct StoredMessage: Codable, Identifiable {
             buttons: self.buttons.map { $0.toDomainModel() },
             carousel: carousel.map { $0.toDomainModel() },
             quickReplies: quickReplies,
-            type: type.toDomainModel(),
+            type: type?.toDomainModel(),
             status: status.toDomainModel(),
             agent: agent?.toDomainModel(),
             referrer: referrer

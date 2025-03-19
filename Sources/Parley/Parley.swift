@@ -1,5 +1,7 @@
 public struct Parley: Sendable {
     
+    public typealias State = ParleyActor.State
+    
     private(set) var localizationManager: LocalizationManager
     
     static nonisolated(unsafe) private(set) var shared = Parley()

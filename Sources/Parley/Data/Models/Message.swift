@@ -64,7 +64,7 @@ public struct Message: Equatable, Sendable, Identifiable {
         quickReplies.isEmpty == false
     }
 
-    var type: MessageType
+    var type: MessageType?
     var status: MessageStatus = .success
 
     var agent: Agent?
@@ -82,7 +82,7 @@ public struct Message: Equatable, Sendable, Identifiable {
         buttons: [MessageButton],
         carousel: [Message],
         quickReplies: [String],
-        type: MessageType,
+        type: MessageType?,
         status: MessageStatus,
         agent: Agent?,
         referrer: String?
@@ -104,11 +104,12 @@ public struct Message: Equatable, Sendable, Identifiable {
     }
 
     public func ignore() -> Bool {
+        guard let type else { return false }
         switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
-            true
+            return true
         case .agent, .user:
-            (
+            return (
                 title == nil &&
                 message == nil &&
                 buttons.isEmpty &&
@@ -163,7 +164,7 @@ extension Message {
         buttons: [MessageButton],
         carousel: [Message],
         quickReplies: [String],
-        type: MessageType,
+        type: MessageType?,
         status: MessageStatus,
         agent: Agent?,
         referrer: String?

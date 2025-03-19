@@ -39,7 +39,8 @@ struct MessageResponse: Codable {
             }
         }
         
-        static func from(_ type: Message.MessageType) -> Self {
+        static func from(_ type: Message.MessageType?) -> Self? {
+            guard let type else { return nil }
             switch type {
             case .user: return .user
             case .agent: return .agent
@@ -74,6 +75,36 @@ struct MessageResponse: Codable {
     var agent: AgentResponse?
 
     var referrer: String?
+    
+    init(
+        remoteId: Message.RemoteId?,
+        time: Date = Date(),
+        title: String? = nil,
+        message: String? = nil,
+        responseInfoType: String? = nil,
+        media: MediaObject? = nil,
+        buttons: [MessageButtonResponse]? = nil,
+        carousel: [Self]? = nil,
+        quickReplies: [String]? = nil,
+        type: MessageType? = nil,
+        status: MessageStatus = .success,
+        agent: AgentResponse? = nil,
+        referrer: String? = nil
+    ) {
+        self.remoteId = remoteId
+        self.time = time
+        self.title = title
+        self.message = message
+        self.responseInfoType = responseInfoType
+        self.media = media
+        self.buttons = buttons
+        self.carousel = carousel
+        self.quickReplies = quickReplies
+        self.type = type
+        self.status = status
+        self.agent = agent
+        self.referrer = referrer
+    }
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -179,7 +210,7 @@ struct MessageResponse: Codable {
             buttons: buttons?.map { $0.toDomainModel() } ?? [],
             carousel: carousel?.map { $0.toDomainModel(id: UUID()) } ?? [],
             quickReplies: quickReplies ?? [],
-            type: type!.toDomainModel(),
+            type: type?.toDomainModel(),
             status: status.toDomainModel(),
             agent: agent?.toDomainModel(),
             referrer: referrer

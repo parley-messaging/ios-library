@@ -1,31 +1,18 @@
 import Foundation
 @testable import Parley
 
-public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
+public final actor ParleyNetworkSessionSpy: ParleyNetworkSession {
 
     public init() {}
 
     // MARK: - request
 
-    public var requestDataMethodHeadersCompletionCallsCount = 0
+    public private(set) var requestDataMethodHeadersCompletionCallsCount = 0
     public var requestDataMethodHeadersCompletionCalled: Bool {
         requestDataMethodHeadersCompletionCallsCount > 0
     }
-
-    public var requestDataMethodHeadersCompletionReceivedArguments: (
-        url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    )?
-    public var requestDataMethodHeadersCompletionReceivedInvocations: [(
-        url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    )] = []
     
-    public var requestDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
+    private var requestDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
 
     public func request(
         _ url: URL,
@@ -34,48 +21,18 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
         headers: [String: String]
     ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>  {
         requestDataMethodHeadersCompletionCallsCount += 1
-        requestDataMethodHeadersCompletionReceivedArguments = (
-            url: url,
-            data: data,
-            method: method,
-            headers: headers
-        )
-        requestDataMethodHeadersCompletionReceivedInvocations.append((
-            url: url,
-            data: data,
-            method: method,
-            headers: headers
-        ))
         
         return requestDataMethodHeadersResult
     }
 
     // MARK: - upload
 
-    public var uploadDataToMethodHeadersCompletionCallsCount = 0
+    public private(set) var uploadDataToMethodHeadersCompletionCallsCount = 0
     public var uploadDataToMethodHeadersCompletionCalled: Bool {
         uploadDataToMethodHeadersCompletionCallsCount > 0
     }
 
-    public var uploadDataToMethodHeadersCompletionReceivedArguments: (
-        data: Data,
-        url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    )?
-    public var uploadDataToMethodHeadersCompletionReceivedInvocations: [(
-        data: Data,
-        url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    )] = []
-    public var uploadDataToMethodHeadersCompletionClosure: ((
-        Data,
-        URL,
-        ParleyHTTPRequestMethod,
-        [String: String]
-    ) -> Void)?
-    public var uploadDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
+    private var uploadDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
 
     public func upload(
         data: Data,
@@ -84,20 +41,18 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
         headers: [String: String]
     ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
         uploadDataToMethodHeadersCompletionCallsCount += 1
-        uploadDataToMethodHeadersCompletionReceivedArguments = (
-            data: data,
-            url: url,
-            method: method,
-            headers: headers
-        )
-        uploadDataToMethodHeadersCompletionReceivedInvocations.append((
-            data: data,
-            url: url,
-            method: method,
-            headers: headers
-        ))
-        uploadDataToMethodHeadersCompletionClosure?(data, url, method, headers)
-        
         return uploadDataMethodHeadersResult
+    }
+}
+
+// MARK: Setters
+extension ParleyNetworkSessionSpy {
+    
+    func setRequestDataMethodHeadersResult(_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!) {
+        self.requestDataMethodHeadersResult = result
+    }
+    
+    func setUploadDataMethodHeadersResult(_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) {
+        self.uploadDataMethodHeadersResult = result
     }
 }
