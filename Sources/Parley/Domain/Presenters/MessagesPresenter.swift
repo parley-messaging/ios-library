@@ -193,11 +193,9 @@ extension MessagesPresenter {
             mutating func insert(cell: Cell) -> Int {
                 switch cell.kind {
                 case .info:
-                    return insert(cell: cell)
+                    return insertInfo(cell)
                 case .loading:
                     return insertLoading(cell)
-                case .dateHeader:
-                    return insertDateHeader(cell)
                 case .typingIndicator:
                     return insertTypingIndicator(cell)
                 case .message(let message):
@@ -233,24 +231,10 @@ extension MessagesPresenter {
                 return cells.endIndex - 1
             }
             
-            private mutating func insertDateHeader(_ cell: Cell) -> Int {
-                for (index, cell) in cells.enumerated() {
-                    switch cell.kind {
-                    case .info, .loading:
-                        continue
-                    default:
-                        cells.insert(cell, at: index)
-                        return index
-                    }
-                }
-                cells.insert(cell, at: 0)
-                return 0
-            }
-            
             private mutating func insertMessage(_ cell: Cell, message: Message) -> Int {
                 for (index, cell) in cells.enumerated() {
                     switch cell.kind {
-                    case .info, .loading, .dateHeader, .typingIndicator:
+                    case .info, .loading, .typingIndicator:
                         continue
                     case .message(let otherMessage):
                         if message < otherMessage {
@@ -271,7 +255,7 @@ extension MessagesPresenter {
             private mutating func insertCarousel(_ cell: Cell, carousel: Message) -> Int {
                 for (index, cell) in cells.enumerated() {
                     switch cell.kind {
-                    case .info, .loading, .dateHeader, .typingIndicator:
+                    case .info, .loading, .typingIndicator:
                         continue
                     case .message(let message):
                         if carousel < message {
@@ -319,13 +303,11 @@ extension MessagesPresenter {
             static func messages(messages: [Message], calendar: Calendar = .autoupdatingCurrent) -> Section? {
                 guard let earliestMessageDate = messages.compactMap(\.time).sorted(by: <).first else { return nil }
                 let startOfDateOfEarliestMessage = calendar.startOfDay(for: earliestMessageDate)
-                let dateHeaderCell = Cell.date(startOfDateOfEarliestMessage, calendar: calendar)
                 let messageCells = messages.compactMap { Cell.message($0, calendar: calendar) }
-                let allCells: [Cell] = [dateHeaderCell] + messageCells
                 return Section(
                     date: startOfDateOfEarliestMessage,
-                    sectionKind: .messages,
-                    cells: allCells,
+                    sectionKind: .messages(startOfDateOfEarliestMessage),
+                    cells: messageCells,
                     calendar: calendar
                 )
             }
@@ -350,14 +332,9 @@ extension MessagesPresenter {
                 Cell(date: nil, kind: .loading, calender: calendar)
             }
             
-            static func date(_ date: Date, calendar: Calendar) -> Cell {
-                let startOfDay = calendar.startOfDay(for: date)
-                return Cell(date: startOfDay, kind: .dateHeader(startOfDay), calender: calendar)
-            }
-            
             static func message(_ message: Message, calendar: Calendar = .autoupdatingCurrent) -> Cell? {
                 guard
-                    message.hasQuickReplies == false,
+                    !hasQuickReplies(message),
                     message.ignore() == false
                 else { return nil }
                 
@@ -366,13 +343,18 @@ extension MessagesPresenter {
             }
             
             static func carousel(_ message: Message, calendar: Calendar = .autoupdatingCurrent) -> Cell? {
-                let kind = CellKind.carousel(mainMessage: message, carousel: message.carousel)
+                let carousel = message.carousel
+                let kind = CellKind.carousel(mainMessage: message, carousel: carousel)
                 let date = message.time
                 return Cell(date: date, kind: kind, calender: calendar)
             }
             
             static func typingIndicator(calendar: Calendar = .autoupdatingCurrent) -> Cell {
                 Cell(date: nil, kind: .typingIndicator, calender: calendar)
+            }
+            
+            private static func hasQuickReplies(_ message: Message) -> Bool {
+                return !message.quickReplies.isEmpty
             }
         }
         
@@ -436,7 +418,9 @@ extension MessagesPresenter {
                 let cell = Cell.message(message, calendar: calendar)
             else { return nil }
             
-            let sectionDate = startOfDay(message.time)
+            let date = message.time
+            
+            let sectionDate = startOfDay(date)
             var indexPaths = [IndexPath]()
             
             if let existingSectionIndex = getSectionIndex(for: sectionDate) {
@@ -447,8 +431,7 @@ extension MessagesPresenter {
                 let newSectionIndex = newMessageSectionIndex(for: sectionDate)
                 guard let section = Section.messages(messages: [message], calendar: calendar) else { return nil }
                 sections.insert(section, at: newSectionIndex)
-                indexPaths.append(IndexPath(row: 0, section: newSectionIndex)) // Date Header
-                indexPaths.append(IndexPath(row: 1, section: newSectionIndex)) // Message Cell
+                indexPaths.append(IndexPath(row: 0, section: newSectionIndex))
                 return SnapshotChange(indexPaths: indexPaths, kind: .added)
             }
         }
@@ -554,13 +537,14 @@ extension MessagesPresenter {
         }
         
         mutating func set(message updatedMessage: Message) -> SnapshotChange? {
+            let messageDate = updatedMessage.time
             guard let updatedCell = Cell.message(updatedMessage) else { return nil }
-            let sectionDate = startOfDay(updatedMessage.time)
+            let sectionDate = startOfDay(messageDate)
             guard let sectionIndex = getSectionIndex(for: sectionDate) else { return nil }
             for (index, cell) in sections[sectionIndex].cells.enumerated() {
                 switch cell.kind {
                 case .message(let oldMessage):
-                    if oldMessage.id == updatedMessage.id {
+                    if oldMessage.remoteId == updatedMessage.remoteId || oldMessage.id == updatedMessage.id {
                         sections[sectionIndex].set(cell: updatedCell, at: index)
                         return SnapshotChange(indexPaths: [IndexPath(row: index, section: sectionIndex)], kind: .changed)
                     }

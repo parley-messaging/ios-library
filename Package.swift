@@ -21,7 +21,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.8.1")),
         .package(url: "https://github.com/Alamofire/AlamofireImage.git", .upToNextMajor(from: "4.3.0")),
-        .package(url: "https://github.com/ashleymills/Reachability.swift.git", .upToNextMajor(from: "5.2.4")),
         .package(url: "https://github.com/bmoliveira/MarkdownKit.git", .upToNextMajor(from: "1.7.0")),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.16.0"),
     ],
@@ -29,8 +28,7 @@ let package = Package(
         .target(
             name: "Parley",
             dependencies: [
-                .product(name: "Reachability", package: "Reachability.swift"),
-                "MarkdownKit",
+                "MarkdownKit"
             ]
         ),
         .target(

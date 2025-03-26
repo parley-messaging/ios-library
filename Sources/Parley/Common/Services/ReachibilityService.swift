@@ -1,30 +1,30 @@
-@preconcurrency import Reachability
 @preconcurrency import Combine
 
 final class ReachabilityService: ReachabilityProvider, Sendable {
     
-    private let reachability: Reachability
+    private nonisolated(unsafe) var networkMonitor: NetworkMonitorProtocol!
     private let currentValueSubject = PassthroughSubject<Bool, Never>()
     
     var reachable: Bool {
-        reachability.connection != .unavailable
+        get async {
+            await networkMonitor.isConnected
+        }
     }
     
     init() throws {
-        self.reachability = try Reachability()
-        setup()
+        networkMonitor = NetworkMonitor(delegate: self)
     }
 }
 
 // MARK: - Methods
 extension ReachabilityService {
     
-    func startNotifier() throws {
-        try reachability.startNotifier()
+    func startNotifier() async {
+        await networkMonitor.start()
     }
     
-    func stopNotifier() throws {
-        try reachability.startNotifier()
+    func stopNotifier() async {
+        await networkMonitor.stop()
     }
     
     func reachabilityPublisher() -> AnyPublisher<Bool, Never> {
@@ -33,19 +33,9 @@ extension ReachabilityService {
 }
 
 // MARK: - Privates
-private extension ReachabilityService {
-
-    func setup() {
-        reachability.whenReachable = { [weak self] _ in
-            Task { [weak self] in
-                self?.currentValueSubject.send(true)
-            }
-        }
-        
-        reachability.whenReachable = { [weak self] _ in
-            Task { [weak self] in
-                self?.currentValueSubject.send(false)
-            }
-        }
+extension ReachabilityService: NetworkMonitorDelegate {
+    
+    func didUpdateConnection(isConnected: Bool) {
+        currentValueSubject.send(isConnected)
     }
 }

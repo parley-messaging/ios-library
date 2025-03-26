@@ -176,95 +176,125 @@ final actor MessagesManager: MessagesManagerProtocol {
 // MARK: - Only used for testing
 extension MessagesManager {
 
-//    fileprivate func testMessages() {
-//        var userMessage_shortPending = Message()
-//        userMessage_shortPending.type = .user
-//        userMessage_shortPending.message = "Hello 👋"
-//        userMessage_shortPending.status = .pending
-//
-//        var agentMessage_fullMessageWithActions = Message()
-//        agentMessage_fullMessageWithActions.id = 0
-//        agentMessage_fullMessageWithActions.type = .agent
-//        agentMessage_fullMessageWithActions.title = "Welcome"
-//        agentMessage_fullMessageWithActions.message = "Here are some quick actions for more information about *Parley*"
-//        agentMessage_fullMessageWithActions.buttons = [
-//            createButton("Open app", "open-app://parley.nu"),
-//            createButton("Call us", "call://+31362022080"),
-//            createButton("Webuildapps", "https://webuildapps.com"),
-//        ]
-//
-//        var agentMessage_messageWithCarouselSmall = Message()
-//        agentMessage_messageWithCarouselSmall.id = 1
-//        agentMessage_messageWithCarouselSmall.type = .agent
-//        agentMessage_messageWithCarouselSmall.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-//        agentMessage_messageWithCarouselSmall
-//            .message = "Here are some quick actions for more information about *Parley*"
-//        agentMessage_messageWithCarouselSmall.buttons = [
-//            createButton("Home page", "https://www.parley.nu/"),
-//        ]
-//
-//        agentMessage_messageWithCarouselSmall.carousel = [
-//            createMessage(
-//                "Parley libraries",
-//                "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.",
-//                nil,
-//                [
-//                    createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
-//                    createButton("iOS SDK", "https://github.com/parley-messaging/ios-library"),
-//                ]
-//            ),
-//            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
-//                createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
-//                createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
-//                createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2"),
-//            ]),
-//        ]
-//
-//        var agentMessage_messageWithCarouselImages = Message()
-//        agentMessage_messageWithCarouselImages.id = 2
-//        agentMessage_messageWithCarouselImages.type = .agent
-//        agentMessage_messageWithCarouselImages.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-//        agentMessage_messageWithCarouselImages.buttons = [
-//            createButton("Home page", "https://www.parley.nu/"),
-//        ]
-//
-//        agentMessage_messageWithCarouselImages.carousel = [
-//            createMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
-//            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
-//            createMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
-//            createMessage(
-//                nil,
-//                nil,
-//                "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png",
-//                nil
-//            ),
-//        ]
-//
-//        messages.removeAll()
-////      messages.append(userMessage_shortPending) // Will be sent
-////        messages.append(agentMessage_fullMessageWithActions)
-//        messages.append(agentMessage_messageWithCarouselSmall)
-////        messages.append(agentMessage_messageWithCarouselImages)
-//    }
-//
-//    fileprivate func createMessage(
-//        _ title: String?,
-//        _ message: String?,
-//        _ image: String?,
-//        _ buttons: [MessageButton]?
-//    ) -> Message {
-//        var m = Message()
-//        m.type = .agent
-//        m.title = title
-//        m.message = message
-//        if let buttons {
-//            m.buttons = buttons
-//        }
-//        return m
-//    }
-//
-//    fileprivate func createButton(_ title: String, _ payload: String) -> MessageButton {
-//        MessageButton(title: title, payload: payload)
-//    }
+    fileprivate func testMessages() {
+        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, status: .pending)
+
+        let agentMessage_fullMessageWithActions = Message.exsisting(
+            remoteId: 0,
+            localId: UUID(),
+            time: Date(),
+            title: "Welcome",
+            message: "Here are some quick actions for more information about *Parley*",
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Open app", "open-app://parley.nu"),
+                createButton("Call us", "call://+31362022080"),
+                createButton("Webuildapps", "https://webuildapps.com")
+            ],
+            carousel: [],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: nil,
+            referrer: nil
+        )
+
+        let agentMessage_messageWithCarouselSmall = Message.exsisting(
+            remoteId: 1,
+            localId: UUID(),
+            time: Date(),
+            title: nil,
+            message: "Here are some quick actions for more information about *Parley*",
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Home page", "https://www.parley.nu/")
+            ],
+            carousel: [
+                createCarouselMessage(
+                    "Parley libraries",
+                    "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.",
+                    nil,
+                    [
+                        createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
+                        createButton("iOS SDK", "https://github.com/parley-messaging/ios-library"),
+                    ]
+                ),
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
+                    createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
+                    createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
+                    createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2"),
+                ])
+            ],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
+            referrer: nil
+        )
+
+        let agentMessage_messageWithCarouselImages = Message.exsisting(
+            remoteId: 2,
+            localId: UUID(),
+            time: Date(),
+            title: nil,
+            message: nil,
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Home page", "https://www.parley.nu/"),
+            ],
+            carousel: [
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
+                createCarouselMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
+                createCarouselMessage(
+                    nil,
+                    nil,
+                    "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png",
+                    nil
+                )
+            ], quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
+            referrer: nil
+        )
+        
+        messages.removeAll()
+//      messages.append(userMessage_shortPending) // Will be sent
+//        messages.append(agentMessage_fullMessageWithActions)
+        messages.append(agentMessage_messageWithCarouselSmall)
+//        messages.append(agentMessage_messageWithCarouselImages)
+    }
+
+    fileprivate func createCarouselMessage(
+        _ title: String?,
+        _ message: String?,
+        _ image: String?,
+        _ buttons: [MessageButton]?
+    ) -> Message {
+        Message.exsisting(
+            remoteId: Int.random(in: 1_000...10_000),
+            localId: UUID(),
+            time: Date(),
+            title: title,
+            message: message,
+            responseInfoType: nil,
+            media: nil,
+            buttons: buttons ?? [],
+            carousel: [],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: nil,
+            referrer: nil
+        )
+    }
+    
+    fileprivate func createButton(_ title: String, _ payload: String) -> MessageButton {
+        MessageButton(title: title, payload: payload)
+    }
 }
 #endif

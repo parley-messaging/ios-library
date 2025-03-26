@@ -100,7 +100,7 @@ extension ParleyChronologicalMessageCollection {
     func find(message messageToFind: Message) -> Position? {
         for (sectionIndex, section) in sections.enumerated() {
             for (row, message) in section.messages.enumerated() {
-                if message.id == messageToFind.id {
+                if message.remoteId == messageToFind.remoteId || message.id == messageToFind.id {
                     return Position(section: sectionIndex, row: row)
                 }
             }

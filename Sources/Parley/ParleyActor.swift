@@ -1,5 +1,4 @@
 import Foundation
-import Reachability
 import UIKit
 import Combine
 
@@ -22,7 +21,7 @@ protocol ParleyProtocol: Actor {
     func isCachingEnabled() -> Bool
     func send(_ message: inout Message, isNewMessage: Bool) async
     func send(_ text: String, silent: Bool) async
-    func userStartTyping()
+    func userStartTyping() async
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
@@ -104,7 +103,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         }
         
         if let reachibilityService = await self.reachibilityService {
-            if reachibilityService.reachable {
+            if await reachibilityService.reachable {
                 delegate?.reachable()
             } else {
                 delegate?.unreachable()
@@ -118,8 +117,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private var userStartTypingDate: Date?
     private var userStopTypingTimer: Timer?
     
-    internal var reachable: Bool {
-        reachibilityService?.reachable == true
+    private var networkMonitor: NetworkMonitorProtocol?
+    var reachable: Bool {
+        get async {
+            await reachibilityService?.reachable == true
+        }
     }
 
     private func initialize(networkConfig: ParleyNetworkConfig, networkSession: ParleyNetworkSession) async {
@@ -163,16 +165,18 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     private func setupReachability() {
         reachibilityService = try? ReachabilityService()
-        try? reachibilityService?.startNotifier()
+        Task {
+            await reachibilityService?.startNotifier()
+        }
         reachibilityWatcher = reachibilityService?.reachabilityPublisher().sink(receiveValue: { [weak self] isReachable in
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if isReachable {
-                    await self.delegate?.reachable()
+                    self.delegate?.reachable()
                     
                     await self.configureWhenNeeded()
                 } else {
-                    await self.delegate?.unreachable()
+                    self.delegate?.unreachable()
                 }
             }
         })
@@ -211,7 +215,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     @objc
     private func didEnterBackground() async {
-        try? reachibilityService?.stopNotifier()
+        await reachibilityService?.stopNotifier()
     }
 
     // MARK: Configure
@@ -468,7 +472,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             await addNewMessage(message)
         }
 
-        guard reachibilityService?.reachable == true else { return }
+        guard await reachibilityService?.reachable == true else { return }
 
         do {
             var uploadedMessage = try await messageRepository.store(message)
@@ -543,8 +547,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     // MARK: isTyping
 
-    func userStartTyping() {
-        guard reachibilityService?.reachable == true else { return }
+    func userStartTyping() async {
+        guard await reachibilityService?.reachable == true else { return }
 
         if
             userStartTypingDate == nil || Date().timeIntervalSince1970 - userStartTypingDate!
@@ -568,8 +572,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         }
     }
     
-    private func stopTypingTriggered() {
-        if reachibilityService?.reachable == false { return }
+    private func stopTypingTriggered() async {
+        if await reachibilityService?.reachable == false { return }
 
         Task {
             try? await self.eventRemoteService.fire(.stopTyping)

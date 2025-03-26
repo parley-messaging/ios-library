@@ -158,16 +158,15 @@ struct MessagesPresenterTests {
         await presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = await store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 0, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 0] else { Issue.record() ; return }
+        guard case .message = await store[section: 0, row: 0] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 1)
-        await #expect(store.numberOfRows(inSection: 0) == 2)
+        await #expect(store.numberOfRows(inSection: 0) == 1)
         
         await #expect(display.insertRowsCallCount == 1)
         await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 0),
-            IndexPath(row: 1, section: 0),
+            IndexPath(row: 0, section: 0)
         ])
         
         await #expect(display.deleteRowsCallCount == 0)
@@ -189,16 +188,15 @@ struct MessagesPresenterTests {
         
         // Then
         guard case .info = await store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 1] else { Issue.record() ; return }
+        guard case .message = await store[section: 1, row: 0] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 2)
         await #expect(store.numberOfRows(inSection: 0) == 1)
         
         await #expect(display.insertRowsCallCount == 1)
         await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1),
+            IndexPath(row: 0, section: 1)
         ])
         
         await #expect(display.deleteRowsCallCount == 0)
@@ -220,15 +218,15 @@ struct MessagesPresenterTests {
         await presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = await store[section: 0, row: 0] else { Issue.record() ; return }
+        guard case .messages = await store[section: 0] else { Issue.record() ; return }
+        guard case .message = await store[section: 0, row: 0] else { Issue.record() ; return }
         guard case .message = await store[section: 0, row: 1] else { Issue.record() ; return }
-        guard case .message = await store[section: 0, row: 2] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 1)
-        await #expect(store.numberOfRows(inSection: 0) == 3)
+        await #expect(store.numberOfRows(inSection: 0) == 2)
         
         await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 2, section: 0)])
+        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 0)])
         
         await #expect(display.deleteRowsCallCount == 0)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
@@ -252,16 +250,16 @@ struct MessagesPresenterTests {
         // Then
         guard case .info = await store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record() ; return }
+        guard case .messages = await store[section: 1] else { Issue.record() ; return }
+        guard case .message = await store[section: 1, row: 0] else { Issue.record() ; return }
         guard case .message = await store[section: 1, row: 1] else { Issue.record() ; return }
-        guard case .message = await store[section: 1, row: 2] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 2)
         await #expect(store.numberOfRows(inSection: 0) == 1)
-        await #expect(store.numberOfRows(inSection: 1) == 3)
+        await #expect(store.numberOfRows(inSection: 1) == 2)
         
         await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 2, section: 1)])
+        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 1)])
         
         await #expect(display.deleteRowsCallCount == 0)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
@@ -282,20 +280,19 @@ struct MessagesPresenterTests {
         await presenter.presentAdd(message: message)
         
         // Then
-        guard case .dateHeader = await store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 0, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 0] else { Issue.record() ; return }
+        guard case .message = await store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 1] else { Issue.record() ; return }
+        guard case .message = await store[section: 1, row: 0] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 2)
-        await #expect(store.numberOfRows(inSection: 0) == 2)
-        await #expect(store.numberOfRows(inSection: 1) == 2)
+        await #expect(store.numberOfRows(inSection: 0) == 1)
+        await #expect(store.numberOfRows(inSection: 1) == 1)
         
         await #expect(display.insertRowsCallCount == 1)
         await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1)
+            IndexPath(row: 0, section: 1)
         ])
         
         await #expect(display.deleteRowsCallCount == 0)
@@ -320,21 +317,20 @@ struct MessagesPresenterTests {
         // Then
         guard case .info = await store[section: 0, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 1] else { Issue.record() ; return }
+        guard case .message = await store[section: 1, row: 0] else { Issue.record() ; return }
         
-        guard case .dateHeader = await store[section: 2, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 2, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 2] else { Issue.record() ; return }
+        guard case .message = await store[section: 2, row: 0] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 3)
         await #expect(store.numberOfRows(inSection: 0) == 1)
-        await #expect(store.numberOfRows(inSection: 1) == 2)
-        await #expect(store.numberOfRows(inSection: 2) == 2)
+        await #expect(store.numberOfRows(inSection: 1) == 1)
+        await #expect(store.numberOfRows(inSection: 2) == 1)
         
         await #expect(display.insertRowsCallCount == 1)
         await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2)
+            IndexPath(row: 0, section: 2)
         ])
         
         await #expect(display.deleteRowsCallCount == 0)
@@ -358,23 +354,23 @@ struct MessagesPresenterTests {
         
         // Then
         guard case .info = await store[section: 0, row: 0] else { Issue.record() ; return }
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record() ; return }
-        guard case .message = await store[section: 1, row: 1] else { Issue.record() ; return }
+        guard case .messages = await store[section: 1] else { Issue.record() ; return }
+        guard case .message = await store[section: 1, row: 0] else { Issue.record() ; return }
         
         await #expect(store.numberOfSections == 2)
         await #expect(store.numberOfRows(inSection: 0) == 1)
-        await #expect(store.numberOfRows(inSection: 1) == 2)
+        await #expect(store.numberOfRows(inSection: 1) == 1)
         
         await #expect(display.reloadRowsCallCount == 1)
         await #expect(display.reloadRowsIndexPaths == [
-            IndexPath(row: 1, section: 1)
+            IndexPath(row: 0, section: 1)
         ])
         
         await #expect(display.insertRowsCallCount == 0)
         await #expect(display.deleteRowsCallCount == 0)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
         
-        await #expect(store.getMessage(at: IndexPath(row: 1, section: 1))!.status == .success)
+        await #expect(store.getMessage(at: IndexPath(row: 0, section: 1))!.status == .success)
     }
     
     @Test
@@ -406,9 +402,9 @@ struct MessagesPresenterTests {
         await #expect(display.reloadCallCount == 1)
     
         guard case .info = await store[section: 0, row: 0] else { Issue.record("First cell should be the welcome message.") ; return }
-        guard case .dateHeader = await store[section: 1, row: 0] else { Issue.record("Second cell should be the date header.") ; return }
-        await #expect(store.getMessage(at: IndexPath(row: 1, section: 1)) == firstMessage, "Third cell should be the first message")
-        await #expect(store.getMessage(at: IndexPath(row: 2, section: 1)) == secondMessage, "Fourth cell should be the second message")
+        guard case .messages = await store[section: 1] else { Issue.record("Should be the next section.") ; return }
+        await #expect(store.getMessage(at: IndexPath(row: 0, section: 1)) == firstMessage, "Third cell should be the first message")
+        await #expect(store.getMessage(at: IndexPath(row: 1, section: 1)) == secondMessage, "Fourth cell should be the second message")
     }
     
     // MARK: - Agent Typing

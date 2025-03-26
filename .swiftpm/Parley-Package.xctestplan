@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "8FCFBE24-97A2-44D9-9008-DB70C52B3A8E",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en-GB",
+    "region" : "NL"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyNetworkTests",
+        "name" : "ParleyNetworkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyTests",
+        "name" : "ParleyTests"
+      }
+    }
+  ],
+  "version" : 1
+}
