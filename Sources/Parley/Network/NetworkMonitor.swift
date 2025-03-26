@@ -2,7 +2,7 @@ import Foundation
 import Network
 
 protocol NetworkMonitorDelegate: AnyObject {
-    func didUpdateConnection(isConnected: Bool)
+    @MainActor func didUpdateConnection(isConnected: Bool)
 }
 
 protocol NetworkMonitorProtocol {
@@ -28,11 +28,15 @@ final class NetworkMonitor<NWPathMonitorType: NWPathMonitorProtocol>: NetworkMon
         networkMonitor.pathUpdateHandler = { [weak self] path in
             guard let self else { return }
 
-            delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: path.status))
+            Task { @MainActor [weak self] in
+                self?.delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: path.status))
+            }
         }
         networkMonitor.start(queue: workerQueue)
-        /// When there is no change, the start monitor will not call the `pathUpdateHandler` on start.
-        delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: networkMonitor.currentPath.status))
+        Task { @MainActor in
+            /// When there is no change, the start monitor will not call the `pathUpdateHandler` on start.
+            delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: networkMonitor.currentPath.status))
+        }
     }
 
     func stop() {
