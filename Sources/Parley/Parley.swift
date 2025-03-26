@@ -285,13 +285,17 @@ public final class Parley: ParleyProtocol, ReachabilityProvider, NetworkMonitorD
                 if let lastMessage = messagesManager.lastSentMessage, let id = lastMessage.id {
                     messageRepository.findAfter(id, onSuccess: { [weak self] messageCollection in
                         self?.messagesManager?.handle(messageCollection, .after)
-
+                        Task { @MainActor in
+                            self?.messagesInteractor.handleViewDidLoad()
+                        }
                         onSecondSuccess()
                     }, onFailure: onFailure)
                 } else {
                     messageRepository.findAll(onSuccess: { [weak self] messageCollection in
                         self?.messagesManager?.handle(messageCollection, .all)
-
+                        Task { @MainActor in
+                            self?.messagesInteractor.handleViewDidLoad()
+                        }
                         onSecondSuccess()
                     }, onFailure: onFailure)
                 }
