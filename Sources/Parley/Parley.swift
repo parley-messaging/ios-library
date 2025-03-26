@@ -1,5 +1,4 @@
 import Foundation
-import Reachability
 import UIKit
 
 protocol ParleyProtocol {
@@ -10,7 +9,7 @@ protocol ParleyProtocol {
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
     var mediaLoader: MediaLoaderProtocol! { get }
-    
+
     var messagesInteractor: MessagesInteractor! { get }
     var messagesPresenter: MessagesPresenterProtocol! { get }
     var messagesStore: MessagesStore! { get }
@@ -24,7 +23,7 @@ protocol ParleyProtocol {
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
-public final class Parley: ParleyProtocol, ReachabilityProvider {
+public final class Parley: ParleyProtocol, ReachabilityProvider, NetworkMonitorDelegate {
 
     enum State {
         case unconfigured
@@ -43,8 +42,8 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     private var isLoading = false
 
-    private var reachability: Reachability?
-    internal var reachable = false {
+    private var networkMonitor: NetworkMonitorProtocol?
+    var reachable = false {
         didSet {
             if reachable {
                 delegate?.reachable()
@@ -71,7 +70,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
-    
+
     private(set) var messagesInteractor: MessagesInteractor!
     private(set) var messagesPresenter: MessagesPresenterProtocol!
     private(set) var messagesStore: MessagesStore!
@@ -129,7 +128,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
         mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
         mediaRepository.dataSource = mediaDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
-        
+
         messagesStore = MessagesStore()
         messagesPresenter = MessagesPresenter(store: messagesStore, display: nil)
         messagesInteractor = MessagesInteractor(
@@ -145,19 +144,17 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     // MARK: Reachability
 
     private func setupReachability() {
-        guard reachability == nil else {
+        guard networkMonitor == nil else {
+            networkMonitor?.start()
             return
         }
-        reachability = try? Reachability()
-        reachability?.whenReachable = { [weak self] _ in
-            self?.reachable = true
-        }
+        networkMonitor = NetworkMonitor(delegate: self)
+        networkMonitor?.start()
+    }
 
-        reachability?.whenUnreachable = { [weak self] _ in
-            self?.reachable = false
-        }
-
-        try? reachability?.startNotifier()
+    // MARK: NetworkMonitorDelegate
+    func didUpdateConnection(isConnected: Bool) {
+        reachable = isConnected
     }
 
     // MARK: Observers
@@ -193,7 +190,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     @objc
     private func didEnterBackground() {
-        reachability?.stopNotifier()
+        networkMonitor?.stop()
     }
 
     // MARK: Configure
@@ -485,7 +482,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     private func addNewMessage(_ message: Message) async {
         guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
         userStopTypingTimer?.fire();
-        
+
         await messagesInteractor.handleNewMessage(message)
     }
 
