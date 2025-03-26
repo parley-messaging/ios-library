@@ -1,6 +1,6 @@
 import UIKit
 
-public struct ParleyNetworkConfig {
+public struct ParleyNetworkConfig: Sendable {
     public let url: String
     package let path: String
     package let headers: [String: String]
