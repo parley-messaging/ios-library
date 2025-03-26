@@ -172,7 +172,7 @@ class ChronologicalMessageCollectionTests {
         for i in range {
             let message = Message()
             message.time = Date(daysSince1970: i)
-            messages.append(Message())
+            messages.append(message)
         }
         
         messages.shuffle()
