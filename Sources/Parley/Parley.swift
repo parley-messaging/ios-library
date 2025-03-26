@@ -14,6 +14,14 @@ public struct Parley: Sendable {
         self.init(localizationManager: ParleyLocalizationManager())
     }
     
+    public struct RemoteMessageData: @unchecked Sendable {
+        let userInfo: [AnyHashable: Any]
+        
+        public init(_ userInfo: [AnyHashable : Any]) {
+            self.userInfo = userInfo
+        }
+    }
+    
     /**
      Handle remote message.
 
@@ -22,8 +30,8 @@ public struct Parley: Sendable {
 
      - Returns: `true` if Parley handled this payload, `false` otherwise.
      */
-    public static func handle(_ userInfo: [AnyHashable: Any]) async -> Bool {
-        await ParleyActor.shared.handle([:])
+    public static func handle(_ remoteMessage: RemoteMessageData) async -> Bool {
+        await ParleyActor.shared.handle(remoteMessage)
     }
     
     @available(

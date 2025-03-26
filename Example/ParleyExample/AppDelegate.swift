@@ -51,7 +51,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
         Task {
-            _ = await Parley.handle(userInfo)
+            _ = await Parley.handle(Parley.RemoteMessageData(userInfo))
         }
     }
 
