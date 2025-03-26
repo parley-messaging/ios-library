@@ -44,4 +44,8 @@ extension UIView {
             self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
         ])
     }
+    
+    func hasUserIntrefaceStyleChanged(_ previousTraitCollection: UITraitCollection) -> Bool {
+        traitCollection.userInterfaceStyle != previousTraitCollection.userInterfaceStyle
+    }
 }

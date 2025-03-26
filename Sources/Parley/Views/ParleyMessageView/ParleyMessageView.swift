@@ -811,6 +811,17 @@ final class ParleyMessageView: UIView {
         renderGradients()
     }
     
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if let previousTraitCollection {
+            if hasUserIntrefaceStyleChanged(previousTraitCollection) {
+                renderGradients()
+            }
+        } else {
+            renderGradients()
+        }
+    }
+    
     func didActivateUsingVoiceOver() {
         if message.hasFile {
             openMediaAction(sender: self)
