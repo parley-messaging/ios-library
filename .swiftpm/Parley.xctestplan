@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "7166E0EE-13E1-4F9A-9E3C-C6D94AFD1533",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "nl",
+    "region" : "GB"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyNetworkTests",
+        "name" : "ParleyNetworkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyTests",
+        "name" : "ParleyTests"
+      }
+    }
+  ],
+  "version" : 1
+}
