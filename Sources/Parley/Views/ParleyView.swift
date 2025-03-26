@@ -6,13 +6,14 @@ protocol ParleyMessagesDisplay: AnyObject, Sendable {
     func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) async
     func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) async
     func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) async
+    func displayScrollToBottom(animated: Bool) async
     func reload() async
     
     func display(quickReplies: [String]) async
     func displayHideQuickReplies() async
     
     func display(stickyMessage: String) async
-    func displayHideStickyMessage() async
+    func displayHideStickyMessage() async    
 }
 
 public class ParleyView: UIView {
@@ -950,6 +951,10 @@ extension ParleyView: ParleyMessagesDisplay {
     
     func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
         messagesTableView.scrollToRow(at: indexPaths, at: position, animated: true)
+    }
+    
+    func displayScrollToBottom(animated: Bool) {
+        messagesTableView.scroll(to: .bottom, animated: animated)
     }
     
     func reload() {

@@ -64,6 +64,8 @@ extension MessagesInteractor {
         await presentQuickRepliesState()
         
         await presenter.presentMessages()
+        
+        await presenter.presentScrollToBotom(animated: false)
     }
     
     func handleAgentBeganTyping() async {

@@ -22,6 +22,7 @@ protocol MessagesPresenterProtocol: AnyObject, Sendable {
     func presentMessages() async
     func present(quickReplies: [String]) async
     func presentHideQuickReplies() async
+    func presentScrollToBotom(animated: Bool) async
 }
 
 @ParleyDomainActor
@@ -133,6 +134,10 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     
     func presentHideQuickReplies() async {
         await display?.displayHideQuickReplies()
+    }
+    
+    func presentScrollToBotom(animated: Bool) async {
+        await display?.displayScrollToBottom(animated: animated)
     }
 }
 
