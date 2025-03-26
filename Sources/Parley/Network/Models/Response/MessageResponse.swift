@@ -176,8 +176,8 @@ struct MessageResponse: Codable {
     }
     
     static func convertTime(_ timeInt: Int) throws(DecodeError) -> Date {
-        guard let date = Date(timeIntSince1970: timeInt) else { throw .dateInvalid }
-        return date
+        guard timeInt > .zero else { throw .dateInvalid }
+        return Date(timeIntervalSince1970: TimeInterval(timeInt))
     }
 
     public func encode(to encoder: Encoder) throws {
