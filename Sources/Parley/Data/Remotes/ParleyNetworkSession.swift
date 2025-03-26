@@ -36,20 +36,6 @@ public protocol ParleyNetworkSession: Sendable {
         headers: [String: String],
         completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )
-    
-    func request(
-        _ url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-    
-    func upload(
-        data: Data,
-        to url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
 }
 
 extension ParleyNetworkSession {
