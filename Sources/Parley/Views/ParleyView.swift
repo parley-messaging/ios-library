@@ -532,7 +532,8 @@ extension ParleyView: ParleyDelegate {
 
             stickyView.text = messagesManager?.stickyMessage
             stickyView.isHidden = messagesManager?.stickyMessage == nil
-
+            
+            parley.messagesInteractor?.handleViewDidLoad()
             messagesTableView.reloadData()
 
             messagesTableView.scroll(to: .bottom, animated: false)
