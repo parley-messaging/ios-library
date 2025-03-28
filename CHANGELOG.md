@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.7 - Released 28 Mar 2025
+
+- [Core] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
+
 ## 4.2.6 - Released 26 Mar 2025
 
 - [Core] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
