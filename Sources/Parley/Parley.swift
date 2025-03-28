@@ -36,7 +36,9 @@ public final class Parley: ParleyProtocol, ReachabilityProvider, NetworkMonitorD
 
     private(set) var state: State = .unconfigured {
         didSet {
-            delegate?.didChangeState(state)
+            Task { @MainActor in // When calling configure from background thread, ensure main thread.
+                delegate?.didChangeState(state)
+            }
         }
     }
 
