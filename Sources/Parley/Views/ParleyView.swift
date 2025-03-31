@@ -89,6 +89,10 @@ public class ParleyView: UIView {
     private var messagesInteractor: MessagesInteractor? {
         parley.messagesInteractor
     }
+    
+    private var messagesPresenter: MessagesPresenterProtocol? {
+        parley.messagesPresenter
+    }
 
     private var messagesManager: MessagesManagerProtocol? {
         switch parley.state {
@@ -161,7 +165,7 @@ public class ParleyView: UIView {
     }()
 
     private func setup() {
-        parley.messagesPresenter?.set(display: self)
+        messagesPresenter?.set(display: self)
         loadXib()
 
         apply(appearance)
@@ -181,7 +185,7 @@ public class ParleyView: UIView {
             self?.syncMessageTableViewContentInsets()
         }
         
-        parley.messagesInteractor?.handleViewDidLoad()
+        messagesInteractor?.handleViewDidLoad()
     }
 
     private func setupPollingIfNecessary() {
@@ -533,7 +537,8 @@ extension ParleyView: ParleyDelegate {
             stickyView.text = messagesManager?.stickyMessage
             stickyView.isHidden = messagesManager?.stickyMessage == nil
             
-            parley.messagesInteractor?.handleViewDidLoad()
+            messagesPresenter?.set(display: self)
+            messagesInteractor?.handleViewDidLoad()
             messagesTableView.reloadData()
 
             messagesTableView.scroll(to: .bottom, animated: false)
