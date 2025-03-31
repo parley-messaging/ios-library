@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.8 - Released 31 Mar 2025
+
+- [Chat] Resolved an issue where new messages would not be displayed when ParleyView was added before configuring Parley.
+- [Chat] Resolved an issue where messages would not update when ParleyView was added before configuring Parley.
+
 ## 4.2.7 - Released 28 Mar 2025
 
 - [Chat] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
