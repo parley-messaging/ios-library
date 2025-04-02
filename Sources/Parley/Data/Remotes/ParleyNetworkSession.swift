@@ -19,7 +19,7 @@ import UIKit
 /// ```
 public protocol ParleyNetworkSession: Sendable {
     
-    @available(*, message: "Please implement the `async` version")
+    @available(*, message: "Please implement an `async` version, this method will be replaced by an async version in a future release.")
     func request(
         _ url: URL,
         data: Data?,
@@ -28,7 +28,7 @@ public protocol ParleyNetworkSession: Sendable {
         completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )
 
-    @available(*, message: "Please implement the `async` version")
+    @available(*, message: "Please implement an `async` version, this method will be replaced by an async version in a future release.")
     func upload(
         data: Data,
         to url: URL,

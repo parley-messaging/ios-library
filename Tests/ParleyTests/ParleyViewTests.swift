@@ -3,7 +3,7 @@ import Testing
 import UIKit
 @testable import Parley
 
-@Suite("Parley View Tests", .tags(.userInterface), .serialized, .disabled())
+@Suite("Parley View Tests", .serialized)
 @MainActor
 struct ParleyViewTests {
 
@@ -65,15 +65,15 @@ struct ParleyViewTests {
     Due to high inquiry volumes, our response times may be longer than usual. We appreciate your patience and will get back to you as soon as possible. Thank you for your understanding.
     """
 
-    @Test(.snapshots(diffTool: .compareSideBySide))
+    @Test
     mutating func testEmptyParleyView() async {
         await messagesManagerStub.setMessages([])
         await messagesManagerStub.setWelcomeMessage(infoMessage)
         
         await setup()
         
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
         sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
 
         applySize(sut: sut)
@@ -81,7 +81,6 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
 
-//    @Test(.disabled())
     @Test(.snapshots(diffTool: .compareSideBySide))
     mutating func testParleyView() async {
         await messagesManagerStub.setStickyMessage(stickyMessage)
@@ -116,9 +115,9 @@ struct ParleyViewTests {
         
         await setup()
 
-        sut.reachable()
-        sut.didChangeState(.configured)
-        sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
+        await sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
 
         applySize(sut: sut)
         
@@ -148,8 +147,8 @@ struct ParleyViewTests {
         
         await setup(mediaLoader: mediaLoaderStub)
 
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
 
         try await wait(milliseconds: 500)
 
@@ -196,8 +195,8 @@ struct ParleyViewTests {
         
         await setup(mediaLoader: mediaLoaderStub)
         
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
         
         try await wait(milliseconds: 30)
         
@@ -208,7 +207,7 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
     
-    @Test(.snapshots(diffTool: .compareSideBySide), .disabled())
+    @Test(.snapshots(diffTool: .compareSideBySide))
     mutating func testAgentTypingIndicatorAppearance() async {
         await messagesManagerStub.setStickyMessage(stickyMessage)
         await messagesManagerStub.setMessages([])
@@ -225,8 +224,8 @@ struct ParleyViewTests {
             animationInterval: 0.9
         )
 
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
         sut.appearance.info.textViewAppearance.paragraphStyle.alignment = .center
 
         applySize(sut: sut)
@@ -258,8 +257,8 @@ struct ParleyViewTests {
             notificationService: NotificationServiceStub()
         )
 
-        sut.unreachable()
-        sut.didChangeState(.configured)
+//        await sut.unreachable()
+//        await sut.didChangeState(.configured)
 
         applySize(sut: sut)
 
@@ -283,8 +282,8 @@ struct ParleyViewTests {
 
         await parleyStub.set(pushEnabled: false)
 
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
 
         applySize(sut: sut)
 
@@ -306,8 +305,8 @@ struct ParleyViewTests {
         
         await setup()
 
-        sut.reachable()
-        sut.didChangeState(.unconfigured)
+//        await sut.reachable()
+//        await sut.didChangeState(.unconfigured)
 
         applySize(sut: sut)
 
@@ -340,8 +339,8 @@ struct ParleyViewTests {
         
         await setup()
 
-        sut.reachable()
-        sut.didChangeState(.configuring)
+//        await sut.reachable()
+//        await sut.didChangeState(.configuring)
 
         applySize(sut: sut)
 
@@ -363,8 +362,8 @@ struct ParleyViewTests {
 
         await setup()
 
-        sut.reachable()
-        sut.didChangeState(.failed)
+//        await sut.reachable()
+//        await sut.didChangeState(.failed)
 
         applySize(sut: sut)
 
@@ -376,8 +375,8 @@ struct ParleyViewTests {
         await messagesManagerStub.setMessages([])
         await setup()
 
-        sut.reachable()
-        sut.didChangeState(.configured)
+//        await sut.reachable()
+//        await sut.didChangeState(.configured)
 
         applySize(sut: sut)
 

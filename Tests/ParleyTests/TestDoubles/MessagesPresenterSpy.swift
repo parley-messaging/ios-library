@@ -20,12 +20,15 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     private(set) var presentUpdateMessageCallCount = 0
     private(set) var presentUpdateLatestArgument: Message?
     
-    private(set) var presentMessagesCallCount  = 0
+    private(set) var presentMessagesCallCount = 0
     
     private(set) var presentQuickRepliesCallCount = 0
     private(set) var presentQuickRepliesLatestArgument: [String]?
     
     private(set) var presentHideQuickRepliesCallCount = 0
+    
+    private(set) var presentScrolToBotomCallCount = 0
+    private(set) var presentScrollToBottomLatestArgument: Bool = false
     
     func set(display: ParleyMessagesDisplay) { }
     
@@ -75,5 +78,10 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     
     func presentHideQuickReplies() {
         presentHideQuickRepliesCallCount += 1
+    }
+    
+    func presentScrollToBotom(animated: Bool) {
+        presentScrolToBotomCallCount += 1
+        presentScrollToBottomLatestArgument = animated
     }
 }

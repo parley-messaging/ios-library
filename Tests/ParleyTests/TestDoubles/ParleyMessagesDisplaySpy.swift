@@ -26,13 +26,17 @@ final actor ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     private(set) var displayHideQuickRepliesCallCount = 0
     
+    private(set) var displayScrollToBottomCallCount = 0
+    private(set) var displayScrollToBottomLatestArguments: Bool?
+    
     var hasInteractedWithDisplay: Bool {
         insertRowsCallCount > 0 || insertRowsIndexPaths != nil ||
         deleteRowsCallCount > 0 || deleteRowsIndexPaths != nil ||
         reloadRowsCallCount > 0 || reloadRowsIndexPaths != nil ||
         reloadCallCount > 0 ||
         displayStickyMessageCallCount > 0 ||
-        displayHideStickyMessageCallCount > 0
+        displayHideStickyMessageCallCount > 0 ||
+        displayScrollToBottomCallCount > 0
     }
     
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
@@ -74,5 +78,10 @@ final actor ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     func displayHideQuickReplies() {
         displayHideQuickRepliesCallCount += 1
+    }
+    
+    func displayScrollToBottom(animated: Bool) {
+        displayScrollToBottomCallCount += 1
+        displayScrollToBottomLatestArguments = animated
     }
 }

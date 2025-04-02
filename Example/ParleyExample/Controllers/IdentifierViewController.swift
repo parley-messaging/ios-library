@@ -6,7 +6,7 @@ import UIKit
 class IdentifierViewController: UIViewController {
 
     /// Disable offline messaging in the demo app to show error messages as an alert before opening the chat
-    private static let kOfflineMessagingEnabled = true
+    private static let kOfflineMessagingEnabled = false
 
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
