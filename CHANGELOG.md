@@ -3,9 +3,9 @@
 ## 4.2.9 - Released 25 Apr 2025
 
 - [Accessibility] It is now possible to add a customizable background to time labels in image messages. The background color can be configured, along with adjustable spacing and padding options.
-  - Added `imageTimeBackgroundColor` to `ParleyMessageViewAppearance`, to set the color.
-  - Added `imageTimeSpacing` to `ParleyMessageViewAppearance`, to adjust the spacing between the icon and the time.
-  - Added `imageTimeHorizontalPadding` to `ParleyMessageViewAppearance` to modify the horizontal padding around the time label, ensuring proper spacing within the background.
+- [Styling] Added `imageTimeBackgroundColor` to `ParleyMessageViewAppearance`, to set the color.
+- [Styling] Added `imageTimeSpacing` to `ParleyMessageViewAppearance`, to adjust the spacing between the icon and the time.
+- [Styling] Added `imageTimeHorizontalPadding` to `ParleyMessageViewAppearance` to modify the horizontal padding around the time label, ensuring proper spacing within the background.
 
 ## 4.2.8 - Released 31 Mar 2025
 
