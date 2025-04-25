@@ -52,12 +52,17 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var imageMetaRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var imageMetaBottomLayoutConstraint: NSLayoutConstraint!
 
+    @IBOutlet private weak var imageTimeMetaLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageTimeMetaTrailingConstraint: NSLayoutConstraint!
+    
+    @IBOutlet private weak var imageMetaTimeLabelContainer: UIView!
     @IBOutlet private weak var imageMetaTimeLabel: UILabel!
     @IBOutlet private weak var imageMetaStatusImageView: UIImageView!
     @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
 
     @IBOutlet private weak var imageFailureMessageLabel: UILabel!
-
+    @IBOutlet private weak var imageMetaStackView: UIStackView!
+    
     // Name
     @IBOutlet private weak var nameView: UIView!
     @IBOutlet private weak var nameLabel: UILabel!
@@ -237,6 +242,11 @@ final class ParleyMessageView: UIView {
 
         metaView.isHidden = displayMeta != .message
         renderMetaTime()
+        
+        imageMetaTimeLabelContainer.backgroundColor = appearance?.imageTimeBackgroundColor ?? .clear
+        imageMetaStackView.spacing = appearance?.imageTimeSpacing ?? 0
+        imageTimeMetaLeadingConstraint.constant = appearance?.imageTimeHorizontalPadding ?? 0
+        imageTimeMetaTrailingConstraint.constant = appearance?.imageTimeHorizontalPadding ?? 0
     }
 
     private func renderImageFailure() {

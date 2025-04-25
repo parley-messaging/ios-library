@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.9 - Released 25 Apr 2025
+
+- [Chat] It is now possible to add a background to time label for image messages. The background color can be set, allong with some spacing/padding values.
+
 ## 4.2.8 - Released 31 Mar 2025
 
 - [Chat] Resolved an issue where new messages would not be displayed when ParleyView was added before configuring Parley.
