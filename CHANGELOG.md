@@ -2,7 +2,7 @@
 
 ## 4.2.9 - Released 25 Apr 2025
 
-- [Chat] It is now possible to add a background to time label for image messages. The background color can be set, allong with some spacing/padding values.
+- [Chat] It is now possible to add a customizable background to time labels in image messages. The background color can be configured, along with adjustable spacing and padding options.
 
 ## 4.2.8 - Released 31 Mar 2025
 
