@@ -18,7 +18,7 @@ public class ParleyMessageViewAppearance {
     public var imageInnerColor: UIColor = .white
     public var imageInnerShadowStartColor = UIColor(white: 0, alpha: 0.3)
     public var imageInnerShadowEndColor = UIColor(white: 0, alpha: 0)
-    public var imageTimeBackgroundColor: UIColor?
+    public var imageTimeBackgroundColor: UIColor = .clear
     public var imageTimeSpacing: CGFloat = 0
     public var imageTimeHorizontalPadding: CGFloat = 0
 
