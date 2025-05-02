@@ -2,18 +2,18 @@
 
 ## 4.2.10 - Released 2 May 2025
 
-- [Accessibility] The option to set a background now includes the status icon. We have also added an option to tweak the corner radius. These chages to come with changes to the naming for these properties.
-  - Changed `imageTimeBackgroundColor` to `imageMetaBackgroundColor`.
-  - Changed `imageTimeSpacing` to `imageMetaSpacing`.
-  - Changed `imageTimeHorizontalPadding` to `imageMetaHorizontalPadding`.
-  - Added `imageMetaCornerRadius` to `ParleyMessageViewAppearance` to adjust the corner radius.
+- [Accessibility] Added configurable background color to time and checkmark in messages and made corner radius configurable.
+- [Styling] Changed `imageTimeBackgroundColor` to `imageMetaBackgroundColor` in `ParleyMessageViewAppearance`.
+- [Styling] Changed `imageTimeSpacing` to `imageMetaSpacing` in `ParleyMessageViewAppearance`.
+- [Styling] Changed `imageTimeHorizontalPadding` to `imageMetaHorizontalPadding` in `ParleyMessageViewAppearance`.
+- [Styling] Added `imageMetaCornerRadius` to `ParleyMessageViewAppearance` to adjust the corner radius.
 
 ## 4.2.9 - Released 25 Apr 2025
 
-- [Accessibility] It is now possible to add a customizable background to time labels in image messages. The background color can be configured, along with adjustable spacing and padding options.
-  - Added `imageTimeBackgroundColor` to `ParleyMessageViewAppearance`, to set the color.
-  - Added `imageTimeSpacing` to `ParleyMessageViewAppearance`, to adjust the spacing between the icon and the time.
-  - Added `imageTimeHorizontalPadding` to `ParleyMessageViewAppearance` to modify the horizontal padding around the time label, ensuring proper spacing within the background.
+- [Accessibility] Added customizable background to time labels in image messages, with configurable color, spacing, and padding.  
+- [Styling] Added `imageTimeBackgroundColor` to `ParleyMessageViewAppearance` to set the background color.  
+- [Styling] Added `imageTimeSpacing` to `ParleyMessageViewAppearance` to adjust spacing between icon and time.  
+- [Styling] Added `imageTimeHorizontalPadding` to `ParleyMessageViewAppearance` to modify horizontal padding around the time label.
 
 ## 4.2.8 - Released 31 Mar 2025
 
