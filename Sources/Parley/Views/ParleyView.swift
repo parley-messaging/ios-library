@@ -1,22 +1,24 @@
 import UIKit
 import UniformTypeIdentifiers
 
-protocol ParleyMessagesDisplay: AnyObject, Sendable {
-    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) async
-    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) async
-    func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) async
-    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) async
-    func displayScrollToBottom(animated: Bool) async
-    func reload() async
+@MainActor
+protocol ParleyMessagesDisplay: AnyObject {
+    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
+    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool)
+    func displayScrollToBottom(animated: Bool)
+    func reload()
     
-    func display(quickReplies: [String]) async
-    func displayHideQuickReplies() async
+    func display(quickReplies: [String])
+    func displayHideQuickReplies()
     
-    func display(stickyMessage: String) async
-    func displayHideStickyMessage() async    
+    func display(stickyMessage: String)
+    func displayHideStickyMessage()
 }
 
-public class ParleyView: UIView {
+@MainActor
+public final class ParleyView: UIView {
 
     @IBOutlet var contentView: UIView! {
         didSet {
@@ -72,7 +74,7 @@ public class ParleyView: UIView {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var statusLabel: UILabel!
 
-    private lazy var parley: ParleyProtocol = ParleyActor.shared
+    private var parley: ParleyProtocol!
     private lazy var notificationService: NotificationServiceProtocol = NotificationService()
     private(set) lazy var pollingService: PollingServiceProtocol? = nil
 
@@ -112,6 +114,7 @@ public class ParleyView: UIView {
 
     public weak var delegate: ParleyViewDelegate?
 
+    @MainActor
     init(
         parley: ParleyProtocol,
         pollingService: PollingServiceProtocol?,
@@ -123,12 +126,18 @@ public class ParleyView: UIView {
         self.pollingService = pollingService
         self.notificationService = notificationService
 
-        setup()
+        setupUI()
+        Task {
+            await setup()
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        setup()
+        setupUI()
+        Task {
+            await setup()
+        }
     }
 
     deinit {
@@ -138,15 +147,11 @@ public class ParleyView: UIView {
     
     private var shareManager: ShareManager?
 
-    @MainActor
-    private func setup() {
-        setupUI()
-        Task {
-            await parley.messagesPresenter?.set(display: self)
-            await setupDependencies()
-            await parley.set(delegate: self)
-            await parley.messagesInteractor?.handleViewDidLoad()
-        }
+    private func setup() async {
+        await parley.messagesPresenter?.set(display: self)
+        await setupDependencies()
+        await parley.set(delegate: self)
+        await parley.messagesInteractor?.handleViewDidLoad()
     }
     
     private func setupDependencies() async {
@@ -484,7 +489,6 @@ extension ParleyView: ParleyDelegate {
             argument: ParleyLocalizationKey.voiceOverAnnouncementSentMessage.localized
         )
     }
-
     
     public func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
@@ -558,34 +562,36 @@ extension ParleyView: ParleyDelegate {
     }
 
     public func didChangePushEnabled(_ pushEnabled: Bool) {
-        Task { @MainActor in
-            if offlineNotificationView.isHidden == false { return }
-            if let pollingService {
+        if offlineNotificationView.isHidden == false { return }
+        if let pollingService {
+            Task {
                 pushEnabled ? await pollingService.stopRefreshing() : await pollingService.startRefreshing()
             }
-
-            pushDisabledNotificationView.hide(pushEnabled)
         }
+        pushDisabledNotificationView.hide(pushEnabled)
     }
 
-    @MainActor
     public func reachable() {
-        Task { @MainActor in
+        Task {
             let pushEnabled = await parley.pushEnabled
-            pushDisabledNotificationView.hide(pushEnabled)
-            composeView.isEnabled = true
-            suggestionsView.isEnabled = true
+            await MainActor.run {
+                pushDisabledNotificationView.hide(pushEnabled)
+            }
         }
+        
+        composeView.isEnabled = true
+        suggestionsView.isEnabled = true
     }
 
-    @MainActor
     public func unreachable() {
         pushDisabledNotificationView.hide()
         offlineNotificationView.show()
-
-        Task { @MainActor in
-            composeView.isEnabled = await parley.isCachingEnabled()
-            suggestionsView.isEnabled = await parley.isCachingEnabled()
+        Task {
+            let isCachingEnabled = await parley.isCachingEnabled()
+            await MainActor.run {
+                composeView.isEnabled = isCachingEnabled
+                suggestionsView.isEnabled = isCachingEnabled
+            }
         }
     }
 }

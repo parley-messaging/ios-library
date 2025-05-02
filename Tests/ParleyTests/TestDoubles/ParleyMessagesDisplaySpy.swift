@@ -1,7 +1,8 @@
 import UIKit
 @testable import Parley
 
-final actor ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
+@MainActor
+final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
 
     private(set) var insertRowsCallCount = 0
     private(set) var insertRowsIndexPaths: [IndexPath]?

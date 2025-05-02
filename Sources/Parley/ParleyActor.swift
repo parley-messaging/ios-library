@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import Combine
 
-protocol ParleyProtocol: Actor {
+protocol ParleyProtocol: Actor, AnyObject {
     var state: Parley.State { get }
     var alwaysPolling: Bool { get }
     var pushEnabled: Bool { get }
@@ -98,9 +98,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     func set(delegate: ParleyDelegate?) async {
         self.delegate = delegate
         
-        await MainActor.run { [state] in
-            delegate?.didChangeState(state)
-        }
+        await delegate?.didChangeState(state)
         
         if let reachibilityService = await self.reachibilityService {
             if await reachibilityService.reachable {
@@ -172,11 +170,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if isReachable {
-                    self.delegate?.reachable()
+                    await self.delegate?.reachable()
                     
                     await self.configureWhenNeeded()
                 } else {
-                    self.delegate?.unreachable()
+                    await self.delegate?.unreachable()
                 }
             }
         })
@@ -289,6 +287,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             }
             
             await send(messagesManager.pendingMessages)
+            
+//            await messagesInteractor.handleViewDidLoad()
 
             isLoading = false
             await set(state: .configured)
@@ -696,11 +696,11 @@ extension ParleyActor {
     private func notifiyReachable(_ isReachable: Bool) async {
         if isReachable {
             await MainActor.run {
-                self.delegate?.reachable()
+                delegate?.reachable()
             }
         } else {
             await MainActor.run {
-                self.delegate?.unreachable()
+                delegate?.unreachable()
             }
         }
     }
@@ -722,6 +722,7 @@ extension ParleyActor {
 
         pushEnabled = enabled
 
+        
         await MainActor.run {
             delegate?.didChangePushEnabled(enabled)
         }

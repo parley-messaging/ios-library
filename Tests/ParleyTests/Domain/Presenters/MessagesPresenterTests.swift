@@ -64,7 +64,7 @@ struct MessagesPresenterTests {
     init() async {
         store = await MessagesStore()
         display = ParleyMessagesDisplaySpy()
-        presenter = MessagesPresenter(store: store, display: display)
+        presenter = await MessagesPresenter(store: store, display: display)
         collection = ParleyChronologicalMessageCollection(calendar: .current)
         
         await #expect(display.insertRowsCallCount == 0)

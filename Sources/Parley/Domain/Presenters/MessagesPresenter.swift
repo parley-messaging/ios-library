@@ -2,7 +2,7 @@ import Foundation
 
 @ParleyDomainActor
 protocol MessagesPresenterProtocol: AnyObject, Sendable {
-    func set(display: ParleyMessagesDisplay)
+    @MainActor func set(display: ParleyMessagesDisplay) async
     
     func set(isScrolledToBottom: Bool)
     
@@ -30,7 +30,7 @@ final class MessagesPresenter {
     
     // MARK: DI
     private let store: MessagesStore
-    private weak var display: ParleyMessagesDisplay?
+    @MainActor private weak var display: ParleyMessagesDisplay?
     
     // MARK: Properties
     private(set) var isAgentTyping: Bool = false
@@ -40,12 +40,14 @@ final class MessagesPresenter {
     private(set) var currentSnapshot: Snapshot
     private var isScrolledToBottom: Bool = false
     
+    @MainActor
     init(store: MessagesStore, display: ParleyMessagesDisplay?) {
         self.store = store
         self.display = display
         self.currentSnapshot = Snapshot(welcomeMessage: welcomeMessage, calendar: .autoupdatingCurrent)
     }
     
+    @MainActor
     func set(display: ParleyMessagesDisplay) {
         self.display = display
     }
@@ -83,9 +85,13 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     func present(stickyMessage: String?) async {
         self.stickyMessage = stickyMessage
         if let stickyMessage {
-            await display?.display(stickyMessage: stickyMessage)
+            await MainActor.run {
+                display?.display(stickyMessage: stickyMessage)
+            }
         } else {
-            await display?.displayHideStickyMessage()
+            await MainActor.run {
+                display?.displayHideStickyMessage()
+            }
         }
     }
     
@@ -114,7 +120,9 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         await store.apply(snapshot: currentSnapshot)
         await presentSnapshotChange(change)
         if isScrolledToBottom, let lastIndexPath = change.indexPaths.last {
-            await display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
+            await MainActor.run {
+                display?.scrollTo(indexPaths: lastIndexPath, at: .bottom, animated: true)
+            }
         }
     }
     
@@ -125,19 +133,27 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         
         await store.apply(snapshot: currentSnapshot)
         
-        await display?.reload()
+        await MainActor.run {
+            display?.reload()
+        }
     }
     
     func present(quickReplies: [String]) async {
-        await display?.display(quickReplies: quickReplies)
+        await MainActor.run {
+            display?.display(quickReplies: quickReplies)
+        }
     }
     
     func presentHideQuickReplies() async {
-        await display?.displayHideQuickReplies()
+        await MainActor.run {
+            display?.displayHideQuickReplies()
+        }
     }
     
     func presentScrollToBotom(animated: Bool) async {
-        await display?.displayScrollToBottom(animated: animated)
+        await MainActor.run {
+            display?.displayScrollToBottom(animated: animated)
+        }
     }
 }
 
@@ -147,13 +163,15 @@ private extension MessagesPresenter {
     func presentSnapshotChange(_ change: Snapshot.SnapshotChange) async {
         guard change.indexPaths.isEmpty == false else { return }
         
-        switch change.kind {
-        case .added:
-            await display?.insertRows(at: change.indexPaths, with: .none)
-        case .changed:
-            await display?.reloadRows(at: change.indexPaths, with: .none)
-        case .deleted:
-            await display?.deleteRows(at: change.indexPaths, with: .none)
+        await MainActor.run {
+            switch change.kind {
+            case .added:
+                display?.insertRows(at: change.indexPaths, with: .none)
+            case .changed:
+                display?.reloadRows(at: change.indexPaths, with: .none)
+            case .deleted:
+                display?.deleteRows(at: change.indexPaths, with: .none)
+            }
         }
     }
 }

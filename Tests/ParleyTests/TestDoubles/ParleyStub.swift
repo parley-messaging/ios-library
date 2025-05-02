@@ -34,8 +34,7 @@ final actor ParleyStub: ParleyProtocol {
     private(set) var messagesPresenter: MessagesPresenterProtocol!
     private(set) var messagesStore: MessagesStore!
 
-    @MainActor
-    private(set) var delegate: ParleyDelegate?
+    @MainActor private(set) var delegate: ParleyDelegate?
 
     func isCachingEnabled() -> Bool {
         true
