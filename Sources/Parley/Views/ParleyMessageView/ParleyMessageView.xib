@@ -48,11 +48,11 @@
                 <outlet property="imageLeftLayoutConstraint" destination="0q7-ER-gYq" id="VXR-Pe-gXX"/>
                 <outlet property="imageMetaBottomLayoutConstraint" destination="XoF-Ye-bSn" id="QIC-2m-rss"/>
                 <outlet property="imageMetaContainer" destination="Q8g-eB-BRz" id="97T-mP-iBo"/>
-                <outlet property="imageMetaInnerContainerLeadingConstraint" destination="vtZ-L4-ldl" id="DHo-8k-x7I"/>
-                <outlet property="imageMetaInnerContainerTrailingConstraint" destination="nG6-wW-684" id="AHa-sh-Ql8"/>
                 <outlet property="imageMetaLeftLayoutConstraint" destination="sPL-aK-w5m" id="hEj-R3-mAf"/>
                 <outlet property="imageMetaRightLayoutConstraint" destination="2yC-aM-MQn" id="DWl-TU-xpP"/>
                 <outlet property="imageMetaStackView" destination="lqa-Gq-hQT" id="WfG-wa-eUQ"/>
+                <outlet property="imageMetaStackViewLeadingConstraint" destination="vtZ-L4-ldl" id="vHT-Uf-IVp"/>
+                <outlet property="imageMetaStackViewTrailingConstraint" destination="nG6-wW-684" id="dEE-D3-BKb"/>
                 <outlet property="imageMetaStatusImageView" destination="e3C-MF-EHD" id="Vq3-Yd-NYn"/>
                 <outlet property="imageMetaStatusImageViewWidth" destination="Xe8-Uy-v6R" id="PTr-Rg-IkW"/>
                 <outlet property="imageMetaTimeLabel" destination="xuC-M3-D5e" id="KJn-LW-hxF"/>
