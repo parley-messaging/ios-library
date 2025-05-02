@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.2.10 - Released 2 May 2025
+
+- [Accessibility] The option to set a background now includes the status icon. We have also added an option to tweak the corner radius. These chages to come with changes to the naming for these properties.
+  - Changed `imageTimeBackgroundColor` to `imageMetaBackgroundColor`.
+  - Changed `imageTimeSpacing` to `imageMetaSpacing`.
+  - Changed `imageTimeHorizontalPadding` to `imageMetaHorizontalPadding`.
+  - Added `imageMetaCornerRadius` to `ParleyMessageViewAppearance` to adjust the corner radius.
+
 ## 4.2.9 - Released 25 Apr 2025
 
 - [Accessibility] It is now possible to add a customizable background to time labels in image messages. The background color can be configured, along with adjustable spacing and padding options.
