@@ -52,10 +52,10 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var imageMetaRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var imageMetaBottomLayoutConstraint: NSLayoutConstraint!
 
-    @IBOutlet private weak var imageTimeMetaLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet private weak var imageTimeMetaTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaStackViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaStackViewTrailingConstraint: NSLayoutConstraint!
     
-    @IBOutlet private weak var imageMetaTimeLabelContainer: UIView!
+    @IBOutlet private weak var imageMetaContainer: UIView!
     @IBOutlet private weak var imageMetaTimeLabel: UILabel!
     @IBOutlet private weak var imageMetaStatusImageView: UIImageView!
     @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
@@ -243,10 +243,11 @@ final class ParleyMessageView: UIView {
         metaView.isHidden = displayMeta != .message
         renderMetaTime()
         
-        imageMetaTimeLabelContainer.backgroundColor = appearance?.imageTimeBackgroundColor ?? .clear
-        imageMetaStackView.spacing = appearance?.imageTimeSpacing ?? 0
-        imageTimeMetaLeadingConstraint.constant = appearance?.imageTimeHorizontalPadding ?? 0
-        imageTimeMetaTrailingConstraint.constant = appearance?.imageTimeHorizontalPadding ?? 0
+        imageMetaContainer.backgroundColor = appearance?.imageMetaBackgroundColor ?? .clear
+        imageMetaContainer.layer.cornerRadius = appearance?.imageMetaCornerRadius ?? 0
+        imageMetaStackView.spacing = appearance?.imageMetaSpacing ?? 0
+        imageMetaStackViewLeadingConstraint.constant = appearance?.imageMetaHorizontalPadding ?? 0
+        imageMetaStackViewTrailingConstraint.constant = appearance?.imageMetaHorizontalPadding ?? 0
     }
 
     private func renderImageFailure() {
