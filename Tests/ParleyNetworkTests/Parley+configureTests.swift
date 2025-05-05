@@ -7,9 +7,9 @@ import Foundation
 @Suite(.serialized)
 struct AlamofireHTTParleyConfigureTestsPMethodTests {
 
-    func testSettingDefaultConfig() async throws {
-        let result = await Parley.configure("secret")
-        try result.get()
+    @Test
+    func testSettingDefaultConfig() async {
+        _ = await Parley.configure("secret")
         
         await #expect(ParleyActor.shared.networkConfig.headers == [:])
         await #expect(ParleyActor.shared.networkConfig.url == kParleyNetworkUrl)
@@ -18,11 +18,12 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
         await #expect(ParleyActor.shared.remote.networkSession is AlamofireNetworkSession)
     }
 
-    func testSettingCustomConfig() async throws {
+    @Test
+    func testSettingCustomConfig() async  {
         let url = "https://example.com"
         let path = "/example"
         let headers = ["example": "example"]
-        let result = await Parley.configure(
+        _ =  await Parley.configure(
             "secret",
             networkConfig: ParleyNetworkConfig(
                 url: url,
@@ -31,8 +32,6 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
                 headers: headers
             )
         )
-        
-        try result.get()
 
         await #expect(ParleyActor.shared.networkConfig.headers == headers)
         await #expect(ParleyActor.shared.networkConfig.url == url)

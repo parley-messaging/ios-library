@@ -27,6 +27,9 @@ final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     private(set) var displayHideQuickRepliesCallCount = 0
     
+    private(set) var displayScrollToBottomCallCount = 0
+    private(set) var displayScrollToBottomLatestArgument: Bool?
+    
     var hasInteractedWithDisplay: Bool {
         insertRowsCallCount > 0 || insertRowsIndexPaths != nil ||
         deleteRowsCallCount > 0 || deleteRowsIndexPaths != nil ||
@@ -75,5 +78,10 @@ final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     func displayHideQuickReplies() {
         displayHideQuickRepliesCallCount += 1
+    }
+    
+    func displayScrollToBottom(animated: Bool) {
+        displayScrollToBottomCallCount += 1
+        displayScrollToBottomLatestArgument = animated
     }
 }

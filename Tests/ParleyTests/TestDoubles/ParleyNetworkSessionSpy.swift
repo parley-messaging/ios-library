@@ -1,16 +1,13 @@
 import Foundation
 @testable import Parley
 
-public final actor ParleyNetworkSessionSpy: ParleyNetworkSession {
+public final class ParleyNetworkSessionSpy: ParleyNetworkSession, @unchecked Sendable {
 
     public init() {}
 
     // MARK: - request
 
     public private(set) var requestDataMethodHeadersCompletionCallsCount = 0
-    public var requestDataMethodHeadersCompletionCalled: Bool {
-        requestDataMethodHeadersCompletionCallsCount > 0
-    }
     
     private var requestDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
 
@@ -18,19 +15,16 @@ public final actor ParleyNetworkSessionSpy: ParleyNetworkSession {
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>  {
+        headers: [String : String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) {
         requestDataMethodHeadersCompletionCallsCount += 1
-        
-        return requestDataMethodHeadersResult
+        completion(requestDataMethodHeadersResult)
     }
 
     // MARK: - upload
 
     public private(set) var uploadDataToMethodHeadersCompletionCallsCount = 0
-    public var uploadDataToMethodHeadersCompletionCalled: Bool {
-        uploadDataToMethodHeadersCompletionCallsCount > 0
-    }
 
     private var uploadDataMethodHeadersResult: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>!
 
@@ -38,11 +32,13 @@ public final actor ParleyNetworkSessionSpy: ParleyNetworkSession {
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+        headers: [String: String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
+    ) -> Void) {
         uploadDataToMethodHeadersCompletionCallsCount += 1
-        return uploadDataMethodHeadersResult
+        completion(uploadDataMethodHeadersResult)
     }
+
 }
 
 // MARK: Setters

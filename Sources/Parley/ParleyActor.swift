@@ -102,9 +102,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         
         if let reachibilityService = await self.reachibilityService {
             if await reachibilityService.reachable {
-                delegate?.reachable()
+                await delegate?.reachable(pushEnabled: pushEnabled)
             } else {
-                delegate?.unreachable()
+                await delegate?.unreachable(isCachingEnabled: isCachingEnabled())
             }
         }
     }
@@ -170,11 +170,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if isReachable {
-                    await self.delegate?.reachable()
+                    await self.delegate?.reachable(pushEnabled: self.pushEnabled)
                     
                     await self.configureWhenNeeded()
                 } else {
-                    await self.delegate?.unreachable()
+                    await self.delegate?.unreachable(isCachingEnabled: self.isCachingEnabled())
                 }
             }
         })
@@ -695,12 +695,13 @@ extension ParleyActor {
     
     private func notifiyReachable(_ isReachable: Bool) async {
         if isReachable {
-            await MainActor.run {
-                delegate?.reachable()
+            await MainActor.run { [pushEnabled] in
+                delegate?.reachable(pushEnabled: pushEnabled)
             }
         } else {
+            let isCachingEnabled = isCachingEnabled()
             await MainActor.run {
-                delegate?.unreachable()
+                delegate?.unreachable(isCachingEnabled: isCachingEnabled)
             }
         }
     }

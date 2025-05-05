@@ -281,7 +281,7 @@ public class ParleyComposeView: UIView {
 
             placeholderTopConstraint.constant = messageLineHeight - placeholderLineHeight
 
-            layoutIfNeeded()
+            setNeedsLayout()
         }
     }
 

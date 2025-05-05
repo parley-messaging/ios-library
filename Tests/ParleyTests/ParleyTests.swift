@@ -10,6 +10,7 @@ struct ParleyTests {
         self.localizationManagerSpy = LocalizationManagerSpy()
     }
 
+    @Test
     func testSetLocalizationManager() async {
         let localizationKeyReturnValue = "test!"
 

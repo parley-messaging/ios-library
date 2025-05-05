@@ -135,6 +135,11 @@ final class MessageTableViewCell: UITableViewCell {
             ])
         }
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        parleyMessageView.prepareForReuse()
+    }
 }
 
 extension MessageTableViewCell: UICollectionViewDataSource {

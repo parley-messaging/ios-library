@@ -4,14 +4,16 @@ import Testing
 @Suite("ParleyViewConfigurationTests")
 struct ParleyViewConfigurationTests {
     
+    @MainActor
+    @Test
     func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() async {
         
         let messagesManager = MessagesManagerStub()
         let messageRepositoryStub = MessageRepositoryStub()
         let reachabilityProvideStub = ReachabilityProviderStub()
         
-        let messagesStore = await MessagesStore()
-        let messagePresenter = await MessagesPresenter(store: messagesStore, display: nil)
+        let messagesStore = MessagesStore()
+        let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
         let messagesInteractor = await MessagesInteractor(
             presenter: messagePresenter,
             messagesManager: messagesManager,
@@ -30,20 +32,21 @@ struct ParleyViewConfigurationTests {
             messagesStore: messagesStore
         )
         
-        let pollingServiceStub = await PollingServiceStub()
+        let pollingServiceStub = PollingServiceStub()
         
         let sut = await ParleyView(
             parley: parleyStub,
-            pollingService: nil,
+            pollingService: pollingServiceStub,
             notificationService: NotificationServiceStub()
         )
+        
         await MainActor.run {
             #expect(sut.pollingService === pollingServiceStub)
         }
         
         await parleyStub.set(state: .configured)
         
-        let newlyInstantiatedSut: ParleyView = await ParleyView(
+        let newlyInstantiatedSut = await ParleyView(
             parley: parleyStub,
             pollingService: nil,
             notificationService: NotificationServiceStub()
@@ -54,14 +57,14 @@ struct ParleyViewConfigurationTests {
         }
         
         await parleyStub.set(messagesManager: nil)
-        await newlyInstantiatedSut.didChangeState(.unconfigured)
+        newlyInstantiatedSut.didChangeState(.unconfigured)
         
         await MainActor.run {
             #expect(newlyInstantiatedSut.pollingService == nil)
         }
         
         await parleyStub.set(messagesManager: MessagesManagerStub())
-        await newlyInstantiatedSut.didChangeState(.configured)
+        newlyInstantiatedSut.didChangeState(.configured)
         
         await MainActor.run {
             #expect(newlyInstantiatedSut.pollingService != nil)

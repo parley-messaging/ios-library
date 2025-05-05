@@ -100,6 +100,9 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         self.isAgentTyping = isTyping
         await store.apply(snapshot: currentSnapshot)
         await presentSnapshotChange(change)
+        await MainActor.run {
+            display?.displayScrollToBottom(animated: false)
+        }
     }
     
     func presentUpdate(message: Message) async {

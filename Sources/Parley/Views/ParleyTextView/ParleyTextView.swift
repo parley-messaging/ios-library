@@ -2,6 +2,17 @@ import MarkdownKit
 import UIKit
 
 final class ParleyTextView: UITextView {
+    
+    protocol SizeDelegate: AnyObject {
+        func sizeDidChange(for textView: ParleyTextView, change: NSKeyValueObservedChange<CGSize>)
+    }
+    
+    private var heightObserver: NSKeyValueObservation?
+    
+    deinit {
+        heightObserver?.invalidate()
+        heightObserver = nil
+    }
 
     var appearance = ParleyTextViewAppearance() {
         didSet {
@@ -84,5 +95,14 @@ final class ParleyTextView: UITextView {
         parser.enabledElements = [.bold, .italic]
 
         return parser
+    }
+    
+    func observeContentHeight(delegate: any SizeDelegate) {
+        heightObserver = observe(\.self.contentSize, options: [
+            .initial,
+            .new,
+        ], changeHandler: { [weak delegate] textView, change in
+            delegate?.sizeDidChange(for: textView, change: change)
+        })
     }
 }

@@ -19,14 +19,6 @@ final class InfoTableViewCell: UITableViewCell {
         }
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        Task { @MainActor in
-            accessibilityLabel = ParleyLocalizationKey.voiceOverMessageInformational.localized()
-            apply(appearance)
-        }
-    }
-
     func render(_ message: Message) {
         infoTextView.textAlignment = .center
 

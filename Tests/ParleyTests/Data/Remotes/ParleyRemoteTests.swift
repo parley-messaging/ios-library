@@ -18,7 +18,7 @@ struct ParleyRemoteTests {
         let parleyNetworkSessionSpy = ParleyNetworkSessionSpy()
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
         let result: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
         #expect(result.count == 1)
     }
@@ -32,7 +32,7 @@ struct ParleyRemoteTests {
         )
         
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(performing: {
             let _: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
@@ -49,7 +49,7 @@ struct ParleyRemoteTests {
         )
         
         let response = ["test"]
-        await parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(throws: Error.self, performing: {
             let _: [MediaResponse] = try await sut.execute(.get, path: "path", keyPath: .none)
@@ -63,7 +63,7 @@ struct ParleyRemoteTests {
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
         
         let response = ["test"]
-        await parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         try await sut.execute(.post, path: "example/path")
     }
@@ -78,7 +78,7 @@ struct ParleyRemoteTests {
         )
         
         let response = ["test"]
-        await parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setRequestDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(performing: {
             try await sut.execute(.post, path: "example/path")
@@ -95,7 +95,7 @@ struct ParleyRemoteTests {
         var multipartFormDataCalled = false
         
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
         let _: [MediaResponse] = try await sut.execute(.post, path: "", multipartFormData: { _ in
             multipartFormDataCalled = true
         }, keyPath: .none)
@@ -115,7 +115,7 @@ struct ParleyRemoteTests {
         var multipartFormDataCalled = false
         
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(performing: {
             let _: [MediaResponse] = try await sut.execute(
@@ -137,7 +137,7 @@ struct ParleyRemoteTests {
         sut = makeSut(parleyNetworkSessionSpy: parleyNetworkSessionSpy)
         
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(throws: Error.self, performing: {
             let _: [MediaResponse] = try await sut.execute(
@@ -160,7 +160,7 @@ struct ParleyRemoteTests {
         )
         
         let response = [MediaResponse(media: "test")]
-        await parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
+        parleyNetworkSessionSpy.setUploadDataMethodHeadersResult(.success(try createResponse(response: response)))
         
         await #expect(performing: {
             let _: [MediaResponse] = try await sut.execute(
