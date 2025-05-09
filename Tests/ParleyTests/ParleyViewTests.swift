@@ -209,7 +209,7 @@ struct ParleyViewTests {
     
     @Test(.snapshots(diffTool: .compareSideBySide))
     mutating func testAgentTypingIndicatorAppearance() async {
-        await messagesManagerStub.setStickyMessag#imageLiteral(resourceName: "testMessageWithCarousel.1.png")e(stickyMessage)
+        await messagesManagerStub.setStickyMessage(stickyMessage)
         await messagesManagerStub.setMessages([])
         
         await setup()
@@ -314,9 +314,11 @@ struct ParleyViewTests {
     }
     
     @Test(.snapshots(diffTool: .compareSideBySide))
-    mutating func testUnConfiguredStateOfNonStubbedParleyView() async {
-        await setup()
+    mutating func testUnConfiguredStateOfNonStubbedParleyView() async throws {
+        let sut = ParleyView()
+        sut.didChangePushEnabled(true)
         applySize(sut: sut)
+        try await wait(milliseconds: 50)
         assert(sut: sut)
     }
 

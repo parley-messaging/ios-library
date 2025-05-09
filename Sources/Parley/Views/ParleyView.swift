@@ -18,7 +18,7 @@ protocol ParleyMessagesDisplay: AnyObject {
 }
 
 @MainActor
-public final class ParleyView: UIView {
+public class ParleyView: UIView {
     
     // MARK: IBOutlets
     @IBOutlet var contentView: UIView!
@@ -41,8 +41,8 @@ public final class ParleyView: UIView {
     @IBOutlet weak var statusLabel: UILabel!
     
     // MARK: Dependencies
-    private let parley: ParleyProtocol
-    private let notificationService: NotificationServiceProtocol
+    private var parley: ParleyProtocol!
+    private var notificationService: NotificationServiceProtocol!
     private(set) var pollingService: PollingServiceProtocol?
     private var shareManager: ShareManager?
     private var messagesStore: MessagesStore!
@@ -91,6 +91,16 @@ public final class ParleyView: UIView {
         await setup()
     }
 
+    public required init() {
+        self.parley = ParleyActor.shared
+        self.notificationService = NotificationService()
+        super.init(frame: .zero)
+        setupUI()
+        Task {
+            await setup()
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
         self.parley = ParleyActor.shared
         self.notificationService = NotificationService()
@@ -113,9 +123,10 @@ public final class ParleyView: UIView {
     }
     
     private func setupDependencies() async {
-        shareManager = try? await ShareManager(mediaLoader: parley.mediaLoader)
-        
-        mediaLoader = await parley.mediaLoader
+        if let mediaLoader = await parley.mediaLoader {
+            shareManager = try? ShareManager(mediaLoader: mediaLoader)
+            self.mediaLoader = mediaLoader
+        }
         messagesStore = await parley.messagesStore
         messagesInteractor = await parley.messagesInteractor
         switch await parley.state {
