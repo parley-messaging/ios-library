@@ -1,9 +1,9 @@
-@testable @preconcurrency import Parley
+@testable import Parley
 import SnapshotTesting
 import Testing
 import UIKit
 
-@Suite("Parley View Tests", .serialized)
+@Suite("Parley View Tests", .serialized, .tags(.userInterface))
 @MainActor
 struct ParleyViewTests {
 
