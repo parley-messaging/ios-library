@@ -82,7 +82,7 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
 
-    @Test(.disabled())
+    @Test
     mutating func testParleyView() async {
         await messagesManagerStub.setStickyMessage(stickyMessage)
         await messagesManagerStub.setWelcomeMessage(infoMessage)
@@ -127,7 +127,7 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
     
-    @Test(.snapshots(diffTool: .compareSideBySide), .disabled())
+    @Test(.snapshots(diffTool: .compareSideBySide))
     @MainActor
     mutating func testMessageWithImage() async throws {
         await messagesManagerStub.setMessages([
@@ -151,17 +151,7 @@ struct ParleyViewTests {
 
         await sut.reachable(pushEnabled: parleyStub.pushEnabled)
         sut.didChangeState(.configured)
-
-        try await wait(milliseconds: 500)
         
-        sut.setNeedsLayout()
-        sut.layoutIfNeeded()
-        sut.messagesTableView.layoutIfNeeded()
-        
-        await MainActor.run {
-            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
-        }
-
         applySize(sut: sut)
         assert(sut: sut)
     }
@@ -219,7 +209,7 @@ struct ParleyViewTests {
     
     @Test(.snapshots(diffTool: .compareSideBySide))
     mutating func testAgentTypingIndicatorAppearance() async {
-        await messagesManagerStub.setStickyMessage(stickyMessage)
+        await messagesManagerStub.setStickyMessag#imageLiteral(resourceName: "testMessageWithCarousel.1.png")e(stickyMessage)
         await messagesManagerStub.setMessages([])
         
         await setup()
@@ -323,11 +313,11 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
     
-    @Test(.snapshots(diffTool: .compareSideBySide), .disabled())
-    func testUnConfiguredStateOfNonStubbedParleyView() {
-//        let sut = ParleyView.init(parley: <#T##any ParleyProtocol#>, pollingService: <#T##(any PollingServiceProtocol)?#>, notificationService: <#T##any NotificationServiceProtocol#>)
-//        applySize(sut: sut)
-//        assert(sut: sut)
+    @Test(.snapshots(diffTool: .compareSideBySide))
+    mutating func testUnConfiguredStateOfNonStubbedParleyView() async {
+        await setup()
+        applySize(sut: sut)
+        assert(sut: sut)
     }
 
     @Test(.snapshots(diffTool: .compareSideBySide))

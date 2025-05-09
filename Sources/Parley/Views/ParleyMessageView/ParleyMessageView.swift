@@ -130,6 +130,7 @@ final class ParleyMessageView: UIView {
     private var mediaLoader: MediaLoaderProtocol?
     private var shareManager: ShareManagerProtocol?
     private var loadImageTask: Task<Void, Never>?
+    private var loadedImage: UIImage?
 
     // Helpers
     private var displayName: Display = .message
@@ -160,8 +161,8 @@ final class ParleyMessageView: UIView {
     }
     
     func prepareForReuse() {
-      loadImageTask?.cancel()
-      loadImageTask = nil
+        loadImageTask?.cancel()
+        loadImageTask = nil
     }
     
     deinit {
@@ -361,11 +362,6 @@ final class ParleyMessageView: UIView {
         }
     }
 
-    private func renderImage(_ media: MediaObject) {
-        displayImageLoading()
-        loadImage(media: media)
-    }
-
     private func renderFile(_ media: MediaObject) {
         for arrangedSubview in fileStackView.arrangedSubviews {
             fileStackView.removeArrangedSubview(arrangedSubview)
@@ -429,10 +425,18 @@ final class ParleyMessageView: UIView {
 
         fileView.isHidden = true
     }
+    
+    
+    private func renderImage(_ media: MediaObject) {
+        if let loadedImage {
+            display(image: loadedImage)
+        } else {
+            displayImageLoading()
+            loadImage(media: media)
+        }
+    }
 
-    @MainActor
     private func displayImageLoading() {
-        print(#function)
         imageHolderView.isHidden = false
         imageActivityIndicatorView.startAnimating()
         imageImageView.image = appearance?.imagePlaceholder
@@ -444,44 +448,32 @@ final class ParleyMessageView: UIView {
             displayFailedLoadingImage()
             return
         }
-
-        let imageRequestForMessageId = message.id
-        loadImageTask = Task.detached { [weak self] in
+        
+        loadImageTask?.cancel()
+        loadImageTask = Task { [weak self] in
+            guard let self else { return }
             do {
                 let data = try await mediaLoader.load(media: media)
-                guard !Task.isCancelled else {
-                    return
-                }
-                // Check if the Message ID of the requested image is the same as the message of the current cell.
-                // During cell reuse, the ongoing request could callback on another cell.
-                // This check prevents it from applying that image (or display it's failure).
-                guard await imageRequestForMessageId == self?.message.id else {
-                    return
-                }
-
-                // NOTE: Result should be of type image
-                guard let image = media.imageFromData(data) else {
-                    await self?.displayFailedLoadingImage()
-                    return
-                }
-                if !Task.isCancelled {
-                    await self?.display(image: image)
+                
+                guard Task.isCancelled == false else { return }
+                
+                if let img = media.imageFromData(data) {
+                    self.loadedImage = img
+                    self.display(image: img)
+                } else {
+                    self.displayFailedLoadingImage()
                 }
             } catch {
-                if !Task.isCancelled {
-                    await self?.displayFailedLoadingImage()
-                }
+                self.displayFailedLoadingImage()
             }
         }
     }
 
     @MainActor
     private func display(image: UIImage) {
-        print(#function)
         imageHolderView.isHidden = false
         imageActivityIndicatorView.stopAnimating()
         imageImageView.image = image
-        print(self.superview)
         imageImageView.setNeedsLayout()
         imageImageView.layoutIfNeeded()
         renderGradients()
