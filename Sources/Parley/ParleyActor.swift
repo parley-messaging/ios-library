@@ -411,16 +411,16 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     private func sendPendingMessage(message: inout Message) async {
         do {
-            var updatedMessage = try await ensureMediaUploadedIfAvailable(&message)
-            await send(&updatedMessage, isNewMessage: false)
+            try await ensureMediaUploadedIfAvailable(&message)
+            await send(&message, isNewMessage: false)
         } catch {
             await failedToSend(message: &message, error: error)
         }
     }
 
-    private func ensureMediaUploadedIfAvailable(_ message: inout Message) async throws -> Message {
-        guard let storedImage = await getStoredMedia(for: message) else { return message }
-        return try await upload(storedImage: storedImage, message: &message)
+    private func ensureMediaUploadedIfAvailable(_ message: inout Message) async throws {
+        guard let storedImage = await getStoredMedia(for: message) else { return }
+        try await upload(storedImage: storedImage, message: &message)
     }
 
     private func getStoredMedia(for message: Message) async -> ParleyStoredMedia? {
@@ -428,18 +428,17 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         return await mediaRepository.getStoredMedia(for: media)
     }
 
-    private func upload(storedImage: ParleyStoredMedia, message: inout Message) async throws -> Message {
+    private func upload(storedImage: ParleyStoredMedia, message: inout Message) async throws {
         let remoteId = try await mediaRepository.upload(media: storedImage)
         message.media = MediaObject(id: remoteId, mimeType: storedImage.type.rawValue)
         await messagesManager?.update(message)
-        return message
     }
 
     func sendNewMessageWithMedia(_ media: MediaModel) async {
         var (message, storedImage) = await storeNewMessage(with: media)
         do {
-            var updatedMessage = try await upload(storedImage: storedImage, message: &message)
-            await send(&updatedMessage, isNewMessage: true)
+            try await upload(storedImage: storedImage, message: &message)
+            await send(&message, isNewMessage: true)
         } catch {
             await failedToSend(message: &message, error: error)
         }
@@ -475,8 +474,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         guard await reachibilityService?.reachable == true else { return }
 
         do {
-            var uploadedMessage = try await messageRepository.store(&message)
-            await handleMessageSent(&uploadedMessage)
+            try await messageRepository.store(&message)
+            await handleMessageSent(&message)
         } catch {
             await failedToSend(message: &message, error: error)
         }

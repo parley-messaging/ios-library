@@ -449,22 +449,24 @@ final class ParleyMessageView: UIView {
             return
         }
         
-        loadImageTask?.cancel()
-        loadImageTask = Task { [weak self] in
-            guard let self else { return }
+        let imageRequestForMessageId = message.id
+        Task {
             do {
                 let data = try await mediaLoader.load(media: media)
-                
-                guard Task.isCancelled == false else { return }
-                
-                if let img = media.imageFromData(data) {
-                    self.loadedImage = img
-                    self.display(image: img)
-                } else {
-                    self.displayFailedLoadingImage()
+                // Check if the Message ID of the requested image is the same as the message of the current cell.
+                // During cell reuse, the ongoing request could callback on another cell.
+                // This check prevents it from applying that image (or display it's failure).
+                guard imageRequestForMessageId == message.id else { return }
+
+                // NOTE: Result should be of type image
+                guard let image = media.imageFromData(data) else {
+                    displayFailedLoadingImage()
+                    return
                 }
+
+                display(image: image)
             } catch {
-                self.displayFailedLoadingImage()
+                displayFailedLoadingImage()
             }
         }
     }
