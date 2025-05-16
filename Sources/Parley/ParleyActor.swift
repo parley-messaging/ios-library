@@ -709,7 +709,7 @@ extension ParleyActor {
         _ pushToken: String,
         pushType: Device.PushType = .fcm
     ) async -> ConfigurationResult {
-        if pushToken == pushToken { return .success(()) }
+        if pushToken == self.pushToken { return .success(()) }
 
         self.pushToken = pushToken
         self.pushType = pushType
@@ -722,7 +722,6 @@ extension ParleyActor {
 
         pushEnabled = enabled
 
-        
         await MainActor.run {
             delegate?.didChangePushEnabled(enabled)
         }
