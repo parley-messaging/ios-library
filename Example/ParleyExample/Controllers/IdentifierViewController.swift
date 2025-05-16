@@ -169,10 +169,9 @@ class IdentifierViewController: UIViewController {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
             Task { @MainActor in
-                let result = await Parley.reset()
-                switch result {
+                switch await Parley.reset() {
                 case .success:
-                    self.startChatDemo()
+                    startChatDemo()
                 case .failure:
                     print("Failed to reset Parley")
                 }
@@ -226,12 +225,12 @@ class IdentifierViewController: UIViewController {
             case .success:
                 alreadyConfiguredParley = true
                 startButton.setLoading(false)
-                
+
                 identifierTextView.text = kParleySecret
-                
+
                 UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
                 UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
-                
+
                 performSegue(withIdentifier: "showTabBarViewController", sender: nil)
             case .failure(let configurationError):
                 startButton.setLoading(false)

@@ -64,7 +64,7 @@ extension ParleyEncryptedMessageDataSource: ParleyMessageDataSource {
 
         guard
             let index = messages.firstIndex(where: { cachedMessage in
-                cachedMessage.id == message.id
+                cachedMessage.remoteId == message.remoteId || cachedMessage.localId == message.localId
             }) else { return }
 
         messages[index] = message

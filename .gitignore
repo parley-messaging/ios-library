@@ -8,7 +8,6 @@ Pods
 Example/fastlane/report.xml
 
 # Xcode
-.build/
 build/
 DerivedData/
 *.pbxuser

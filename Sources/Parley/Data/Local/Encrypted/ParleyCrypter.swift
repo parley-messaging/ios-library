@@ -1,4 +1,4 @@
-@preconcurrency import CryptoKit
+import CryptoKit
 import Foundation
 
 public final class ParleyCrypter: Sendable {
