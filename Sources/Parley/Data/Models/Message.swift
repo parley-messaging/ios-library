@@ -104,7 +104,7 @@ public struct Message: Equatable, Sendable, Identifiable {
     }
 
     public func ignore() -> Bool {
-        guard let type else { return false }
+        guard let type else { return true }
         switch type {
         case .auto, .systemMessageUser, .systemMessageAgent:
             return true

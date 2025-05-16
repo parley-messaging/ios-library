@@ -292,7 +292,7 @@ extension MessagesManager {
             referrer: nil
         )
     }
-    
+
     fileprivate func createButton(_ title: String, _ payload: String) -> MessageButton {
         MessageButton(title: title, payload: payload)
     }

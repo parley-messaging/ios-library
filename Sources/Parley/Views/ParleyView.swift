@@ -364,7 +364,11 @@ extension ParleyView {
         NotificationCenter.default.removeObserver(UIResponder.keyboardDidHideNotification)
         NotificationCenter.default.removeObserver(UIDevice.orientationDidChangeNotification)
         NotificationCenter.default.removeObserver(UIContentSizeCategory.didChangeNotification)
-        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     // MARK: Keyboard

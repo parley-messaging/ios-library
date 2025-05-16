@@ -41,7 +41,11 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {

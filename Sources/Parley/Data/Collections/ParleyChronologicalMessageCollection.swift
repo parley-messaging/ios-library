@@ -43,7 +43,8 @@ public struct ParleyChronologicalMessageCollection {
 extension ParleyChronologicalMessageCollection {
     
     @discardableResult
-    mutating func add(message: Message) -> Position {
+    mutating func add(message: Message) -> Position? {
+        guard message.ignore() == false else { return nil }
         let messageDate = calendar.startOfDay(for: message.time)
         
         if let sectionIndex = indexMap[messageDate] {

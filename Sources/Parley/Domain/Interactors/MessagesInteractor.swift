@@ -157,7 +157,9 @@ private extension MessagesInteractor {
         posisitionsAdded.reserveCapacity(messages.count)
         
         for message in messages {
-            posisitionsAdded.append(self.messages.add(message: message))
+            if let addedMessagePosisition = self.messages.add(message: message) {
+                posisitionsAdded.append(addedMessagePosisition)
+            }
         }
         
         presenter.set(sections: self.messages.sections)
