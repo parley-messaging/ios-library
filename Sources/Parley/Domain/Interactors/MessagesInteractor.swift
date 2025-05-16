@@ -118,10 +118,15 @@ extension MessagesInteractor {
     }
     
     func handleNewMessage(_ message: Message) async {
-        guard await messagesManager.add(message) else { return }
-        messages.add(message: message)
-        await presentQuickRepliesState()
+        let addedMessagePosistion = messages.add(message: message)
+        guard await messagesManager.add(message) else {
+            if let addedMessagePosistion {
+                messages.remove(at: addedMessagePosistion)
+            }
+            return
+        }
         
+        await presentQuickRepliesState()
         if message.hasQuickReplies == false {
             await presenter.presentAdd(message: message)
         }

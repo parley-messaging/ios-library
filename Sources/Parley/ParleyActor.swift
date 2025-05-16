@@ -475,7 +475,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         guard await reachibilityService?.reachable == true else { return }
 
         do {
-            var uploadedMessage = try await messageRepository.store(message)
+            var uploadedMessage = try await messageRepository.store(&message)
             await handleMessageSent(&uploadedMessage)
         } catch {
             await failedToSend(message: &message, error: error)

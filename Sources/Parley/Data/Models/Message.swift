@@ -28,7 +28,7 @@ public struct Message: Equatable, Sendable, Identifiable {
         case systemMessageAgent
     }
 
-    let remoteId: RemoteId?
+    var remoteId: RemoteId?
     let localId: UUID
     public var id: UUID { localId }
 

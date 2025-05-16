@@ -29,14 +29,15 @@ final class MessageRemoteService: MessageRepository, Sendable {
         return collection.toDomainModel()
     }
     
-    func store(_ message: Message) async throws -> Message {
+    func store(_ message: inout Message) async throws -> Message {
         let request = NewMessageRequest(message: message)
         let storedMessage: MessageResponse = try await remote.execute(
             .post,
             path: "messages",
             body: request
         )
-        return storedMessage.toDomainModel(id: message.id)
+        message.remoteId = storedMessage.remoteId
+        return message
     }
     
     func upload(data: Data, type: ParleyMediaType, fileName: String) async -> Result<MediaResponse, Error> {

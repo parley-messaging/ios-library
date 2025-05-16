@@ -64,6 +64,15 @@ extension ParleyChronologicalMessageCollection {
         }
     }
     
+    @discardableResult
+    mutating func remove(at position: Position) {
+        sections[position.section].messages.remove(at: position.row)
+        if sections[position.section].messages.isEmpty {
+            sections.remove(at: position.section)
+        }
+        index()
+    }
+    
     mutating func set(collection: MessageCollection) {
         set(messages: collection.messages)
     }
@@ -73,7 +82,7 @@ extension ParleyChronologicalMessageCollection {
         
         let messagesByDate = messages.byDate(calender: calendar)
         sections.reserveCapacity(messagesByDate.keys.count)
-        let sectionsByDate = messagesByDate.map { (date: Date, messages: [Message]) in
+        let sectionsByDate = messagesByDate.compactMap { (date: Date, messages: [Message]) in
             Section(date: date, messages: messages)
         }
         
@@ -144,9 +153,12 @@ extension ParleyChronologicalMessageCollection {
             self.messages.append(message)
         }
         
-        init(date: Date, messages: [Message]) {
+        init?(date: Date, messages: [Message]) {
+            let nonIgnoredMessages = messages.filter { $0.ignore() == false }
+            guard nonIgnoredMessages.isEmpty == false else { return nil }
+            
             self.date = date
-            self.messages = messages
+            self.messages = nonIgnoredMessages
             self.sort()
         }
         
