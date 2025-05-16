@@ -28,7 +28,7 @@ public class ParleyView: UIView {
     @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet private(set) weak var messagesTableView: MessagesTableView!
     @IBOutlet private weak var messagesTableViewPaddingToSafeAreaTopView: UIView!
-    @IBOutlet weak var notificationsStackView: UIStackView!
+    @IBOutlet weak var notificationsStackView: ObservableStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView!
@@ -52,8 +52,6 @@ public class ParleyView: UIView {
     
     // MARK: Properties
     public weak var delegate: ParleyViewDelegate?
-    private var observeNotificationsBounds: NSKeyValueObservation?
-    private var observeSuggestionsBounds: NSKeyValueObservation?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
     private var mostRecentSimplifiedDeviceOrientation: UIDeviceOrientation.Simplified = UIDevice.current.orientation.simplifiedOrientation ?? .portrait
@@ -179,16 +177,8 @@ public class ParleyView: UIView {
         
         addObservers()
         
-        observeNotificationsBounds = notificationsStackView.observe(\.bounds) { [weak self] _, _ in
-            Task { @MainActor in
-                self?.syncMessageTableViewContentInsets()
-            }
-        }
-        observeSuggestionsBounds = suggestionsView.observe(\.bounds) { [weak self] _, _ in
-            Task { @MainActor in
-                self?.syncMessageTableViewContentInsets()
-            }
-        }
+        notificationsStackView.observeBounds(delegate: self)
+        suggestionsView.observeBounds(delegate: self)
     }
     
     private func loadXib() {
@@ -972,5 +962,25 @@ extension ParleyView: ParleyMessagesDisplay {
     func displayHideStickyMessage() {
         stickyView.text = .none
         stickyView.isHidden = true
+    }
+}
+
+extension ParleyView: @preconcurrency ParleySuggestionsView.BoundsDelegate {
+    
+    func boundsDidChange(
+        for suggestionsView: ParleySuggestionsView,
+        change: NSKeyValueObservedChange<CGRect>
+    ) {
+        syncMessageTableViewContentInsets()
+    }
+}
+
+extension ParleyView: @preconcurrency ObservableStackView.BoundsDelegate {
+    
+    func boundsDidChange(
+        for stackView: ObservableStackView,
+        change: NSKeyValueObservedChange<CGRect>
+    ) {
+        syncMessageTableViewContentInsets()
     }
 }

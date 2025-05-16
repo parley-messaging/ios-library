@@ -287,8 +287,6 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             }
             
             await send(messagesManager.pendingMessages)
-            
-//            await messagesInteractor.handleViewDidLoad()
 
             isLoading = false
             await set(state: .configured)

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,22 +33,22 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGp-aQ-yNS">
-                    <rect key="frame" x="0.0" y="59" width="393" height="0.0"/>
+                    <rect key="frame" x="0.0" y="118" width="393" height="0.0"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" relation="greaterThanOrEqual" id="jQ8-s0-Fct"/>
                     </constraints>
                 </view>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lAj-6r-J3s" customClass="MessagesTableView" customModule="Parley">
-                    <rect key="frame" x="0.0" y="59" width="393" height="705"/>
+                    <rect key="frame" x="0.0" y="118" width="393" height="705"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" priority="999" constant="705" id="bms-dq-pfa"/>
                     </constraints>
                     <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                 </tableView>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3">
-                    <rect key="frame" x="0.0" y="59" width="393" height="0.0"/>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="OE5-rN-JE3" customClass="ObservableStackView" customModule="Parley">
+                    <rect key="frame" x="0.0" y="118" width="393" height="0.0"/>
                     <subviews>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hey-oA-c9S" customClass="ParleyNotificationView" customModule="Parley">
                             <rect key="frame" x="0.0" y="0.0" width="393" height="0.0"/>
@@ -77,18 +77,18 @@
                     </constraints>
                 </stackView>
                 <view hidden="YES" contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="45" translatesAutoresizingMaskIntoConstraints="NO" id="Xdd-0k-xz0" customClass="ParleySuggestionsView" customModule="Parley">
-                    <rect key="frame" x="0.0" y="719" width="393" height="45"/>
+                    <rect key="frame" x="0.0" y="778" width="393" height="45"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
                 <view contentMode="scaleToFill" placeholderIntrinsicWidth="infinite" placeholderIntrinsicHeight="88" translatesAutoresizingMaskIntoConstraints="NO" id="LwN-Tu-1Cr" customClass="ParleyComposeView" customModule="Parley">
-                    <rect key="frame" x="0.0" y="764" width="393" height="88"/>
+                    <rect key="frame" x="0.0" y="823" width="393" height="29"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="ia4-aN-GDT">
-                    <rect key="frame" x="186.66666666666666" y="428.66666666666669" width="20" height="20"/>
+                    <rect key="frame" x="186.66666666666666" y="441" width="20" height="20"/>
                 </activityIndicatorView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="parley_failed_to_configure" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cvD-Dt-1VK">
-                    <rect key="frame" x="95.666666666666671" y="428.33333333333331" width="201.66666666666663" height="20.333333333333314"/>
+                    <rect key="frame" x="95.666666666666671" y="441" width="201.66666666666663" height="20.333333333333314"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.68235294117647061" green="0.68235294117647061" blue="0.68235294117647061" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     <nil key="highlightedColor"/>
