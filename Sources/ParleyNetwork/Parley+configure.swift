@@ -2,7 +2,7 @@ import Foundation
 import Parley
 
 extension Parley {
-    
+
     public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,

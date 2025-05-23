@@ -9,7 +9,7 @@ protocol ParleyProtocol {
     var messagesManager: MessagesManagerProtocol? { get }
     var messageRepository: MessageRepositoryProtocol! { get }
     var mediaLoader: MediaLoaderProtocol! { get }
-    
+
     var messagesInteractor: MessagesInteractor! { get }
     var messagesPresenter: MessagesPresenterProtocol! { get }
     var messagesStore: MessagesStore! { get }
@@ -91,7 +91,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider, NetworkMonitorD
     private(set) var messageDataSource: ParleyMessageDataSource?
     private(set) var keyValueDataSource: ParleyKeyValueDataSource?
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
-    
+
     private(set) var messagesInteractor: MessagesInteractor!
     private(set) var messagesPresenter: MessagesPresenterProtocol!
     private(set) var messagesStore: MessagesStore!
@@ -704,9 +704,9 @@ extension Parley {
     
     /**
      Set the push token of the user.
-     
+
      - Note: Method must be called before `Parley.configure(_ secret: String)`.
-     
+
      - Parameters:
         - pushToken: The push token
         - pushType: The push type (default `fcm`)
@@ -978,6 +978,9 @@ extension Parley {
        - networkSession: The network session that will handle all http traffic.
        - code: HTTP Status Code.
        - message: Description what went wrong.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func configure(
         _ secret: String,

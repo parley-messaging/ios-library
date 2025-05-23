@@ -1,11 +1,13 @@
 import Foundation
 import UIKit
 
+@MainActor
 protocol PollingServiceProtocol: AnyObject {
-    func startRefreshing() async
-    func stopRefreshing() async
+    func startRefreshing()
+    func stopRefreshing()
 }
 
+@MainActor
 final class PollingService: PollingServiceProtocol {
 
     private enum TimerInterval: TimeInterval {
@@ -53,21 +55,19 @@ final class PollingService: PollingServiceProtocol {
         didSet { timer?.invalidate() }
     }
 
-    func startRefreshing() async {
-        await MainActor.run {
-            setTimer(interval: .twoSeconds)
-            addObservers()
-        }
+    @MainActor
+    func startRefreshing() {
+        setTimer(interval: .twoSeconds)
+        addObservers()
     }
 
-    func stopRefreshing() async {
-        await MainActor.run {
-            timer?.invalidate()
-            loopRepeated = 0
-            timerInterval = .twoSeconds
-            timer = nil
-            removeObservers()
-        }
+    @MainActor
+    func stopRefreshing() {
+        timer?.invalidate()
+        loopRepeated = 0
+        timerInterval = .twoSeconds
+        timer = nil
+        removeObservers()
     }
 
     private func setTimer(interval: TimerInterval) {
@@ -81,10 +81,8 @@ final class PollingService: PollingServiceProtocol {
     private func refreshFeed() async {
         guard
             let id = messagesManager.lastSentMessage?.id,
-            timer?.isValid == true else
-        {
-            return
-        }
+            timer?.isValid == true
+        else { return }
         
         do {
             let messageCollection = try await messageRepository.findAfter(id)

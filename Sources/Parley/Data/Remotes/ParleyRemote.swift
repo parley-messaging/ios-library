@@ -85,7 +85,7 @@ extension ParleyRemote {
         type: ParleyMediaType
     ) async throws -> T {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        
+
         var multipartFormData = MultipartFormData()
         multipartFormData.add(
             key: "media",
@@ -113,7 +113,7 @@ extension ParleyRemote {
         keyPath: ParleyResponseKeyPath? = .data
     ) async throws -> T {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        
+
         var multipartForm = MultipartFormData()
         multipartFormData(&multipartForm)
         
@@ -137,7 +137,7 @@ extension ParleyRemote {
     ) async throws -> Data {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        
+
         let headers = try createHeaders()
         
         let result = await networkSession.request(

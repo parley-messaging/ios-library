@@ -101,3 +101,31 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession {
         return uploadDataMethodHeadersResult
     }
 }
+
+extension ParleyNetworkSessionSpy {
+    
+    public func request(
+        _ url: URL,
+        data: Data?,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
+    ) -> Void) {
+        Task {
+            completion(await request(url, data: data, method: method, headers: headers))
+        }
+    }
+    
+    
+    public func upload(
+        data: Data,
+        to url: URL,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
+    ) -> Void) {
+        Task {
+            completion(await upload(data: data, to: url, method: method, headers: headers))
+        }
+    }
+}
