@@ -866,7 +866,6 @@ extension Parley {
        - onSuccess: Execution block when user information is cleared.
        - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
-    @available(*, deprecated, message: "Use the async version instead.")
     public static func clearUserInformation(
         onSuccess: (() -> Void)? = nil,
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
@@ -934,7 +933,6 @@ extension Parley {
        - code: HTTP Status Code.
        - message: Description what went wrong.
      */
-    @available(*, deprecated, message: "Use the async version instead.")
     public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
@@ -1010,7 +1008,6 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    @available(*, deprecated, message: "Use the async version instead.")
     public static func reset(
         onSuccess: (() -> Void)? = nil,
         onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
@@ -1033,9 +1030,9 @@ extension Parley {
 
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
-     - Parameters:
-       - onSuccess: Called when the device is correctly registered.
-       - onFailure: Called when configuring of the device did result in a error.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
@@ -1077,7 +1074,6 @@ extension Parley {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    @available(*, deprecated, message: "Use the async version instead.")
     public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
         Task {
             await purgeLocalMemory()
