@@ -29,6 +29,9 @@ let package = Package(
             name: "Parley",
             dependencies: [
                 "MarkdownKit"
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(

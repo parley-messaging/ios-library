@@ -24,7 +24,7 @@ final class MessageRemoteService {
     func findAfter(_ id: Int) async throws -> MessageCollection {
         try await remote.execute(.get, path: "messages/after:\(id)", keyPath: nil)
     }
-    
+
     func store(_ message: Message) async throws -> Message {
         try await remote.execute(.post, path: "messages", body: message)
     }
