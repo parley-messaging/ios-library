@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ParleyLocalizationKey: String {
+public enum ParleyLocalizationKey: String, Sendable {
     case cancel = "parley_cancel"
     case ok = "parley_ok"
     case stateFailed = "parley_state_failed"

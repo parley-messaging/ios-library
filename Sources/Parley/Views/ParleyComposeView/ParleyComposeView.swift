@@ -238,6 +238,17 @@ public class ParleyComposeView: UIView {
         textView.tintColor = appearance.tintColor
         textView.font = appearance.font
     }
+    
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if let previousTraitCollection {
+            if hasUserIntrefaceStyleChanged(previousTraitCollection) {
+                apply(appearance)
+            }
+        } else {
+            apply(appearance)
+        }
+    }
 
     private func watchForContentSizeCategoryChanges() {
         NotificationCenter.default.addObserver(

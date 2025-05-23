@@ -52,12 +52,17 @@ final class ParleyMessageView: UIView {
     @IBOutlet private weak var imageMetaRightLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var imageMetaBottomLayoutConstraint: NSLayoutConstraint!
 
+    @IBOutlet private weak var imageMetaStackViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var imageMetaStackViewTrailingConstraint: NSLayoutConstraint!
+    
+    @IBOutlet private weak var imageMetaContainer: UIView!
     @IBOutlet private weak var imageMetaTimeLabel: UILabel!
     @IBOutlet private weak var imageMetaStatusImageView: UIImageView!
     @IBOutlet private weak var imageMetaStatusImageViewWidth: NSLayoutConstraint!
 
     @IBOutlet private weak var imageFailureMessageLabel: UILabel!
-
+    @IBOutlet private weak var imageMetaStackView: UIStackView!
+    
     // Name
     @IBOutlet private weak var nameView: UIView!
     @IBOutlet private weak var nameLabel: UILabel!
@@ -237,6 +242,12 @@ final class ParleyMessageView: UIView {
 
         metaView.isHidden = displayMeta != .message
         renderMetaTime()
+        
+        imageMetaContainer.backgroundColor = appearance?.imageMetaBackgroundColor ?? .clear
+        imageMetaContainer.layer.cornerRadius = appearance?.imageMetaCornerRadius ?? 0
+        imageMetaStackView.spacing = appearance?.imageMetaSpacing ?? 0
+        imageMetaStackViewLeadingConstraint.constant = appearance?.imageMetaHorizontalPadding ?? 0
+        imageMetaStackViewTrailingConstraint.constant = appearance?.imageMetaHorizontalPadding ?? 0
     }
 
     private func renderImageFailure() {
@@ -809,6 +820,17 @@ final class ParleyMessageView: UIView {
             .constant = (appearance.balloonContentTextInsets?.bottom ?? 0) + (appearance.metaInsets?.bottom ?? 0)
 
         renderGradients()
+    }
+    
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if let previousTraitCollection {
+            if hasUserIntrefaceStyleChanged(previousTraitCollection) {
+                renderGradients()
+            }
+        } else {
+            renderGradients()
+        }
     }
     
     func didActivateUsingVoiceOver() {

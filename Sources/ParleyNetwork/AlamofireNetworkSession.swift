@@ -88,3 +88,30 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         }
     }
 }
+
+extension AlamofireNetworkSession {
+    
+    func request(
+        _ url: URL,
+        data: Data?,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    ) {
+        Task {
+            completion(await request(url, data: data, method: method, headers: headers))
+        }
+    }
+    
+    func upload(
+        data: Data,
+        to url: URL,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String],
+        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
+        ) -> Void) {
+        Task {
+            completion(await upload(data: data, to: url, method: method, headers: headers))
+        }
+    }
+}

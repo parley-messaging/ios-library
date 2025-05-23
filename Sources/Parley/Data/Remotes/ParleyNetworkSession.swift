@@ -17,19 +17,52 @@ import UIKit
 ///    networkSession: YourImplementationOfParleyNetworkSession(),
 /// )
 /// ```
-public protocol ParleyNetworkSession {
-    
+public protocol ParleyNetworkSession: Sendable {
+
     func request(
         _ url: URL,
         data: Data?,
         method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-    
+        headers: [String: String],
+        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    )
+
     func upload(
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
+        headers: [String: String],
+        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
+    )
 }
+
+extension ParleyNetworkSession {
+    
+    public func request(
+        _ url: URL,
+        data: Data?,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String]
+    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+        await withCheckedContinuation { continuation in
+            request(url, data: data, method: method, headers: headers) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+    
+    public func upload(
+        data: Data,
+        to url: URL,
+        method: ParleyHTTPRequestMethod,
+        headers: [String: String]
+    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+        await withCheckedContinuation { continuation in
+            upload(data: data, to: url, method: method, headers: headers) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+}
+
+

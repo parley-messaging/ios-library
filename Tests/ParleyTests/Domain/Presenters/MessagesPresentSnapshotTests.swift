@@ -155,12 +155,11 @@ struct MessagesPresentSnapshotTests {
         let change = snapshot.insert(message: message)
         
         #expect(snapshot.sections.count == 1)
-        #expect(snapshot.sections[0].cells.count == 2)
-        guard case .dateHeader = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
-        guard case .message(message) = snapshot.sections[0].cells[1].kind else { Issue.record() ; return }
+        #expect(snapshot.sections[0].cells.count == 1)
+        guard case .messages = snapshot.sections[0].sectionKind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
-            IndexPath(row: 0, section: 0),
-            IndexPath(row: 1, section: 0),
+            IndexPath(row: 0, section: 0)
         ], kind: .added))
     }
     
@@ -173,13 +172,12 @@ struct MessagesPresentSnapshotTests {
         
         #expect(snapshot.sections.count == 2)
         #expect(snapshot.sections[0].cells.count == 1)
-        #expect(snapshot.sections[1].cells.count == 2)
+        #expect(snapshot.sections[1].cells.count == 1)
         guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
-        guard case .message(message) = snapshot.sections[1].cells[1].kind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[1].sectionKind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
-            IndexPath(row: 0, section: 1),
-            IndexPath(row: 1, section: 1),
+            IndexPath(row: 0, section: 1)
         ], kind: .added))
     }
     
@@ -194,14 +192,13 @@ struct MessagesPresentSnapshotTests {
         #expect(snapshot.sections.count == 3)
         #expect(snapshot.sections[0].cells.count == 1)
         #expect(snapshot.sections[1].cells.count == 1)
-        #expect(snapshot.sections[2].cells.count == 2)
+        #expect(snapshot.sections[2].cells.count == 1)
         guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
         guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
-        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[2].sectionKind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
             IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2),
         ], kind: .added))
     }
     
@@ -217,16 +214,15 @@ struct MessagesPresentSnapshotTests {
         #expect(snapshot.sections.count == 4)
         #expect(snapshot.sections[0].cells.count == 1)
         #expect(snapshot.sections[1].cells.count == 1)
-        #expect(snapshot.sections[2].cells.count == 2)
+        #expect(snapshot.sections[2].cells.count == 1)
         #expect(snapshot.sections[3].cells.count == 1)
         guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
         guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
-        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[2].sectionKind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
         guard case .typingIndicator = snapshot.sections[3].cells[0].kind else { Issue.record() ; return }
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
-            IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2),
+            IndexPath(row: 0, section: 2)
         ], kind: .added))
     }
     
@@ -241,14 +237,13 @@ struct MessagesPresentSnapshotTests {
         #expect(snapshot.sections.count == 3)
         #expect(snapshot.sections[0].cells.count == 1)
         #expect(snapshot.sections[1].cells.count == 1)
-        #expect(snapshot.sections[2].cells.count == 2)
+        #expect(snapshot.sections[2].cells.count == 1)
         guard case .info = snapshot.sections[0].cells[0].kind else { Issue.record() ; return }
         guard case .loading = snapshot.sections[1].cells[0].kind else { Issue.record() ; return }
-        guard case .dateHeader = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
-        guard case .message(message) = snapshot.sections[2].cells[1].kind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[2].sectionKind else { Issue.record() ; return }
+        guard case .message(message) = snapshot.sections[2].cells[0].kind else { Issue.record() ; return }
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
-            IndexPath(row: 0, section: 2),
-            IndexPath(row: 1, section: 2),
+            IndexPath(row: 0, section: 2)
         ], kind: .added))
     }
     
@@ -263,14 +258,12 @@ struct MessagesPresentSnapshotTests {
         let insertedIndex = snapshot.insertSection(messages: section)
         #expect(insertedIndex == 0)
         #expect(snapshot.sections.count == 1)
-        #expect(snapshot.sections[0].sectionKind == .messages)
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[0].date == startOfDay)
-        #expect(snapshot.sections[0].cells.count == 3)
-        #expect(snapshot.sections[0].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[0].cells[1].kind == .message(message1))
-        #expect(snapshot.sections[0].cells[2].kind == .message(message2))
+        #expect(snapshot.sections[0].cells.count == 2)
+        #expect(snapshot.sections[0].cells[0].kind == .message(message1))
+        #expect(snapshot.sections[0].cells[1].kind == .message(message2))
     }
 
     @Test
@@ -284,14 +277,13 @@ struct MessagesPresentSnapshotTests {
         #expect(insertedIndex == 1)
         try #require(snapshot.sections.count == 2)
         #expect(snapshot.sections[0].sectionKind == .info)
-        #expect(snapshot.sections[1].sectionKind == .messages)
+        guard case .messages = snapshot.sections[1].sectionKind else { Issue.record() ; return }
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[1].date == startOfDay)
-        try #require(snapshot.sections[1].cells.count == 3)
-        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[1].cells[1].kind == .message(message1))
-        #expect(snapshot.sections[1].cells[2].kind == .message(message2))
+        try #require(snapshot.sections[1].cells.count == 2)
+        #expect(snapshot.sections[1].cells[0].kind == .message(message1))
+        #expect(snapshot.sections[1].cells[1].kind == .message(message2))
     }
     
     @Test
@@ -307,14 +299,13 @@ struct MessagesPresentSnapshotTests {
         #expect(insertedIndex == 1)
         try #require(snapshot.sections.count == 3)
         #expect(snapshot.sections[0].sectionKind == .info)
-        #expect(snapshot.sections[1].sectionKind == .messages)
+        guard case .messages = snapshot.sections[1].sectionKind else { Issue.record() ; return }
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[1].date == startOfDay)
-        try #require(snapshot.sections[1].cells.count == 3)
-        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[1].cells[1].kind == .message(message1))
-        #expect(snapshot.sections[1].cells[2].kind == .message(message2))
+        try #require(snapshot.sections[1].cells.count == 2)
+        #expect(snapshot.sections[1].cells[0].kind == .message(message1))
+        #expect(snapshot.sections[1].cells[1].kind == .message(message2))
         
         #expect(snapshot.sections[2].cells.count == 1)
         #expect(snapshot.sections[2].sectionKind == .typingIndicator)
@@ -334,14 +325,16 @@ struct MessagesPresentSnapshotTests {
         
         #expect(section1InsertIndex == 0)
         try #require(snapshot.sections.count == 2)
-        #expect(snapshot.sections.allSatisfy({ $0.sectionKind == .messages }))
+        #expect(snapshot.sections.allSatisfy({
+            guard case .messages = $0.sectionKind else { return false }
+            return true
+        }))
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[0].date == startOfDay)
-        try #require(snapshot.sections[0].cells.count == 3)
-        #expect(snapshot.sections[0].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[0].cells[1].kind == .message(section1message1))
-        #expect(snapshot.sections[0].cells[2].kind == .message(section1message2))
+        try #require(snapshot.sections[0].cells.count == 2)
+        #expect(snapshot.sections[0].cells[0].kind == .message(section1message1))
+        #expect(snapshot.sections[0].cells[1].kind == .message(section1message2))
     }
     
     @Test
@@ -358,14 +351,16 @@ struct MessagesPresentSnapshotTests {
         
         #expect(section2InsertIndex == 1)
         try #require(snapshot.sections.count == 2)
-        #expect(snapshot.sections.allSatisfy({ $0.sectionKind == .messages }))
+        #expect(snapshot.sections.allSatisfy({
+            guard case .messages = $0.sectionKind else { return false }
+            return true
+        }))
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 1))
         #expect(snapshot.sections[1].date == startOfDay)
-        try #require(snapshot.sections[1].cells.count == 3)
-        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[1].cells[1].kind == .message(s2message1))
-        #expect(snapshot.sections[1].cells[2].kind == .message(s2message2))
+        try #require(snapshot.sections[1].cells.count == 2)
+        #expect(snapshot.sections[1].cells[0].kind == .message(s2message1))
+        #expect(snapshot.sections[1].cells[1].kind == .message(s2message2))
     }
     
     @Test
@@ -383,15 +378,15 @@ struct MessagesPresentSnapshotTests {
         #expect(section1InsertIndex == 1)
         try #require(snapshot.sections.count == 3)
         #expect(snapshot.sections[0].sectionKind == .info)
-        #expect(snapshot.sections[1].sectionKind == .messages)
-        #expect(snapshot.sections[2].sectionKind == .messages)
+        guard case .messages = snapshot.sections[1].sectionKind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[2].sectionKind else { Issue.record() ; return }
+        
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 0))
         #expect(snapshot.sections[1].date == startOfDay)
-        try #require(snapshot.sections[1].cells.count == 3)
-        #expect(snapshot.sections[1].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[1].cells[1].kind == .message(s1message1))
-        #expect(snapshot.sections[1].cells[2].kind == .message(s1message2))
+        try #require(snapshot.sections[1].cells.count == 2)
+        #expect(snapshot.sections[1].cells[0].kind == .message(s1message1))
+        #expect(snapshot.sections[1].cells[1].kind == .message(s1message2))
     }
     
     @Test
@@ -409,15 +404,14 @@ struct MessagesPresentSnapshotTests {
         #expect(section2InsertIndex == 2)
         try #require(snapshot.sections.count == 3)
         #expect(snapshot.sections[0].sectionKind == .info)
-        #expect(snapshot.sections[1].sectionKind == .messages)
-        #expect(snapshot.sections[2].sectionKind == .messages)
+        guard case .messages = snapshot.sections[1].sectionKind else { Issue.record() ; return }
+        guard case .messages = snapshot.sections[2].sectionKind else { Issue.record() ; return }
         
         let startOfDay = calander.startOfDay(for: Date(daysSince1970: 1))
         #expect(snapshot.sections[2].date == startOfDay)
-        try #require(snapshot.sections[2].cells.count == 3)
-        #expect(snapshot.sections[2].cells[0].kind == .dateHeader(startOfDay))
-        #expect(snapshot.sections[2].cells[1].kind == .message(s2message1))
-        #expect(snapshot.sections[2].cells[2].kind == .message(s2message2))
+        try #require(snapshot.sections[2].cells.count == 2)
+        #expect(snapshot.sections[2].cells[0].kind == .message(s2message1))
+        #expect(snapshot.sections[2].cells[1].kind == .message(s2message2))
     }
 }
 

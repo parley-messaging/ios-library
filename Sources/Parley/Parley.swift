@@ -1,5 +1,4 @@
 import Foundation
-import Reachability
 import UIKit
 
 protocol ParleyProtocol {
@@ -24,7 +23,7 @@ protocol ParleyProtocol {
     func sendNewMessageWithMedia(_ media: MediaModel) async
 }
 
-public final class Parley: ParleyProtocol, ReachabilityProvider {
+public final class Parley: ParleyProtocol, ReachabilityProvider, NetworkMonitorDelegate {
     
     public typealias ConfigurationResult = Result<Void, ConfigurationError>
     typealias ConfigurationContinuation = CheckedContinuation<ConfigurationResult, Never>
@@ -56,14 +55,16 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     private(set) var state: State = .unconfigured {
         didSet {
-            delegate?.didChangeState(state)
+            Task { @MainActor in // When calling configure from background thread, ensure main thread.
+                delegate?.didChangeState(state)
+            }
         }
     }
 
     private var isLoading = false
 
-    private var reachability: Reachability?
-    internal var reachable = false {
+    private var networkMonitor: NetworkMonitorProtocol?
+    var reachable = false {
         didSet {
             if reachable {
                 delegate?.reachable()
@@ -148,7 +149,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
         mediaRepository = MediaRepository(messageRemoteService: messageRemoteService)
         mediaRepository.dataSource = mediaDataSource
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
-        
+
         messagesStore = MessagesStore()
         messagesPresenter = MessagesPresenter(store: messagesStore, display: nil)
         messagesInteractor = MessagesInteractor(
@@ -164,19 +165,17 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     // MARK: Reachability
 
     private func setupReachability() {
-        guard reachability == nil else {
+        guard networkMonitor == nil else {
+            networkMonitor?.start()
             return
         }
-        reachability = try? Reachability()
-        reachability?.whenReachable = { [weak self] _ in
-            self?.reachable = true
-        }
+        networkMonitor = NetworkMonitor(delegate: self)
+        networkMonitor?.start()
+    }
 
-        reachability?.whenUnreachable = { [weak self] _ in
-            self?.reachable = false
-        }
-
-        try? reachability?.startNotifier()
+    // MARK: NetworkMonitorDelegate
+    func didUpdateConnection(isConnected: Bool) {
+        reachable = isConnected
     }
 
     // MARK: Observers
@@ -212,7 +211,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
 
     @objc
     private func didEnterBackground() {
-        reachability?.stopNotifier()
+        networkMonitor?.stop()
     }
 
     // MARK: Configure
@@ -477,7 +476,7 @@ public final class Parley: ParleyProtocol, ReachabilityProvider {
     private func addNewMessage(_ message: Message) async {
         guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
         userStopTypingTimer?.fire();
-        
+
         await messagesInteractor.handleNewMessage(message)
     }
 
@@ -700,6 +699,38 @@ extension Parley {
 
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
+    
+    // MARK: - setUserInformation
+    
+    /**
+     Set the push token of the user.
+     
+     - Note: Method must be called before `Parley.configure(_ secret: String)`.
+     
+     - Parameters:
+        - pushToken: The push token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated.
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushToken(
+        _ pushToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setPushToken(pushToken, pushType: pushType)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
 
     /**
       Set the push token of the user.
@@ -709,8 +740,9 @@ extension Parley {
       - Parameters:
         - pushToken: The push token
         - pushType: The push type (default `fcm`)
-        - onSuccess: Execution block when Firebase Cloud Messaging token is updated.
-        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+      - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setPushToken(
         _ pushToken: String,
@@ -723,6 +755,8 @@ extension Parley {
 
         return await shared.registerDevice()
     }
+    
+    // MARK: - setPushEnabled
 
     /**
       Set whether push is enabled by the user.
@@ -731,6 +765,33 @@ extension Parley {
         - enabled: Indication if application's push is enabled.
         - onSuccess: Execution block when pushEnabled is updated.
         - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setPushEnabled(
+        _ enabled: Bool,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setPushEnabled(enabled)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+      Set whether push is enabled by the user.
+
+      - Parameters:
+        - enabled: Indication if application's push is enabled.
+      - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setPushEnabled(_ enabled: Bool) async -> ConfigurationResult {
         guard shared.pushEnabled != enabled else { return .success(()) }
@@ -741,6 +802,8 @@ extension Parley {
 
         return await shared.registerDevice()
     }
+    
+    // MARK: - setUserInformation
 
     /**
      Set user information to authorize the user.
@@ -749,7 +812,36 @@ extension Parley {
        - authorization: Authorization of the user.
        - additionalInformation: Additional information of the user.
        - onSuccess: Execution block when user information is set.
-       - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    public static func setUserInformation(
+        _ authorization: String,
+        additionalInformation: [String: String]? = nil,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setUserInformation(authorization, additionalInformation: additionalInformation)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+     Set user information to authorize the user.
+
+     - Parameters:
+       - authorization: Authorization of the user.
+       - additionalInformation: Additional information of the user.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setUserInformation(
         _ authorization: String,
@@ -765,12 +857,39 @@ extension Parley {
         }
     }
 
+    // MARK: - clearUserInformation
+
     /**
      Clear user information.
 
      - Parameters:
        - onSuccess: Execution block when user information is cleared.
        - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     */
+    @available(*, deprecated, message: "Use the async version instead.")
+    public static func clearUserInformation(
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await clearUserInformation()
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+        
+    /**
+     Clear user information.
+
+     - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func clearUserInformation() async -> ConfigurationResult {
         shared.userAuthorization = nil
@@ -792,7 +911,9 @@ extension Parley {
     public static func setLocalizationManager(_ localizationManager: LocalizationManager) {
         shared.localizationManager = localizationManager
     }
-
+    
+    // MARK: - Configure
+    
     /**
      Configure Parley Messaging with clearing the cache
 
@@ -813,6 +934,51 @@ extension Parley {
        - code: HTTP Status Code.
        - message: Description what went wrong.
      */
+    @available(*, deprecated, message: "Use the async version instead.")
+    public static func configure(
+        _ secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkConfig: ParleyNetworkConfig,
+        networkSession: ParleyNetworkSession,
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await Self.configure(
+                secret,
+                uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+                networkConfig: networkConfig,
+                networkSession: networkSession
+            )
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+     Configure Parley Messaging with clearing the cache
+
+     The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
+     a random UUID that will be stored in the user defaults. When providing a unique device
+     ID to this configure method, it is not stored by Parley and only kept for the current instance
+     of Parley. Client applications are responsible for storing it and providing Parley with the
+     same ID. This gives client applications the flexibility to change the ID if required (for
+     example when another user is logged-in to the app).
+
+     - Parameters:
+       - secret: Application secret of your Parley instance.
+       - uniqueDeviceIdentifier: The device identifier to use for device registration.
+       - networkConfig: The configuration for the network.
+       - networkSession: The network session that will handle all http traffic.
+       - code: HTTP Status Code.
+       - message: Description what went wrong.
+     */
     public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
@@ -827,7 +993,38 @@ extension Parley {
             clearCache: true
         )
     }
+    
+    // MARK: - Reset
 
+    /**
+     Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
+
+     Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
+
+     - Parameters:
+       - onSuccess: Called when the device is correctly registered.
+       - onFailure: Called when configuring of the device did result in a error.
+
+     - Note: Requires calling the `configure()` method again to use Parley.
+     */
+    @available(*, deprecated, message: "Use the async version instead.")
+    public static func reset(
+        onSuccess: (() -> Void)? = nil,
+        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await reset()
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
     /**
      Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
 
@@ -841,7 +1038,7 @@ extension Parley {
      */
     public static func reset() async -> ConfigurationResult {
         await shared.mediaLoader?.reset()
-
+        
         shared.userAuthorization = nil
         shared.userAdditionalInformation = nil
         shared.mediaRepository?.reset()
@@ -857,12 +1054,34 @@ extension Parley {
             shared.secret = nil
             shared.state = .unconfigured
         }
-
+        
         await MainActor.run {
             Self.shared.clearChat()
         }
         
         return result
+    }
+    
+    // MARK: - purgeLocalMemory
+
+    /**
+     Resets all local user identifiers. Ensures that no user and chat data is left in memory.
+
+     Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
+
+     - Parameters:
+       - completion: Called when all data is cleared
+
+     - Note: Requires calling the `configure()` method again to use Parley.
+     */
+    @available(*, deprecated, message: "Use the async version instead.")
+    public static func purgeLocalMemory(completion: (() -> Void)? = nil) {
+        Task {
+            await purgeLocalMemory()
+            await MainActor.run {
+                completion?()
+            }
+        }
     }
 
     /**
