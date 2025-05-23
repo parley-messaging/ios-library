@@ -37,7 +37,7 @@ final class MessageRepository: MessageRepositoryProtocol {
     func findAfter(_ id: Int) async throws -> MessageCollection {
         try await messageRemoteService.findAfter(id)
     }
-    
+
     func store(_ message: Message) async throws -> Message {
         try await messageRemoteService.store(message)
     }
