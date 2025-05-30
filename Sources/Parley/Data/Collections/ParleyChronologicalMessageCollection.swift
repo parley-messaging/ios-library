@@ -64,7 +64,6 @@ extension ParleyChronologicalMessageCollection {
         }
     }
     
-    @discardableResult
     mutating func remove(at position: Position) {
         sections[position.section].messages.remove(at: position.row)
         if sections[position.section].messages.isEmpty {

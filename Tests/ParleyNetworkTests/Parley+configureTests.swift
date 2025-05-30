@@ -8,8 +8,8 @@ import Foundation
 struct AlamofireHTTParleyConfigureTestsPMethodTests {
 
     @Test
-    func testSettingDefaultConfig() async throws {
-        try await Parley.configure("secret")
+    func testSettingDefaultConfig() async {
+        try? await Parley.configure("secret")
         
         await #expect(ParleyActor.shared.networkConfig.headers == [:])
         await #expect(ParleyActor.shared.networkConfig.url == kParleyNetworkUrl)
@@ -19,11 +19,11 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
     }
 
     @Test
-    func testSettingCustomConfig() async throws {
+    func testSettingCustomConfig() async {
         let url = "https://example.com"
         let path = "/example"
         let headers = ["example": "example"]
-        try await Parley.configure(
+        try? await Parley.configure(
             "secret",
             networkConfig: ParleyNetworkConfig(
                 url: url,

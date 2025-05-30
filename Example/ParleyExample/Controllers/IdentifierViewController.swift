@@ -167,10 +167,10 @@ class IdentifierViewController: UIViewController {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
             Task {
-                switch await Parley.reset() {
-                case .success:
+                do {
+                    try await Parley.reset()
                     startChatDemo()
-                case .failure:
+                } catch {
                     print("Failed to reset Parley")
                 }
             }
@@ -215,35 +215,31 @@ class IdentifierViewController: UIViewController {
             secret: kParleyUserAuthorizationSecret,
             sharedSecret: kParleyUserAuthorizationSharedSecret
         )
-        _ = await Parley.setUserInformation(authorization)
-        let result = await Parley.configure(kParleySecret, networkConfig: createNetworkConfig())
-        
-        await MainActor.run {
-            switch result {
-            case .success:
-                alreadyConfiguredParley = true
-                startButton.setLoading(false)
+        try? await Parley.setUserInformation(authorization)
+        do {
+            try await Parley.configure(kParleySecret, networkConfig: createNetworkConfig())
+            alreadyConfiguredParley = true
+            startButton.setLoading(false)
 
-                identifierTextView.text = kParleySecret
+            identifierTextView.text = kParleySecret
 
-                UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
-                UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
-
+            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
+            UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
+            
+            performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        } catch (let configurationError) {
+            startButton.setLoading(false)
+            if Self.kOfflineMessagingEnabled {
                 performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            case .failure(let configurationError):
-                startButton.setLoading(false)
-                if Self.kOfflineMessagingEnabled {
-                    performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-                } else {
-                    showAlert(
-                        title: NSLocalizedString("identifier_error_start_title", comment: ""),
-                        message: String(
-                            format: NSLocalizedString("identifier_error_start_body", comment: ""),
-                            configurationError.message,
-                            "\(configurationError.code)"
-                        )
+            } else {
+                showAlert(
+                    title: NSLocalizedString("identifier_error_start_title", comment: ""),
+                    message: String(
+                        format: NSLocalizedString("identifier_error_start_body", comment: ""),
+                        configurationError.message,
+                        "\(configurationError.code)"
                     )
-                }
+                )
             }
         }
     }
@@ -255,13 +251,11 @@ class IdentifierViewController: UIViewController {
         }
 
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
-            _ = await Parley.clearUserInformation()
+            try? await Parley.clearUserInformation()
         }
 
-        let result = await Parley.configure(secret, networkConfig: createNetworkConfig())
-        
-        switch result {
-        case .success:
+        do {
+            try await Parley.configure(secret, networkConfig: createNetworkConfig())
             alreadyConfiguredParley = true
             startButton.setLoading(false)
 
@@ -269,8 +263,7 @@ class IdentifierViewController: UIViewController {
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
 
             performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            
-        case .failure(let configurationError):
+        } catch (let configurationError) {
             startButton.setLoading(false)
             if Self.kOfflineMessagingEnabled {
                 performSegue(withIdentifier: "showTabBarViewController", sender: nil)

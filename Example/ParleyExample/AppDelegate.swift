@@ -42,30 +42,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
-
+extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
+    
     func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-        Parley.handle(userInfo)
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any]
+    ) async -> UIBackgroundFetchResult {
+        await Parley.handle(Parley.RemoteMessageData(userInfo))
+        return .noData
     }
-
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         if UIApplication.shared.applicationState == .active {
-            completionHandler([])
+            return []
         } else {
-            completionHandler([.alert, .sound])
+            return [.alert, .sound]
         }
     }
 }
 
-extension AppDelegate: MessagingDelegate {
+extension AppDelegate: @preconcurrency MessagingDelegate {
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken pushToken: String?) {
         guard let pushToken = pushToken else { return }
