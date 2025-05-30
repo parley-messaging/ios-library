@@ -1,3 +1,5 @@
+import Foundation
+
 public struct Parley: Sendable {
     
     public typealias State = ParleyActor.State
@@ -17,8 +19,29 @@ public struct Parley: Sendable {
     public struct RemoteMessageData: @unchecked Sendable {
         let userInfo: [AnyHashable: Any]
         
-        public init(_ userInfo: [AnyHashable : Any]) {
+        public init(_ userInfo: [AnyHashable: Any]) {
             self.userInfo = userInfo
+        }
+    }
+    
+    // MARK: - Handle remote message
+    
+    /**
+     Handle remote message.
+     
+     - Parameters:
+      - userInfo: Remote message data.
+      - completion: An optional closure called when processing completes. The closure receives a Boolean indicating whether the remote message was successfully accepted and processed. Executed on the main actor.
+     */
+    public static func handle(_ userInfo: [AnyHashable: Any], completion: (@Sendable (Bool) -> Void)? = nil) {
+        let remoteMessage = RemoteMessageData(userInfo)
+        Task {
+            let result = await ParleyActor.shared.handle(remoteMessage)
+            if let completion {
+                await MainActor.run {
+                    completion(result)
+                }
+            }
         }
     }
     
@@ -26,13 +49,15 @@ public struct Parley: Sendable {
      Handle remote message.
 
      - Parameters:
-       - userInfo: Remote message data.
+       - remoteMessage: Remote message data.
 
      - Returns: `true` if Parley handled this payload, `false` otherwise.
      */
     public static func handle(_ remoteMessage: RemoteMessageData) async -> Bool {
         await ParleyActor.shared.handle(remoteMessage)
     }
+    
+    // MARK: - enableOfflineMessaging
     
     @available(
         *,
@@ -50,6 +75,59 @@ public struct Parley: Sendable {
             keyValueDataSource: keyValueDataSource,
             imageDataSource: imageDataSource
         )
+    }
+    
+    @available(
+        *,
+        deprecated,
+        renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
+        message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
+    )
+    public static func enableOfflineMessaging(
+        messageDataSource: ParleyMessageDataSource,
+        keyValueDataSource: ParleyKeyValueDataSource,
+        imageDataSource: ParleyMediaDataSource,
+        completion: (@Sendable () -> Void)? = nil
+    ) {
+        Task {
+            await ParleyActor.shared.enableOfflineMessaging(
+                messageDataSource: messageDataSource,
+                keyValueDataSource: keyValueDataSource,
+                imageDataSource: imageDataSource
+            )
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
+    }
+    
+    // MARK: - enableOfflineMessaging
+    
+    /**
+     Enable offline messaging.
+
+     - Parameters:
+       - messageDataSource: ParleyMessageDataSource instance
+       - keyValueDataSource: ParleyKeyValueDataSource instance
+       - mediaDataSource: ParleyMediaDataSource instance
+       - completion: A closure called when the opperation completes, executed on the main actor.
+     */
+    public static func enableOfflineMessaging(
+        messageDataSource: ParleyMessageDataSource,
+        keyValueDataSource: ParleyKeyValueDataSource,
+        mediaDataSource: ParleyMediaDataSource,
+        completion: (@Sendable () -> Void)? = nil
+    ) {
+        Task {
+            await ParleyActor.shared.enableOfflineMessaging(
+                messageDataSource: messageDataSource,
+                keyValueDataSource: keyValueDataSource,
+                mediaDataSource: mediaDataSource
+            )
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
     }
     
     /**
@@ -72,6 +150,23 @@ public struct Parley: Sendable {
         )
     }
     
+    // MARK: - disableOfflineMessaging
+    
+    /**
+     Disable offline messaging.
+
+     - Parameters:
+       - completion: A closure called when the opperation completes, executed on the main actor.
+     */
+    public static func disableOfflineMessaging(completion: (@Sendable () -> Void)? = nil) {
+        Task {
+            await ParleyActor.shared.disableOfflineMessaging()
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
+    }
+    
     /**
      Disable offline messaging.
 
@@ -79,6 +174,38 @@ public struct Parley: Sendable {
      */
     public static func disableOfflineMessaging() async {
         await ParleyActor.shared.disableOfflineMessaging()
+    }
+    
+    // MARK: - setPushToken
+    
+    /**
+     Set the push token of the user.
+
+     - Note: Method must be called before `Parley.configure(_ secret: String)`.
+
+     - Parameters:
+        - pushToken: The push token
+        - pushType: The push type (default `fcm`)
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated. Executed on the main actor.
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+     */
+    public static func setPushToken(
+        _ pushToken: String,
+        pushType: Device.PushType = .fcm,
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setPushToken(pushToken, pushType: pushType)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
     }
     
     /**
@@ -89,8 +216,9 @@ public struct Parley: Sendable {
       - Parameters:
         - pushToken: The push token
         - pushType: The push type (default `fcm`)
-        - onSuccess: Execution block when Firebase Cloud Messaging token is updated.
-        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+      - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setPushToken(
         _ pushToken: String,
@@ -99,17 +227,48 @@ public struct Parley: Sendable {
         await ParleyActor.shared.setPushToken(pushToken, pushType: pushType)
     }
     
+    // MARK: - setPushEnabled
+
     /**
       Set whether push is enabled by the user.
 
       - Parameters:
         - enabled: Indication if application's push is enabled.
-        - onSuccess: Execution block when pushEnabled is updated.
-        - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+        - onSuccess: Execution block when pushEnabled is updated. Executed on the main actor.
+        - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+     */
+    public static func setPushEnabled(
+        _ enabled: Bool,
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setPushEnabled(enabled)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+      Set whether push is enabled by the user.
+
+      - Parameters:
+        - enabled: Indication if application's push is enabled.
+      - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setPushEnabled(_ enabled: Bool) async -> ParleyActor.ConfigurationResult {
         await ParleyActor.shared.setPushEnabled(enabled)
     }
+    
+    // MARK: - setUserInformation
     
     /**
      Set user information to authorize the user.
@@ -117,8 +276,9 @@ public struct Parley: Sendable {
      - Parameters:
        - authorization: Authorization of the user.
        - additionalInformation: Additional information of the user.
-       - onSuccess: Execution block when user information is set.
-       - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func setUserInformation(
         _ authorization: String,
@@ -127,12 +287,38 @@ public struct Parley: Sendable {
         await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
+    // MARK: - clearUserInformation
+
     /**
      Clear user information.
 
      - Parameters:
-       - onSuccess: Execution block when user information is cleared.
-       - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+       - onSuccess: Execution block when user information is cleared. Executed on the main actor.
+       - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+     */
+    public static func clearUserInformation(
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await clearUserInformation()
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+     Clear user information.
+     
+     - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success` when user information is cleared.
+       - On failure: returns `.failure` when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
      */
     public static func clearUserInformation() async -> ParleyActor.ConfigurationResult {
         await ParleyActor.shared.clearUserInformation()
@@ -149,6 +335,52 @@ public struct Parley: Sendable {
         Self.shared.localizationManager = localizationManager
     }
     
+    // MARK: - Configure
+      
+      /**
+       Configure Parley Messaging with clearing the cache
+
+       The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
+       a random UUID that will be stored in the user defaults. When providing a unique device
+       ID to this configure method, it is not stored by Parley and only kept for the current instance
+       of Parley. Client applications are responsible for storing it and providing Parley with the
+       same ID. This gives client applications the flexibility to change the ID if required (for
+       example when another user is logged-in to the app).
+
+       - Parameters:
+         - secret: Application secret of your Parley instance.
+         - uniqueDeviceIdentifier: The device identifier to use for device registration.
+         - networkConfig: The configuration for the network.
+         - networkSession: The network session that will handle all http traffic.
+         - onSuccess: Execution block when Parley is configured. Executed on the main actor.
+         - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+       */
+      public static func configure(
+          _ secret: String,
+          uniqueDeviceIdentifier: String? = nil,
+          networkConfig: ParleyNetworkConfig,
+          networkSession: ParleyNetworkSession,
+          onSuccess: (@Sendable () -> Void)? = nil,
+          onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+      ) {
+          Task {
+              let result = await Self.configure(
+                  secret,
+                  uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+                  networkConfig: networkConfig,
+                  networkSession: networkSession
+              )
+              await MainActor.run {
+                  switch result {
+                  case .success:
+                      onSuccess?()
+                  case .failure(let error):
+                      onFailure?(error.code, error.message)
+                  }
+              }
+          }
+      }
+    
     /**
      Configure Parley Messaging with clearing the cache
 
@@ -164,10 +396,9 @@ public struct Parley: Sendable {
        - uniqueDeviceIdentifier: The device identifier to use for device registration.
        - networkConfig: The configuration for the network.
        - networkSession: The network session that will handle all http traffic.
-       - onSuccess: Execution block when Parley is configured.
-       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-       - code: HTTP Status Code.
-       - message: Description what went wrong.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func configure(
         _ secret: String,
@@ -183,14 +414,44 @@ public struct Parley: Sendable {
         )
     }
     
+    // MARK: - Reset
+
     /**
      Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
 
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Parameters:
-       - onSuccess: Called when the device is correctly registered.
-       - onFailure: Called when configuring of the device did result in a error.
+       - onSuccess: Called when the device is correctly registered. Executed on the main actor.
+       - onFailure: Called when configuring of the device did result in a error. Executed on the main actor.
+
+     - Note: Requires calling the `configure()` method again to use Parley.
+     */
+    public static func reset(
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await reset()
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+     Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
+
+     Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
+     
+     - Returns: A `ConfigurationResult` indicating the outcome:
+       - On success: returns `.success`. Called when the device is correctly registered.
+       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message. Called when configuring of the device did result in a error.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
@@ -198,18 +459,55 @@ public struct Parley: Sendable {
         await ParleyActor.shared.reset()
     }
     
+    // MARK: - purgeLocalMemory
+    
     /**
      Resets all local user identifiers. Ensures that no user and chat data is left in memory.
 
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Parameters:
-       - completion: Called when all data is cleared
+       - completion: Called when all data is cleared. Executed on the main actor.
+
+     - Note: Requires calling the `configure()` method again to use Parley.
+     */
+    public func purgeLocalMemory(completion: (@Sendable () -> Void)? = nil) {
+        Task {
+            await ParleyActor.shared.purgeLocalMemory()
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
+    }
+    
+    /**
+     Resets all local user identifiers. Ensures that no user and chat data is left in memory.
+
+     Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
     public func purgeLocalMemory() async {
         await ParleyActor.shared.purgeLocalMemory()
+    }
+    
+    // MARK: - send
+    
+    /**
+     Send a message to Parley.
+
+     - Note: Call after chat is configured.
+
+     - Parameters:
+       - message: The message to sent
+       - silent: Indicates if the message needs to be sent silently. The message will not be shown to the user when `silent=true`.
+       - completion: A closure that will be called after the message is being qeued to send. Executed on the main actor.
+     */
+    public func send(_ message: String, silent: Bool = false, completion: (@Sendable () -> Void)? = nil) {
+        Task {
+            await ParleyActor.shared.send(message, silent: silent)
+            completion?()
+        }
     }
     
     /**
@@ -225,6 +523,24 @@ public struct Parley: Sendable {
         await ParleyActor.shared.send(message, silent: silent)
     }
     
+    // MARK: - setReferrer
+    
+    /**
+     Set referrer.
+
+     - Parameters:
+       - referrer: Referrer
+       - completion: A closure that will be called after the referrer is updated. Executed on the main actor.
+     */
+    public func setReferrer(_ referrer: String, completion: (@Sendable () -> Void)? = nil) {
+        Task {
+            await ParleyActor.shared.setReferrer(referrer)
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
+    }
+    
     /**
      Set referrer.
 
@@ -235,6 +551,24 @@ public struct Parley: Sendable {
         await ParleyActor.shared.setReferrer(referrer)
     }
 
+    // MARK: - setAlwaysPolling
+
+    /**
+     Always enable polling of messages even when the push permission is granted.
+
+     - Parameters:
+       - enabled: Boolean that indicates if `alwaysPolling` should be enabled.
+       - completion: A closure that will be called after the polling setting is updated. Executed on the main actor.
+     */
+    public func setAlwaysPolling(enabled: Bool, _ completion: (@Sendable () -> Void)? = nil) {
+        Task {
+            await ParleyActor.shared.setAlwaysPolling(enabled)
+            if let completion {
+                await MainActor.run(body: completion)
+            }
+        }
+    }
+    
     /**
      Always enable polling of messages even when the push permission is granted.
 

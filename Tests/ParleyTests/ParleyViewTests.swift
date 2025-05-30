@@ -156,7 +156,7 @@ struct ParleyViewTests {
         assert(sut: sut)
     }
     
-    @Test(.snapshots(diffTool: .default))
+    @Test(.snapshots(diffTool: .compareSideBySide))
     mutating func testMessageWithCarousel() async throws {
         await messagesManagerStub.setMessages([
             Message.makeTestData(

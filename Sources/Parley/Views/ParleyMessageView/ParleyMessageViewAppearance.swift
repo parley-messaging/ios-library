@@ -18,6 +18,11 @@ public class ParleyMessageViewAppearance {
     public var imageInnerColor: UIColor = .white
     public var imageInnerShadowStartColor = UIColor(white: 0, alpha: 0.3)
     public var imageInnerShadowEndColor = UIColor(white: 0, alpha: 0)
+    
+    public var imageMetaBackgroundColor: UIColor = .clear
+    public var imageMetaSpacing: CGFloat = 0
+    public var imageMetaHorizontalPadding: CGFloat = 0
+    public var imageMetaCornerRadius: CGFloat = 4
 
     public var imageInsets: UIEdgeInsets? = UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
 

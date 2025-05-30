@@ -1,9 +1,34 @@
 # Changelog
 
+## 4.2.10 - Released 2 May 2025
+
+- [Accessibility] Added configurable background color to time and checkmark in messages and made corner radius configurable.
+- [Styling] Changed `imageTimeBackgroundColor` to `imageMetaBackgroundColor` in `ParleyMessageViewAppearance`.
+- [Styling] Changed `imageTimeSpacing` to `imageMetaSpacing` in `ParleyMessageViewAppearance`.
+- [Styling] Changed `imageTimeHorizontalPadding` to `imageMetaHorizontalPadding` in `ParleyMessageViewAppearance`.
+- [Styling] Added `imageMetaCornerRadius` to `ParleyMessageViewAppearance` to adjust the corner radius.
+
+## 4.2.9 - Released 25 Apr 2025
+
+- [Accessibility] Added customizable background to time labels in image messages, with configurable color, spacing, and padding.  
+- [Styling] Added `imageTimeBackgroundColor` to `ParleyMessageViewAppearance` to set the background color.  
+- [Styling] Added `imageTimeSpacing` to `ParleyMessageViewAppearance` to adjust spacing between icon and time.  
+- [Styling] Added `imageTimeHorizontalPadding` to `ParleyMessageViewAppearance` to modify horizontal padding around the time label.
+
+## 4.2.8 - Released 31 Mar 2025
+
+- [Chat] Resolved an issue where new messages would not be displayed when ParleyView was added before configuring Parley.
+- [Chat] Resolved an issue where messages would not update when ParleyView was added before configuring Parley.
+
+## 4.2.7 - Released 28 Mar 2025
+
+- [Chat] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
+- [Configure] Fixed a crash when not calling the configure method from the main thread.
+
 ## 4.2.6 - Released 26 Mar 2025
 
-- [Core] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
-- [Core] Resolved a potential issue where messages would not be sorted correctly.
+- [Chat] Resolved an issue where messages would not be displayed when ParleyView was added before configuring Parley.
+- [Messages] Resolved a potential issue where messages would not be sorted correctly.
 - [Packages] Replaced Reachability library with NWPathMonitor (PR #196, thanks mat1th).
 - [ParleyNetwork] Senable conformance has been added (PR #194, thanks mat1th).
 

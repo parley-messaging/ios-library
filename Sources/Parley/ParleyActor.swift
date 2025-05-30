@@ -627,7 +627,7 @@ extension ParleyActor {
         self.localizationManager = localizationManager
     }
     
-    func handle(_ messageData : Parley.RemoteMessageData) async -> Bool {
+    func handle(_ messageData: Parley.RemoteMessageData) async -> Bool {
         if secret == nil {
             return false
         }
