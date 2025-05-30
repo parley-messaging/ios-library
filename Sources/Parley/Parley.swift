@@ -68,24 +68,6 @@ public struct Parley: Sendable {
     public static func enableOfflineMessaging(
         messageDataSource: ParleyMessageDataSource,
         keyValueDataSource: ParleyKeyValueDataSource,
-        imageDataSource: ParleyMediaDataSource
-    ) async {
-        await ParleyActor.shared.enableOfflineMessaging(
-            messageDataSource: messageDataSource,
-            keyValueDataSource: keyValueDataSource,
-            imageDataSource: imageDataSource
-        )
-    }
-    
-    @available(
-        *,
-        deprecated,
-        renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
-        message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
-    )
-    public static func enableOfflineMessaging(
-        messageDataSource: ParleyMessageDataSource,
-        keyValueDataSource: ParleyKeyValueDataSource,
         imageDataSource: ParleyMediaDataSource,
         completion: (@Sendable () -> Void)? = nil
     ) {
@@ -99,6 +81,24 @@ public struct Parley: Sendable {
                 await MainActor.run(body: completion)
             }
         }
+    }
+    
+    @available(
+        *,
+        deprecated,
+        renamed: "enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:)",
+        message: "Use enableOfflineMessaging(messageDataSource:keyValueDataSource:mediaDataSource:) instead"
+    )
+    public static func enableOfflineMessaging(
+        messageDataSource: ParleyMessageDataSource,
+        keyValueDataSource: ParleyKeyValueDataSource,
+        imageDataSource: ParleyMediaDataSource
+    ) async {
+        await ParleyActor.shared.enableOfflineMessaging(
+            messageDataSource: messageDataSource,
+            keyValueDataSource: keyValueDataSource,
+            imageDataSource: imageDataSource
+        )
     }
     
     // MARK: - enableOfflineMessaging
