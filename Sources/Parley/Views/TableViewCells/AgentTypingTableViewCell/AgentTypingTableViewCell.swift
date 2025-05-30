@@ -49,7 +49,7 @@ final class AgentTypingTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        Task { @MainActor in
+        MainActor.assumeIsolated {
             accessibilityLabel = ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized()
             apply(appearance)
         }
@@ -63,12 +63,13 @@ final class AgentTypingTableViewCell: UITableViewCell {
         dot3View.transform = .identity
     }
 
+    @MainActor
     func startAnimating() {
         stopAnimating()
 
         startTimer?.invalidate()
         startTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
-            Task { @MainActor in
+            MainActor.assumeIsolated {
                 self?.animating = true
                 self?.animation1()
             }

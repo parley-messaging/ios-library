@@ -1,10 +1,6 @@
 import UIKit
 
 final class MessagesTableView: UITableView {
-    
-    protocol SizeDelegate: AnyObject {
-        func sizeDidChange(for tableView: MessagesTableView, change: NSKeyValueObservedChange<CGSize>)
-    }
 
     private(set) var isAtBottom = false
     private var heightObserver: NSKeyValueObservation?
@@ -69,16 +65,5 @@ final class MessagesTableView: UITableView {
     private func checkIsAtBottom() {
         let padding: CGFloat = 16
         isAtBottom = contentOffset.y + frame.height + padding >= contentSize.height
-    }
-    
-    func observeContentHeight(delegate: any SizeDelegate) {
-        let scrollView = (self as UIScrollView)
-        heightObserver = scrollView.observe(\.contentSize, options: [
-            .initial,
-            .new,
-        ], changeHandler: { [weak delegate, weak self] messagesTableView, change in
-            guard let self else { return }
-            delegate?.sizeDidChange(for: self, change: change)
-        })
     }
 }

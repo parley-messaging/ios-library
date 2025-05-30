@@ -17,7 +17,7 @@ final class LoadingTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        Task { @MainActor in
+        MainActor.assumeIsolated {
             accessibilityLabel = ParleyLocalizationKey.voiceOverMessageLoading.localized()
             apply(appearance)
         }

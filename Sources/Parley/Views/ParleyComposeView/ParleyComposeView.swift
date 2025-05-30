@@ -72,7 +72,7 @@ public class ParleyComposeView: UIView {
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized()
 
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
-                Task { @MainActor in
+                MainActor.assumeIsolated { [weak self] in
                     let isEnabled = change.newValue
                     
                     if isEnabled == true {

@@ -1,4 +1,4 @@
-import Foundation
+@preconcurrency import Foundation
 
 public final actor ParleyEncryptedStore {
 
@@ -6,9 +6,9 @@ public final actor ParleyEncryptedStore {
     let destination: URL
     private let fileManager: FileManager
 
-    public init(crypter: ParleyCrypter, directory: String) throws {
+    public init(crypter: ParleyCrypter, directory: String, fileManager: FileManager) throws {
         self.crypter = crypter
-        self.fileManager = FileManager.default
+        self.fileManager = fileManager
         destination = fileManager.temporaryDirectory.appendingPathComponent(directory)
         try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
     }

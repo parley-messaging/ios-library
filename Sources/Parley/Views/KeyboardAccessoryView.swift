@@ -78,9 +78,9 @@ final class KeyboardAccessoryView: UIView {
     ) {
         if let theChange = change as [NSKeyValueChangeKey: AnyObject]? {
             if theChange[NSKeyValueChangeKey.newKey] != nil {
-                Task { @MainActor in
+                MainActor.assumeIsolated {
                     if let frame = superview?.frame {
-                        delegate?.keyboardFrameChanged((superview?.frame)!)
+                        delegate?.keyboardFrameChanged(frame)
                     }
                 }
             }

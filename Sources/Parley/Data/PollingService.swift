@@ -3,8 +3,8 @@ import UIKit
 
 @MainActor
 protocol PollingServiceProtocol: Sendable, AnyObject {
-    func startRefreshing() async
-    func stopRefreshing() async
+    func startRefreshing()
+    func stopRefreshing()
 }
 
 @MainActor

@@ -28,7 +28,7 @@ public class ParleyView: UIView {
     @IBOutlet private weak var messagesTableViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet private(set) weak var messagesTableView: MessagesTableView!
     @IBOutlet private weak var messagesTableViewPaddingToSafeAreaTopView: UIView!
-    @IBOutlet weak var notificationsStackView: ObservableStackView!
+    @IBOutlet weak var notificationsStackView: UIStackView!
     @IBOutlet weak var notificationsConstraintTop: NSLayoutConstraint!
     private weak var notificationsConstraintBottom: NSLayoutConstraint?
     @IBOutlet weak var pushDisabledNotificationView: ParleyNotificationView!
@@ -51,6 +51,8 @@ public class ParleyView: UIView {
     private var mediaLoader: MediaLoaderProtocol!
     
     // MARK: Properties
+    private var observeNotificationsBounds: NSKeyValueObservation?
+    private var observeSuggestionsBounds: NSKeyValueObservation?
     public weak var delegate: ParleyViewDelegate?
     private var isShowingKeyboardWithMessagesScrolledToBottom = false
     private var isAlreadyAtTop = false
@@ -150,11 +152,11 @@ public class ParleyView: UIView {
         self.pollingService = pollingService
 
         if await parley.alwaysPolling {
-            await pollingService.startRefreshing()
+            pollingService.startRefreshing()
         } else {
             let isEnabled = await notificationService.notificationsEnabled()
             guard !isEnabled else { return }
-            await pollingService.startRefreshing()
+            pollingService.startRefreshing()
         }
     }
     
@@ -177,8 +179,16 @@ public class ParleyView: UIView {
         
         addObservers()
         
-        notificationsStackView.observeBounds(delegate: self)
-        suggestionsView.observeBounds(delegate: self)
+        observeNotificationsBounds = notificationsStackView.observe(\.bounds) { [weak self] _, _ in
+            MainActor.assumeIsolated {
+                self?.syncMessageTableViewContentInsets()
+            }
+        }
+        observeSuggestionsBounds = suggestionsView.observe(\.bounds) { [weak self] _, _ in
+            MainActor.assumeIsolated {
+                self?.syncMessageTableViewContentInsets()
+            }
+        }
     }
     
     private func loadXib() {
@@ -225,30 +235,27 @@ public class ParleyView: UIView {
             messagesTableView.sectionHeaderTopPadding = 0
         }
         
-        messagesTableView.observeContentHeight(delegate: self)
-    }
-}
-
-extension ParleyView: @preconcurrency MessagesTableView.SizeDelegate {
-    
-    func sizeDidChange(for tableView: MessagesTableView, change: NSKeyValueObservedChange<CGSize>) {
-        guard let newContentHeight = change.newValue?.height else { return }
-        let verticalInsets = tableView.contentInset.top + tableView.contentInset.bottom
-        let newHeight = newContentHeight + verticalInsets
-        
-        self.messagesTableViewHeightConstraint.constant = newHeight
-        
-        let isScrollable = newContentHeight > messagesTableView.frame.maxY
-        if isScrollable {
-            messagesTableView.keyboardDismissMode = .interactive
-        } else {
-            messagesTableView.keyboardDismissMode = .onDrag
+        messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [
+            .initial,
+            .new,
+        ]) { [weak self] messagesTableView, change in
+            MainActor.assumeIsolated { [weak self] in
+                guard let self, let newContentHeight = change.newValue?.height else { return }
+                let verticalInsets = messagesTableView.contentInset.top + messagesTableView.contentInset.bottom
+                let newHeight = newContentHeight + verticalInsets
+                
+                self.messagesTableViewHeightConstraint.constant = newHeight
+                
+                let isScrollable = newContentHeight > messagesTableView.frame.maxY
+                if isScrollable {
+                    messagesTableView.keyboardDismissMode = .interactive
+                } else {
+                    messagesTableView.keyboardDismissMode = .onDrag
+                }
+                self.updateSuggestionsAlpha()
+            }
         }
-        self.updateSuggestionsAlpha()
     }
-}
-
-extension ParleyView {
     
     func reloadMessages() {
         messagesTableView.reloadData()
@@ -962,25 +969,5 @@ extension ParleyView: ParleyMessagesDisplay {
     func displayHideStickyMessage() {
         stickyView.text = .none
         stickyView.isHidden = true
-    }
-}
-
-extension ParleyView: @preconcurrency ParleySuggestionsView.BoundsDelegate {
-    
-    func boundsDidChange(
-        for suggestionsView: ParleySuggestionsView,
-        change: NSKeyValueObservedChange<CGRect>
-    ) {
-        syncMessageTableViewContentInsets()
-    }
-}
-
-extension ParleyView: @preconcurrency ObservableStackView.BoundsDelegate {
-    
-    func boundsDidChange(
-        for stackView: ObservableStackView,
-        change: NSKeyValueObservedChange<CGRect>
-    ) {
-        syncMessageTableViewContentInsets()
     }
 }

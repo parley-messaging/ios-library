@@ -1,4 +1,4 @@
-import Foundation
+@preconcurrency import Foundation
 
 @available(
     *,
@@ -28,11 +28,13 @@ public final class ParleyEncryptedMediaDataSource {
 
     public init(
         crypter: ParleyCrypter,
-        directory: Directory = .default
+        directory: Directory = .default,
+        fileManager: FileManager = .default
     ) throws {
         store = try ParleyEncryptedStore(
             crypter: crypter,
-            directory: directory.path
+            directory: directory.path,
+            fileManager: fileManager
         )
     }
 }

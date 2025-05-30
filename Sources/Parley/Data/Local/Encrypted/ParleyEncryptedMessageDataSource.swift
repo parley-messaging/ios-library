@@ -24,7 +24,8 @@ public final class ParleyEncryptedMessageDataSource: Sendable {
     ) throws {
         store = try ParleyEncryptedStore(
             crypter: crypter,
-            directory: directory.path
+            directory: directory.path,
+            fileManager: .default
         )
     }
 }

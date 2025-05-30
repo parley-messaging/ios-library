@@ -124,9 +124,7 @@ class IdentifierViewController: UIViewController {
             kParleyAdditionalValueAddress: "Randstad 21 30, 1314, Nederland",
         ]
 
-        Task {
-            await Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
-        }
+        Parley.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
 
     private func setOfflineMessagingEnabled() {
@@ -139,20 +137,20 @@ class IdentifierViewController: UIViewController {
             )
             let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(
                 crypter: crypter,
-                directory: .default
+                directory: .default,
+                fileManager: .default
             )
             let mediaDataSource = try ParleyEncryptedMediaDataSource(
                 crypter: crypter,
-                directory: .default
+                directory: .default,
+                fileManager: .default
             )
 
-            Task {
-                await Parley.enableOfflineMessaging(
-                    messageDataSource: parleyMessageDataSource,
-                    keyValueDataSource: parleyKeyValueDataSource,
-                    mediaDataSource: mediaDataSource
-                )
-            }
+            Parley.enableOfflineMessaging(
+                messageDataSource: parleyMessageDataSource,
+                keyValueDataSource: parleyKeyValueDataSource,
+                mediaDataSource: mediaDataSource
+            )
         } catch {
             print(error)
         }
@@ -168,7 +166,7 @@ class IdentifierViewController: UIViewController {
     func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-            Task { @MainActor in
+            Task {
                 switch await Parley.reset() {
                 case .success:
                     startChatDemo()

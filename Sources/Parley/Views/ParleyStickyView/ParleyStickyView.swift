@@ -115,18 +115,18 @@ final class ParleyStickyView: UIView {
     }
 
     private func watchContentHeight() {
-        textView.observeContentHeight(delegate: self)
-    }
-}
-
-extension ParleyStickyView: @preconcurrency ParleyTextView.SizeDelegate {
-    
-    func sizeDidChange(for textView: ParleyTextView, change: NSKeyValueObservedChange<CGSize>) {
-        guard let newValue = change.newValue else { return }
-        let height = newValue.height
-
-        let totalVerticalInsets: CGFloat = totalVerticalContentInsets
-        contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
-        layoutIfNeeded()
+        heightObserver = observe(\.textView?.contentSize, options: [.initial, .new]) { [weak self] _, change in
+            MainActor.assumeIsolated { [weak self] in
+                guard
+                    let newValue = change.newValue,
+                    let height = newValue?.height,
+                    let self else { return }
+                
+                let totalVerticalInsets: CGFloat = self.totalVerticalContentInsets
+                self.contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
+                
+                self.layoutIfNeeded()
+            }
+        }
     }
 }

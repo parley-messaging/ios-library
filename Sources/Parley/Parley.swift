@@ -270,6 +270,7 @@ public struct Parley: Sendable {
     
     // MARK: - setUserInformation
     
+    
     /**
      Set user information to authorize the user.
 
@@ -285,6 +286,34 @@ public struct Parley: Sendable {
         additionalInformation: [String: String]? = nil
     )  async -> ParleyActor.ConfigurationResult {
         await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
+    }
+    
+    /**
+     Set user information to authorize the user.
+
+     - Parameters:
+       - authorization: Authorization of the user.
+       - additionalInformation: Additional information of the user.
+       - onSuccess: Execution block when Parley is configured. Executed on the main actor.
+       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+     */
+    public static func setUserInformation(
+        _ authorization: String,
+        additionalInformation: [String: String]? = nil,
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            let result = await setUserInformation(authorization, additionalInformation: additionalInformation)
+            await MainActor.run {
+                switch result {
+                case .success:
+                    onSuccess?()
+                case .failure(let error):
+                    onFailure?(error.code, error.message)
+                }
+            }
+        }
     }
     
     // MARK: - clearUserInformation
