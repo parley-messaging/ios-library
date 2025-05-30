@@ -26,10 +26,10 @@ extension Parley {
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig? = nil,
-    ) async -> ParleyActor.ConfigurationResult {
+    ) async throws(Parley.ConfigurationError) {
         let localNetworkConfig = networkConfig ?? ParleyNetworkConfig()
 
-        return await configure(
+        try await configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             networkConfig: localNetworkConfig,

@@ -2,6 +2,8 @@ import Foundation
 
 public struct Parley: Sendable {
     
+    public typealias ConfigurationError = ParleyActor.ConfigurationError
+    
     public typealias State = ParleyActor.State
     
     private(set) var localizationManager: LocalizationManager
@@ -53,6 +55,7 @@ public struct Parley: Sendable {
 
      - Returns: `true` if Parley handled this payload, `false` otherwise.
      */
+    @discardableResult
     public static func handle(_ remoteMessage: RemoteMessageData) async -> Bool {
         await ParleyActor.shared.handle(remoteMessage)
     }
@@ -196,13 +199,15 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            let result = await setPushToken(pushToken, pushType: pushType)
-            await MainActor.run {
-                switch result {
-                case .success:
-                    onSuccess?()
-                case .failure(let error):
-                    onFailure?(error.code, error.message)
+            do {
+                try await setPushToken(pushToken, pushType: pushType)
+                if let onSuccess {
+                    await MainActor.run(body: onSuccess)
+                }
+            } catch let error as ConfigurationError {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
                 }
             }
         }
@@ -216,15 +221,13 @@ public struct Parley: Sendable {
       - Parameters:
         - pushToken: The push token
         - pushType: The push type (default `fcm`)
-      - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success`.
-       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
+      - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
      */
     public static func setPushToken(
         _ pushToken: String,
         pushType: Device.PushType = .fcm
-    ) async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.setPushToken(pushToken, pushType: pushType)
+    ) async throws(ConfigurationError) {
+        try await ParleyActor.shared.setPushToken(pushToken, pushType: pushType)
     }
     
     // MARK: - setPushEnabled
@@ -243,13 +246,15 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            let result = await setPushEnabled(enabled)
-            await MainActor.run {
-                switch result {
-                case .success:
-                    onSuccess?()
-                case .failure(let error):
-                    onFailure?(error.code, error.message)
+            do {
+                try await setPushEnabled(enabled)
+                if let onSuccess {
+                    await MainActor.run(body: onSuccess)
+                }
+            } catch let error as ConfigurationError {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
                 }
             }
         }
@@ -260,12 +265,10 @@ public struct Parley: Sendable {
 
       - Parameters:
         - enabled: Indication if application's push is enabled.
-      - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success`.
-       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
+      - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
      */
-    public static func setPushEnabled(_ enabled: Bool) async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.setPushEnabled(enabled)
+    public static func setPushEnabled(_ enabled: Bool) async throws(ConfigurationError) {
+        try await ParleyActor.shared.setPushEnabled(enabled)
     }
     
     // MARK: - setUserInformation
@@ -277,15 +280,13 @@ public struct Parley: Sendable {
      - Parameters:
        - authorization: Authorization of the user.
        - additionalInformation: Additional information of the user.
-     - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success`.
-       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
+     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
      */
     public static func setUserInformation(
         _ authorization: String,
         additionalInformation: [String: String]? = nil
-    )  async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
+    ) async throws(ConfigurationError) {
+        try await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
     /**
@@ -304,13 +305,12 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            let result = await setUserInformation(authorization, additionalInformation: additionalInformation)
-            await MainActor.run {
-                switch result {
-                case .success:
-                    onSuccess?()
-                case .failure(let error):
-                    onFailure?(error.code, error.message)
+            do {
+                try await setUserInformation(authorization, additionalInformation: additionalInformation)
+            } catch let error as ConfigurationError {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
                 }
             }
         }
@@ -330,13 +330,15 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            let result = await clearUserInformation()
-            await MainActor.run {
-                switch result {
-                case .success:
-                    onSuccess?()
-                case .failure(let error):
-                    onFailure?(error.code, error.message)
+            do {
+                try await clearUserInformation()
+                if let onSuccess {
+                    await MainActor.run(body: onSuccess)
+                }
+            } catch let error as ConfigurationError {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
                 }
             }
         }
@@ -345,12 +347,10 @@ public struct Parley: Sendable {
     /**
      Clear user information.
      
-     - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success` when user information is cleared.
-       - On failure: returns `.failure` when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
      */
-    public static func clearUserInformation() async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.clearUserInformation()
+    public static func clearUserInformation() async throws(ConfigurationError) {
+        try await ParleyActor.shared.clearUserInformation()
     }
     
     /**
@@ -393,18 +393,20 @@ public struct Parley: Sendable {
           onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
       ) {
           Task {
-              let result = await Self.configure(
-                  secret,
-                  uniqueDeviceIdentifier: uniqueDeviceIdentifier,
-                  networkConfig: networkConfig,
-                  networkSession: networkSession
-              )
-              await MainActor.run {
-                  switch result {
-                  case .success:
-                      onSuccess?()
-                  case .failure(let error):
-                      onFailure?(error.code, error.message)
+              do {
+                  try await Self.configure(
+                    secret,
+                    uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+                    networkConfig: networkConfig,
+                    networkSession: networkSession
+                  )
+                  if let onSuccess {
+                      await MainActor.run(body: onSuccess)
+                  }
+              } catch let error as ConfigurationError {
+                  guard let onFailure else { return }
+                  await MainActor.run {
+                      onFailure(error.code, error.message)
                   }
               }
           }
@@ -425,17 +427,15 @@ public struct Parley: Sendable {
        - uniqueDeviceIdentifier: The device identifier to use for device registration.
        - networkConfig: The configuration for the network.
        - networkSession: The network session that will handle all http traffic.
-     - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success`.
-       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
+     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
      */
     public static func configure(
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession
-    ) async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.configure(
+    ) async throws(ConfigurationError) {
+        try await ParleyActor.shared.configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             networkConfig: networkConfig,
@@ -461,31 +461,31 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            let result = await reset()
-            await MainActor.run {
-                switch result {
-                case .success:
-                    onSuccess?()
-                case .failure(let error):
-                    onFailure?(error.code, error.message)
+            do {
+                try await reset()
+                if let onSuccess {
+                    await MainActor.run(body: onSuccess)
+                }
+            } catch let error as ConfigurationError {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
                 }
             }
         }
     }
     
     /**
-     Resets Parley back to its initial state (clearing the user information). Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
+     Resets Parley back to its initial state (clearing the user information) and registers the device. Useful when logging out a user for example. Ensures that no user and chat data is left in memory.
 
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
      
-     - Returns: A `ConfigurationResult` indicating the outcome:
-       - On success: returns `.success`. Called when the device is correctly registered.
-       - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message. Called when configuring of the device did result in a error.
+     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public static func reset() async -> ParleyActor.ConfigurationResult {
-        await ParleyActor.shared.reset()
+    public static func reset() async throws(ConfigurationError) {
+        try await ParleyActor.shared.reset()
     }
     
     // MARK: - purgeLocalMemory

@@ -27,9 +27,6 @@ protocol ParleyProtocol: Actor, AnyObject {
 
 public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     
-    public typealias ConfigurationResult = Result<Void, ConfigurationError>
-    typealias ConfigurationContinuation = CheckedContinuation<ConfigurationResult, Never>
-    
     public struct ConfigurationError: Error {
         public let code: Int
         public let message: String
@@ -222,7 +219,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         _ secret: String,
         uniqueDeviceIdentifier: String?,
         clearCache: Bool = false
-    ) async -> ConfigurationResult {
+    ) async throws(ConfigurationError) {
         debugPrint("Parley.\(#function)")
 
         if clearCache {
@@ -234,25 +231,23 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         self.secret = secret
         self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
 
-        return await configure()
+        try await configure()
     }
 
     private func configureWhenNeeded() {
-        guard state == .failed || state == .configured else {
-            return
-        }
+        guard state == .failed || state == .configured else { return }
         Task {
-            await configure()
+            try await configure()
         }
     }
 
-    private func configure() async -> ConfigurationResult {
+    private func configure() async throws(ConfigurationError) {
         guard let messagesManager else { fatalError("Missing messages manager (Parley wasn't initialized).") }
 
         debugPrint("Parley.\(#function)")
 
         guard !isLoading else {
-            return .failure(.init(code: -1, message: "Parley is loading"))
+            throw ConfigurationError(code: -1, message: "Parley is loading")
         }
         isLoading = true
 
@@ -290,15 +285,12 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
             isLoading = false
             await set(state: .configured)
-            return .success(())
         } catch {
             isLoading = false
 
-            if isOfflineError(error) && isCachingEnabled() {
-                return .success(())
-            } else {
+            if !isOfflineError(error) || !isCachingEnabled() {
                 await set(state: .failed)
-                return .failure(ConfigurationError(error: error))
+                throw ConfigurationError(error: error)
             }
         }
     }
@@ -326,9 +318,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         }
     }
 
-    private func reconfigure() async -> ConfigurationResult {
+    private func reconfigure() async throws(ConfigurationError) {
         await clearChat()
-        return await configure()
+        try await configure()
     }
 
     private func clearChat() async {
@@ -374,16 +366,13 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     // MARK: Devices
 
-    private func registerDevice() async -> ConfigurationResult {
+    private func registerDevice() async throws(ConfigurationError) {
         if state == .configuring || state == .configured {
             do {
                 _ = try await deviceRepository.register(device: makeDeviceData())
-                return .success(())
             } catch {
-                return .failure(ConfigurationError(error: error))
+                throw ConfigurationError(error: error)
             }
-        } else {
-            return .success(())
         }
     }
 
@@ -706,17 +695,17 @@ extension ParleyActor {
     public func setPushToken(
         _ pushToken: String,
         pushType: Device.PushType = .fcm
-    ) async -> ConfigurationResult {
-        if pushToken == self.pushToken { return .success(()) }
+    ) async throws(ConfigurationError) {
+        if pushToken == self.pushToken { return }
 
         self.pushToken = pushToken
         self.pushType = pushType
 
-        return await registerDevice()
+        try await registerDevice()
     }
 
-    public func setPushEnabled(_ enabled: Bool) async -> ConfigurationResult {
-        guard pushEnabled != enabled else { return .success(()) }
+    public func setPushEnabled(_ enabled: Bool) async throws(ConfigurationError) {
+        guard pushEnabled != enabled else { return }
 
         pushEnabled = enabled
 
@@ -724,31 +713,27 @@ extension ParleyActor {
             delegate?.didChangePushEnabled(enabled)
         }
 
-        return await registerDevice()
+        try await registerDevice()
     }
 
     public func setUserInformation(
         _ authorization: String,
         additionalInformation: [String: String]? = nil
-    )  async -> ConfigurationResult {
+    )  async throws(ConfigurationError) {
         userAuthorization = authorization
         userAdditionalInformation = additionalInformation
 
         if state == .configured {
-            return await reconfigure()
-        } else {
-            return .success(())
+            try await reconfigure()
         }
     }
 
-    public func clearUserInformation() async -> ConfigurationResult {
+    public func clearUserInformation() async throws(ConfigurationError) {
         userAuthorization = nil
         userAdditionalInformation = nil
 
         if state == .configured {
-            return await reconfigure()
-        } else {
-            return .success(())
+            try await reconfigure()
         }
     }
 
@@ -761,17 +746,17 @@ extension ParleyActor {
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig,
         networkSession: ParleyNetworkSession
-    ) async -> ConfigurationResult {
+    ) async throws(ConfigurationError) {
         await initialize(networkConfig: networkConfig, networkSession: networkSession)
         
-        return await configure(
+        try await configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             clearCache: true
         )
     }
 
-    public func reset() async -> ConfigurationResult {
+    public func reset() async throws(ConfigurationError) {
         await mediaLoader?.reset()
 
         userAuthorization = nil
@@ -779,14 +764,11 @@ extension ParleyActor {
         await mediaRepository?.reset()
         removeObservers()
         
-        let result = await registerDevice()
+        try await registerDevice()
         secret = nil
         await set(state: .unconfigured)
 
-        
         await clearChat()
-        
-        return result
     }
 
     public func purgeLocalMemory() async {

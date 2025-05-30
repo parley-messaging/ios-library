@@ -16,10 +16,9 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession, @unchecked Sen
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String : String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) {
+    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
         requestDataMethodHeadersCompletionCallsCount += 1
-        completion(requestDataMethodHeadersResult)
+        return requestDataMethodHeadersResult
     }
 
     // MARK: - upload
@@ -32,11 +31,10 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession, @unchecked Sen
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-    ) -> Void) {
+        headers: [String: String]
+    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
         uploadDataToMethodHeadersCompletionCallsCount += 1
-        completion(uploadDataMethodHeadersResult)
+        return uploadDataMethodHeadersResult
     }
 
 }
@@ -60,8 +58,8 @@ extension ParleyNetworkSessionSpy {
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-    ) -> Void) {
+        completion: (@escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)
+    ) {
         Task {
             completion(await request(url, data: data, method: method, headers: headers))
         }

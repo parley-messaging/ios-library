@@ -1,7 +1,7 @@
 @testable import Parley
 
 final actor MessageRepositoryStub: MessageRepository {
-    
+        
     private var find = [Int: Result<Message, Error>]()
     private var findAll: Result<MessageCollection, Error>!
     private var findBefore = [Int: Result<MessageCollection, Error>]()
@@ -24,8 +24,8 @@ final actor MessageRepositoryStub: MessageRepository {
         try findAfter[id]!.get()
     }
 
-    func store(_ message: Message) async throws -> Message {
-        try store.get()
+    func store(_ message: inout Message) async throws {
+        message = try store.get()
     }
 }
 
