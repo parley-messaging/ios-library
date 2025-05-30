@@ -700,7 +700,7 @@ extension Parley {
         shared.reachable ? shared.delegate?.reachable() : shared.delegate?.unreachable()
     }
     
-    // MARK: - setUserInformation
+    // MARK: - setPushToken
     
     /**
      Set the push token of the user.
@@ -710,8 +710,8 @@ extension Parley {
      - Parameters:
         - pushToken: The push token
         - pushType: The push type (default `fcm`)
-        - onSuccess: Execution block when Firebase Cloud Messaging token is updated.
-        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+        - onSuccess: Execution block when Firebase Cloud Messaging token is updated. Executed on the main actor.
+        - onFailure: Execution block when Firebase Cloud Messaging token can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
      */
     public static func setPushToken(
         _ pushToken: String,
@@ -763,8 +763,8 @@ extension Parley {
 
       - Parameters:
         - enabled: Indication if application's push is enabled.
-        - onSuccess: Execution block when pushEnabled is updated.
-        - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+        - onSuccess: Execution block when pushEnabled is updated. Executed on the main actor.
+        - onFailure: Execution block when pushEnabled can not updated. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
      */
     public static func setPushEnabled(
         _ enabled: Bool,
@@ -811,8 +811,8 @@ extension Parley {
      - Parameters:
        - authorization: Authorization of the user.
        - additionalInformation: Additional information of the user.
-       - onSuccess: Execution block when user information is set.
-     - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+       - onSuccess: Execution block when user information is set. Executed on the main actor.
+       - onFailure: Execution block when user information is can not be set. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
      */
     public static func setUserInformation(
         _ authorization: String,
@@ -863,8 +863,8 @@ extension Parley {
      Clear user information.
 
      - Parameters:
-       - onSuccess: Execution block when user information is cleared.
-       - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
+       - onSuccess: Execution block when user information is cleared. Executed on the main actor.
+       - onFailure: Execution block when user information is can not be cleared. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
      */
     public static func clearUserInformation(
         onSuccess: (() -> Void)? = nil,
@@ -928,10 +928,8 @@ extension Parley {
        - uniqueDeviceIdentifier: The device identifier to use for device registration.
        - networkConfig: The configuration for the network.
        - networkSession: The network session that will handle all http traffic.
-       - onSuccess: Execution block when Parley is configured.
-       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong.
-       - code: HTTP Status Code.
-       - message: Description what went wrong.
+       - onSuccess: Execution block when Parley is configured. Executed on the main actor.
+       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
      */
     public static func configure(
         _ secret: String,
@@ -974,8 +972,6 @@ extension Parley {
        - uniqueDeviceIdentifier: The device identifier to use for device registration.
        - networkConfig: The configuration for the network.
        - networkSession: The network session that will handle all http traffic.
-       - code: HTTP Status Code.
-       - message: Description what went wrong.
      - Returns: A `ConfigurationResult` indicating the outcome:
         - On success: returns `.success`.
         - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
@@ -1003,8 +999,8 @@ extension Parley {
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Parameters:
-       - onSuccess: Called when the device is correctly registered.
-       - onFailure: Called when configuring of the device did result in a error.
+       - onSuccess: Called when the device is correctly registered. Executed on the main actor.
+       - onFailure: Called when configuring of the device did result in a error. Executed on the main actor.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
@@ -1070,7 +1066,7 @@ extension Parley {
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
 
      - Parameters:
-       - completion: Called when all data is cleared
+       - completion: Called when all data is cleared. Executed on the main actor.
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
@@ -1087,9 +1083,6 @@ extension Parley {
      Resets all local user identifiers. Ensures that no user and chat data is left in memory.
 
      Leaves the network, offline messaging and referrer settings as is, these can be altered via the corresponding methods.
-
-     - Parameters:
-       - completion: Called when all data is cleared
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
