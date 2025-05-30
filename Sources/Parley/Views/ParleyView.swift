@@ -190,7 +190,7 @@ public class ParleyView: UIView {
             }
         }
     }
-    
+
     private func loadXib() {
         Bundle.module.loadNibNamed("ParleyView", owner: self, options: nil)
 
@@ -234,7 +234,7 @@ public class ParleyView: UIView {
         if #available(iOS 15.0, *) {
             messagesTableView.sectionHeaderTopPadding = 0
         }
-        
+
         messagesContentHeightObserver = messagesTableView.observe(\.contentSize, options: [
             .initial,
             .new,
@@ -255,10 +255,6 @@ public class ParleyView: UIView {
                 self.updateSuggestionsAlpha()
             }
         }
-    }
-    
-    func reloadMessages() {
-        messagesTableView.reloadData()
     }
 
     private func registerNibCell(_ nibName: String) {
@@ -429,8 +425,8 @@ public class ParleyView: UIView {
         
         mostRecentSimplifiedDeviceOrientation = simplifiedOrientation
 
-        DispatchQueue.main.async {
-            self.reloadMessages()
+        DispatchQueue.main.async { [weak self] in
+            self?.messagesTableView.reloadData()
         }
     }
 
@@ -465,7 +461,7 @@ public class ParleyView: UIView {
             )
             notificationsConstraintBottom?.isActive = true
         }
-        reloadMessages()
+        messagesTableView.reloadData()
     }
 }
 
@@ -481,7 +477,7 @@ extension ParleyView: ParleyDelegate {
         )
     }
     
-    public func didChangeState(_ state: Parley.State) {
+    func didChangeState(_ state: Parley.State) {
         debugPrint("ParleyViewDelegate.didChangeState:: \(state)")
 
         if state == .unconfigured {
@@ -494,7 +490,7 @@ extension ParleyView: ParleyDelegate {
 
         switch state {
         case .unconfigured:
-            reloadMessages()
+            messagesTableView.reloadData()
             messagesTableView.isHidden = true
             composeView.isHidden = true
             suggestionsView.isHidden = true
@@ -539,7 +535,7 @@ extension ParleyView: ParleyDelegate {
                 stickyView.text = await messagesManager?.stickyMessage
                 stickyView.isHidden = await messagesManager?.stickyMessage == nil
                 
-                reloadMessages()
+                messagesTableView.reloadData()
                 
                 messagesTableView.scroll(to: .bottom, animated: false)
 
@@ -552,7 +548,7 @@ extension ParleyView: ParleyDelegate {
         }
     }
 
-    public func didChangePushEnabled(_ pushEnabled: Bool) {
+    func didChangePushEnabled(_ pushEnabled: Bool) {
         if offlineNotificationView.isHidden == false { return }
         if let pollingService {
             Task {
@@ -562,14 +558,14 @@ extension ParleyView: ParleyDelegate {
         pushDisabledNotificationView.hide(pushEnabled)
     }
 
-    public func reachable(pushEnabled: Bool) {
+    func reachable(pushEnabled: Bool) {
         pushDisabledNotificationView.hide(pushEnabled)
         offlineNotificationView.hide()
         composeView.isEnabled = true
         suggestionsView.isEnabled = true
     }
 
-    public func unreachable(isCachingEnabled: Bool) {
+    func unreachable(isCachingEnabled: Bool) {
         pushDisabledNotificationView.hide()
         offlineNotificationView.show()
         composeView.isEnabled = isCachingEnabled
@@ -894,13 +890,13 @@ extension ParleyView {
 
     // MARK: VoiceOver
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
-        reloadMessages()
+        messagesTableView.reloadData()
     }
 
     // MARK: Dynamic Type
     @objc
     private func contentSizeCategoryDidChange() {
-        reloadMessages()
+        messagesTableView.reloadData()
     }
 }
 
@@ -945,7 +941,7 @@ extension ParleyView: ParleyMessagesDisplay {
     }
     
     func reload() {
-        reloadMessages()
+        messagesTableView.reloadData()
     }
     
     func display(quickReplies: [String]) {

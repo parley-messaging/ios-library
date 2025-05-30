@@ -31,9 +31,9 @@ struct ParleyViewConfigurationTests {
             messagesPresenter: messagePresenter,
             messagesStore: messagesStore
         )
-        
+
         let pollingServiceStub = PollingServiceStub()
-        
+
         let sut = await ParleyView(
             parley: parleyStub,
             pollingService: pollingServiceStub,

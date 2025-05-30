@@ -2,13 +2,6 @@ import UIKit
 
 final class ParleySuggestionsView: UIView {
     
-    protocol BoundsDelegate: AnyObject {
-        func boundsDidChange(
-            for suggestionsView: ParleySuggestionsView,
-            change: NSKeyValueObservedChange<CGRect>
-        )
-    }
-    
     @IBOutlet weak var contentView: UIView! {
         didSet {
             contentView.backgroundColor = UIColor.clear
@@ -48,12 +41,6 @@ final class ParleySuggestionsView: UIView {
     }
 
     private var suggestions: [String]?
-    private var boundsObserver: NSKeyValueObservation?
-    
-    deinit {
-        boundsObserver?.invalidate()
-        boundsObserver = nil
-    }
 
     func render(_ suggestions: [String]) {
         self.suggestions = suggestions
@@ -198,17 +185,5 @@ extension ParleySuggestionsView: UICollectionViewDelegateFlowLayout {
             (appearance.suggestion.suggestionInsets?.right ?? 0)
         let maxItemWidth = appearance.suggestion.suggestionMaxWidth + balloonContentInsets + suggestionInsets
         return CGSize(width: maxItemWidth, height: maxHeight)
-    }
-}
-
-extension ParleySuggestionsView {
-    
-    func observeBounds(delegate: any BoundsDelegate) {
-        boundsObserver = observe(\.self.bounds, options: [
-            .initial,
-            .new,
-        ], changeHandler: { [weak delegate] suggestionsView, change in
-            delegate?.boundsDidChange(for: suggestionsView, change: change)
-        })
     }
 }

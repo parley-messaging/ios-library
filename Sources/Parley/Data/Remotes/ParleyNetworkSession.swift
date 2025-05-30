@@ -18,8 +18,7 @@ import UIKit
 /// )
 /// ```
 public protocol ParleyNetworkSession: Sendable {
-    
-    @available(*, message: "Please implement the `async` version")
+
     func request(
         _ url: URL,
         data: Data?,
@@ -28,7 +27,6 @@ public protocol ParleyNetworkSession: Sendable {
         completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
     )
 
-    @available(*, message: "Please implement the `async` version")
     func upload(
         data: Data,
         to url: URL,
@@ -38,7 +36,7 @@ public protocol ParleyNetworkSession: Sendable {
     )
 }
 
-extension ParleyNetworkSession {
+public extension ParleyNetworkSession {
     
     func request(
         _ url: URL,
@@ -46,8 +44,8 @@ extension ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         headers: [String: String]
     ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        return await withCheckedContinuation { continuation in
-            self.request(url, data: data, method: method, headers: headers) { result in
+        await withCheckedContinuation { continuation in
+            request(url, data: data, method: method, headers: headers) { result in
                 continuation.resume(returning: result)
             }
         }
@@ -59,8 +57,8 @@ extension ParleyNetworkSession {
         method: ParleyHTTPRequestMethod,
         headers: [String: String]
     ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        return await withCheckedContinuation { continuation in
-            self.upload(data: data, to: url, method: method, headers: headers) { result in
+        await withCheckedContinuation { continuation in
+            upload(data: data, to: url, method: method, headers: headers) { result in
                 continuation.resume(returning: result)
             }
         }

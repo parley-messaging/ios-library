@@ -15,7 +15,7 @@ struct MessagesManagerTests {
     private let messagesManager: MessagesManager
     private let messageDataSource: ParleyMessageDataSource
     private let keyValueDataSource: ParleyKeyValueDataSource
-    
+
     init() {
         messageDataSource = ParleyMessageDataSourceMock()
         keyValueDataSource = ParleyInMemoryKeyValueDataSource()

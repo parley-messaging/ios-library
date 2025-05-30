@@ -532,7 +532,7 @@ extension ParleyComposeView: UIImagePickerControllerDelegate {
 
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
-        
+
         PHImageManager.default().requestImageData(for: asset, options: options) { [weak self] data, _, _, _ in
             guard let data, let image = UIImage(data: data) else { dismissFailedToSelect() ; return }
             picker.dismiss(animated: true, completion: {

@@ -459,7 +459,7 @@ final class ParleyMessageView: UIView {
             displayFailedLoadingImage()
             return
         }
-        
+
         let imageRequestForMessageId = message.id
         Task {
             do {
