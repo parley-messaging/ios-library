@@ -360,7 +360,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         await messageDataSource?.clear()
         await keyValueDataSource?.clear()
         Task {
-            await messagesInteractor.clear()
+            await messagesInteractor?.clear()
         }
     }
 
@@ -369,7 +369,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private func registerDevice() async throws(ConfigurationError) {
         if state == .configuring || state == .configured {
             do {
-                _ = try await deviceRepository.register(device: makeDeviceData())
+                _ = try await deviceRepository?.register(device: makeDeviceData())
             } catch {
                 throw ConfigurationError(error: error)
             }

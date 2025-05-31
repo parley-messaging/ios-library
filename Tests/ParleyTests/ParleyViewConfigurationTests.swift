@@ -1,11 +1,11 @@
 import Testing
 @testable import Parley
 
-@Suite("ParleyViewConfigurationTests")
+@Suite("ParleyViewConfigurationTests", .tags(.userInterface))
 struct ParleyViewConfigurationTests {
     
     @MainActor
-    @Test
+    @Test(.tags(.userInterface))
     func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() async {
         
         let messagesManager = MessagesManagerStub()

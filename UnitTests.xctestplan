@@ -1,0 +1,67 @@
+{
+  "configurations" : [
+    {
+      "id" : "59C2E8F6-F6D5-4437-A6D2-791BA43E1175",
+      "name" : "Default Configuration",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en",
+    "region" : "NL"
+  },
+  "testTargets" : [
+    {
+      "skippedTags" : {
+        "tags" : [
+          ".userInterface"
+        ]
+      },
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyNetworkTests",
+        "name" : "ParleyNetworkTests"
+      }
+    },
+    {
+      "skippedTags" : {
+        "tags" : [
+          ".userInterface"
+        ]
+      },
+      "skippedTests" : [
+        "ParleyMessageViewTests",
+        "ParleyMessageViewTests\/testCustomBalloonImageUser()",
+        "ParleyMessageViewTests\/testDefaultAgentMessageView()",
+        "ParleyMessageViewTests\/testDefaultAgentMessageViewWithShortMessage()",
+        "ParleyMessageViewTests\/testDefaultUserMessageView()",
+        "ParleyMessageViewTests\/testDefaultUserMessageViewFailedStatus()",
+        "ParleyMessageViewTests\/testDefaultUserMessageViewPendingStatus()",
+        "ParleyMessageViewTests\/testDefaultUserMessageViewWithShortMessage()",
+        "ParleyMessageViewTests\/testWithImageErrorResultForAgentWithoutTitleAndMessage()",
+        "ParleyMessageViewTests\/testWithImageErrorResultForUser()",
+        "ParleyMessageViewTests\/testWithImageResultForAgentWithoutTitleAndMessage()",
+        "ParleyMessageViewTests\/testWithImageResultForUser()",
+        "ParleyMessageViewTests\/testWithLoadingImageForAgentWithoutTitleAndMessage()",
+        "ParleyMessageViewTests\/testWithLoadingImageForUser()",
+        "ParleyMessageViewTests\/testWithWhiteImageResultForAgentWithoutTitleAndMessage()",
+        "ParleyTextViewTests",
+        "ParleyTextViewTests\/testBoldTextWithDefaultStyle()",
+        "ParleyTextViewTests\/testCombinationOfBoldAndItalicAndLinkStyleWithNonDefaultStyle()",
+        "ParleyTextViewTests\/testDynamicFontScalingDefaultStyle()",
+        "ParleyTextViewTests\/testItalicTextWithDefaultStyle()",
+        "ParleyTextViewTests\/testNormalTextWithDefaultStyle()",
+        "ParleyTextViewTests\/testTextIsMultining()",
+        "ParleyTextViewTests\/testTextWithLinkWithDefaultStyle()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyTests",
+        "name" : "ParleyTests"
+      }
+    }
+  ],
+  "version" : 1
+}

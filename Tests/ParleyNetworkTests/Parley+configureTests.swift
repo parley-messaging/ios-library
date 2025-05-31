@@ -4,8 +4,17 @@ import Foundation
 @testable import Parley
 @testable import ParleyNetwork
 
-@Suite(.serialized)
+@Suite(
+    .serialized,
+    .disabled("Requires separate UI testing", {
+        return false
+    })
+)
 struct AlamofireHTTParleyConfigureTestsPMethodTests {
+    
+    init() async throws {
+        try await ParleyActor.shared.reset()
+    }
 
     @Test
     func testSettingDefaultConfig() async {

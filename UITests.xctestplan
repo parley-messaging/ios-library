@@ -1,0 +1,79 @@
+{
+  "configurations" : [
+    {
+      "id" : "17170013-3D88-4A06-9C0C-D1C23631F348",
+      "name" : "Default Configuration",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en",
+    "region" : "NL"
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "ChronologicalMessageCollectionTests"
+          },
+          {
+            "name" : "DataAppendTests"
+          },
+          {
+            "name" : "MessageCollectionTest"
+          },
+          {
+            "name" : "MessagesInteractorTests"
+          },
+          {
+            "name" : "MessagesManagerTests"
+          },
+          {
+            "name" : "MessagesPresenterTests"
+          },
+          {
+            "name" : "MessagesPresentSnapshotTests"
+          },
+          {
+            "name" : "MessageTests"
+          },
+          {
+            "name" : "NetworkMonitorTests"
+          },
+          {
+            "name" : "ParleyImageDataSourceTests"
+          },
+          {
+            "name" : "ParleyRemoteTests"
+          },
+          {
+            "name" : "ParleyTests"
+          }
+        ],
+        "xctestClasses" : [
+          {
+            "name" : "CodableHelperTests"
+          },
+          {
+            "name" : "DateTimeIntlSince1970DateTests"
+          },
+          {
+            "name" : "DeviceTests"
+          },
+          {
+            "name" : "ResponseValidatorTests"
+          }
+        ]
+      },
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyTests",
+        "name" : "ParleyTests"
+      }
+    }
+  ],
+  "version" : 2
+}
