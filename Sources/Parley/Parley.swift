@@ -199,12 +199,12 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            do {
+            do throws(ConfigurationError) {
                 try await setPushToken(pushToken, pushType: pushType)
                 if let onSuccess {
                     await MainActor.run(body: onSuccess)
                 }
-            } catch let error as ConfigurationError {
+            } catch {
                 guard let onFailure else { return }
                 await MainActor.run {
                     onFailure(error.code, error.message)
@@ -246,12 +246,12 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            do {
+            do throws(ConfigurationError) {
                 try await setPushEnabled(enabled)
                 if let onSuccess {
                     await MainActor.run(body: onSuccess)
                 }
-            } catch let error as ConfigurationError {
+            } catch {
                 guard let onFailure else { return }
                 await MainActor.run {
                     onFailure(error.code, error.message)
@@ -305,9 +305,9 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            do {
+            do throws(ConfigurationError) {
                 try await setUserInformation(authorization, additionalInformation: additionalInformation)
-            } catch let error as ConfigurationError {
+            } catch {
                 guard let onFailure else { return }
                 await MainActor.run {
                     onFailure(error.code, error.message)
@@ -330,12 +330,12 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            do {
+            do throws(ConfigurationError) {
                 try await clearUserInformation()
                 if let onSuccess {
                     await MainActor.run(body: onSuccess)
                 }
-            } catch let error as ConfigurationError {
+            } catch {
                 guard let onFailure else { return }
                 await MainActor.run {
                     onFailure(error.code, error.message)
@@ -393,7 +393,7 @@ public struct Parley: Sendable {
           onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
       ) {
           Task {
-              do {
+              do throws(ConfigurationError) {
                   try await Self.configure(
                     secret,
                     uniqueDeviceIdentifier: uniqueDeviceIdentifier,
@@ -403,7 +403,7 @@ public struct Parley: Sendable {
                   if let onSuccess {
                       await MainActor.run(body: onSuccess)
                   }
-              } catch let error as ConfigurationError {
+              } catch {
                   guard let onFailure else { return }
                   await MainActor.run {
                       onFailure(error.code, error.message)
@@ -461,12 +461,12 @@ public struct Parley: Sendable {
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         Task {
-            do {
+            do throws(ConfigurationError) {
                 try await reset()
                 if let onSuccess {
                     await MainActor.run(body: onSuccess)
                 }
-            } catch let error as ConfigurationError {
+            } catch {
                 guard let onFailure else { return }
                 await MainActor.run {
                     onFailure(error.code, error.message)

@@ -161,7 +161,7 @@ struct MessageResponse: Codable {
         if let carousel {
             if let type {
                 for carouselMessageIndex in carousel.indices {
-                    self.carousel?[carouselMessageIndex].type = self.type
+                    self.carousel?[carouselMessageIndex].type = type
                 }
             } else {
                 throw DecodeError.typeNotFound("Expected message with carousel to have a type so that the carousel can inherit the same type")
