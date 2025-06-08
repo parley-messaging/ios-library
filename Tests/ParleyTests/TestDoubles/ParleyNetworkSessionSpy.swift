@@ -16,9 +16,14 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession, @unchecked Sen
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String : String],
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+    ) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse {
         requestDataMethodHeadersCompletionCallsCount += 1
-        return requestDataMethodHeadersResult
+        switch requestDataMethodHeadersResult! {
+        case .success(let data):
+            return data
+        case .failure(let error):
+            throw error
+        }
     }
 
     // MARK: - upload
@@ -32,9 +37,14 @@ public final class ParleyNetworkSessionSpy: ParleyNetworkSession, @unchecked Sen
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+    ) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse {
         uploadDataToMethodHeadersCompletionCallsCount += 1
-        return uploadDataMethodHeadersResult
+        switch uploadDataMethodHeadersResult! {
+        case .success(let data):
+            return data
+        case .failure(let error):
+            throw error
+        }
     }
 
 }
@@ -48,33 +58,5 @@ extension ParleyNetworkSessionSpy {
     
     func setUploadDataMethodHeadersResult(_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) {
         self.uploadDataMethodHeadersResult = result
-    }
-}
-
-extension ParleyNetworkSessionSpy {
-    
-    public func request(
-        _ url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-        completion: (@escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void)
-    ) {
-        Task {
-            completion(await request(url, data: data, method: method, headers: headers))
-        }
-    }
-    
-    
-    public func upload(
-        data: Data,
-        to url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-    ) -> Void) {
-        Task {
-            completion(await upload(data: data, to: url, method: method, headers: headers))
-        }
     }
 }

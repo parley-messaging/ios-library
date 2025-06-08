@@ -24,43 +24,12 @@ public protocol ParleyNetworkSession: Sendable {
         data: Data?,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    )
+    ) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse
 
     func upload(
         data: Data,
         to url: URL,
         method: ParleyHTTPRequestMethod,
         headers: [String: String],
-        completion: @Sendable @escaping (_ result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    )
-}
-
-public extension ParleyNetworkSession {
-    
-    func request(
-        _ url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        await withCheckedContinuation { continuation in
-            request(url, data: data, method: method, headers: headers) { result in
-                continuation.resume(returning: result)
-            }
-        }
-    }
-    
-    func upload(
-        data: Data,
-        to url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String]
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        await withCheckedContinuation { continuation in
-            upload(data: data, to: url, method: method, headers: headers) { result in
-                continuation.resume(returning: result)
-            }
-        }
-    }
+    ) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse
 }
