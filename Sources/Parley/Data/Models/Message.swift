@@ -5,13 +5,13 @@ public struct Message: Equatable, Sendable, Identifiable {
     
     typealias RemoteId = Int
 
-    enum MessageStatus: Int {
+    enum MessageStatus {
         case failed
         case pending
         case success
     }
 
-    enum MessageType: Int {
+    enum MessageType {
         /// Message from the user
         case user
 

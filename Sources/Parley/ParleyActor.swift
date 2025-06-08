@@ -497,7 +497,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         guard
             let id = userInfo["id"] as? Int,
             let typeId = userInfo["typeId"] as? Int,
-            let type = Message.MessageType(rawValue: typeId)
+            let type = MessageResponse.MessageType(rawValue: typeId)?.toDomainModel()
         else { return }
         
         let body = userInfo["body"] as? String
