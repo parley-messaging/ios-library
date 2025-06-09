@@ -3,6 +3,7 @@ import XCTest
 
 final class ParleyViewConfigurationTests: XCTestCase {
     
+    @MainActor
     func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() {
         
         let messagesManager = MessagesManagerStub()

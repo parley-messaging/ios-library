@@ -8,48 +8,20 @@ final class MessageRepositoryStub: MessageRepositoryProtocol {
     private var findAfter = [Int: Result<MessageCollection, Error>]()
     private var store: Result<Message, Error>!
     
-    func find(_ id: Int, onSuccess: @escaping (Message) -> Void, onFailure: @escaping (Error) -> Void) {
-        switch find[id]! {
-        case .success(let message):
-            onSuccess(message)
-        case .failure(let error):
-            onFailure(error)
-        }
+    func find(_ id: Int) async throws -> Message {
+        return try find[id]!.get()
     }
 
-    func findAll(onSuccess: @escaping (MessageCollection) -> Void, onFailure: @escaping (Error) -> Void) {
-        switch findAll! {
-        case .success(let collection):
-            onSuccess(collection)
-        case .failure(let error):
-            onFailure(error)
-        }
+    func findAll() async throws -> MessageCollection {
+        try findAll!.get()
     }
 
-    func findBefore(
-        _ id: Int,
-        onSuccess: @escaping (MessageCollection) -> Void,
-        onFailure: @escaping (Error) -> Void
-    ) {
-        switch findBefore[id]! {
-        case .success(let collection):
-            onSuccess(collection)
-        case .failure(let error):
-            onFailure(error)
-        }
+    func findBefore(_ id: Int) async throws -> MessageCollection {
+        try findBefore[id]!.get()
     }
 
-    func findAfter(
-        _ id: Int,
-        onSuccess: @escaping (MessageCollection) -> Void,
-        onFailure: @escaping (Error) -> Void
-    ) {
-        switch findAfter[id]! {
-        case .success(let collection):
-            onSuccess(collection)
-        case .failure(let error):
-            onFailure(error)
-        }
+    func findAfter(_ id: Int) async throws -> MessageCollection {
+        try findAfter[id]!.get()
     }
 
     func store(_ message: Message) async throws -> Message {
