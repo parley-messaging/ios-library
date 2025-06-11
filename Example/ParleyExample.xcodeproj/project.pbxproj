@@ -33,7 +33,6 @@
 		F8F61B3E22BA5E3700F9A51E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3D22BA5E3700F9A51E /* LaunchScreen.storyboard */; };
 		F8F61B4022BA600000F9A51E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8F61B3F22BA600000F9A51E /* Main.storyboard */; };
 		F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */; };
-		FA33D8DD2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer in Resources */ = {isa = PBXBuildFile; fileRef = FA33D8DC2A4AD34C000EB5F5 /* _.parley.nu_26-Jun-2023.cer */; };
 		FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = FA66165E2B58102D00B957CA /* FirebaseMessaging */; };
 		FABC187D2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer in Resources */ = {isa = PBXBuildFile; fileRef = FABC187C2C05F80000EDC1BD /* _.parley.nu_27-May-2024.cer */; };
 /* End PBXBuildFile section */
