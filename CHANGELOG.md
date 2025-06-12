@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.11 - Released 12 Jun 2025
+
+- [SSL Pinning] Updated SSL pinning public key of Parley.
+
 ## 4.2.10 - Released 2 May 2025
 
 - [Accessibility] Added configurable background color to time and checkmark in messages and made corner radius configurable.
