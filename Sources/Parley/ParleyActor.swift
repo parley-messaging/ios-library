@@ -212,6 +212,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private func didEnterBackground() async {
         await reachibilityService?.stopNotifier()
     }
+    
+    public func setup(secret: String, uniqueDeviceIdentifier: String?) {
+        self.secret = secret
+        self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
+    }
 
     // MARK: Configure
 
@@ -366,13 +371,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     // MARK: Devices
 
-    private func registerDevice() async throws(ConfigurationError) {
-        if state == .configuring || state == .configured {
-            do {
-                _ = try await deviceRepository?.register(device: makeDeviceData())
-            } catch {
-                throw ConfigurationError(error: error)
-            }
+    func registerDevice() async throws(ConfigurationError) {
+        do {
+            _ = try await deviceRepository?.register(device: makeDeviceData())
+        } catch {
+            throw ConfigurationError(error: error)
         }
     }
 
@@ -511,8 +514,10 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             bestEffortMessage = storedMessage
         }
         
-        if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: bestEffortMessage) {
-            await UIAccessibility.post(notification: .announcement, argument: announcement)
+        await MainActor.run {
+            if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: bestEffortMessage) {
+                UIAccessibility.post(notification: .announcement, argument: announcement)
+            }
         }
         
         await messagesInteractor.handleAgentStoppedTyping()

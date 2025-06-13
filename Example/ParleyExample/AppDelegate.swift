@@ -24,7 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 options: [.alert, .badge, .sound]
             ) else { return }
             try? await Parley.setPushEnabled(isPushEnabled)
-            
         }
 
         application.registerForRemoteNotifications()
