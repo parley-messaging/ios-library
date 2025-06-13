@@ -298,7 +298,7 @@ final class ParleyMessageView: UIView {
             imageMetaStatusImageView.isHidden = displayMeta != .image
             statusImageView.isHidden = displayMeta != .message
 
-            switch message.status {
+            switch message.sendStatus {
             case .failed:
                 let closeIcon = UIImage.template(named: "ic_close")
                 imageMetaStatusImageView.image = closeIcon
@@ -385,7 +385,7 @@ final class ParleyMessageView: UIView {
         fileStackView.addArrangedSubview(createSeparator())
 
         fileLabel.text = media.displayFileName
-        switch message.status {
+        switch message.sendStatus {
         case .failed, .pending:
             fileButton.isHidden = true
         case .success:

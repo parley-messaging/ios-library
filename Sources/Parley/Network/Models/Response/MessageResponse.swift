@@ -8,16 +8,24 @@ struct MessageResponse: Codable {
         case typeNotFound(String?)
     }
 
-    enum MessageStatus: Int, Codable {
-        case failed = 0
-        case pending = 1
-        case success = 2
+    enum Status: Int, Codable {
+        case sent = 2
+        case received = 3
+        case read = 4
         
-        func toDomainModel() -> Message.MessageStatus {
+        func toDomainModel() -> Message.Status {
             switch self {
-            case .failed: return .failed
-            case .pending: return .pending
-            case .success: return .success
+            case .sent: return .sent
+            case .received: return .received
+            case .read: return .read
+            }
+        }
+        
+        static func from(_ status: Message.Status) -> Self {
+            switch status {
+            case .sent: return .sent
+            case .received: return .received
+            case .read: return .read
             }
         }
     }
@@ -70,7 +78,7 @@ struct MessageResponse: Codable {
     }
 
     var type: MessageType?
-    var status: MessageStatus = .success
+    let status: Status?
 
     var agent: AgentResponse?
 
@@ -87,7 +95,7 @@ struct MessageResponse: Codable {
         carousel: [Self]? = nil,
         quickReplies: [String]? = nil,
         type: MessageType? = nil,
-        status: MessageStatus = .success,
+        status: Status,
         agent: AgentResponse? = nil,
         referrer: String? = nil
     ) {
@@ -170,7 +178,7 @@ struct MessageResponse: Codable {
         
         quickReplies = try values.decodeIfPresent([String].self, forKey: .quickReplies)
         
-        status = try values.decodeIfPresent(Self.MessageStatus.self, forKey: .status) ?? .success
+        status = try values.decodeIfPresent(Self.Status.self, forKey: .status)
         agent = try values.decodeIfPresent(AgentResponse.self, forKey: .agent)
         referrer = try values.decodeIfPresent(String.self, forKey: .referrer)
     }
@@ -193,7 +201,7 @@ struct MessageResponse: Codable {
         try container.encodeIfPresent(carousel, forKey: .carousel)
         try container.encodeIfPresent(quickReplies, forKey: .quickReplies)
         try container.encodeIfPresent(type?.rawValue, forKey: .type)
-        try container.encodeIfPresent(status.rawValue, forKey: .status)
+        try container.encodeIfPresent(status?.rawValue, forKey: .status)
         try container.encodeIfPresent(agent, forKey: .agent)
         try container.encodeIfPresent(referrer, forKey: .referrer)
     }
@@ -211,7 +219,8 @@ struct MessageResponse: Codable {
             carousel: carousel?.map { $0.toDomainModel(id: UUID()) } ?? [],
             quickReplies: quickReplies ?? [],
             type: type?.toDomainModel(),
-            status: status.toDomainModel(),
+            status: status?.toDomainModel(),
+            sendStatus: .success,
             agent: agent?.toDomainModel(),
             referrer: referrer
         )

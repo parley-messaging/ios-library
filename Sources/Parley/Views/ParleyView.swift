@@ -728,7 +728,7 @@ extension ParleyView: UITableViewDelegate {
         messagesTableView.deselectRow(at: indexPath, animated: false)
         if
             var message = messagesStore.getMessage(at: indexPath),
-            message.status == .failed,
+            message.sendStatus == .failed,
             message.type == .user
         {
             Task {

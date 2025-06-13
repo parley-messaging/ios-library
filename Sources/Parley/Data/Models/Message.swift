@@ -5,10 +5,14 @@ public struct Message: Equatable, Sendable, Identifiable {
     
     typealias RemoteId = Int
 
-    enum MessageStatus {
+    enum SendStatus {
         case failed
         case pending
         case success
+    }
+    
+    enum Status {
+        case sent, received, read
     }
 
     enum MessageType {
@@ -65,7 +69,8 @@ public struct Message: Equatable, Sendable, Identifiable {
     }
 
     var type: MessageType?
-    var status: MessageStatus = .success
+    let status: Status?
+    var sendStatus: SendStatus
 
     var agent: Agent?
 
@@ -83,7 +88,8 @@ public struct Message: Equatable, Sendable, Identifiable {
         carousel: [Message],
         quickReplies: [String],
         type: MessageType?,
-        status: MessageStatus,
+        status: Status?,
+        sendStatus: SendStatus,
         agent: Agent?,
         referrer: String?
     ) {
@@ -99,6 +105,7 @@ public struct Message: Equatable, Sendable, Identifiable {
         self.quickReplies = quickReplies
         self.type = type
         self.status = status
+        self.sendStatus = sendStatus
         self.agent = agent
         self.referrer = referrer
     }
@@ -131,25 +138,31 @@ public struct Message: Equatable, Sendable, Identifiable {
 // MARK: Initializers
 extension Message {
     
-    static func newTextMessage(_ message: String, type: MessageType, status: MessageStatus = .pending) -> Message {
+    static func newTextMessage(
+        _ message: String,
+        type: MessageType,
+        sendStatus: SendStatus = .pending
+    ) -> Message {
         Message(
             localId: UUID(),
             time: Date(),
             message: message,
             media: nil,
             type: .user,
-            status: status
+            status: nil,
+            sendStatus: sendStatus
         )
     }
     
-    static func newMediaMessage(_ media: MediaObject, status: MessageStatus) -> Message {
+    static func newMediaMessage(_ media: MediaObject, status: SendStatus) -> Message {
         Message(
             localId: UUID(),
             time: Date(),
             message: nil,
             media: media,
             type: .user,
-            status: status
+            status: nil,
+            sendStatus: status
         )
     }
     
@@ -165,7 +178,8 @@ extension Message {
         carousel: [Message],
         quickReplies: [String],
         type: MessageType?,
-        status: MessageStatus,
+        status: Status?,
+        sendStatus: SendStatus,
         agent: Agent?,
         referrer: String?
     ) -> Message {
@@ -182,6 +196,7 @@ extension Message {
             quickReplies: quickReplies,
             type: type,
             status: status,
+            sendStatus: sendStatus,
             agent: agent,
             referrer: referrer
         )
@@ -204,7 +219,8 @@ extension Message {
             carousel: [],
             quickReplies: [],
             type: type,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: nil,
             referrer: nil
         )
@@ -216,7 +232,8 @@ extension Message {
         message: String?,
         media: MediaObject?,
         type: MessageType,
-        status: MessageStatus
+        status: Status?,
+        sendStatus: SendStatus
     ) {
         self.remoteId = nil
         self.localId = localId
@@ -230,6 +247,8 @@ extension Message {
         self.quickReplies = []
         self.type = type
         self.status = status
+        self.sendStatus = sendStatus
+        self.status
         self.agent = nil
         self.referrer = nil
     }

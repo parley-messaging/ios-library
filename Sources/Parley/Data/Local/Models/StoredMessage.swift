@@ -2,10 +2,10 @@ import Foundation
 
 struct StoredMessage: Codable, Identifiable {
 
-    enum MessageStatus: Int, Codable {
+    enum SendStatus: Int, Codable {
         case failed, pending, success
         
-        func toDomainModel() -> Message.MessageStatus {
+        func toDomainModel() -> Message.SendStatus {
             switch self {
             case .failed: return .failed
             case .pending: return .pending
@@ -13,11 +13,33 @@ struct StoredMessage: Codable, Identifiable {
             }
         }
         
-        static func from(_ status: Message.MessageStatus) -> Self {
+        static func from(_ status: Message.SendStatus) -> Self {
             switch status {
             case .failed: return .failed
             case .pending: return .pending
             case .success: return .success
+            }
+        }
+    }
+    
+    enum Status: Int, Codable {
+        case sent = 2
+        case received = 3
+        case read = 4
+        
+        func toDomainModel() -> Message.Status {
+            switch self {
+            case .sent: return .sent
+            case .received: return .received
+            case .read: return .read
+            }
+        }
+        
+        static func from(_ status: Message.Status) -> Self {
+            switch status {
+            case .sent: return .sent
+            case .received: return .received
+            case .read: return .read
             }
         }
     }
@@ -61,7 +83,8 @@ struct StoredMessage: Codable, Identifiable {
     var carousel: [Self]
     var quickReplies: [String]
     var type: MessageType?
-    var status: MessageStatus
+    let status: Status?
+    var sendStatus: SendStatus
     var agent: StoredAgent?
     var referrer: String?
     
@@ -77,7 +100,12 @@ struct StoredMessage: Codable, Identifiable {
         self.buttons = message.buttons.map(StoredMessageButton.from(_:))
         self.quickReplies = message.quickReplies
         self.type = Self.MessageType.from(message.type)
-        self.status = Self.MessageStatus.from(message.status)
+        if let status = message.status {
+            self.status = Self.Status.from(status)
+        } else {
+            self.status = nil
+        }
+        self.sendStatus = Self.SendStatus.from(message.sendStatus)
         if let agent = message.agent {
             self.agent = StoredAgent.from(agent)
         }
@@ -97,7 +125,8 @@ struct StoredMessage: Codable, Identifiable {
             carousel: carousel.map { $0.toDomainModel() },
             quickReplies: quickReplies,
             type: type?.toDomainModel(),
-            status: status.toDomainModel(),
+            status: status?.toDomainModel(),
+            sendStatus: sendStatus.toDomainModel(),
             agent: agent?.toDomainModel(),
             referrer: referrer
         )

@@ -38,14 +38,14 @@ final actor MessagesManager: MessagesManagerProtocol {
         messages
             .sorted(by: <)
             .last { message in
-                message.remoteId != nil && message.status == .success
+                message.remoteId != nil && message.sendStatus == .success
             }
     }
 
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
         messages.sorted(by: <).reduce([Message]()) { partialResult, message in
-            switch message.status {
+            switch message.sendStatus {
             case .failed, .pending:
                 partialResult + [message]
             default:
@@ -109,7 +109,7 @@ final actor MessagesManager: MessagesManagerProtocol {
         case .all, .after:
             let pendingMessages = pendingMessages
             messages.removeAll { message -> Bool in
-                message.status == .pending || message.status == .failed
+                message.sendStatus == .pending || message.sendStatus == .failed
             }
 
             messages.append(contentsOf: newMessages)
@@ -177,7 +177,7 @@ final actor MessagesManager: MessagesManagerProtocol {
 extension MessagesManager {
 
     fileprivate func testMessages() {
-        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, status: .pending)
+        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, sendStatus: .pending)
 
         let agentMessage_fullMessageWithActions = Message.exsisting(
             remoteId: 0,
@@ -195,7 +195,8 @@ extension MessagesManager {
             carousel: [],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: nil,
             referrer: nil
         )
@@ -229,7 +230,8 @@ extension MessagesManager {
             ],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
             referrer: nil
         )
@@ -257,7 +259,8 @@ extension MessagesManager {
                 )
             ], quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
             referrer: nil
         )
@@ -287,7 +290,8 @@ extension MessagesManager {
             carousel: [],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: nil,
             referrer: nil
         )

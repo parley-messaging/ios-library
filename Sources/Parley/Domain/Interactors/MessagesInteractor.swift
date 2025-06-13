@@ -133,14 +133,14 @@ extension MessagesInteractor {
     }
     
     func handleMessageSent(_ message: inout Message) async {
-        message.status = .success
+        message.sendStatus = .success
         await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
     func handleMessageFailedToSend(_ message: inout Message) async {
-        message.status = .failed
+        message.sendStatus = .failed
         await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)

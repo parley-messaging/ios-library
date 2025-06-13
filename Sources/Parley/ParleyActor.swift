@@ -448,7 +448,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         var message = Message.newTextMessage(
             text,
             type: silent ? .systemMessageUser : .user,
-            status: .pending
+            sendStatus: .pending
         )
         
         await send(&message, isNewMessage: true)
