@@ -166,11 +166,9 @@ extension ParleyRemote {
 // MARK: Privates
 private extension ParleyRemote {
     
-    func createHeaders() async throws -> [String: String] {
+    func createHeaders() async throws(ParleyRemoteError) -> [String: String] {
         var headers = networkConfig.headers
-        guard let secret = await createSecret() else {
-            throw ParleyRemoteError.secretNotSet
-        }
+        guard let secret = await createSecret() else { throw .secretNotSet }
         headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(await getDeviceId())"
         headers[HTTPHeaders.contentType.rawValue] = "application/json; charset=utf-8"
 
