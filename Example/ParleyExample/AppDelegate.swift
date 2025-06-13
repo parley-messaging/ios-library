@@ -1,7 +1,7 @@
 import Firebase
 import Parley
 import UIKit
-import UserNotifications
+@preconcurrency import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,13 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UNUserNotificationCenter.current().delegate = self
 
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { pushEnabled, _ in
-                Parley.setPushEnabled(pushEnabled)
-            }
-        )
+        Task {
+            guard let isPushEnabled = try? await UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .badge, .sound]
+            ) else { return }
+            try? await Parley.setPushEnabled(isPushEnabled)
+            
+        }
 
         application.registerForRemoteNotifications()
         // Stop: Configuring Firebase Cloud Messaging
@@ -34,10 +34,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
-            let pushEnabled = notificationSettings.authorizationStatus == .authorized
-
-            Parley.setPushEnabled(pushEnabled)
+        Task {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            let pushEnabled = settings.authorizationStatus == .authorized
+            try? await Parley.setPushEnabled(pushEnabled)
         }
     }
 }

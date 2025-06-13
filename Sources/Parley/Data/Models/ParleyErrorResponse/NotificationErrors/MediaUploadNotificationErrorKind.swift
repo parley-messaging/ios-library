@@ -8,6 +8,7 @@ enum MediaUploadNotificationErrorKind: String, Error, CaseIterable, Codable {
 
     var message: String { rawValue }
 
+    @MainActor
     var formattedMessage: String {
         switch self {
         case .invalidMediaType, .missingMedia, .couldNotSaveMedia:

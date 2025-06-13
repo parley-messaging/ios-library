@@ -4,6 +4,7 @@ import UIKit
 // MARK: - Accessibility - Accessibility Label
 extension Message {
 
+    @MainActor
     enum Accessibility {
 
         static func getAccessibilityLabelDescription(for message: Message) -> String? {
