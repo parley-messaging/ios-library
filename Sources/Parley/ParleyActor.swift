@@ -511,8 +511,10 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             bestEffortMessage = storedMessage
         }
         
-        if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: bestEffortMessage) {
-            await UIAccessibility.post(notification: .announcement, argument: announcement)
+        await MainActor.run {
+            if let announcement = Message.Accessibility.getAccessibilityAnnouncement(for: bestEffortMessage) {
+                UIAccessibility.post(notification: .announcement, argument: announcement)
+            }
         }
         
         await messagesInteractor.handleAgentStoppedTyping()

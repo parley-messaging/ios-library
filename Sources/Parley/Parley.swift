@@ -8,8 +8,9 @@ public struct Parley: Sendable {
     
     private(set) var localizationManager: LocalizationManager
     
-    static nonisolated(unsafe) private(set) var shared = Parley()
     @MainActor
+    static private(set) var shared = Parley()
+    
     
     init(localizationManager: LocalizationManager) {
         self.localizationManager = localizationManager
@@ -501,7 +502,6 @@ public struct Parley: Sendable {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public func purgeLocalMemory(completion: (@Sendable () -> Void)? = nil) {
     public static func purgeLocalMemory(completion: (@Sendable () -> Void)? = nil) {
         Task {
             await ParleyActor.shared.purgeLocalMemory()
@@ -518,7 +518,6 @@ public struct Parley: Sendable {
 
      - Note: Requires calling the `configure()` method again to use Parley.
      */
-    public func purgeLocalMemory() async {
     public static func purgeLocalMemory() async {
         await ParleyActor.shared.purgeLocalMemory()
     }
@@ -535,7 +534,6 @@ public struct Parley: Sendable {
        - silent: Indicates if the message needs to be sent silently. The message will not be shown to the user when `silent=true`.
        - completion: A closure that will be called after the message is being qeued to send. Executed on the main actor.
      */
-    public func send(_ message: String, silent: Bool = false, completion: (@Sendable () -> Void)? = nil) {
     public static func send(_ message: String, silent: Bool = false, completion: (@Sendable () -> Void)? = nil) {
         Task {
             await ParleyActor.shared.send(message, silent: silent)
@@ -555,7 +553,6 @@ public struct Parley: Sendable {
        - message: The message to sent
        - silent: Indicates if the message needs to be sent silently. The message will not be shown to the user when `silent=true`.
      */
-    public func send(_ message: String, silent: Bool = false) async {
     public static func send(_ message: String, silent: Bool = false) async {
         await ParleyActor.shared.send(message, silent: silent)
     }
@@ -569,7 +566,6 @@ public struct Parley: Sendable {
        - referrer: Referrer
        - completion: A closure that will be called after the referrer is updated. Executed on the main actor.
      */
-    public func setReferrer(_ referrer: String, completion: (@Sendable () -> Void)? = nil) {
     public static func setReferrer(_ referrer: String, completion: (@Sendable () -> Void)? = nil) {
         Task {
             await ParleyActor.shared.setReferrer(referrer)
@@ -585,7 +581,6 @@ public struct Parley: Sendable {
      - Parameters:
        - referrer: Referrer
      */
-    public func setReferrer(_ referrer: String) async {
     public static func setReferrer(_ referrer: String) async {
         await ParleyActor.shared.setReferrer(referrer)
     }
@@ -599,7 +594,6 @@ public struct Parley: Sendable {
        - enabled: Boolean that indicates if `alwaysPolling` should be enabled.
        - completion: A closure that will be called after the polling setting is updated. Executed on the main actor.
      */
-    public func setAlwaysPolling(enabled: Bool, _ completion: (@Sendable () -> Void)? = nil) {
     public static func setAlwaysPolling(enabled: Bool, _ completion: (@Sendable () -> Void)? = nil) {
         Task {
             await ParleyActor.shared.setAlwaysPolling(enabled)
@@ -615,7 +609,6 @@ public struct Parley: Sendable {
      - Parameters:
        - enabled: Boolean that indicates if `alwaysPolling` should be enabled.
      */
-    public func setAlwaysPolling(_ enabled: Bool) async {
     public static func setAlwaysPolling(_ enabled: Bool) async {
         await ParleyActor.shared.setAlwaysPolling(enabled)
     }
