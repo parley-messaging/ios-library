@@ -607,6 +607,12 @@ extension ParleyView: UITableViewDataSource {
                 
             messageTableViewCell.render(message, mediaLoader: mediaLoader, shareManager: shareManager)
             
+            if let id = message.remoteId {
+                Task {
+                    await messagesInteractor?.handleMessageDisplayed(messageId: id)
+                }
+            }
+            
             return messageTableViewCell
         case .typingIndicator:
             let agentTypingTableViewCell = tableView

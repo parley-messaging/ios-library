@@ -69,7 +69,7 @@ public struct Message: Equatable, Sendable, Identifiable {
     }
 
     var type: MessageType?
-    let status: Status?
+    var status: Status?
     var sendStatus: SendStatus
 
     var agent: Agent?

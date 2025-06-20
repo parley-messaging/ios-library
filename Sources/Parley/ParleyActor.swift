@@ -137,13 +137,16 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         
         messagesStore = await MessagesStore()
         messagesPresenter = await MessagesPresenter(store: messagesStore, display: nil)
+        let messageReadWorker = await MessageReadWorker(messageRepository: messageRepository)
         messagesInteractor = await MessagesInteractor(
             presenter: messagesPresenter!,
             messagesManager: messagesManager!,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
             messagesRepository: messageRepository!,
-            reachabilityProvider: self
+            reachabilityProvider: self,
+            messageReadWorker: messageReadWorker
         )
+        await messageReadWorker.set(delegate: messagesInteractor!)
         reachibilityService = try? ReachabilityService()
         addObservers()
     }
@@ -516,7 +519,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     // MARK: Remote messages
 
     private func handleMessage(_ userInfo: [String: Any]) async {
-        guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
+        guard let messagesInteractor else {
+            print("Parley: Remote message not handled because Parley wasn't initialized yet.") ; return
+        }
         
         guard
             let id = userInfo["id"] as? Int,
