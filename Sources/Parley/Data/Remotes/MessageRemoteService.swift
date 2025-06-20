@@ -57,4 +57,29 @@ final class MessageRemoteService: MessageRepository, Sendable {
     func findMedia(_ id: String, type: ParleyMediaType) async throws -> Data {
         try await remote.execute(.get, path: "media/\(id)", type: type)
     }
+    
+    func getUnseen() async throws -> Int {
+        try checkSupportsMessageStatus()
+        let response: UnseenMessagesResponse = try await remote.execute(
+            .get,
+            path: "messages/unseen/count"
+        )
+        return response.toDomainModel().count
+    }
+    
+    func updateStatusRead(messageIds: Set<Int>) async throws {
+        try checkSupportsMessageStatus()
+        let request = UpdateMessageStatusRequest(messageIds: messageIds)
+        let status = MessageResponse.Status.read.key
+        return try await remote.execute(.put, path: "messages/status/\(status)", body: request)
+    }
+    
+    private func checkSupportsMessageStatus() throws(ParleyActor.ConfigurationError) {
+        guard remote.apiVersion.isSupportingMessageStatus else {
+            throw ParleyActor.ConfigurationError(
+                code: -1,
+                message: "ClientApi \(remote.apiVersion) does not support retrieving the unseen count."
+            )
+        }
+    }
 }

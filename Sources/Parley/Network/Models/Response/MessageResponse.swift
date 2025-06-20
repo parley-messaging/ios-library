@@ -28,6 +28,8 @@ struct MessageResponse: Codable {
             case .read: return .read
             }
         }
+        
+        var key: Int { rawValue }
     }
 
     enum MessageType: Int, Codable {

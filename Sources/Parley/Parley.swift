@@ -627,9 +627,30 @@ public struct Parley: Sendable {
      
      - Parameters:
        - secret: Application secret of your Parley instance.
-       - uniqueDeviceIdentifier: 
+       - uniqueDeviceIdentifier: The device identifier to use for device registration.
+       - networkSession: The network session that will handle all http traffic.
+       - networkConfig: The configuration for the network.
      */
-    public static func setup(secret: String, uniqueDeviceIdentifier: String? = nil) async {
-        await ParleyActor.shared.setup(secret: secret, uniqueDeviceIdentifier: uniqueDeviceIdentifier)
+    public static func setup(
+        secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkSession: any ParleyNetworkSession,
+        networkConfig: ParleyNetworkConfig? = nil
+    ) async {
+        await ParleyActor.shared.setup(
+            secret: secret,
+            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+            networkSession: networkSession,
+            networkConfig: networkConfig ?? ParleyNetworkConfig()
+        )
+    }
+    
+    /**
+     Gets the unseen messages count.
+     
+     - Returns: The amount of unseen messages.
+     */
+    public static func getUnseenCount() async throws -> Int {
+        return try await ParleyActor.shared.getUneenCount()
     }
 }
