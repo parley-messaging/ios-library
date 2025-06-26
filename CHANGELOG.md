@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.12 - Released 26 Jun 2025
+
+- [Dependency] Forced MarkdownKit to version 1.7.1 to force support for target 13.
+
 ## 4.2.11 - Released 12 Jun 2025
 
 - [SSL Pinning] Updated SSL pinning public key of Parley.
