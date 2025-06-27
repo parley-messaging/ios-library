@@ -21,7 +21,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.8.1")),
         .package(url: "https://github.com/Alamofire/AlamofireImage.git", .upToNextMajor(from: "4.3.0")),
-        .package(url: "https://github.com/bmoliveira/MarkdownKit.git", .upToNextMajor(from: "1.7.0")),
+        .package(url: "https://github.com/bmoliveira/MarkdownKit.git", exact: "1.7.1"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.16.0"),
     ],
     targets: [

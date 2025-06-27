@@ -1,9 +1,17 @@
 # Changelog
 
-## 4.2.11 - Released 8 June 2025
+## 4.2.13 - Released 8 June 2025
 
 - [Parley] Internally transitioned from completion handlers to Swift Concurrency in most instances to prepare for the Swift 6 migration.  
 - [Neworking] `ParleyNetworkSession` is now required to be `Sendable`, and the completion handler for the  `request` and `upload` methods now also require `Sendable` closures.
+
+## 4.2.12 - Released 26 Jun 2025
+
+- [Dependency] Forced MarkdownKit to version 1.7.1 to force support for target 13.
+
+## 4.2.11 - Released 12 Jun 2025
+
+- [SSL Pinning] Updated SSL pinning public key of Parley.
 
 ## 4.2.10 - Released 2 May 2025
 
