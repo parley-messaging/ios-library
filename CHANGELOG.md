@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.3.0 - Released 27 June 2025
+
+- [Swift] Parley is now set to use the Swift 6 language mode.
+-  **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.
+-  **IMPORTANT**: All static Parley methods with a completion handler also have an async variant which has a typed throw (`ConfigurationError`).
+-  **IMPORTANT**: The `ParleyNetworkSession` now requires being async and should throw `ParleyHTTPErrorResponse`.
+
+## 4.2.12 - Released 26 Jun 2025
+
+- [Dependency] Forced MarkdownKit to version 1.7.1 to force support for target 13.
+
+## 4.2.11 - Released 12 Jun 2025
+
+- [SSL Pinning] Updated SSL pinning public key of Parley.
+
 ## 4.2.10 - Released 2 May 2025
 
 - [Accessibility] Added configurable background color to time and checkmark in messages and made corner radius configurable.

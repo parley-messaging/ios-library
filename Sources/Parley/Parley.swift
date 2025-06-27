@@ -274,22 +274,6 @@ public struct Parley: Sendable {
     
     // MARK: - setUserInformation
     
-    
-    /**
-     Set user information to authorize the user.
-
-     - Parameters:
-       - authorization: Authorization of the user.
-       - additionalInformation: Additional information of the user.
-     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
-     */
-    public static func setUserInformation(
-        _ authorization: String,
-        additionalInformation: [String: String]? = nil
-    ) async throws(ConfigurationError) {
-        try await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
-    }
-    
     /**
      Set user information to authorize the user.
 
@@ -315,6 +299,21 @@ public struct Parley: Sendable {
                 }
             }
         }
+    }
+    
+    /**
+     Set user information to authorize the user.
+
+     - Parameters:
+       - authorization: Authorization of the user.
+       - additionalInformation: Additional information of the user.
+     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
+     */
+    public static func setUserInformation(
+        _ authorization: String,
+        additionalInformation: [String: String]? = nil
+    ) async throws(ConfigurationError) {
+        try await ParleyActor.shared.setUserInformation(authorization, additionalInformation: additionalInformation)
     }
     
     // MARK: - clearUserInformation
@@ -366,52 +365,6 @@ public struct Parley: Sendable {
     }
     
     // MARK: - Configure
-      
-      /**
-       Configure Parley Messaging with clearing the cache
-
-       The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
-       a random UUID that will be stored in the user defaults. When providing a unique device
-       ID to this configure method, it is not stored by Parley and only kept for the current instance
-       of Parley. Client applications are responsible for storing it and providing Parley with the
-       same ID. This gives client applications the flexibility to change the ID if required (for
-       example when another user is logged-in to the app).
-
-       - Parameters:
-         - secret: Application secret of your Parley instance.
-         - uniqueDeviceIdentifier: The device identifier to use for device registration.
-         - networkConfig: The configuration for the network.
-         - networkSession: The network session that will handle all http traffic.
-         - onSuccess: Execution block when Parley is configured. Executed on the main actor.
-         - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
-       */
-      public static func configure(
-          _ secret: String,
-          uniqueDeviceIdentifier: String? = nil,
-          networkConfig: ParleyNetworkConfig,
-          networkSession: ParleyNetworkSession,
-          onSuccess: (@Sendable () -> Void)? = nil,
-          onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
-      ) {
-          Task {
-              do throws(ConfigurationError) {
-                  try await Self.configure(
-                    secret,
-                    uniqueDeviceIdentifier: uniqueDeviceIdentifier,
-                    networkConfig: networkConfig,
-                    networkSession: networkSession
-                  )
-                  if let onSuccess {
-                      await MainActor.run(body: onSuccess)
-                  }
-              } catch {
-                  guard let onFailure else { return }
-                  await MainActor.run {
-                      onFailure(error.code, error.message)
-                  }
-              }
-          }
-      }
     
     /**
      Configure Parley Messaging with clearing the cache
@@ -428,7 +381,55 @@ public struct Parley: Sendable {
        - uniqueDeviceIdentifier: The device identifier to use for device registration.
        - networkConfig: The configuration for the network.
        - networkSession: The network session that will handle all http traffic.
-     - Throws: `ConfigurationError` containing the HTTP status code and a descriptive error message when the reset or device registration fails.
+       - onSuccess: Execution block when Parley is configured. Executed on the main actor.
+       - onFailure: Execution block when Parley failed to configure. This block takes an Int which represents the HTTP Status Code and a String describing what went wrong. Executed on the main actor.
+     */
+    public static func configure(
+        _ secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkConfig: ParleyNetworkConfig,
+        networkSession: ParleyNetworkSession,
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
+    ) {
+        Task {
+            do throws(ConfigurationError) {
+                try await Self.configure(
+                    secret,
+                    uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+                    networkConfig: networkConfig,
+                    networkSession: networkSession
+                )
+                if let onSuccess {
+                    await MainActor.run(body: onSuccess)
+                }
+            } catch {
+                guard let onFailure else { return }
+                await MainActor.run {
+                    onFailure(error.code, error.message)
+                }
+            }
+        }
+    }
+    
+    /**
+     Configure Parley Messaging with clearing the cache
+
+     The configure method allows setting a unique device identifier. If none is provided (default), Parley will default to
+     a random UUID that will be stored in the user defaults. When providing a unique device
+     ID to this configure method, it is not stored by Parley and only kept for the current instance
+     of Parley. Client applications are responsible for storing it and providing Parley with the
+     same ID. This gives client applications the flexibility to change the ID if required (for
+     example when another user is logged-in to the app).
+
+     - Parameters:
+       - secret: Application secret of your Parley instance.
+       - uniqueDeviceIdentifier: The device identifier to use for device registration.
+       - networkConfig: The configuration for the network.
+       - networkSession: The network session that will handle all http traffic.
+     - Returns: A `ConfigurationResult` indicating the outcome:
+        - On success: returns `.success`.
+        - On failure: returns `.failure` with a `ConfigurationError` containing the HTTP status code and a descriptive error message.
      */
     public static func configure(
         _ secret: String,
