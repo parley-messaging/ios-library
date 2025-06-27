@@ -6,7 +6,7 @@ import UIKit
 class IdentifierViewController: UIViewController {
 
     /// Disable offline messaging in the demo app to show error messages as an alert before opening the chat
-    private static let kOfflineMessagingEnabled = true
+    private static let kOfflineMessagingEnabled = false
 
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
@@ -81,6 +81,12 @@ class IdentifierViewController: UIViewController {
         }
 
         setNeedsStatusBarAppearanceUpdate()
+        
+        Task {
+            let id = UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification)
+            try? await Parley.registerDevice()
+            await Parley.setup(secret: kParleyUserAuthorizationSecret, uniqueDeviceIdentifier: id)
+        }
     }
 
     // MARK: UI

@@ -99,7 +99,7 @@ struct MessagesManagerTests {
     @Test
     func testUpdateMessage_ShouldUpdateMessage_WhenGivenANewMessageObjectEqualUUID() async {
         let originalMessageText = "First original message"
-        let originalMessage = Message.newTextMessage(originalMessageText, type: .user, status: .pending)
+        let originalMessage = Message.newTextMessage(originalMessageText, type: .user, sendStatus: .pending)
 
         _ = await messagesManager.add(originalMessage)
         // A date message gets added, last message is the user's message.
@@ -111,7 +111,7 @@ struct MessagesManagerTests {
             time: Date(),
             message: updatedMessageText,
             type: .user,
-            status: .pending
+            sendStatus: .pending
         )
         await messagesManager.update(updatedMessage)
 
@@ -137,7 +137,7 @@ extension MessagesManagerTests {
     }
 
     private func createUserMessage(_ message: String, date: Date = Date()) -> Message {
-        var message = Message.newTextMessage(message, type: .user, status: .pending)
+        var message = Message.newTextMessage(message, type: .user, sendStatus: .pending)
         message.time = date
         return message
     }

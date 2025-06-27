@@ -18,7 +18,7 @@ public struct ParleyNetworkConfig: Sendable {
         url = kParleyNetworkUrl
         path = kParleyNetworkPath
         headers = [:]
-        apiVersion = .v1_7
+        apiVersion = .default
     }
 
     public init(url: String, path: String, apiVersion: ApiVersion, headers: [String: String] = [:]) {

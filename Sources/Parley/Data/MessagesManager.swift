@@ -16,6 +16,8 @@ protocol MessagesManagerProtocol: AnyObject, Actor {
     func update(_ message: Message) async
     func add(_ message: Message) async -> Bool
     func getOldestMessage() -> Message?
+    func markAsRead(ids: Set<Int>)
+    func findByRemoteId(_ id: Int) -> Message?
 }
 
 final actor MessagesManager: MessagesManagerProtocol {
@@ -26,6 +28,7 @@ final actor MessagesManager: MessagesManagerProtocol {
         case after
     }
 
+    private(set) var messagesByRemoteId: [Int: Message] = [:]
     private(set) var messages: [Message] = []
     private(set) var welcomeMessage: String?
     private(set) var stickyMessage: String?
@@ -38,14 +41,14 @@ final actor MessagesManager: MessagesManagerProtocol {
         messages
             .sorted(by: <)
             .last { message in
-                message.remoteId != nil && message.status == .success
+                message.remoteId != nil && message.sendStatus == .success
             }
     }
 
     /// The messages that are currently pending in a sorted way.
     var pendingMessages: [Message] {
         messages.sorted(by: <).reduce([Message]()) { partialResult, message in
-            switch message.status {
+            switch message.sendStatus {
             case .failed, .pending:
                 partialResult + [message]
             default:
@@ -109,7 +112,7 @@ final actor MessagesManager: MessagesManagerProtocol {
         case .all, .after:
             let pendingMessages = pendingMessages
             messages.removeAll { message -> Bool in
-                message.status == .pending || message.status == .failed
+                message.sendStatus == .pending || message.sendStatus == .failed
             }
 
             messages.append(contentsOf: newMessages)
@@ -129,6 +132,11 @@ final actor MessagesManager: MessagesManagerProtocol {
                 await keyValueDataSource?.removeObject(forKey: kParleyCacheKeyPaging)
             }
         }
+        
+        for message in messages {
+            guard let remoteId = message.remoteId else { continue }
+            messagesByRemoteId[remoteId] = message
+        }
     }
 
     private func updateWelcomeMessage(_ message: String?) async {
@@ -145,6 +153,9 @@ final actor MessagesManager: MessagesManagerProtocol {
         
         messages.append(message)
         await messageDataSource?.insert(message, at: 0)
+        if let remoteId = message.remoteId {
+            messagesByRemoteId[remoteId] = message
+        }
         return true
     }
 
@@ -152,6 +163,9 @@ final actor MessagesManager: MessagesManagerProtocol {
         guard let originalMessagesIndex = messages .firstIndex(where: { $0.id == message.id }) else { return }
 
         messages[originalMessagesIndex] = message
+        if let remoteId = message.remoteId {
+            messagesByRemoteId[remoteId] = message
+        }
         await messageDataSource?.update(message)
     }
 
@@ -170,6 +184,21 @@ final actor MessagesManager: MessagesManagerProtocol {
         paging = nil
         await loadCachedData()
     }
+    
+    func markAsRead(ids: Set<Int>) {
+        for index in messages.indices {
+            let message = messages[index]
+            guard
+                let remoteId = message.remoteId,
+                ids.contains(remoteId)
+            else { continue }
+            messages[index].status = .read
+        }
+    }
+    
+    func findByRemoteId(_ id: Int) -> Message? {
+        messagesByRemoteId[id]
+    }
 }
 
 #if DEBUG
@@ -177,7 +206,7 @@ final actor MessagesManager: MessagesManagerProtocol {
 extension MessagesManager {
 
     fileprivate func testMessages() {
-        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, status: .pending)
+        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, sendStatus: .pending)
 
         let agentMessage_fullMessageWithActions = Message.exsisting(
             remoteId: 0,
@@ -195,7 +224,8 @@ extension MessagesManager {
             carousel: [],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: nil,
             referrer: nil
         )
@@ -229,7 +259,8 @@ extension MessagesManager {
             ],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
             referrer: nil
         )
@@ -257,7 +288,8 @@ extension MessagesManager {
                 )
             ], quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
             referrer: nil
         )
@@ -287,7 +319,8 @@ extension MessagesManager {
             carousel: [],
             quickReplies: [],
             type: .agent,
-            status: .success,
+            status: nil,
+            sendStatus: .success,
             agent: nil,
             referrer: nil
         )

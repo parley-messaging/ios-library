@@ -13,6 +13,10 @@ final class ParleyRemote: Sendable {
     private let createUserAuthorizationToken: @Sendable () async -> String?
     
     private static let successFullHTTPErrorStatusCodes = 200...299
+    
+    var apiVersion: ApiVersion {
+        networkConfig.apiVersion
+    }
 
     init(
         networkConfig: ParleyNetworkConfig,
@@ -41,26 +45,45 @@ extension ParleyRemote {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
         let bodyData = mapBodyToData(body: body)
         let headers = try await createHeaders()
-        let response = try await networkSession.request(
-            getUrl(path),
-            data: bodyData,
-            method: method,
-            headers: headers
-        )
-        return try handleResponse(response: response, keyPath: keyPath)
+        let result = try await networkSession.requestWithResult(
+                getUrl(path),
+                data: bodyData,
+                method: method,
+                headers: headers
+            )
+                        
+        return try handleResult(result: result, keyPath: keyPath)
+    }
+    
+    func execute(
+        _ method: ParleyHTTPRequestMethod,
+        path: String,
+        body: Encodable? = nil
+    ) async throws {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
+        let bodyData = mapBodyToData(body: body)
+        let headers = try await createHeaders()
+        let result = try await networkSession.requestWithResult(
+                getUrl(path),
+                data: bodyData,
+                method: method,
+                headers: headers
+            )
+                        
+        try checkResult(result: result)
     }
     
     func execute(_ method: ParleyHTTPRequestMethod, path: String) async throws {
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
         let headers = try await createHeaders()
         
-        let response = try await networkSession.request(
+        let result = await networkSession.requestWithResult(
             getUrl(path),
             data: nil,
             method: method,
             headers: headers
         )
-        
+        let response = try result.get()
         do {
             try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
         } catch {
@@ -95,14 +118,14 @@ extension ParleyRemote {
         var headers = try await createHeaders()
         headers[HTTPHeaders.contentType.rawValue] = multipartFormData.httpContentTypeHeaderValue
         
-        let response = try await networkSession.upload(
+        let result = await networkSession.uploadWithResult(
             data: multipartFormData.httpBody,
             to: getUrl(path),
             method: method,
             headers: headers
         )
         
-        return try handleResponse(response: response, keyPath: .data)
+        return try handleResult(result: result, keyPath: .data)
     }
     
     func execute<T: Codable>(
@@ -119,14 +142,14 @@ extension ParleyRemote {
         var headers = try await createHeaders()
         headers[HTTPHeaders.contentType.rawValue] = multipartForm.httpContentTypeHeaderValue
 
-        let response = try await networkSession.upload(
+        let result = await networkSession.uploadWithResult(
             data: multipartForm.httpBody,
             to: getUrl(path),
             method: method,
             headers: headers
         )
         
-        return try handleResponse(response: response, keyPath: keyPath)
+        return try handleResult(result: result, keyPath: keyPath)
     }
     
     func execute(
@@ -136,29 +159,29 @@ extension ParleyRemote {
     ) async throws -> Data {
         let url = getUrl(path)
         debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path))")
-        
+
         let headers = try await createHeaders()
         
-        let response: ParleyHTTPDataResponse
-        do {
-            response = try await networkSession.request(
-                url,
-                data: nil,
-                method: .get,
-                headers: headers
-            )
-        } catch {
+        let result = await networkSession.requestWithResult(
+            url,
+            data: nil,
+            method: .get,
+            headers: headers
+        )
+        
+        switch result {
+        case .success(let response):
+            if let data = response.body {
+                return data
+            } else {
+                throw ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)
+            }
+        case .failure(let error):
             if let data = error.data, let apiError = Self.decodeBackendError(responseData: data) {
                 throw apiError
             } else {
                 throw error
             }
-        }
-        
-        if let data = response.body {
-            return data
-        } else {
-            throw ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)
         }
     }
 }
@@ -166,9 +189,11 @@ extension ParleyRemote {
 // MARK: Privates
 private extension ParleyRemote {
     
-    func createHeaders() async throws(ParleyRemoteError) -> [String: String] {
+    func createHeaders() async throws -> [String: String] {
         var headers = networkConfig.headers
-        guard let secret = await createSecret() else { throw .secretNotSet }
+        guard let secret = await createSecret() else {
+            throw ParleyRemoteError.secretNotSet
+        }
         headers[HTTPHeaders.xIrisIdentification.rawValue] = "\(secret):\(await getDeviceId())"
         headers[HTTPHeaders.contentType.rawValue] = "application/json; charset=utf-8"
 
@@ -209,16 +234,30 @@ private extension ParleyRemote {
         try? JSONDecoder().decode(ParleyErrorResponse.self, from: responseData)
     }
     
-    func handleResponse<T: Codable>(
-        response: ParleyHTTPDataResponse,
+    func handleResult<T: Codable>(
+        result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>,
         keyPath: ParleyResponseKeyPath?
     ) throws -> T {
+        let response = try result.get()
         do {
             let decodedResponse = try response
                 .validate(statusCode: Self.successFullHTTPErrorStatusCodes)
                 .decodeAtKeyPath(of: T.self, keyPath: keyPath)
             return decodedResponse
-        } catch let error as ParleyHTTPErrorResponse {
+        } catch {
+            if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
+                throw apiError
+            } else {
+                throw error
+            }
+        }
+    }
+    
+    func checkResult(result: Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) throws {
+        let response = try result.get()
+        do {
+            try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
+        } catch {
             if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
                 throw apiError
             } else {

@@ -76,7 +76,7 @@ extension Message {
         }
 
         private static func createStatusLabelIfNeeded(_ message: Message) -> String? {
-            switch message.status {
+            switch message.sendStatus {
             case .failed:
                 ParleyLocalizationKey.voiceOverMessageFailed.localized()
             case .pending:

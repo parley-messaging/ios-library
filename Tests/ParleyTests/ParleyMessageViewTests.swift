@@ -87,7 +87,7 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
-            message: .makeTestData(title: nil, message: "Lo", status: .pending, agent: nil),
+            message: .makeTestData(title: nil, message: "Lo", sendStatus: .pending, agent: nil),
             forcedTime: Self.dummyDate,
             mediaLoader: nil,
             shareManager: nil
@@ -106,7 +106,7 @@ final class ParleyMessageViewTests: XCTestCase {
 
         sut.apply(MessageCollectionViewCellAppearance.user())
         sut.set(
-            message: .makeTestData(title: nil, message: "Lo", status: .failed, agent: nil),
+            message: .makeTestData(title: nil, message: "Lo", sendStatus: .failed, agent: nil),
             forcedTime: Self.dummyDate,
             mediaLoader: nil,
             shareManager: nil

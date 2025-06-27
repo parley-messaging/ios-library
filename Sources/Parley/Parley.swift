@@ -11,7 +11,6 @@ public struct Parley: Sendable {
     @MainActor
     static private(set) var shared = Parley()
     
-    
     init(localizationManager: LocalizationManager) {
         self.localizationManager = localizationManager
     }
@@ -538,7 +537,6 @@ public struct Parley: Sendable {
     public static func send(_ message: String, silent: Bool = false, completion: (@Sendable () -> Void)? = nil) {
         Task {
             await ParleyActor.shared.send(message, silent: silent)
-            completion?()
             if let completion {
                 await MainActor.run(body: completion)
             }
@@ -612,5 +610,48 @@ public struct Parley: Sendable {
      */
     public static func setAlwaysPolling(_ enabled: Bool) async {
         await ParleyActor.shared.setAlwaysPolling(enabled)
+    }
+    
+    /**
+     Registers the current device to the currently configured user authorization in Parley.
+     Parley already does this automatically when calling the configure method.
+     
+     - Note: Make sure to set the user authorization first before calling this.
+     */
+    public static func registerDevice() async throws(ConfigurationError) {
+        try await ParleyActor.shared.registerDevice()
+    }
+    
+    /**
+     Setup Parley Messaging without actually configuring it. Does not register the device or
+     retrieve messages directly. Showing the chat will still require to call the configure method.
+     
+     - Parameters:
+       - secret: Application secret of your Parley instance.
+       - uniqueDeviceIdentifier: The device identifier to use for device registration.
+       - networkSession: The network session that will handle all http traffic.
+       - networkConfig: The configuration for the network.
+     */
+    public static func setup(
+        secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkSession: any ParleyNetworkSession,
+        networkConfig: ParleyNetworkConfig? = nil
+    ) async {
+        await ParleyActor.shared.setup(
+            secret: secret,
+            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+            networkSession: networkSession,
+            networkConfig: networkConfig ?? ParleyNetworkConfig()
+        )
+    }
+    
+    /**
+     Gets the unseen messages count.
+     
+     - Returns: The amount of unseen messages.
+     */
+    public static func getUnseenCount() async throws -> Int {
+        return try await ParleyActor.shared.getUneenCount()
     }
 }

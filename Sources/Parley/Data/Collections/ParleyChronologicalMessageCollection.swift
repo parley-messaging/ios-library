@@ -121,15 +121,15 @@ extension ParleyChronologicalMessageCollection {
         indexMap.removeAll()
         sections.removeAll()
     }
-}
-
-// MARK: Privates
-private extension ParleyChronologicalMessageCollection {
     
     mutating func sort() {
         sections.sort(by: <)
         index()
     }
+}
+
+// MARK: Privates
+private extension ParleyChronologicalMessageCollection {
     
     mutating func index() {
         indexMap.removeAll(keepingCapacity: true)
