@@ -248,7 +248,6 @@ extension Message {
         self.type = type
         self.status = status
         self.sendStatus = sendStatus
-        self.status
         self.agent = nil
         self.referrer = nil
     }

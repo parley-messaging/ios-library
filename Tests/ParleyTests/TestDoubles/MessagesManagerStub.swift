@@ -17,6 +17,10 @@ final actor MessagesManagerStub: MessagesManagerProtocol {
     private(set) var lastSentMessage: Message?
 
     private(set) var stickyMessage: String?
+    
+    private(set) var markAsRead: Set<Int>?
+    
+    private(set) var findByRemoteId: Int?
 }
 
 // MARK: Setters
@@ -40,6 +44,15 @@ extension MessagesManagerStub {
     
     func setStickyMessage(_ message: String?) {
         self.stickyMessage = message
+    }
+    
+    func markAsRead(ids: Set<Int>) {
+        markAsRead = ids
+    }
+    
+    func findByRemoteId(_ id: Int) -> Message? {
+        findByRemoteId = id
+        return nil
     }
 }
 

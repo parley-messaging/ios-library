@@ -15,7 +15,8 @@ extension Message {
         carousel: [Message] = [],
         quickReplies: [String] = [],
         type: MessageType = .user,
-        status: MessageStatus = .success,
+        status: Message.Status = .sent,
+        sendStatus: Message.SendStatus = .success,
         agent: Agent? = Agent(id: 1, name: "Agent", avatar: nil),
         referrer: String? = "referrer"
     ) -> Message {
@@ -32,6 +33,7 @@ extension Message {
             quickReplies: quickReplies,
             type: type,
             status: status,
+            sendStatus: sendStatus,
             agent: agent,
             referrer: referrer
         )

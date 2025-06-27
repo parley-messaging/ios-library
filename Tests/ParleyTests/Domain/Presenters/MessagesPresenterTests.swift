@@ -340,14 +340,14 @@ struct MessagesPresenterTests {
     @Test
     mutating func updateMessage_ShouldUpdateStoreAndReloadRow() async {
         // Setup
-        let message = Message.makeTestData(remoteId: 2, time: Date(timeIntSince1970: 1), title: nil, message: "First Message", type: .user, status: .pending)
+        let message = Message.makeTestData(remoteId: 2, time: Date(timeIntSince1970: 1), title: nil, message: "First Message", type: .user, sendStatus: .pending)
         _ = collection.add(message: message)
         presenter.set(welcomeMessage: Self.welcomeMessage)
         presenter.set(sections: collection.sections)
         await presenter.presentMessages()
         await #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
-        let updatedMessage = Message.makeTestData(id: message.id, time: message.time, title: message.title, message: message.message, type: .user, status: .success)
+        let updatedMessage = Message.makeTestData(id: message.id, time: message.time, title: message.title, message: message.message, type: .user, sendStatus: .success)
         
         // When
         await presenter.presentUpdate(message: updatedMessage)
@@ -370,7 +370,7 @@ struct MessagesPresenterTests {
         await #expect(display.deleteRowsCallCount == 0)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
         
-        await #expect(store.getMessage(at: IndexPath(row: 0, section: 1))!.status == .success)
+        await #expect(store.getMessage(at: IndexPath(row: 0, section: 1))!.sendStatus == .success)
     }
     
     @Test
@@ -386,12 +386,14 @@ struct MessagesPresenterTests {
             welcomeMessage: Self.welcomeMessage
         )
         self.collection.set(collection: collection)
-        let interactor = MessagesInteractor(
+        let messageRepositoryStub = MessageRepositoryStub()
+        let interactor = await MessagesInteractor(
             presenter: presenter,
             messagesManager: MessagesManagerStub(),
             messageCollection: self.collection,
-            messagesRepository: MessageRepositoryStub(),
-            reachabilityProvider: ReachabilityProviderStub()
+            messagesRepository: messageRepositoryStub,
+            reachabilityProvider: ReachabilityProviderStub(),
+            messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
         // When
         await interactor.handle(collection: collection, .all)

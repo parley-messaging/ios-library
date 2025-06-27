@@ -14,13 +14,13 @@ struct ParleyTests {
     func testSetLocalizationManager() async {
         let localizationKeyReturnValue = "test!"
 
-        #expect(ParleyLocalizationKey.cancel.localized() != ParleyLocalizationKey.cancel.rawValue)
+        await #expect(ParleyLocalizationKey.cancel.localized() != ParleyLocalizationKey.cancel.rawValue)
         #expect(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount == 0)
 
         await Parley.setLocalizationManager(localizationManagerSpy)
         localizationManagerSpy.getLocalizationKeyArgumentsReturnValue = localizationKeyReturnValue
 
-        #expect(ParleyLocalizationKey.cancel.localized() == localizationKeyReturnValue)
+        await #expect(ParleyLocalizationKey.cancel.localized() == localizationKeyReturnValue)
         #expect(localizationManagerSpy.getLocalizationKeyArgumentsCallsCount == 1)
     }
 }

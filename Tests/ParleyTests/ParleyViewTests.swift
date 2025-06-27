@@ -38,7 +38,8 @@ struct ParleyViewTests {
             messagesManager: messagesManagerStub,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
-            reachabilityProvider: reachabilityProvideStub
+            reachabilityProvider: reachabilityProvideStub,
+            messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
         
         parleyStub = ParleyStub(
@@ -113,7 +114,7 @@ struct ParleyViewTests {
                 title: nil,
                 message: "Thank you for your **prompt** *reply* ❤️",
                 type: .user,
-                status: .pending,
+                sendStatus: .pending,
                 agent: nil
             )
         ])
