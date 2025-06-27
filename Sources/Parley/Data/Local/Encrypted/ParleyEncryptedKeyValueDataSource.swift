@@ -1,6 +1,6 @@
-import Foundation
+@preconcurrency import Foundation
 
-public class ParleyEncryptedKeyValueDataSource {
+public final class ParleyEncryptedKeyValueDataSource: Sendable {
 
     private let store: ParleyEncryptedStore
 
@@ -34,30 +34,30 @@ public class ParleyEncryptedKeyValueDataSource {
 extension ParleyEncryptedKeyValueDataSource: ParleyKeyValueDataSource {
 
     @discardableResult
-    public func clear() -> Bool {
-        store.clear()
+    public func clear() async -> Bool {
+        await store.clear()
     }
 
-    public func string(forKey key: String) -> String? {
-        store.string(forKey: key)
+    public func string(forKey key: String) async -> String? {
+        await store.string(forKey: key)
     }
 
-    public func data(forKey key: String) -> Data? {
-        store.data(forKey: key)
-    }
-
-    @discardableResult
-    public func set(_ string: String, forKey key: String) -> Bool {
-        store.set(string, forKey: key)
+    public func data(forKey key: String) async -> Data? {
+        await store.data(forKey: key)
     }
 
     @discardableResult
-    public func set(_ data: Data, forKey key: String) -> Bool {
-        store.set(data, forKey: key)
+    public func set(_ string: String, forKey key: String) async -> Bool {
+        await store.set(string, forKey: key)
     }
 
     @discardableResult
-    public func removeObject(forKey key: String) -> Bool {
-        store.removeObject(forKey: key)
+    public func set(_ data: Data, forKey key: String) async -> Bool {
+        await store.set(data, forKey: key)
+    }
+
+    @discardableResult
+    public func removeObject(forKey key: String) async -> Bool {
+        await store.removeObject(forKey: key)
     }
 }

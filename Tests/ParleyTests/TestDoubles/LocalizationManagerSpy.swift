@@ -1,7 +1,7 @@
 import Parley
 import XCTest
 
-public final class LocalizationManagerSpy: LocalizationManager {
+public final class LocalizationManagerSpy: @unchecked Sendable, LocalizationManager {
 
     public init(
         getLocalizationKeyArgumentsReturnValue: String? = nil

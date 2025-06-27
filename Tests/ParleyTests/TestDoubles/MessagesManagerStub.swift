@@ -1,23 +1,46 @@
 import Foundation
-
 @testable import Parley
 
-final class MessagesManagerStub: MessagesManagerProtocol {
+final actor MessagesManagerStub: MessagesManagerProtocol {
     
     // MARK: Stub Configuration
     private var canLoadMoreMessages: Bool = false
     
     // MARK: MessagesManagerProtocol Properties
     var latestMessage: Message? { nil }
-    var welcomeMessage: String?
+    private(set) var welcomeMessage: String?
     
-    var messages: [Message] = [Message.makeTestData(), Message.makeTestData()]
+    private(set) var messages: [Message] = [Message.makeTestData(), Message.makeTestData()]
 
-    var pendingMessages: [Message] = []
+    private(set) var pendingMessages: [Message] = []
 
-    var lastSentMessage: Message?
+    private(set) var lastSentMessage: Message?
 
-    var stickyMessage: String?
+    private(set) var stickyMessage: String?
+}
+
+// MARK: Setters
+extension MessagesManagerStub {
+    
+    func setWelcomeMessage(_ message: String?) {
+        self.welcomeMessage = message
+    }
+    
+    func setMessages(_ messages: [Message]) {
+        self.messages = messages
+    }
+    
+    func setPendingMessages(_ messages: [Message]) {
+        self.pendingMessages = messages
+    }
+    
+    func setLastSentMessage(_ messages: Message?) {
+        self.lastSentMessage = messages
+    }
+    
+    func setStickyMessage(_ message: String?) {
+        self.stickyMessage = message
+    }
 }
 
 // MARK: Methods

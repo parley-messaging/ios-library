@@ -7,8 +7,8 @@ extension Parley {
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig? = nil,
-        onSuccess: (() -> Void)? = nil,
-        onFailure: ((_ code: Int, _ message: String) -> Void)? = nil
+        onSuccess: (@Sendable () -> Void)? = nil,
+        onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
         let localNetworkConfig = if let networkConfig { networkConfig } else { ParleyNetworkConfig() }
 
@@ -26,10 +26,10 @@ extension Parley {
         _ secret: String,
         uniqueDeviceIdentifier: String? = nil,
         networkConfig: ParleyNetworkConfig? = nil,
-    ) async -> Parley.ConfigurationResult {
+    ) async throws(Parley.ConfigurationError) {
         let localNetworkConfig = networkConfig ?? ParleyNetworkConfig()
 
-        return await configure(
+        try await configure(
             secret,
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             networkConfig: localNetworkConfig,

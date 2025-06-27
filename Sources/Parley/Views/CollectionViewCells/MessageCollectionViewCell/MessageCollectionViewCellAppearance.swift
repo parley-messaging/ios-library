@@ -23,7 +23,7 @@ public final class MessageCollectionViewCellAppearance: ParleyMessageViewAppeara
     }
 
     static func user() -> MessageCollectionViewCellAppearance {
-        var appearance = MessageCollectionViewCellAppearance()
+        let appearance = MessageCollectionViewCellAppearance()
 
         let edgeInsets = UIEdgeInsets(top: 21, left: 21, bottom: 21, right: 23)
 

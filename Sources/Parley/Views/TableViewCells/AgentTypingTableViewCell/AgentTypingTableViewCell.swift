@@ -41,6 +41,7 @@ final class AgentTypingTableViewCell: UITableViewCell {
         case .easeIn: return .curveEaseIn
         case .easeOut: return .curveEaseOut
         case .linear: return .curveLinear
+        @unknown default: return .curveEaseInOut
         }
     }
 
@@ -48,8 +49,10 @@ final class AgentTypingTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        accessibilityLabel = ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized()
-        apply(appearance)
+        MainActor.assumeIsolated {
+            accessibilityLabel = ParleyLocalizationKey.voiceOverMessageAgentIsTyping.localized()
+            apply(appearance)
+        }
     }
 
     override func prepareForReuse() {
@@ -60,13 +63,16 @@ final class AgentTypingTableViewCell: UITableViewCell {
         dot3View.transform = .identity
     }
 
+    @MainActor
     func startAnimating() {
         stopAnimating()
 
         startTimer?.invalidate()
         startTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
-            self?.animating = true
-            self?.animation1()
+            MainActor.assumeIsolated {
+                self?.animating = true
+                self?.animation1()
+            }
         })
     }
 

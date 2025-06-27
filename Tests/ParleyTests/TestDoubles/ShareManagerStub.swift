@@ -1,7 +1,7 @@
 import Foundation
 @testable import Parley
 
-final class ShareManagerStub: ShareManagerProtocol {
+final actor ShareManagerStub: ShareManagerProtocol {
 
     var url: URL?
     var error: ShareManager.ShareManagerError = .unableToSaveFile(id: "Test")

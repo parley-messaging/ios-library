@@ -72,13 +72,15 @@ public class ParleyComposeView: UIView {
             sendButton.accessibilityLabel = ParleyLocalizationKey.voiceOverSendButtonLabel.localized()
 
             sendButtonEnabledObservation = observe(\.sendButton?.isEnabled, options: [.new]) { [weak self] _, change in
-                let isEnabled = change.newValue
-
-                if isEnabled == true {
-                    self?.sendButton.accessibilityHint = nil
-                } else {
-                    self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint
-                        .localized()
+                MainActor.assumeIsolated { [weak self] in
+                    let isEnabled = change.newValue
+                    
+                    if isEnabled == true {
+                        self?.sendButton.accessibilityHint = nil
+                    } else {
+                        self?.sendButton.accessibilityHint = ParleyLocalizationKey.voiceOverSendButtonDisabledHint
+                            .localized()
+                    }
                 }
             }
         }
@@ -279,7 +281,7 @@ public class ParleyComposeView: UIView {
 
             placeholderTopConstraint.constant = messageLineHeight - placeholderLineHeight
 
-            layoutIfNeeded()
+            setNeedsLayout()
         }
     }
 

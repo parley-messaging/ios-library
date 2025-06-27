@@ -1,3 +1,3 @@
 protocol ParleySuggestionsViewDelegate: AnyObject {
-    func didSelect(_ suggestion: String)
+    @MainActor func didSelect(_ suggestion: String)
 }

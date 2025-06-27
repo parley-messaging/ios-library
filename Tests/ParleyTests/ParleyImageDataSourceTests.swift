@@ -1,55 +1,56 @@
-import XCTest
+import UIKit
+import Testing
 @testable import Parley
 
-final class ParleyImageDataSourceTests: XCTestCase {
+@Suite("Parley Imgage Data Source Tests")
+struct ParleyImageDataSourceTests {
 
-    private var testImage: UIImage {
-        UIImage(resource: .Tests.redBlockJpg)
-    }
+    private let testImage: UIImage = UIImage(resource: .Tests.redBlockJpg)
 
     private var testImageData: Data? {
         testImage.jpegData(compressionQuality: 1)
     }
 
-    private lazy var dataSource: ParleyMediaDataSource = {
-        let crypter = try! ParleyCrypter(key: "6543210987654321", size: .bits128)
-        return try! ParleyEncryptedMediaDataSource(crypter: crypter, directory: .custom("parley_images_tests"))
-    }()
-
-    override func setUp() {
-        dataSource.clear()
+    private let dataSource: ParleyMediaDataSource
+    
+    init() throws {
+        let crypter = try ParleyCrypter(key: "6543210987654321", size: .bits128)
+        dataSource = try ParleyEncryptedMediaDataSource(
+            crypter: crypter,
+            directory: .custom("parley_images_tests_\(UUID().uuidString)")
+        )
     }
 
-    func testDataSource_ShouldBeEmpty_OnCreation() {
-        XCTAssertTrue(dataSource.all().isEmpty, "Datasource should be empty")
+    @Test
+    func testDataSource_ShouldBeEmpty_OnCreation() async {
+        await #expect(dataSource.all().isEmpty, "Datasource should be empty")
     }
 
-    func testDataSource_ShouldClear_withNoData() {
-        let didClear = dataSource.clear()
-        XCTAssertTrue(didClear, "Datasource should clear")
-        XCTAssertTrue(dataSource.all().isEmpty, "Datasource should still be empty")
+    @Test
+    func testDataSource_ShouldClear_withNoData() async {
+        let didClear = await dataSource.clear()
+        #expect(didClear, "Datasource should clear")
+        await #expect(dataSource.all().isEmpty, "Datasource should still be empty")
     }
 
-    func testDataSource_ShouldSaveImage_whenAttemptingToSaveJPEG() {
-        guard let imageData = testImage.jpegData(compressionQuality: 1) else {
-            XCTFail("Should exist") ; return
-        }
-
+    @Test
+    func testDataSource_ShouldSaveImage_whenAttemptingToSaveJPEG() async throws {
+        let imageData = try #require(testImage.jpegData(compressionQuality: 1))
+        
         let localImage = ParleyStoredMedia(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
-        dataSource.save(media: localImage)
+        await dataSource.save(media: localImage)
 
-        guard let fetchedImage = dataSource.media(id: localImage.id) else {
-            XCTFail("Should exist") ; return
-        }
+        let fetchedImage = try #require(await dataSource.media(id: localImage.id))
 
-        XCTAssertEqual(fetchedImage, localImage)
+        #expect(fetchedImage == localImage)
 
-        let allImages = dataSource.all()
-        XCTAssertEqual(allImages.count, 1)
-        XCTAssertTrue(allImages.contains(localImage))
+        let allImages = await dataSource.all()
+        #expect(allImages.count == 1)
+        #expect(allImages.contains(localImage))
     }
 
-    func testDataSource_shouldSaveArrayOfImages() {
+    @Test
+    func testDataSource_shouldSaveArrayOfImages() async {
         let media = [
             ParleyStoredMedia(
                 filename: UUID().uuidString,
@@ -63,21 +64,22 @@ final class ParleyImageDataSourceTests: XCTestCase {
             ),
         ]
 
-        dataSource.save(media: media)
+        await dataSource.save(media: media)
 
-        let fetchedImage = dataSource.all()
-        XCTAssertEqual(media.count, fetchedImage.count)
+        let fetchedImage = await dataSource.all()
+        #expect(media.count == fetchedImage.count)
     }
 
-    func testDataSource_shouldDeleteMedia_AfterSavingMedia() throws {
-        let imageData = testImageData!
+    @Test
+    func testDataSource_shouldDeleteMedia_AfterSavingMedia() async throws {
+        let imageData = try #require(testImageData)
         let localImage = ParleyStoredMedia(filename: UUID().uuidString, data: imageData, type: .imageJPeg)
-        dataSource.save(media: localImage)
+        await dataSource.save(media: localImage)
 
-        XCTAssertTrue(dataSource.delete(id: localImage.id))
+        #expect(await dataSource.delete(id: localImage.id))
 
-        XCTAssertNil(dataSource.media(id: localImage.id))
+        await #expect(dataSource.media(id: localImage.id) == nil)
 
-        XCTAssertFalse(dataSource.delete(id: localImage.id), "Should not find image, which should return `false`.")
+        await #expect(dataSource.delete(id: localImage.id) == false, "Should not find image, which should return `false`.")
     }
 }

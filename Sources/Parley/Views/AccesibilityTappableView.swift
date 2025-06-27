@@ -3,7 +3,7 @@ import UIKit
 final class AccesibilityTappableView: UIView {
     
     protocol Delegate: AnyObject {
-        func didActivate() -> Bool
+        @MainActor func didActivate() -> Bool
     }
     
     weak var delegate: Delegate?

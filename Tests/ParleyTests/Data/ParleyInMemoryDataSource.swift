@@ -1,7 +1,7 @@
 import Foundation
 @testable import Parley
 
-final class ParleyMessageDataSourceMock: ParleyMessageDataSource {
+final actor ParleyMessageDataSourceMock: ParleyMessageDataSource {
 
     private var messages = [Message]()
 
@@ -25,7 +25,7 @@ final class ParleyMessageDataSourceMock: ParleyMessageDataSource {
     func update(_ message: Message) {
         guard
             let index = messages.firstIndex(where: {
-                $0.id == message.id || $0.uuid == message.uuid
+                $0.remoteId == message.remoteId || $0.id == message.id
             }) else { return }
         messages[index] = message
     }

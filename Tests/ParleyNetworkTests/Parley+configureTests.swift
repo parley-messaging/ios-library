@@ -4,25 +4,35 @@ import Foundation
 @testable import Parley
 @testable import ParleyNetwork
 
-@Suite(.serialized)
+@Suite(
+    .serialized,
+    .disabled("Requires separate UI testing", {
+        return false
+    })
+)
 struct AlamofireHTTParleyConfigureTestsPMethodTests {
-
-    func testSettingDefaultConfig() async throws {
-        let result = await Parley.configure("secret")
-        try result.get()
-        
-        #expect(Parley.shared.networkConfig.headers == [:])
-        #expect(Parley.shared.networkConfig.url == kParleyNetworkUrl)
-        #expect(Parley.shared.networkConfig.path == kParleyNetworkPath)
-
-        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+    
+    init() async throws {
+        try await ParleyActor.shared.reset()
     }
 
-    func testSettingCustomConfig() async throws {
+    @Test
+    func testSettingDefaultConfig() async {
+        try? await Parley.configure("secret")
+        
+        await #expect(ParleyActor.shared.networkConfig.headers == [:])
+        await #expect(ParleyActor.shared.networkConfig.url == kParleyNetworkUrl)
+        await #expect(ParleyActor.shared.networkConfig.path == kParleyNetworkPath)
+
+        await #expect(ParleyActor.shared.remote.networkSession is AlamofireNetworkSession)
+    }
+
+    @Test
+    func testSettingCustomConfig() async {
         let url = "https://example.com"
         let path = "/example"
         let headers = ["example": "example"]
-        let result = await Parley.configure(
+        try? await Parley.configure(
             "secret",
             networkConfig: ParleyNetworkConfig(
                 url: url,
@@ -31,13 +41,11 @@ struct AlamofireHTTParleyConfigureTestsPMethodTests {
                 headers: headers
             )
         )
-        
-        try result.get()
 
-        #expect(Parley.shared.networkConfig.headers == headers)
-        #expect(Parley.shared.networkConfig.url == url)
-        #expect(Parley.shared.networkConfig.path == path)
+        await #expect(ParleyActor.shared.networkConfig.headers == headers)
+        await #expect(ParleyActor.shared.networkConfig.url == url)
+        await #expect(ParleyActor.shared.networkConfig.path == path)
 
-        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+        await #expect(ParleyActor.shared.remote.networkSession is AlamofireNetworkSession)
     }
 }

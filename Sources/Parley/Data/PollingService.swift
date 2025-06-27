@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 @MainActor
-protocol PollingServiceProtocol: AnyObject {
+protocol PollingServiceProtocol: Sendable, AnyObject {
     func startRefreshing()
     func stopRefreshing()
 }
@@ -18,12 +18,12 @@ final class PollingService: PollingServiceProtocol {
     }
 
     private var timer: Timer?
-    private let messageRepository: MessageRepositoryProtocol
+    private let messageRepository: MessageRepository
     private let messagesManager: MessagesManagerProtocol
     private let messagesInteractor: MessagesInteractor
 
     init(
-        messageRepository: MessageRepositoryProtocol,
+        messageRepository: MessageRepository,
         messagesManager: MessagesManagerProtocol,
         messagesInteractor: MessagesInteractor
     ) {
@@ -80,7 +80,7 @@ final class PollingService: PollingServiceProtocol {
 
     private func refreshFeed() async {
         guard
-            let id = messagesManager.lastSentMessage?.id,
+            let id = await messagesManager.lastSentMessage?.remoteId,
             timer?.isValid == true
         else { return }
         

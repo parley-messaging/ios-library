@@ -2,9 +2,11 @@ import Foundation
 
 @testable import Parley
 
-public final class NetworkMonitorSpy: NetworkMonitorProtocol {
+public final class NetworkMonitorSpy: @unchecked Sendable, NetworkMonitorProtocol {
 
     public init() {}
+    
+    public var isConnected: Bool = false
 
     // MARK: - start
 
@@ -33,5 +35,4 @@ public final class NetworkMonitorSpy: NetworkMonitorProtocol {
         stopCallsCount += 1
         stopClosure?()
     }
-
 }

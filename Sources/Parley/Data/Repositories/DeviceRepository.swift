@@ -1,12 +1,10 @@
 import UserNotifications
 
-final class DeviceRepository {
+final class DeviceRepository: Sendable {
 
-    private let remote: ParleyRemote
     private let deviceService: DeviceRemoteService
 
     init(remote: ParleyRemote) {
-        self.remote = remote
         deviceService = DeviceRemoteService(remote: remote)
     }
 

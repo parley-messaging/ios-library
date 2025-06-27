@@ -27,6 +27,9 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     
     private(set) var presentHideQuickRepliesCallCount = 0
     
+    private(set) var presentScrollToBotomCallCount = 0
+    private(set) var presentScrollToBotomLatestArgument: Bool?
+    
     func set(display: ParleyMessagesDisplay) { }
     
     func set(isScrolledToBottom: Bool) {
@@ -75,5 +78,10 @@ class MessagesPresenterSpy: MessagesPresenterProtocol {
     
     func presentHideQuickReplies() {
         presentHideQuickRepliesCallCount += 1
+    }
+    
+    func presentScrollToBotom(animated: Bool) async {
+        presentScrollToBotomCallCount += 1
+        presentScrollToBotomLatestArgument = animated
     }
 }

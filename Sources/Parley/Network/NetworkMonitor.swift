@@ -1,20 +1,25 @@
 import Foundation
 import Network
 
-protocol NetworkMonitorDelegate: AnyObject {
+protocol NetworkMonitorDelegate: AnyObject, Sendable {
     @MainActor func didUpdateConnection(isConnected: Bool)
 }
 
-protocol NetworkMonitorProtocol {
-    func start()
-    func stop()
+protocol NetworkMonitorProtocol: Sendable {
+    func start() async
+    func stop() async
+    var isConnected: Bool { get async }
 }
 
-final class NetworkMonitor<NWPathMonitorType: NWPathMonitorProtocol>: NetworkMonitorProtocol {
+final actor NetworkMonitor<NWPathMonitorType: NWPathMonitorProtocol>: Sendable, NetworkMonitorProtocol {
     private let networkMonitor: NWPathMonitorType
     private let workerQueue = DispatchQueue(label: "nu.parley.NetworkMonitor")
 
     private weak var delegate: NetworkMonitorDelegate?
+    
+    var isConnected: Bool {
+        Self.hasConnection(status: networkMonitor.currentPath.status)
+    }
 
     init(
         networkMonitor: NWPathMonitorType = NWPathMonitor(),
@@ -28,14 +33,15 @@ final class NetworkMonitor<NWPathMonitorType: NWPathMonitorProtocol>: NetworkMon
         networkMonitor.pathUpdateHandler = { [weak self] path in
             guard let self else { return }
 
-            Task { @MainActor [weak self] in
-                self?.delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: path.status))
+            Task { [weak self] in
+                await self?.delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: path.status))
             }
         }
         networkMonitor.start(queue: workerQueue)
-        Task { @MainActor in
+        let status = networkMonitor.currentPath.status
+        Task {
             /// When there is no change, the start monitor will not call the `pathUpdateHandler` on start.
-            delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: networkMonitor.currentPath.status))
+            await delegate?.didUpdateConnection(isConnected: Self.hasConnection(status: status))
         }
     }
 

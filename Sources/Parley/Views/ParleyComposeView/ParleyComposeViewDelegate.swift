@@ -3,14 +3,14 @@ import UniformTypeIdentifiers
 
 protocol ParleyComposeViewDelegate: AnyObject {
 
-    func didChange()
+    @MainActor func didChange()
 
-    func send(_ message: String)
-    func send(image: UIImage, with data: Data, url: URL)
-    func send(file url: URL)
+    @MainActor func send(_ message: String)
+    @MainActor func send(image: UIImage, with data: Data, url: URL)
+    @MainActor func send(file url: URL)
 
     @available(iOS 14.0, *)
-    func send(image: UIImage, data: Data, fileName: String, type: UTType)
+    @MainActor func send(image: UIImage, data: Data, fileName: String, type: UTType)
 
-    func failedToSelectImage()
+    @MainActor func failedToSelectImage()
 }

@@ -11,12 +11,12 @@ struct MessagesInteractorTests {
     private var reachabilityProvider: ReachabilityProviderStub
     private var messageRepositoryStub: MessageRepositoryStub
     
-    init() {
+    init() async {
         presenter = MessagesPresenterSpy()
         messagesManager = MessagesManagerStub()
         reachabilityProvider = ReachabilityProviderStub()
         messageRepositoryStub = MessageRepositoryStub()
-        interactor = MessagesInteractor(
+        interactor = await MessagesInteractor(
             presenter: presenter,
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
@@ -24,12 +24,12 @@ struct MessagesInteractorTests {
             reachabilityProvider: reachabilityProvider
         )
         
-        setDefaults()
+        await setDefaults()
     }
     
-    private mutating func setDefaults() {
+    private mutating func setDefaults() async {
         reachabilityProvider.whenReachable(true)
-        messagesManager.whenCanLoadMore(false)
+        await messagesManager.whenCanLoadMore(false)
     }
     
     @Test(
@@ -40,208 +40,199 @@ struct MessagesInteractorTests {
             [Message.makeTestData(), Message.makeTestData()]
         ]
     )
-    @MainActor
-    func handleViewDidLoad_ShouldCallPresentMessages(messages: [Message]) {
-        #expect(presenter.presentMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
+    func handleViewDidLoad_ShouldCallPresentMessages(messages: [Message]) async {
+        #expect(await presenter.presentMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
         
-        messagesManager.messages = messages
-        interactor.handleViewDidLoad()
+        await messagesManager.setMessages(messages)
+        await interactor.handleViewDidLoad()
         
-        #expect(presenter.presentSetSectionsCallCount == 1)
-        #expect(presenter.presentMessagesCallCount == 1)
-        #expect(presenter.presentQuickRepliesCallCount == 0)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 1)
+        #expect(await presenter.presentMessagesCallCount == 1)
+        #expect(await presenter.presentQuickRepliesCallCount == 0)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test(arguments: [
         [
-            Message.makeTestData(id: 0, quickReplies: ["Yes"], type: .agent)
+            Message.makeTestData(remoteId: 0, quickReplies: ["Yes"], type: .agent)
         ],
         [
-            Message.makeTestData(id: 0, message: "Would you like to order", type: .agent),
-            Message.makeTestData(id: 1, quickReplies: ["Yes"], type: .agent),
+            Message.makeTestData(remoteId: 0, message: "Would you like to order", type: .agent),
+            Message.makeTestData(remoteId: 1, quickReplies: ["Yes"], type: .agent),
         ]
     ])
-    @MainActor
-    func handleViewDidLoad_ShouldPresentQuickReplies_WhenQuickReplyMessageIsTheLastMessage(messages: [Message]) {
-        #expect(presenter.presentMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
+    func handleViewDidLoad_ShouldPresentQuickReplies_WhenQuickReplyMessageIsTheLastMessage(messages: [Message]) async {
+        #expect(await presenter.presentMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
         
-        messagesManager.messages = messages
-        interactor.handleViewDidLoad()
+        await messagesManager.setMessages(messages)
+        await interactor.handleViewDidLoad()
         
-        #expect(presenter.presentQuickRepliesCallCount == 1)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 1)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test(arguments: [
         [
-            Message.makeTestData(id: 0, quickReplies: ["Yes"], type: .agent),
-            Message.makeTestData(id: 0, message: "Describe your issue", type: .agent),
+            Message.makeTestData(remoteId: 0, quickReplies: ["Yes"], type: .agent),
+            Message.makeTestData(remoteId: 0, message: "Describe your issue", type: .agent),
         ],
         [
-            Message.makeTestData(id: 0, message: "Do you want to order", type: .agent),
-            Message.makeTestData(id: 0, quickReplies: ["Yes"], type: .agent),
-            Message.makeTestData(id: 0, message: "Yes I want to order", type: .user),
+            Message.makeTestData(remoteId: 0, message: "Do you want to order", type: .agent),
+            Message.makeTestData(remoteId: 0, quickReplies: ["Yes"], type: .agent),
+            Message.makeTestData(remoteId: 0, message: "Yes I want to order", type: .user),
         ]
     ])
-    @MainActor
-    func handleViewDidLoad_ShouldIgnoreQuickReplies_WhenQuickReplyMessageIsNotTheLastMessage(messages: [Message]) {
-        #expect(presenter.presentMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
+
+    func handleViewDidLoad_ShouldIgnoreQuickReplies_WhenQuickReplyMessageIsNotTheLastMessage(messages: [Message]) async {
+        #expect(await presenter.presentMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
         
-        messagesManager.messages = messages
-        interactor.handleViewDidLoad()
+        await messagesManager.setMessages(messages)
+        await interactor.handleViewDidLoad()
         
-        #expect(presenter.presentQuickRepliesCallCount == 0)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 0)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test
-    @MainActor
-    func handleViewDidLoad_ShouldNotSetStickyMessage_WhenStickyMessageIsAbsent() {
-        messagesManager.stickyMessage = nil
-        #expect(presenter.presentStickyMessageCallCount == 0)
-        interactor.handleViewDidLoad()
-        #expect(presenter.presentStickyMessageCallCount == 0)
+    func handleViewDidLoad_ShouldNotSetStickyMessage_WhenStickyMessageIsAbsent() async {
+        await messagesManager.setStickyMessage(nil)
+        #expect(await presenter.presentStickyMessageCallCount == 0)
+        await interactor.handleViewDidLoad()
+        #expect(await presenter.presentStickyMessageCallCount == 0)
     }
     
     @Test
-    @MainActor
-    func handleViewDidLoad_ShouldNotSetStickyMessage_WhenWelcomeStickyIsEmpty() {
-        messagesManager.stickyMessage = ""
-        #expect(presenter.presentStickyMessageCallCount == 0)
-        interactor.handleViewDidLoad()
-        #expect(presenter.presentStickyMessageCallCount == 0)
+    func handleViewDidLoad_ShouldNotSetStickyMessage_WhenWelcomeStickyIsEmpty() async {
+        await messagesManager.setStickyMessage("")
+        #expect(await presenter.presentStickyMessageCallCount == 0)
+        await interactor.handleViewDidLoad()
+        #expect(await presenter.presentStickyMessageCallCount == 0)
     }
     
     @Test
-    @MainActor
-    func handleViewDidLoad_ShouldSetStickyMessage_WhenWelcomeStickyIsPresent() {
-        messagesManager.stickyMessage = "We are closed!"
-        #expect(presenter.presentStickyMessageCallCount == 0)
-        #expect(presenter.presentMessagesCallCount == 0)
+    func handleViewDidLoad_ShouldSetStickyMessage_WhenWelcomeStickyIsPresent() async {
+        await messagesManager.setStickyMessage("We are closed!")
+        #expect(await presenter.presentStickyMessageCallCount == 0)
+        #expect(await presenter.presentMessagesCallCount == 0)
         
-        interactor.handleViewDidLoad()
+        await interactor.handleViewDidLoad()
         
-        #expect(presenter.presentStickyMessageCallCount == 1)
-        #expect(presenter.presentMessagesCallCount == 1)
+        #expect(await presenter.presentStickyMessageCallCount == 1)
+        #expect(await presenter.presentMessagesCallCount == 1)
     }
     
     @Test
     mutating func handleMessageCollection_ShouldPresentStickyMessageAndLoadingAndSetSections() async {
-        #expect(presenter.presentStickyMessageCallCount == 0)
-        #expect(presenter.presentLoadingMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
+        #expect(await presenter.presentStickyMessageCallCount == 0)
+        #expect(await presenter.presentLoadingMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
         
-        messagesManager.messages = [
-            .makeTestData(id: 2, time: Date(timeIntervalSince1970: 2)),
-            .makeTestData(id: 3, time: Date(timeIntervalSince1970: 3))
-        ]
+        await messagesManager.setMessages([
+            .makeTestData(remoteId: 2, time: Date(timeIntervalSince1970: 2)),
+            .makeTestData(remoteId: 3, time: Date(timeIntervalSince1970: 3))
+        ])
 
         let collection = MessageCollection.makeTestData(
             messages: [
-                .makeTestData(id: 0, time: Date(timeIntervalSince1970: 1)),
-                .makeTestData(id: 1, time: Date(timeIntervalSince1970: 2))
+                .makeTestData(remoteId: 0, time: Date(timeIntervalSince1970: 1)),
+                .makeTestData(remoteId: 1, time: Date(timeIntervalSince1970: 2))
             ],
             stickyMessage: "New Sticky Message",
             welcomeMessage: "Welcome!"
         )
         
-        messagesManager.whenCanLoadMore(true)
-        messageRepositoryStub.whenFindBefore(id: 2, .success(collection))
+        await messagesManager.whenCanLoadMore(true)
+        await messageRepositoryStub.whenFindBefore(id: 2, .success(collection))
         
         await interactor.handleLoadMessages()
         
-        #expect(presenter.presentStickyMessageCallCount == 1)
-        #expect(presenter.presentLoadingMessagesCallCount == 2)
-        #expect(presenter.presentSetSectionsCallCount == 1)
+        #expect(await presenter.presentStickyMessageCallCount == 1)
+        #expect(await presenter.presentLoadingMessagesCallCount == 2)
+        #expect(await presenter.presentSetSectionsCallCount == 1)
     }
     
     @Test
     mutating func handleMessageCollection_ShouldIgnoreQuickReplies_WhenNotTheLastMessage() async {
-        #expect(presenter.presentStickyMessageCallCount == 0)
-        #expect(presenter.presentLoadingMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
+        #expect(await presenter.presentStickyMessageCallCount == 0)
+        #expect(await presenter.presentLoadingMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
         
-        messagesManager.messages = [
-            .makeTestData(id: 4, time: Date(timeIntervalSince1970: 4)),
-            .makeTestData(id: 5, time: Date(timeIntervalSince1970: 5))
-        ]
+        await messagesManager.setMessages([
+            .makeTestData(remoteId: 4, time: Date(timeIntervalSince1970: 4)),
+            .makeTestData(remoteId: 5, time: Date(timeIntervalSince1970: 5))
+        ])
 
         let collection = MessageCollection.makeTestData(
             messages: [
-                .makeTestData(id: 1, time: Date(timeIntervalSince1970: 1)),
-                .makeTestData(id: 2, time: Date(timeIntervalSince1970: 2), quickReplies: ["Yes", "No"]),
-                .makeTestData(id: 3, time: Date(timeIntervalSince1970: 3))
+                .makeTestData(remoteId: 1, time: Date(timeIntervalSince1970: 1)),
+                .makeTestData(remoteId: 2, time: Date(timeIntervalSince1970: 2), quickReplies: ["Yes", "No"]),
+                .makeTestData(remoteId: 3, time: Date(timeIntervalSince1970: 3))
             ],
             stickyMessage: "New Sticky Message",
             welcomeMessage: "Welcome!"
         )
         
-        messagesManager.whenCanLoadMore(true)
-        messageRepositoryStub.whenFindBefore(id: 4, .success(collection))
+        await messagesManager.whenCanLoadMore(true)
+        await messageRepositoryStub.whenFindBefore(id: 4, .success(collection))
         
         await interactor.handleLoadMessages()
         
-        #expect(presenter.presentQuickRepliesCallCount == 0)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 0)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test
-    @MainActor
-    func handleAgentTyping() {
-        #expect(interactor.agentTyping == false)
-        #expect(presenter.didPresentAgentTypingCallsCount == 0)
+    func handleAgentTyping() async {
+        #expect(await interactor.agentTyping == false)
+        #expect(await presenter.didPresentAgentTypingCallsCount == 0)
         
-        interactor.handleAgentBeganTyping()
+        await interactor.handleAgentBeganTyping()
         
-        #expect(interactor.agentTyping)
-        #expect(presenter.didPresentAgentTypingCallsCount == 1)
+        #expect(await interactor.agentTyping)
+        #expect(await presenter.didPresentAgentTypingCallsCount == 1)
     }
     
     @Test
-    @MainActor
-    func handleAgentTyping_whenAgentIsAlreadyTyping() {
-        interactor.handleAgentBeganTyping()
-        #expect(presenter.didPresentAgentTypingCallsCount == 1)
+    func handleAgentTyping_whenAgentIsAlreadyTyping() async {
+        await interactor.handleAgentBeganTyping()
+        #expect(await presenter.didPresentAgentTypingCallsCount == 1)
         
-        interactor.handleAgentBeganTyping()
+        await interactor.handleAgentBeganTyping()
         
-        #expect(interactor.agentTyping)
-        #expect(presenter.didPresentAgentTypingCallsCount == 1)
+        #expect(await interactor.agentTyping)
+        #expect(await presenter.didPresentAgentTypingCallsCount == 1)
     }
     
     @Test
-    @MainActor
     func handleLoadMessages_WithoutNewMessages_ShouldNotBeInLoadingState() async {
-        #expect(presenter.presentLoadingMessagesCallCount == 0)
+        #expect(await presenter.presentLoadingMessagesCallCount == 0)
         
-        messagesManager.whenCanLoadMore(false)
+        await messagesManager.whenCanLoadMore(false)
         await interactor.handleLoadMessages()
         
-        #expect(presenter.presentLoadingMessagesCallCount == 0)
+        #expect(await presenter.presentLoadingMessagesCallCount == 0)
     }
     
     @Test(
         arguments: [
             Result<MessageCollection, Error>.failure(CancellationError()),
             Result<MessageCollection, Error>.success(
-                MessageCollection.makeTestData(messages: [.makeTestData(id: 0), .makeTestData(id: 1)])
+                MessageCollection.makeTestData(messages: [.makeTestData(remoteId: 0), .makeTestData(remoteId: 1)])
             )
         ]
     )
-    @MainActor
     mutating func handleLoadMessages_withNewMessages_ShouldBeInLoadingState(result: Result<MessageCollection, Error>) async {
-        #expect(presenter.presentLoadingMessagesCallCount == 0)
+        #expect(await presenter.presentLoadingMessagesCallCount == 0)
         
-        messagesManager.messages = [.makeTestData(id: 1)]
-        messagesManager.whenCanLoadMore(true)
-        messageRepositoryStub.whenFindBefore(id: 1, result)
+        await messagesManager.setMessages([.makeTestData(remoteId: 1)])
+        await messagesManager.whenCanLoadMore(true)
+        await messageRepositoryStub.whenFindBefore(id: 1, result)
         await interactor.handleLoadMessages()
         
-        #expect(presenter.presentLoadingMessagesCallCount == 2)
+        #expect(await presenter.presentLoadingMessagesCallCount == 2)
     }
     
     // MARK: Quick Replies
@@ -251,71 +242,67 @@ struct MessagesInteractorTests {
         ["Yes", "No"],
         ["Yes", "No", "Maybe"],
     ])
-    @MainActor
-    mutating func handleNewMessage_ShouldPresentQuickReplies_WhenMessageHasQuickReplies(quickReplies: [String]) {
+    mutating func handleNewMessage_ShouldPresentQuickReplies_WhenMessageHasQuickReplies(quickReplies: [String]) async {
         let message = Message.makeTestData(time: Date(), quickReplies: quickReplies, type: .agent)
         
-        interactor.handleNewMessage(message)
+        await interactor.handleNewMessage(message)
         
-        #expect(presenter.presentMessagesCallCount == 0)
-        #expect(presenter.presentSetSectionsCallCount == 0)
-        #expect(presenter.presentAddMessageCallCount == 0)
-        #expect(presenter.presentQuickRepliesCallCount == 1)
-        #expect(presenter.presentQuickRepliesLatestArgument == quickReplies)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentMessagesCallCount == 0)
+        #expect(await presenter.presentSetSectionsCallCount == 0)
+        #expect(await presenter.presentAddMessageCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 1)
+        #expect(await presenter.presentQuickRepliesLatestArgument == quickReplies)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test
-    @MainActor
-    mutating func handleNewMessage_ShouldPresentQuickReplies_WhenQuickRepliesWereAlreadyPresentedWithADiffentValue() {
+    mutating func handleNewMessage_ShouldPresentQuickReplies_WhenQuickRepliesWereAlreadyPresentedWithADiffentValue() async {
         // Setup
         let oldQuickreplies = ["Old", "Reply"]
         let newQuickreplies = ["New", "Reply"]
         let oldQuickReplyMessage = Message.makeTestData(time: Date(), quickReplies: oldQuickreplies, type: .agent)
-        interactor.handleNewMessage(oldQuickReplyMessage)
+        await interactor.handleNewMessage(oldQuickReplyMessage)
         
         // When
         let newQuickReplyMessage = Message.makeTestData(time: Date(), quickReplies: newQuickreplies, type: .agent)
-        interactor.handleNewMessage(newQuickReplyMessage)
+        await interactor.handleNewMessage(newQuickReplyMessage)
         
         // Then
-        #expect(presenter.presentQuickRepliesCallCount == 2)
-        #expect(presenter.presentQuickRepliesLatestArgument == newQuickreplies)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 2)
+        #expect(await presenter.presentQuickRepliesLatestArgument == newQuickreplies)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test
-    @MainActor
-    mutating func handleNewMessage_ShouldIgnoreQuickReplyMessage_WhenQuickRepliesWereAlreadyPresentedWithTheSameValue() {
+    mutating func handleNewMessage_ShouldIgnoreQuickReplyMessage_WhenQuickRepliesWereAlreadyPresentedWithTheSameValue() async {
         // Setup
         let quickreplies = ["Old", "Reply"]
         let oldQuickReplyMessage = Message.makeTestData(time: Date(), quickReplies: quickreplies, type: .agent)
-        interactor.handleNewMessage(oldQuickReplyMessage)
+        await interactor.handleNewMessage(oldQuickReplyMessage)
         
         // When
         let newQuickReplyMessage = Message.makeTestData(time: Date(), quickReplies: quickreplies, type: .agent)
-        interactor.handleNewMessage(newQuickReplyMessage)
+        await interactor.handleNewMessage(newQuickReplyMessage)
         
         // Then
-        #expect(presenter.presentQuickRepliesCallCount == 1)
-        #expect(presenter.presentQuickRepliesLatestArgument == quickreplies)
-        #expect(presenter.presentHideQuickRepliesCallCount == 0)
+        #expect(await presenter.presentQuickRepliesCallCount == 1)
+        #expect(await presenter.presentQuickRepliesLatestArgument == quickreplies)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 0)
     }
     
     @Test
-    @MainActor
-    mutating func handleNewMessage_ShouldHideQuickReplyMessage_WhenQuickRepliesWerePreviouslyPresented() {
+    mutating func handleNewMessage_ShouldHideQuickReplyMessage_WhenQuickRepliesWerePreviouslyPresented() async {
         // Setup
         let quickReplies = ["Yes", "No"]
         let oldQuickReplyMessage = Message.makeTestData(time: Date(), quickReplies: quickReplies, type: .agent)
-        interactor.handleNewMessage(oldQuickReplyMessage)
+        await interactor.handleNewMessage(oldQuickReplyMessage)
         
         // When
         let newAgentMessage = Message.makeTestData(time: Date(), message: "Hello", type: .agent)
-        interactor.handleNewMessage(newAgentMessage)
+        await interactor.handleNewMessage(newAgentMessage)
         
         // Then
-        #expect(presenter.presentQuickRepliesCallCount == 1)
-        #expect(presenter.presentHideQuickRepliesCallCount == 1)
+        #expect(await presenter.presentQuickRepliesCallCount == 1)
+        #expect(await presenter.presentHideQuickRepliesCallCount == 1)
     }
 }

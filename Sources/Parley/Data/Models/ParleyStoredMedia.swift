@@ -3,7 +3,7 @@ import Foundation
 /// A file stored locally on-device.
 ///
 /// This file can either be already uploaded or is pending to be uploaded later when the user is online.
-public struct ParleyStoredMedia: Codable {
+public struct ParleyStoredMedia: Codable, Sendable {
     let filename: String
     var data: Data
     let type: ParleyMediaType

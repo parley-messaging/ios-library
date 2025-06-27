@@ -1,4 +1,4 @@
-import Foundation
+@preconcurrency import Foundation
 
 @available(
     *,
@@ -8,7 +8,7 @@ import Foundation
 )
 public typealias ParleyEncryptedImageDataSource = ParleyEncryptedMediaDataSource
 
-public class ParleyEncryptedMediaDataSource {
+public final class ParleyEncryptedMediaDataSource {
 
     private let store: ParleyEncryptedStore
 
@@ -41,10 +41,10 @@ public class ParleyEncryptedMediaDataSource {
 
 extension ParleyEncryptedMediaDataSource: ParleyMediaDataSource {
 
-    public func clear() -> Bool {
+    public func clear() async -> Bool {
         do {
-            for url in getFiles() {
-                try store.fileManager.removeItem(at: url)
+            for url in await getFiles() {
+                try await store.removeItem(at: url)
             }
             return true
         } catch {
@@ -52,59 +52,65 @@ extension ParleyEncryptedMediaDataSource: ParleyMediaDataSource {
         }
     }
 
-    public func all() -> [ParleyStoredMedia] {
-        getFiles().compactMap(obtainStoredMedia(from:))
+    public func all() async -> [ParleyStoredMedia] {
+        var allMedia = [ParleyStoredMedia]()
+        for file in await getFiles() {
+            if let media = await obtainStoredMedia(from: file) {
+                allMedia.append(media)
+            }
+        }
+        return allMedia
     }
 
-    public func media(id: ParleyStoredMedia.ID) -> ParleyStoredMedia? {
-        guard let url = path(id: id) else { return nil }
-        return obtainStoredMedia(from: url)
+    public func media(id: ParleyStoredMedia.ID) async -> ParleyStoredMedia? {
+        guard let url = await path(id: id) else { return nil }
+        return await obtainStoredMedia(from: url)
     }
 
-    private func path(id: ParleyStoredMedia.ID) -> URL? {
-        getFiles().first(where: { $0.lastPathComponent.contains(id) })
+    private func path(id: ParleyStoredMedia.ID) async -> URL? {
+        await getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 
-    private func obtainStoredMedia(from url: URL) -> ParleyStoredMedia? {
+    private func obtainStoredMedia(from url: URL) async -> ParleyStoredMedia? {
         guard
-            let decryptedData = getDecryptedStoredMediaData(url: url),
+            let decryptedData = await getDecryptedStoredMediaData(url: url),
             let filePath = ParleyStoredMedia.FilePath.from(url: url) else { return nil }
 
         return ParleyStoredMedia(filename: filePath.name, data: decryptedData, type: filePath.type)
     }
 
-    private func getDecryptedStoredMediaData(url: URL) -> Data? {
-        guard let data = store.fileManager.contents(atPath: url.path) else { return nil }
+    private func getDecryptedStoredMediaData(url: URL) async -> Data? {
+        guard let data = await store.contents(atPath: url.path) else { return nil }
         return try? store.crypter.decrypt(data)
     }
 
-    public func save(media: [ParleyStoredMedia]) {
+    public func save(media: [ParleyStoredMedia]) async {
         for medium in media {
-            save(media: medium)
+            await save(media: medium)
         }
     }
 
-    public func save(media: ParleyStoredMedia) {
+    public func save(media: ParleyStoredMedia) async {
         let path = ParleyStoredMedia.FilePath.from(media: media).fileName
         let absoluteURL = store.destination.appendingPathComponent(path)
 
         if let encryptedMediaData = try? store.crypter.encrypt(media.data) {
-            store.fileManager.createFile(atPath: absoluteURL.path, contents: encryptedMediaData)
+            await store.createFile(atPath: absoluteURL.path, contents: encryptedMediaData)
         }
     }
 
-    public func delete(id: ParleyStoredMedia.ID) -> Bool {
-        guard let url = findUrlForStoredMedia(id: id) else { return false }
-        return removeItem(at: url)
+    public func delete(id: ParleyStoredMedia.ID) async -> Bool {
+        guard let url = await findUrlForStoredMedia(id: id) else { return false }
+        return await removeItem(at: url)
     }
 
-    private func findUrlForStoredMedia(id: ParleyStoredMedia.ID) -> URL? {
-        getFiles().first(where: { $0.lastPathComponent.contains(id) })
+    private func findUrlForStoredMedia(id: ParleyStoredMedia.ID) async -> URL? {
+        await getFiles().first(where: { $0.lastPathComponent.contains(id) })
     }
 
-    private func removeItem(at url: URL) -> Bool {
+    private func removeItem(at url: URL) async -> Bool {
         do {
-            try store.fileManager.removeItem(at: url)
+            try await store.removeItem(at: url)
             return true
         } catch {
             return false
@@ -114,11 +120,10 @@ extension ParleyEncryptedMediaDataSource: ParleyMediaDataSource {
 
 extension ParleyEncryptedMediaDataSource {
 
-    private func getFiles() -> [URL] {
+    private func getFiles() async -> [URL] {
         guard
-            let urls = try? store.fileManager.contentsOfDirectory(at: store.destination, includingPropertiesForKeys: [
-                .isRegularFileKey,
-            ]) else { return [URL]() }
+            let urls = try? await store.filesOfDirectory(at: store.destination)
+        else { return [URL]() }
 
         return urls
     }

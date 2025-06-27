@@ -1,4 +1,3 @@
 public protocol ParleyViewDelegate: AnyObject {
-
-    func didSentMessage()
+    @MainActor func didSentMessage()
 }

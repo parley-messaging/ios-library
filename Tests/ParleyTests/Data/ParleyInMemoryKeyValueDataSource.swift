@@ -1,7 +1,7 @@
 import Foundation
 @testable import Parley
 
-final class ParleyInMemoryKeyValueDataSource: ParleyKeyValueDataSource {
+final actor ParleyInMemoryKeyValueDataSource: ParleyKeyValueDataSource {
 
     private var dataDict = [String: Any]()
 

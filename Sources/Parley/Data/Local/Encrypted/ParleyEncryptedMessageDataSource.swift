@@ -1,6 +1,6 @@
 import Foundation
 
-public class ParleyEncryptedMessageDataSource {
+public final class ParleyEncryptedMessageDataSource: Sendable {
 
     private let store: ParleyEncryptedStore
 
@@ -20,53 +20,56 @@ public class ParleyEncryptedMessageDataSource {
 
     public init(
         crypter: ParleyCrypter,
-        directory: Directory = .default,
-        fileManager: FileManager = .default
+        directory: Directory = .default
     ) throws {
         store = try ParleyEncryptedStore(
             crypter: crypter,
             directory: directory.path,
-            fileManager: fileManager
+            fileManager: .default
         )
     }
 }
 
 extension ParleyEncryptedMessageDataSource: ParleyMessageDataSource {
 
-    public func clear() -> Bool {
-        store.clear()
+    public func clear() async -> Bool {
+        await store.clear()
     }
 
-    public func all() -> [Message]? {
-        guard let jsonData = store.data(forKey: kParleyCacheKeyMessages) else { return nil }
-        return try? CodableHelper.shared.decode([Message].self, from: jsonData)
+    public func all() async -> [Message]? {
+        guard
+            let jsonData = await store.data(forKey: kParleyCacheKeyMessages),
+            let remoteMessage = try? CodableHelper.shared.decode([StoredMessage].self, from: jsonData)
+        else { return nil }
+        return remoteMessage.map { $0.toDomainModel() }
     }
 
-    public func save(_ messages: [Message]) {
-        if let messages = try? CodableHelper.shared.toJSONString(messages) {
-            store.set(messages, forKey: kParleyCacheKeyMessages)
+    public func save(_ messages: [Message]) async {
+        let messagesToStore = messages.map(StoredMessage.init(message:))
+        if let messages = try? CodableHelper.shared.toJSONString(messagesToStore) {
+            await store.set(messages, forKey: kParleyCacheKeyMessages)
         } else {
-            store.removeObject(forKey: kParleyCacheKeyMessages)
+            await store.removeObject(forKey: kParleyCacheKeyMessages)
         }
     }
 
-    public func insert(_ message: Message, at index: Int) {
-        var messages: [Message] = all() ?? []
+    public func insert(_ message: Message, at index: Int) async {
+        var messages: [Message] = await all() ?? []
         messages.insert(message, at: index)
 
-        save(messages)
+        await save(messages)
     }
 
-    public func update(_ message: Message) {
-        var messages: [Message] = all() ?? []
+    public func update(_ message: Message) async {
+        var messages: [Message] = await all() ?? []
 
         guard
             let index = messages.firstIndex(where: { cachedMessage in
-                cachedMessage.id == message.id || cachedMessage.uuid == message.uuid
+                cachedMessage.remoteId == message.remoteId || cachedMessage.localId == message.localId
             }) else { return }
 
         messages[index] = message
 
-        save(messages)
+        await save(messages)
     }
 }

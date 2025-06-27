@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-protocol MessagesManagerProtocol: AnyObject {
+protocol MessagesManagerProtocol: AnyObject, Actor {
     var messages: [Message] { get }
     var pendingMessages: [Message] { get }
     var lastSentMessage: Message? { get }
@@ -9,16 +9,16 @@ protocol MessagesManagerProtocol: AnyObject {
     var welcomeMessage: String? { get }
     var stickyMessage: String? { get }
 
-    func loadCachedData()
-    func clear()
+    func loadCachedData() async
+    func clear() async
     func canLoadMore() -> Bool
-    func handle(_ messageCollection: MessageCollection, _ handleType: MessagesManager.HandleType)
-    func update(_ message: Message)
-    func add(_ message: Message) -> Bool
+    func handle(_ messageCollection: MessageCollection, _ handleType: MessagesManager.HandleType) async
+    func update(_ message: Message) async
+    func add(_ message: Message) async -> Bool
     func getOldestMessage() -> Message?
 }
 
-final class MessagesManager: MessagesManagerProtocol {
+final actor MessagesManager: MessagesManagerProtocol {
 
     enum HandleType: CaseIterable {
         case all
@@ -38,7 +38,7 @@ final class MessagesManager: MessagesManagerProtocol {
         messages
             .sorted(by: <)
             .last { message in
-                message.id != nil && message.status == .success
+                message.remoteId != nil && message.status == .success
             }
     }
 
@@ -73,10 +73,10 @@ final class MessagesManager: MessagesManagerProtocol {
         self.keyValueDataSource = keyValueDataSource
     }
 
-    func loadCachedData() {
+    func loadCachedData() async {
         messages.removeAll(keepingCapacity: true)
 
-        if let cachedMessages = messageDataSource?.all() {
+        if let cachedMessages = await messageDataSource?.all() {
             messages
                 .append(
                     contentsOf: cachedMessages
@@ -85,16 +85,17 @@ final class MessagesManager: MessagesManagerProtocol {
         }
 
         stickyMessage = nil
-        welcomeMessage = keyValueDataSource?.string(forKey: kParleyCacheKeyMessageInfo)
+        welcomeMessage = await keyValueDataSource?.string(forKey: kParleyCacheKeyMessageInfo)
 
-        if let cachedPagingData = keyValueDataSource?.data(forKey: kParleyCacheKeyPaging) {
-            paging = try? CodableHelper.shared.decode(MessageCollection.Paging.self, from: cachedPagingData)
+        if let cachedPagingData = await keyValueDataSource?.data(forKey: kParleyCacheKeyPaging) {
+            let storedCollection = try? CodableHelper.shared.decode(StoredMessageCollection.Paging.self, from: cachedPagingData)
+            paging = storedCollection?.toDomainModel()
         } else {
             paging = nil
         }
     }
 
-    func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) {
+    func handle(_ messageCollection: MessageCollection, _ handleType: HandleType) async {
         let newMessages = messageCollection.messages.filter { message in
             if messages.contains(where: { $0.id == message.id }) {
                 return false
@@ -115,45 +116,43 @@ final class MessagesManager: MessagesManagerProtocol {
             messages.append(contentsOf: pendingMessages)
         }
 
-        messageDataSource?.save(messages)
+        await messageDataSource?.save(messages)
         stickyMessage = messageCollection.stickyMessage
-        updateWelcomeMessage(messageCollection.welcomeMessage)
+        await updateWelcomeMessage(messageCollection.welcomeMessage)
 
         if handleType != .after {
             paging = messageCollection.paging
-            if let messages = try? CodableHelper.shared.toJSONString(paging) {
-                keyValueDataSource?.set(messages, forKey: kParleyCacheKeyPaging)
+            let storedPaging = StoredMessageCollection.from(messageCollection)
+            if let messages = try? CodableHelper.shared.toJSONString(storedPaging) {
+                await keyValueDataSource?.set(messages, forKey: kParleyCacheKeyPaging)
             } else {
-                keyValueDataSource?.removeObject(forKey: kParleyCacheKeyPaging)
+                await keyValueDataSource?.removeObject(forKey: kParleyCacheKeyPaging)
             }
         }
     }
 
-    private func updateWelcomeMessage(_ message: String?) {
+    private func updateWelcomeMessage(_ message: String?) async {
         welcomeMessage = message
         if let welcomeMessage = message {
-            keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
+            await keyValueDataSource?.set(welcomeMessage, forKey: kParleyCacheKeyMessageInfo)
         } else {
-            keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
+            await keyValueDataSource?.removeObject(forKey: kParleyCacheKeyMessageInfo)
         }
     }
 
-    func add(_ message: Message) -> Bool {
+    func add(_ message: Message) async -> Bool {
         guard !messages.contains(message) else { return false }
         
         messages.append(message)
-        messageDataSource?.insert(message, at: 0)
+        await messageDataSource?.insert(message, at: 0)
         return true
     }
 
-    func update(_ message: Message) {
-        guard
-            let originalMessagesIndex = messages
-                .firstIndex(where: { originalMessage in originalMessage.uuid == message.uuid })
-        else { return }
+    func update(_ message: Message) async {
+        guard let originalMessagesIndex = messages .firstIndex(where: { $0.id == message.id }) else { return }
 
         messages[originalMessagesIndex] = message
-        messageDataSource?.update(message)
+        await messageDataSource?.update(message)
     }
 
     func canLoadMore() -> Bool {
@@ -164,12 +163,12 @@ final class MessagesManager: MessagesManagerProtocol {
         return false
     }
 
-    func clear() {
+    func clear() async {
         messages.removeAll()
         welcomeMessage = nil
         stickyMessage = nil
         paging = nil
-        loadCachedData()
+        await loadCachedData()
     }
 }
 
@@ -178,69 +177,91 @@ final class MessagesManager: MessagesManagerProtocol {
 extension MessagesManager {
 
     fileprivate func testMessages() {
-        let userMessage_shortPending = Message()
-        userMessage_shortPending.type = .user
-        userMessage_shortPending.message = "Hello 👋"
-        userMessage_shortPending.status = .pending
+        let userMessage_shortPending = Message.newTextMessage("Hello 👋🏻", type: .user, status: .pending)
 
-        let agentMessage_fullMessageWithActions = Message()
-        agentMessage_fullMessageWithActions.id = 0
-        agentMessage_fullMessageWithActions.type = .agent
-        agentMessage_fullMessageWithActions.title = "Welcome"
-        agentMessage_fullMessageWithActions.message = "Here are some quick actions for more information about *Parley*"
-        agentMessage_fullMessageWithActions.buttons = [
-            createButton("Open app", "open-app://parley.nu"),
-            createButton("Call us", "call://+31362022080"),
-            createButton("Webuildapps", "https://webuildapps.com"),
-        ]
+        let agentMessage_fullMessageWithActions = Message.exsisting(
+            remoteId: 0,
+            localId: UUID(),
+            time: Date(),
+            title: "Welcome",
+            message: "Here are some quick actions for more information about *Parley*",
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Open app", "open-app://parley.nu"),
+                createButton("Call us", "call://+31362022080"),
+                createButton("Webuildapps", "https://webuildapps.com")
+            ],
+            carousel: [],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: nil,
+            referrer: nil
+        )
 
-        let agentMessage_messageWithCarouselSmall = Message()
-        agentMessage_messageWithCarouselSmall.id = 1
-        agentMessage_messageWithCarouselSmall.type = .agent
-        agentMessage_messageWithCarouselSmall.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-        agentMessage_messageWithCarouselSmall
-            .message = "Here are some quick actions for more information about *Parley*"
-        agentMessage_messageWithCarouselSmall.buttons = [
-            createButton("Home page", "https://www.parley.nu/"),
-        ]
+        let agentMessage_messageWithCarouselSmall = Message.exsisting(
+            remoteId: 1,
+            localId: UUID(),
+            time: Date(),
+            title: nil,
+            message: "Here are some quick actions for more information about *Parley*",
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Home page", "https://www.parley.nu/")
+            ],
+            carousel: [
+                createCarouselMessage(
+                    "Parley libraries",
+                    "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.",
+                    nil,
+                    [
+                        createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
+                        createButton("iOS SDK", "https://github.com/parley-messaging/ios-library"),
+                    ]
+                ),
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
+                    createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
+                    createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
+                    createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2"),
+                ])
+            ],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
+            referrer: nil
+        )
 
-        agentMessage_messageWithCarouselSmall.carousel = [
-            createMessage(
-                "Parley libraries",
-                "Parley provides open source SDK's for the Web, Android and iOS to easily integrate it with any platform.\n\nThe chat is fully customisable.",
-                nil,
-                [
-                    createButton("Android SDK", "https://github.com/parley-messaging/android-library"),
-                    createButton("iOS SDK", "https://github.com/parley-messaging/ios-library"),
-                ]
-            ),
-            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", [
-                createButton("Web documentation", "https://developers.parley.nu/docs/introduction"),
-                createButton("Android documentation", "https://developers.parley.nu/docs/introduction-1"),
-                createButton("iOS documentation", "https://developers.parley.nu/docs/introduction-2"),
-            ]),
-        ]
-
-        let agentMessage_messageWithCarouselImages = Message()
-        agentMessage_messageWithCarouselImages.id = 2
-        agentMessage_messageWithCarouselImages.type = .agent
-        agentMessage_messageWithCarouselImages.agent = Agent(id: 10, name: "Webuildapps", avatar: "avatar.png")
-        agentMessage_messageWithCarouselImages.buttons = [
-            createButton("Home page", "https://www.parley.nu/"),
-        ]
-
-        agentMessage_messageWithCarouselImages.carousel = [
-            createMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
-            createMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
-            createMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
-            createMessage(
-                nil,
-                nil,
-                "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png",
-                nil
-            ),
-        ]
-
+        let agentMessage_messageWithCarouselImages = Message.exsisting(
+            remoteId: 2,
+            localId: UUID(),
+            time: Date(),
+            title: nil,
+            message: nil,
+            responseInfoType: nil,
+            media: nil,
+            buttons: [
+                createButton("Home page", "https://www.parley.nu/"),
+            ],
+            carousel: [
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab2.png", nil),
+                createCarouselMessage(nil, nil, "https://www.parley.nu/images/tab1_mobile.png", nil),
+                createCarouselMessage(nil, nil, "https://parley.nu/images/tab6.png", nil),
+                createCarouselMessage(
+                    nil,
+                    nil,
+                    "http://www.socialmediatoolvergelijken.nl/tools/tracebuzz/img/tracebuzz_1.png",
+                    nil
+                )
+            ], quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: Agent(id: 10, name: "Webuildapps", avatar: "avatar.png"),
+            referrer: nil
+        )
+        
         messages.removeAll()
 //      messages.append(userMessage_shortPending) // Will be sent
 //        messages.append(agentMessage_fullMessageWithActions)
@@ -248,18 +269,28 @@ extension MessagesManager {
 //        messages.append(agentMessage_messageWithCarouselImages)
     }
 
-    fileprivate func createMessage(
+    fileprivate func createCarouselMessage(
         _ title: String?,
         _ message: String?,
         _ image: String?,
         _ buttons: [MessageButton]?
     ) -> Message {
-        let m = Message()
-        m.type = .agent
-        m.title = title
-        m.message = message
-        m.buttons = buttons
-        return m
+        Message.exsisting(
+            remoteId: Int.random(in: 1_000...10_000),
+            localId: UUID(),
+            time: Date(),
+            title: title,
+            message: message,
+            responseInfoType: nil,
+            media: nil,
+            buttons: buttons ?? [],
+            carousel: [],
+            quickReplies: [],
+            type: .agent,
+            status: .success,
+            agent: nil,
+            referrer: nil
+        )
     }
 
     fileprivate func createButton(_ title: String, _ payload: String) -> MessageButton {

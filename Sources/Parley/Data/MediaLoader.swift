@@ -1,6 +1,6 @@
 import Foundation
 
-protocol MediaLoaderProtocol {
+protocol MediaLoaderProtocol: Sendable {
     func load(media: MediaObject) async throws -> Data
     func reset() async
 }
@@ -24,7 +24,7 @@ actor MediaLoader: MediaLoaderProtocol {
     func load(media: MediaObject) async throws -> Data {
         if let cachedMedia = mediaCache[media.id] {
             return cachedMedia
-        } else if let storedMedia = mediaRepository.getStoredMedia(for: media) {
+        } else if let storedMedia = await mediaRepository.getStoredMedia(for: media) {
             mediaCache[media.id] = storedMedia.data
             return storedMedia.data
         } else {

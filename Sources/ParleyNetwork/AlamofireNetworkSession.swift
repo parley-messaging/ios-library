@@ -26,92 +26,67 @@ final class AlamofireNetworkSession: ParleyNetworkSession {
         )
     }
 
-    func request(_ url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String : String]) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
+    func request(_ url: URL, data: Data?, method: ParleyHTTPRequestMethod, headers: [String: String]) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse {
         var request = URLRequest(url: url)
         request.method = Alamofire.HTTPMethod(method)
         request.headers = HTTPHeaders(headers)
         request.httpBody = data
 
-        return await withCheckedContinuation { continuation in
+        let response = await withCheckedContinuation { continuation in
             session.request(request).response { response in
-                guard let statusCode = response.response?.statusCode else {
-                    continuation.resume(returning: .failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
-                    return
-                }
-                switch response.result {
-                case .success(let data):
-                    continuation.resume(returning: .success(ParleyHTTPDataResponse(
-                        body: data,
-                        statusCode: statusCode,
-                        headers: response.response?.headers.dictionary ?? [:]
-                    )))
-                case .failure(let error):
-                    let headers = response.response?.headers.dictionary
-                    let responseError = ParleyHTTPErrorResponse(
-                        statusCode: statusCode,
-                        headers: headers,
-                        data: response.data,
-                        error: error
-                    )
-                    continuation.resume(returning: .failure(responseError))
-                }
+                continuation.resume(returning: response)
             }
         }
+        
+        guard let statusCode = response.response?.statusCode else {
+            throw ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)
+        }
+        
+        switch response.result {
+        case .success(let data):
+            return ParleyHTTPDataResponse(
+                body: data,
+                statusCode: statusCode,
+                headers: response.response?.headers.dictionary ?? [:]
+            )
+        case .failure(let error):
+            let headers = response.response?.headers.dictionary
+            throw ParleyHTTPErrorResponse(
+                statusCode: statusCode,
+                headers: headers,
+                data: response.data,
+                error: error
+            )
+        }
     }
     
-    func upload(data: Data, to url: URL, method: ParleyHTTPRequestMethod, headers: [String : String]) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        return await withCheckedContinuation { continuation in
+    func upload(data: Data, to url: URL, method: ParleyHTTPRequestMethod, headers: [String : String]) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse {
+        let response = await withCheckedContinuation { continuation in
             session.upload(data, to: url, method: Alamofire.HTTPMethod(method), headers: HTTPHeaders(headers))
                 .response { response in
-                    guard let statusCode = response.response?.statusCode else {
-                        continuation.resume(returning: .failure(ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)))
-                        return
-                    }
-                    switch response.result {
-                    case .success(let data):
-                        continuation.resume(returning: .success(ParleyHTTPDataResponse(
-                            body: data,
-                            statusCode: statusCode,
-                            headers: response.response?.headers.dictionary ?? [:]
-                        )))
-                    case .failure(let error):
-                        let headers = response.response?.headers.dictionary
-                        let responseError = ParleyHTTPErrorResponse(
-                            statusCode: statusCode,
-                            headers: headers,
-                            data: response.data,
-                            error: error
-                        )
-                        continuation.resume(returning: .failure(responseError))
-                    }
+                    continuation.resume(returning: response)
                 }
         }
-    }
-}
-
-extension AlamofireNetworkSession {
-    
-    func request(
-        _ url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>) -> Void
-    ) {
-        Task {
-            completion(await request(url, data: data, method: method, headers: headers))
+        
+        guard let statusCode = response.response?.statusCode else {
+            throw ParleyHTTPErrorResponse(error: HTTPResponseError.dataMissing)
         }
-    }
-    
-    func upload(
-        data: Data,
-        to url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-        completion: @escaping @Sendable (Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse>
-        ) -> Void) {
-        Task {
-            completion(await upload(data: data, to: url, method: method, headers: headers))
+        
+        switch response.result {
+        case .success(let data):
+            return ParleyHTTPDataResponse(
+                body: data,
+                statusCode: statusCode,
+                headers: response.response?.headers.dictionary ?? [:]
+            )
+        case .failure(let error):
+            let headers = response.response?.headers.dictionary
+            throw ParleyHTTPErrorResponse(
+                statusCode: statusCode,
+                headers: headers,
+                data: response.data,
+                error: error
+            )
         }
     }
 }

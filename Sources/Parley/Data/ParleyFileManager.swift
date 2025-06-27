@@ -1,6 +1,6 @@
 import Foundation
 
-class ParleyFileManager {
+final actor ParleyFileManager {
 
     private let fileManager: FileManager = .default
     private let destination: URL

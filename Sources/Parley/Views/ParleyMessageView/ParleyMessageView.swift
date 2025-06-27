@@ -134,6 +134,8 @@ final class ParleyMessageView: UIView {
     // Media
     private var mediaLoader: MediaLoaderProtocol?
     private var shareManager: ShareManagerProtocol?
+    private var loadImageTask: Task<Void, Never>?
+    private var loadedImage: UIImage?
 
     // Helpers
     private var displayName: Display = .message
@@ -161,6 +163,16 @@ final class ParleyMessageView: UIView {
         super.init(coder: aDecoder)
 
         setup()
+    }
+    
+    func prepareForReuse() {
+        loadImageTask?.cancel()
+        loadImageTask = nil
+    }
+    
+    deinit {
+        loadImageTask?.cancel()
+        loadImageTask = nil
     }
 
     private func setup() {
@@ -361,11 +373,6 @@ final class ParleyMessageView: UIView {
         }
     }
 
-    private func renderImage(_ media: MediaObject) {
-        loadImage(media: media)
-        displayImageLoading()
-    }
-
     private func renderFile(_ media: MediaObject) {
         for arrangedSubview in fileStackView.arrangedSubviews {
             fileStackView.removeArrangedSubview(arrangedSubview)
@@ -429,8 +436,17 @@ final class ParleyMessageView: UIView {
 
         fileView.isHidden = true
     }
+    
+    
+    private func renderImage(_ media: MediaObject) {
+        if let loadedImage {
+            display(image: loadedImage)
+        } else {
+            displayImageLoading()
+            loadImage(media: media)
+        }
+    }
 
-    @MainActor
     private func displayImageLoading() {
         imageHolderView.isHidden = false
         imageActivityIndicatorView.startAnimating()
@@ -471,6 +487,8 @@ final class ParleyMessageView: UIView {
         imageHolderView.isHidden = false
         imageActivityIndicatorView.stopAnimating()
         imageImageView.image = image
+        imageImageView.setNeedsLayout()
+        imageImageView.layoutIfNeeded()
         renderGradients()
     }
 
@@ -592,10 +610,8 @@ final class ParleyMessageView: UIView {
             arrangedSubview.removeFromSuperview()
         }
 
-        if
-            message.hasButtons,
+        if message.hasButtons {
             let messageButtons = message.buttons
-        {
             buttonsView.isHidden = false
             if
                 !message.hasFile &&
@@ -880,7 +896,7 @@ final class ParleyMessageView: UIView {
 
     @objc
     private func buttonAction(sender: UIButton) {
-        guard let messageButton = message.buttons?[sender.tag] else { return }
+        let messageButton = message.buttons[sender.tag]
         delegate?.didSelect(messageButton)
     }
 }

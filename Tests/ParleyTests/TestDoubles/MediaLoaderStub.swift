@@ -1,11 +1,11 @@
 import Foundation
 @testable import Parley
 
-final class MediaLoaderStub: MediaLoaderProtocol {
+actor MediaLoaderStub: MediaLoaderProtocol {
 
-    var loadResult: Data?
-    var url: URL?
-    var error: MediaLoader.MediaLoaderError = .deinitialized
+    private(set) var loadResult: Data?
+    private(set) var url: URL?
+    private(set) var error: MediaLoader.MediaLoaderError = .deinitialized
 
     func load(media: MediaObject) async throws -> Data {
         if let loadResult {
@@ -16,5 +16,20 @@ final class MediaLoaderStub: MediaLoaderProtocol {
     }
 
     func reset() async {
+    }
+}
+
+extension MediaLoaderStub {
+    
+    func setLoadResult(_ data: Data?) {
+        self.loadResult = data
+    }
+    
+    func set(url: URL?) {
+        self.url = url
+    }
+    
+    func set(error: MediaLoader.MediaLoaderError) {
+        self.error = error
     }
 }

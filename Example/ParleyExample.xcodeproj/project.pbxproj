@@ -11,6 +11,8 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ChatViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
+		72B7BC372DC8178300AC5D8C /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = 72B7BC362DC8178300AC5D8C /* Parley */; };
+		72B7BC392DC8178300AC5D8C /* ParleyNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = 72B7BC382DC8178300AC5D8C /* ParleyNetwork */; };
 		9229A7DF2B6BAAC000864ED2 /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = 9229A7DE2B6BAAC000864ED2 /* Parley */; };
 		9229A7E12B6BAAC000864ED2 /* ParleyNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = 9229A7E02B6BAAC000864ED2 /* ParleyNetwork */; };
 		F844F57122DCBB3B00E705AE /* IdentifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */; };
@@ -78,9 +80,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				72B7BC392DC8178300AC5D8C /* ParleyNetwork in Frameworks */,
 				FA66165F2B58102D00B957CA /* FirebaseMessaging in Frameworks */,
 				9229A7DF2B6BAAC000864ED2 /* Parley in Frameworks */,
 				9229A7E12B6BAAC000864ED2 /* ParleyNetwork in Frameworks */,
+				72B7BC372DC8178300AC5D8C /* Parley in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,6 +229,8 @@
 				FA66165E2B58102D00B957CA /* FirebaseMessaging */,
 				9229A7DE2B6BAAC000864ED2 /* Parley */,
 				9229A7E02B6BAAC000864ED2 /* ParleyNetwork */,
+				72B7BC362DC8178300AC5D8C /* Parley */,
+				72B7BC382DC8178300AC5D8C /* ParleyNetwork */,
 			);
 			productName = Parley;
 			productReference = 607FACD01AFB9204008FA782 /* ParleyExample.app */;
@@ -269,7 +275,7 @@
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
 				FA66165D2B58102D00B957CA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				9229A7DD2B6BAAC000864ED2 /* XCLocalSwiftPackageReference ".." */,
+				72B7BC352DC8178300AC5D8C /* XCLocalSwiftPackageReference "../../ios-library" */,
 			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
@@ -400,6 +406,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -450,6 +457,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -474,7 +482,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = nu.parley;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development nu.parley";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -502,7 +510,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore nu.parley";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore com.webuildapps.tracebuzz.parleydemo";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -561,6 +569,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Alpha;
 		};
@@ -585,7 +594,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = nu.parley;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc nu.parley";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Alpha;
@@ -616,9 +625,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		9229A7DD2B6BAAC000864ED2 /* XCLocalSwiftPackageReference ".." */ = {
+		72B7BC352DC8178300AC5D8C /* XCLocalSwiftPackageReference "../../ios-library" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ..;
+			relativePath = "../../ios-library";
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -627,13 +636,21 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.20.0;
+				kind = exactVersion;
+				version = 11.10.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		72B7BC362DC8178300AC5D8C /* Parley */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Parley;
+		};
+		72B7BC382DC8178300AC5D8C /* ParleyNetwork */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ParleyNetwork;
+		};
 		9229A7DE2B6BAAC000864ED2 /* Parley */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Parley;

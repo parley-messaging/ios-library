@@ -56,14 +56,14 @@ final class MessageTableViewCell: UITableViewCell {
             messageView.isHidden = true
         }
 
-        if let messages = message.carousel, !messages.isEmpty {
-            self.messages = (messages, message.time)
+        if !message.carousel.isEmpty {
+            self.messages = (message.carousel, message.time)
             self.mediaLoader = mediaLoader
             self.shareManager = shareManager
 
             collectionView.isHidden = false
 
-            let maxSize = messages.map { message -> CGSize in
+            let maxSize = message.carousel.map { message -> CGSize in
                 MessageCollectionViewCell.calculateSize(appearance!.carousel!, message)
             }.max(by: { $0.height < $1.height }) ?? .zero
 
@@ -99,7 +99,11 @@ final class MessageTableViewCell: UITableViewCell {
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(UIAccessibility.voiceOverStatusDidChangeNotification)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     override func voiceOverDidChange(isVoiceOverRunning: Bool) {
@@ -134,6 +138,11 @@ final class MessageTableViewCell: UITableViewCell {
                 rightLayoutConstraint,
             ])
         }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        parleyMessageView.prepareForReuse()
     }
 }
 

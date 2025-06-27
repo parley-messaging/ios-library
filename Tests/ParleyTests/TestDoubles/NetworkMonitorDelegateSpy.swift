@@ -2,7 +2,7 @@ import Foundation
 
 @testable import Parley
 
-public final class NetworkMonitorDelegateSpy: NetworkMonitorDelegate {
+public final class NetworkMonitorDelegateSpy: @unchecked Sendable, NetworkMonitorDelegate {
 
     public init() {}
 

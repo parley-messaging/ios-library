@@ -43,14 +43,6 @@ struct MediaModel: Codable {
 
 extension MediaModel {
 
-    func createMessage(status: Message.MessageStatus) -> Message {
-        let message = Message()
-        message.status = status
-        message.type = .user
-        message.time = Date()
-        return message
-    }
-
     /// Returns wether the file is larger than a specified size in MB
     /// - Parameter size: Size in megabytes
     func isLargerThan(size: Int) -> Bool {
