@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bmoliveira/MarkdownKit.git",
       "state" : {
-        "revision" : "5056f3305d3499f44d8815530d560b87082e0cf5",
-        "version" : "1.7.1"
+        "revision" : "39ea7a3fc7e65bcafe55152592b834859be574a5",
+        "version" : "1.7.3"
       }
     },
     {
