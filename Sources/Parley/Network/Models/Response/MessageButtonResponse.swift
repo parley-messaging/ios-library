@@ -1,6 +1,6 @@
 struct MessageButtonResponse: Codable, Sendable {
     
-    enum MessageButtonType: String, Codable {
+    enum ButtonType: String, Codable {
         case reply
         case phoneNumber
         case webUrl
@@ -24,7 +24,7 @@ struct MessageButtonResponse: Codable, Sendable {
 
     let title: String
     let payload: String?
-    let type: MessageButtonType
+    let type: ButtonType
     
     func toDomainModel() -> MessageButton {
         MessageButton(title: title, payload: payload, type: type.toDomainModel())

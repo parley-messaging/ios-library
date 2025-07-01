@@ -5,7 +5,7 @@ public struct Message: Equatable, Sendable, Identifiable {
     
     typealias RemoteId = Int
 
-    enum MessageStatus {
+    enum Status {
         case failed
         case pending
         case success
@@ -65,7 +65,7 @@ public struct Message: Equatable, Sendable, Identifiable {
     }
 
     var type: MessageType?
-    var status: MessageStatus = .success
+    var status: Status = .success
 
     var agent: Agent?
 
@@ -83,7 +83,7 @@ public struct Message: Equatable, Sendable, Identifiable {
         carousel: [Message],
         quickReplies: [String],
         type: MessageType?,
-        status: MessageStatus,
+        status: Status,
         agent: Agent?,
         referrer: String?
     ) {
@@ -131,7 +131,7 @@ public struct Message: Equatable, Sendable, Identifiable {
 // MARK: Initializers
 extension Message {
     
-    static func newTextMessage(_ message: String, type: MessageType, status: MessageStatus = .pending) -> Message {
+    static func newTextMessage(_ message: String, type: MessageType, status: Status = .pending) -> Message {
         Message(
             localId: UUID(),
             time: Date(),
@@ -142,7 +142,7 @@ extension Message {
         )
     }
     
-    static func newMediaMessage(_ media: MediaObject, status: MessageStatus) -> Message {
+    static func newMediaMessage(_ media: MediaObject, status: Status) -> Message {
         Message(
             localId: UUID(),
             time: Date(),
@@ -165,7 +165,7 @@ extension Message {
         carousel: [Message],
         quickReplies: [String],
         type: MessageType?,
-        status: MessageStatus,
+        status: Status,
         agent: Agent?,
         referrer: String?
     ) -> Message {
@@ -216,7 +216,7 @@ extension Message {
         message: String?,
         media: MediaObject?,
         type: MessageType,
-        status: MessageStatus
+        status: Status
     ) {
         self.remoteId = nil
         self.localId = localId

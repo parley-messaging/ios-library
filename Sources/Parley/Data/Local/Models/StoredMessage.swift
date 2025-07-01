@@ -2,10 +2,10 @@ import Foundation
 
 struct StoredMessage: Codable, Identifiable {
 
-    enum MessageStatus: Int, Codable {
+    enum Status: Int, Codable {
         case failed, pending, success
         
-        func toDomainModel() -> Message.MessageStatus {
+        func toDomainModel() -> Message.Status {
             switch self {
             case .failed: return .failed
             case .pending: return .pending
@@ -13,7 +13,7 @@ struct StoredMessage: Codable, Identifiable {
             }
         }
         
-        static func from(_ status: Message.MessageStatus) -> Self {
+        static func from(_ status: Message.Status) -> Self {
             switch status {
             case .failed: return .failed
             case .pending: return .pending
@@ -61,7 +61,7 @@ struct StoredMessage: Codable, Identifiable {
     var carousel: [Self]
     var quickReplies: [String]
     var type: MessageType?
-    var status: MessageStatus
+    var status: Status
     var agent: StoredAgent?
     var referrer: String?
     
@@ -77,7 +77,7 @@ struct StoredMessage: Codable, Identifiable {
         self.buttons = message.buttons.map(StoredMessageButton.from(_:))
         self.quickReplies = message.quickReplies
         self.type = Self.MessageType.from(message.type)
-        self.status = Self.MessageStatus.from(message.status)
+        self.status = Self.Status.from(message.status)
         if let agent = message.agent {
             self.agent = StoredAgent.from(agent)
         }

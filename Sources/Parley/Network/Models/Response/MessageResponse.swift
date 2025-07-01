@@ -13,7 +13,7 @@ struct MessageResponse: Codable {
         case pending = 1
         case success = 2
         
-        func toDomainModel() -> Message.MessageStatus {
+        func toDomainModel() -> Message.Status {
             switch self {
             case .failed: return .failed
             case .pending: return .pending
