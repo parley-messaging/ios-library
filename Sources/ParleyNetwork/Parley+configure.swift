@@ -21,4 +21,19 @@ extension Parley {
             onFailure: onFailure
         )
     }
+
+    public static func configure(
+        _ secret: String,
+        uniqueDeviceIdentifier: String? = nil,
+        networkConfig: ParleyNetworkConfig? = nil,
+    ) async -> Parley.ConfigurationResult {
+        let localNetworkConfig = networkConfig ?? ParleyNetworkConfig()
+
+        return await configure(
+            secret,
+            uniqueDeviceIdentifier: uniqueDeviceIdentifier,
+            networkConfig: localNetworkConfig,
+            networkSession: AlamofireNetworkSession(networkConfig: localNetworkConfig)
+        )
+    }
 }

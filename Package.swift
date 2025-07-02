@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.10.0
 
 import PackageDescription
 
@@ -29,6 +29,9 @@ let package = Package(
             name: "Parley",
             dependencies: [
                 "MarkdownKit"
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -37,6 +40,9 @@ let package = Package(
                 "Parley",
                 "Alamofire",
                 "AlamofireImage",
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(

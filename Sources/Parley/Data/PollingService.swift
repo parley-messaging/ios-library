@@ -1,12 +1,13 @@
 import Foundation
 import UIKit
 
+@MainActor
 protocol PollingServiceProtocol: AnyObject {
     func startRefreshing()
     func stopRefreshing()
-    var delegate: ParleyDelegate? { get set }
 }
 
+@MainActor
 final class PollingService: PollingServiceProtocol {
 
     private enum TimerInterval: TimeInterval {
@@ -17,7 +18,6 @@ final class PollingService: PollingServiceProtocol {
     }
 
     private var timer: Timer?
-    weak var delegate: ParleyDelegate?
     private let messageRepository: MessageRepositoryProtocol
     private let messagesManager: MessagesManagerProtocol
     private let messagesInteractor: MessagesInteractor
@@ -55,14 +55,13 @@ final class PollingService: PollingServiceProtocol {
         didSet { timer?.invalidate() }
     }
 
+    @MainActor
     func startRefreshing() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            setTimer(interval: .twoSeconds)
-            addObservers()
-        }
+        setTimer(interval: .twoSeconds)
+        addObservers()
     }
 
+    @MainActor
     func stopRefreshing() {
         timer?.invalidate()
         loopRepeated = 0
@@ -73,37 +72,31 @@ final class PollingService: PollingServiceProtocol {
 
     private func setTimer(interval: TimerInterval) {
         timer = Timer.scheduledTimer(withTimeInterval: interval.rawValue, repeats: true) { [weak self] _ in
-            self?.refreshFeed()
+            Task {
+                await self?.refreshFeed()
+            }
         }
     }
 
-    private func refreshFeed() {
+    private func refreshFeed() async {
         guard
             let id = messagesManager.lastSentMessage?.id,
-            timer?.isValid == true else
-        {
-            return
-        }
-
-        messageRepository.findAfter(
-            id,
-            onSuccess: { [weak self] messageCollection in
-                guard !messageCollection.messages.isEmpty else {
-                    self?.loopRepeated += 1
-                    return
-                }
-                self?.loopRepeated = 0
-                self?.timerInterval = .twoSeconds
-                self?.setTimer(interval: .twoSeconds)
-                
-                Task {
-                    await self?.messagesInteractor.handle(collection: messageCollection, .after)
-                }
-            },
-            onFailure: { _ in
-                print("Polling failed to retrieve latest messages")
+            timer?.isValid == true
+        else { return }
+        
+        do {
+            let messageCollection = try await messageRepository.findAfter(id)
+            guard !messageCollection.messages.isEmpty else {
+                loopRepeated += 1
+                return
             }
-        )
+            loopRepeated = 0
+            timerInterval = .twoSeconds
+            setTimer(interval: .twoSeconds)
+            await messagesInteractor.handle(collection: messageCollection, .after)
+        } catch {
+            print("Polling failed to retrieve latest messages: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Observers

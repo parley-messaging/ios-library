@@ -1,26 +1,28 @@
+import Testing
 import Alamofire
 import Foundation
-import XCTest
 @testable import Parley
 @testable import ParleyNetwork
 
-final class AlamofireHTTParleyConfigureTestsPMethodTests: XCTestCase {
+@Suite(.serialized)
+struct AlamofireHTTParleyConfigureTestsPMethodTests {
 
-    func testSettingDefaultConfig() {
-        Parley.configure("secret")
+    func testSettingDefaultConfig() async throws {
+        let result = await Parley.configure("secret")
+        try result.get()
+        
+        #expect(Parley.shared.networkConfig.headers == [:])
+        #expect(Parley.shared.networkConfig.url == kParleyNetworkUrl)
+        #expect(Parley.shared.networkConfig.path == kParleyNetworkPath)
 
-        XCTAssertEqual(Parley.shared.networkConfig.headers, [:])
-        XCTAssertEqual(Parley.shared.networkConfig.url, kParleyNetworkUrl)
-        XCTAssertEqual(Parley.shared.networkConfig.path, kParleyNetworkPath)
-
-        XCTAssertTrue(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
     }
 
-    func testSettingCustomConfig() {
+    func testSettingCustomConfig() async throws {
         let url = "https://example.com"
         let path = "/example"
         let headers = ["example": "example"]
-        Parley.configure(
+        let result = await Parley.configure(
             "secret",
             networkConfig: ParleyNetworkConfig(
                 url: url,
@@ -29,11 +31,13 @@ final class AlamofireHTTParleyConfigureTestsPMethodTests: XCTestCase {
                 headers: headers
             )
         )
+        
+        try result.get()
 
-        XCTAssertEqual(Parley.shared.networkConfig.headers, headers)
-        XCTAssertEqual(Parley.shared.networkConfig.url, url)
-        XCTAssertEqual(Parley.shared.networkConfig.path, path)
+        #expect(Parley.shared.networkConfig.headers == headers)
+        #expect(Parley.shared.networkConfig.url == url)
+        #expect(Parley.shared.networkConfig.path == path)
 
-        XCTAssertTrue(Parley.shared.remote.networkSession is AlamofireNetworkSession)
+        #expect(Parley.shared.remote.networkSession is AlamofireNetworkSession)
     }
 }

@@ -93,7 +93,7 @@ extension MessagesInteractor {
         isLoadingMessages = true
         presenter.presentLoadingMessages(isLoadingMessages)
         
-        if let collection = try? await findMessage(before: oldestMessageId) {
+        if let collection = try? await messageRepository.findBefore(oldestMessageId) {
             handle(collection: collection, .before)
         }
             
@@ -160,16 +160,6 @@ extension MessagesInteractor {
 }
 
 private extension MessagesInteractor {
-    
-    func findMessage(before messageId: Int) async throws -> MessageCollection {
-        try await withCheckedThrowingContinuation { continuation in
-            messageRepository.findBefore(messageId) { messageCollection in
-                continuation.resume(returning: messageCollection)
-            } onFailure: { error in
-                continuation.resume(throwing: error)
-            }
-        }
-    }
     
     func insertNewMessages(messages: [Message]) {
         var posisitionsAdded = [ParleyChronologicalMessageCollection.Position]()

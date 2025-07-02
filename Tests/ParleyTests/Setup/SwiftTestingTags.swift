@@ -3,6 +3,7 @@ import SnapshotTesting
 
 extension Tag {
     @Tag static var userInterface: Self
+    @Tag static var networking: Self
 }
 
 extension SnapshotTestingConfiguration.DiffTool {
