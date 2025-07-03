@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.3.0 - Released 27 June 2025
+## 4.3.0 - Released 3 July 2025
 
 - [Swift] Parley is now set to use the Swift 6 language mode.
 -  **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.

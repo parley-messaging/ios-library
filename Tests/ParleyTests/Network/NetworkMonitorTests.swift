@@ -3,7 +3,7 @@ import Testing
 import Network
 @testable import Parley
 
-@Suite("Network Monitor Tests")
+@Suite("Network Monitor Tests", .serialized)
 struct NetworkMonitorTests {
 
     private var networkMonitorSpy: NWPathMonitorSpy<PathStub>!
@@ -15,7 +15,7 @@ struct NetworkMonitorTests {
         delegateSpy = NetworkMonitorDelegateSpy()
     }
 
-    @Test()
+    @Test
     func callDelegateOnStart() async throws {
         let sut = NetworkMonitor(networkMonitor: networkMonitorSpy, delegate: delegateSpy)
 
@@ -27,7 +27,7 @@ struct NetworkMonitorTests {
         #expect(delegateSpy.didUpdateConnectionIsConnectedCalled)
     }
 
-    @Test()
+    @Test
     func stopMonitorOnStop() async {
         let sut = NetworkMonitor(networkMonitor: networkMonitorSpy, delegate: delegateSpy)
 
