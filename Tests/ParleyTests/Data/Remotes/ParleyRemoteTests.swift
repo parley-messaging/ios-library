@@ -4,7 +4,7 @@ import Testing
 
 @Suite(.tags(.networking))
 struct ParleyRemoteTests {
-        
+
     private var sut: ParleyRemote!
     
     init() throws {
