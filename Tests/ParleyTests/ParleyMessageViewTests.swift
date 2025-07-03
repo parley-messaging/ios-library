@@ -3,6 +3,7 @@ import XCTest
 
 @testable import Parley
 
+@MainActor
 final class ParleyMessageViewTests: XCTestCase {
 
     func testDefaultAgentMessageView() {
@@ -147,13 +148,13 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithLoadingImageForUser() throws {
+    func testWithLoadingImageForUser() async throws {
         let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
 
-        mediaLoader.loadResult = data
+        await mediaLoader.setLoadResult(data)
 
         let sut = ParleyMessageView()
 
@@ -178,13 +179,13 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithImageResultForUser() throws {
+    func testWithImageResultForUser() async throws {
         let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
 
-        mediaLoader.loadResult = data
+        await mediaLoader.setLoadResult(data)
 
         let sut = ParleyMessageView()
 
@@ -239,13 +240,13 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithLoadingImageForAgentWithoutTitleAndMessage() throws {
+    func testWithLoadingImageForAgentWithoutTitleAndMessage() async throws {
         let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
 
-        mediaLoader.loadResult = data
+        await mediaLoader.setLoadResult(data)
 
         let sut = ParleyMessageView()
 
@@ -269,13 +270,13 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithImageResultForAgentWithoutTitleAndMessage() throws {
+    func testWithImageResultForAgentWithoutTitleAndMessage() async throws {
         let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "Parley", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
 
-        mediaLoader.loadResult = data
+        await mediaLoader.setLoadResult(data)
 
         let sut = ParleyMessageView()
 
@@ -328,13 +329,13 @@ final class ParleyMessageViewTests: XCTestCase {
         )
     }
 
-    func testWithWhiteImageResultForAgentWithoutTitleAndMessage() throws {
+    func testWithWhiteImageResultForAgentWithoutTitleAndMessage() async throws {
         let mediaLoader = MediaLoaderStub()
 
         let image = try XCTUnwrap(UIImage(named: "white_image", in: .module, compatibleWith: nil))
         let data = try XCTUnwrap(image.pngData())
 
-        mediaLoader.loadResult = data
+        await mediaLoader.setLoadResult(data)
 
         let sut = ParleyMessageView()
 

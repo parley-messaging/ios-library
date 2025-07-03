@@ -1,6 +1,6 @@
 import Foundation
 
-struct Agent: Codable, Equatable {
+struct Agent: Equatable {
     let id: Int
     let name: String?
     let avatar: String?

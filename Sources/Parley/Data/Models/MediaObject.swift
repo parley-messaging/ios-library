@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-struct MediaObject: Codable {
+struct MediaObject: Codable, Sendable {
     let id: String
     let mimeType: String
 

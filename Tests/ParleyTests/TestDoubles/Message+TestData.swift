@@ -4,36 +4,36 @@ import Foundation
 
 extension Message {
     static func makeTestData(
-        id: Int? = 1,
-        time: Date? = Date(),
+        id: UUID = UUID(),
+        remoteId: Int? = 1,
+        time: Date = Date(),
         title: String? = "Title",
         message: String? = "Message",
         responseInfoType: String? = "responseInfoType",
         media: MediaObject? = nil,
-        buttons: [MessageButton]? = nil,
-        carousel: [Message]? = nil,
-        quickReplies: [String]? = nil,
-        type: MessageType? = .user,
-        status: MessageStatus = .success,
+        buttons: [MessageButton] = [],
+        carousel: [Message] = [],
+        quickReplies: [String] = [],
+        type: MessageType = .user,
+        status: Message.Status = .success,
         agent: Agent? = Agent(id: 1, name: "Agent", avatar: nil),
         referrer: String? = "referrer"
     ) -> Message {
-        let result = Message()
-
-        result.id = id
-        result.time = time
-        result.title = title
-        result.message = message
-        result.responseInfoType = responseInfoType
-        result.media = media
-        result.buttons = buttons
-        result.carousel = carousel
-        result.quickReplies = quickReplies
-        result.type = type
-        result.status = status
-        result.agent = agent
-        result.referrer = referrer
-
-        return result
+        return Message.exsisting(
+            remoteId: remoteId,
+            localId: id,
+            time: time,
+            title: title,
+            message: message,
+            responseInfoType: responseInfoType,
+            media: media,
+            buttons: buttons,
+            carousel: carousel,
+            quickReplies: quickReplies,
+            type: type,
+            status: status,
+            agent: agent,
+            referrer: referrer
+        )
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import Network
 
-protocol PathProtocol {
+protocol PathProtocol: Sendable {
     var status: NWPath.Status { get }
 }
 

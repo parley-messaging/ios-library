@@ -133,8 +133,7 @@ class IdentifierViewController: UIViewController {
             let crypter = try ParleyCrypter(key: key, size: .bits128)
             let parleyMessageDataSource = try ParleyEncryptedMessageDataSource(
                 crypter: crypter,
-                directory: .default,
-                fileManager: .default
+                directory: .default
             )
             let parleyKeyValueDataSource = try ParleyEncryptedKeyValueDataSource(
                 crypter: crypter,
@@ -167,30 +166,38 @@ class IdentifierViewController: UIViewController {
     func startChatClicked(_ sender: Any) {
         if alreadyConfiguredParley {
             // Only in the demo we'll need to reset Parley when we've already configured it once
-            Parley.reset(onSuccess: { [weak self] in
-                self?.startChatDemo()
-            }, onFailure: { _, _ in
-                print("Failed to reset Parley")
-            })
+            Task {
+                do {
+                    try await Parley.reset()
+                    startChatDemo()
+                } catch {
+                    print("Failed to reset Parley")
+                }
+            }
         } else {
             startChatDemo()
         }
     }
 
     // Start a chat based on the input
+    @MainActor
     private func startChatDemo() {
         if
             let customerIdentification = customerIdentificationTextView.text?
                 .trimmingCharacters(in: .whitespacesAndNewlines),
             !customerIdentification.isEmpty
         {
-            startChat(customerIdentification: customerIdentification)
+            Task {
+                await startChat(customerIdentification: customerIdentification)
+            }
         } else if
             let secret = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines),
             !secret.isEmpty,
             secret.count == 20
         {
-            startChat(secret: secret)
+            Task {
+                await startChat(secret: secret)
+            }
         } else {
             showAlert(
                 title: NSLocalizedString("identifier_error_invalid_title", comment: ""),
@@ -200,7 +207,7 @@ class IdentifierViewController: UIViewController {
     }
 
     // Start chat with user authorization
-    private func startChat(customerIdentification: String) {
+    private func startChat(customerIdentification: String) async {
         startButton.setLoading(true)
 
         let authorization = ParleyCustomerAuthorization.generate(
@@ -208,34 +215,29 @@ class IdentifierViewController: UIViewController {
             secret: kParleyUserAuthorizationSecret,
             sharedSecret: kParleyUserAuthorizationSharedSecret
         )
-        Parley.setUserInformation(authorization)
+        try? await Parley.setUserInformation(authorization)
+        do {
+            try await Parley.configure(kParleySecret, networkConfig: createNetworkConfig())
+            alreadyConfiguredParley = true
+            startButton.setLoading(false)
 
-        Parley.configure(
-            kParleySecret,
-            networkConfig: createNetworkConfig(),
-            onSuccess: { [weak self] in
-                guard let self else { return }
-                alreadyConfiguredParley = true
-                startButton.setLoading(false)
+            identifierTextView.text = kParleySecret
 
-                identifierTextView.text = kParleySecret
-
-                UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
-                UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
-
-                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            }
-        ) { [weak self] code, message in
-            self?.startButton.setLoading(false)
+            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
+            UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
+            
+            performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        } catch (let configurationError) {
+            startButton.setLoading(false)
             if Self.kOfflineMessagingEnabled {
-                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
             } else {
-                self?.showAlert(
+                showAlert(
                     title: NSLocalizedString("identifier_error_start_title", comment: ""),
                     message: String(
                         format: NSLocalizedString("identifier_error_start_body", comment: ""),
-                        message,
-                        "\(code)"
+                        configurationError.message,
+                        "\(configurationError.code)"
                     )
                 )
             }
@@ -243,36 +245,35 @@ class IdentifierViewController: UIViewController {
     }
 
     // Start anonymous chat
-    private func startChat(secret: String) {
-        startButton.setLoading(true)
-
-        if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
-            Parley.clearUserInformation()
+    private func startChat(secret: String) async {
+        await MainActor.run {
+            startButton.setLoading(true)
         }
 
-        Parley.configure(
-            secret,
-            networkConfig: createNetworkConfig(),
-            onSuccess: { [weak self] in
-                self?.alreadyConfiguredParley = true
-                self?.startButton.setLoading(false)
+        if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
+            try? await Parley.clearUserInformation()
+        }
 
-                UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
-                UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
+        do {
+            try await Parley.configure(secret, networkConfig: createNetworkConfig())
+            alreadyConfiguredParley = true
+            startButton.setLoading(false)
 
-                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
-            }
-        ) { [weak self] code, message in
-            self?.startButton.setLoading(false)
+            UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
+            UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
+
+            performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+        } catch (let configurationError) {
+            startButton.setLoading(false)
             if Self.kOfflineMessagingEnabled {
-                self?.performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
             } else {
-                self?.showAlert(
+                showAlert(
                     title: NSLocalizedString("identifier_error_start_title", comment: ""),
                     message: String(
                         format: NSLocalizedString("identifier_error_start_body", comment: ""),
-                        message,
-                        "\(code)"
+                        configurationError.message,
+                        "\(configurationError.code)"
                     )
                 )
             }

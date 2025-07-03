@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-protocol NotificationServiceProtocol {
+protocol NotificationServiceProtocol: Sendable {
     func notificationsEnabled() async -> Bool
 }
 

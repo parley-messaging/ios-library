@@ -1,6 +1,7 @@
 import Foundation
 
-class MessagesStore {
+@MainActor
+final class MessagesStore {
     
     enum SectionKind: Equatable {
         case info

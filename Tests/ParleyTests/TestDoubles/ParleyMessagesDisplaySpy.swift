@@ -1,7 +1,8 @@
 import UIKit
 @testable import Parley
 
-class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
+@MainActor
+final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
 
     private(set) var insertRowsCallCount = 0
     private(set) var insertRowsIndexPaths: [IndexPath]?
@@ -25,6 +26,9 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     private(set) var displayQuickRepliesLatestArguments: [String]?
     
     private(set) var displayHideQuickRepliesCallCount = 0
+    
+    private(set) var displayScrollToBottomCallCount = 0
+    private(set) var displayScrollToBottomLatestArgument: Bool?
     
     var hasInteractedWithDisplay: Bool {
         insertRowsCallCount > 0 || insertRowsIndexPaths != nil ||
@@ -74,5 +78,10 @@ class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
     func displayHideQuickReplies() {
         displayHideQuickRepliesCallCount += 1
+    }
+    
+    func displayScrollToBottom(animated: Bool) {
+        displayScrollToBottomCallCount += 1
+        displayScrollToBottomLatestArgument = animated
     }
 }

@@ -3,6 +3,12 @@ import UIKit
 final class MessagesTableView: UITableView {
 
     private(set) var isAtBottom = false
+    private var heightObserver: NSKeyValueObservation?
+    
+    deinit {
+        heightObserver?.invalidate()
+        heightObserver = nil
+    }
 
     override var contentSize: CGSize {
         didSet {

@@ -1,4 +1,4 @@
-// swift-tools-version:5.10.0
+// swift-tools-version:6.1.0
 
 import PackageDescription
 
@@ -29,9 +29,6 @@ let package = Package(
             name: "Parley",
             dependencies: [
                 "MarkdownKit"
-            ],
-            swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -40,9 +37,6 @@ let package = Package(
                 "Parley",
                 "Alamofire",
                 "AlamofireImage",
-            ],
-            swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
@@ -58,5 +52,5 @@ let package = Package(
             dependencies: ["ParleyNetwork"]
         ),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v6]
 )

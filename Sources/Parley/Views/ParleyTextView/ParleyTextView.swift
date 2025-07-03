@@ -2,6 +2,13 @@ import MarkdownKit
 import UIKit
 
 final class ParleyTextView: UITextView {
+    
+    private var heightObserver: NSKeyValueObservation?
+    
+    deinit {
+        heightObserver?.invalidate()
+        heightObserver = nil
+    }
 
     var appearance = ParleyTextViewAppearance() {
         didSet {

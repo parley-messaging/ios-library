@@ -3,16 +3,16 @@ import Foundation
 @available(*, deprecated, renamed: "ParleyMediaDataSource", message: "Use ParleyMediaDataSource instead")
 public typealias ParleyImageDataSource = ParleyMediaDataSource
 
-public protocol ParleyMediaDataSource: AnyObject, ParleyDataSource {
+public protocol ParleyMediaDataSource: AnyObject, ParleyDataSource, Sendable {
 
-    func all() -> [ParleyStoredMedia]
+    func all() async -> [ParleyStoredMedia]
 
-    func media(id: ParleyStoredMedia.ID) -> ParleyStoredMedia?
+    func media(id: ParleyStoredMedia.ID) async -> ParleyStoredMedia?
 
-    func save(media: [ParleyStoredMedia])
+    func save(media: [ParleyStoredMedia]) async
 
-    func save(media: ParleyStoredMedia)
+    func save(media: ParleyStoredMedia) async
 
     @discardableResult
-    func delete(id: ParleyStoredMedia.ID) -> Bool
+    func delete(id: ParleyStoredMedia.ID) async -> Bool
 }

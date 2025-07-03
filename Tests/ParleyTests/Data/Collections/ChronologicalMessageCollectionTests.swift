@@ -19,7 +19,7 @@ class ChronologicalMessageCollectionTests {
         let message = Message.makeTestData(time: Date())
         let posistion = collection.add(message: message)
         #expect(posistion == .zero)
-        #expect(collection[section: 0, row: 0] === message)
+        #expect(collection[section: 0, row: 0] == message)
         #expect(collection.sections.count == 1)
         checkChronologicalOrder(collection)
     }
@@ -35,8 +35,8 @@ class ChronologicalMessageCollectionTests {
         
         #expect(firstMessagePosistion == .init(section: 0, row: 0))
         #expect(secondMessagePosistion == .init(section: 0, row: 1))
-        #expect(collection[section: 0, row: 0] === firstMessage)
-        #expect(collection[section: 0, row: 1] === secondMessage)
+        #expect(collection[section: 0, row: 0] == firstMessage)
+        #expect(collection[section: 0, row: 1] == secondMessage)
         #expect(collection.sections.count == 1)
         checkChronologicalOrder(collection)
     }
@@ -44,7 +44,7 @@ class ChronologicalMessageCollectionTests {
     @Test
     func addMessageToNonEmptyCollectionInDifferentSection() {
         var collection = makeCollection()
-        let firstMessage = Message.makeTestData(time: Date(timeIntSince1970: 1))
+        let firstMessage = Message.makeTestData(time: Date(timeIntSince1970: 1)!)
         let firstMessagePosistion = collection.add(message: firstMessage)
         
         let secondMessage = Message.makeTestData(time: Date())
@@ -52,8 +52,8 @@ class ChronologicalMessageCollectionTests {
         
         #expect(firstMessagePosistion == .init(section: 0, row: 0))
         #expect(secondMessagePosistion == .init(section: 1, row: 0))
-        #expect(collection[section: 0, row: 0] === firstMessage)
-        #expect(collection[section: 1, row: 0] === secondMessage)
+        #expect(collection[section: 0, row: 0] == firstMessage)
+        #expect(collection[section: 1, row: 0] == secondMessage)
         #expect(collection.sections.count == 2)
         checkChronologicalOrder(collection)
     }
@@ -62,16 +62,16 @@ class ChronologicalMessageCollectionTests {
     func setMessagesInSameSectionCollection() {
         var collection = makeCollection()
         let messages: [Message] = [
-            .makeTestData(id: 0, time: Date(timeIntSince1970: 1)),
-            .makeTestData(id: 1, time: Date(timeIntSince1970: 2)),
-            .makeTestData(id: 2, time: Date(timeIntSince1970: 3)),
+            .makeTestData(remoteId: 0, time: Date(timeIntSince1970: 1)!),
+            .makeTestData(remoteId: 1, time: Date(timeIntSince1970: 2)!),
+            .makeTestData(remoteId: 2, time: Date(timeIntSince1970: 3)!),
         ]
         
         collection.set(messages: messages)
         
-        #expect(collection[section: .zero, row: 0] === messages[0])
-        #expect(collection[section: .zero, row: 1] === messages[1])
-        #expect(collection[section: .zero, row: 2] === messages[2])
+        #expect(collection[section: .zero, row: 0] == messages[0])
+        #expect(collection[section: .zero, row: 1] == messages[1])
+        #expect(collection[section: .zero, row: 2] == messages[2])
         #expect(collection.sections.count == 1)
         checkChronologicalOrder(collection)
     }
@@ -80,18 +80,18 @@ class ChronologicalMessageCollectionTests {
     func setMessageCollectionInSameSectionCollection() {
         var collection = makeCollection()
         let messages: [Message] = [
-            .makeTestData(id: 0, time: Date(timeIntSince1970: 1)),
-            .makeTestData(id: 1, time: Date(timeIntSince1970: 2)),
-            .makeTestData(id: 2, time: Date(timeIntSince1970: 3)),
+            .makeTestData(remoteId: 0, time: Date(timeIntSince1970: 1)!),
+            .makeTestData(remoteId: 1, time: Date(timeIntSince1970: 2)!),
+            .makeTestData(remoteId: 2, time: Date(timeIntSince1970: 3)!),
         ]
         
         let messageCollection = MessageCollection.makeTestData(messages: messages)
         
         collection.set(collection: messageCollection)
         
-        #expect(collection[section: .zero, row: 0] === messages[0])
-        #expect(collection[section: .zero, row: 1] === messages[1])
-        #expect(collection[section: .zero, row: 2] === messages[2])
+        #expect(collection[section: .zero, row: 0] == messages[0])
+        #expect(collection[section: .zero, row: 1] == messages[1])
+        #expect(collection[section: .zero, row: 2] == messages[2])
         #expect(collection.sections.count == 1)
         checkChronologicalOrder(collection)
     }
@@ -104,9 +104,7 @@ class ChronologicalMessageCollectionTests {
         var messages = [Message]()
         
         for i in range {
-            let message = Message()
-            message.time = .init(timeIntSince1970: i + 1)
-            messages.append(message)
+            messages.append(.makeTestData(time: Date(timeIntSince1970: i + 1)!))
         }
         
         for message in messages {
@@ -128,9 +126,7 @@ class ChronologicalMessageCollectionTests {
         var messages = [Message]()
         
         for i in range {
-            let message = Message()
-            message.time = .init(timeIntSince1970: i + 1)
-            messages.append(message)
+            messages.append(.makeTestData(time: Date(timeIntSince1970: i + 1)!))
         }
         
         messages.shuffle()
@@ -150,9 +146,7 @@ class ChronologicalMessageCollectionTests {
         var messages = [Message]()
         
         for i in range {
-            let message = Message()
-            message.time = Date(daysSince1970: i)
-            messages.append(message)
+            messages.append(.makeTestData(time: Date(daysSince1970: i)))
         }
         
         for message in messages {
@@ -170,9 +164,7 @@ class ChronologicalMessageCollectionTests {
         var messages = [Message]()
         
         for i in range {
-            let message = Message()
-            message.time = Date(daysSince1970: i)
-            messages.append(message)
+            messages.append(.makeTestData(time: Date(daysSince1970: i)))
         }
         
         messages.shuffle()
@@ -209,7 +201,7 @@ private extension ChronologicalMessageCollectionTests {
         for section in collection.sections {
             for message in section.messages {
                 if let lastMessage {
-                    if lastMessage.time! > message.time! {
+                    if lastMessage.time > message.time {
                         Issue.record("Collection is not chronological.")
                     }
                 }

@@ -116,15 +116,17 @@ final class ParleyStickyView: UIView {
 
     private func watchContentHeight() {
         heightObserver = observe(\.textView?.contentSize, options: [.initial, .new]) { [weak self] _, change in
-            guard
-                let newValue = change.newValue,
-                let height = newValue?.height,
-                let self else { return }
-
-            let totalVerticalInsets: CGFloat = totalVerticalContentInsets
-            contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
-
-            layoutIfNeeded()
+            MainActor.assumeIsolated { [weak self] in
+                guard
+                    let newValue = change.newValue,
+                    let height = newValue?.height,
+                    let self else { return }
+                
+                let totalVerticalInsets: CGFloat = self.totalVerticalContentInsets
+                self.contentHeightConstraint.constant = min(200, height + totalVerticalInsets)
+                
+                self.layoutIfNeeded()
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ import SnapshotTesting
 import XCTest
 @testable import Parley
 
+@MainActor
 final class ParleyTextViewTests: XCTestCase {
 
     func testNormalTextWithDefaultStyle() {

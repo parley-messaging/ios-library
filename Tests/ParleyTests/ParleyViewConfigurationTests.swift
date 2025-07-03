@@ -1,10 +1,12 @@
-import XCTest
+import Testing
 @testable import Parley
 
-final class ParleyViewConfigurationTests: XCTestCase {
+@Suite("ParleyViewConfigurationTests", .tags(.userInterface))
+struct ParleyViewConfigurationTests {
     
     @MainActor
-    func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() {
+    @Test(.tags(.userInterface))
+    func testPollingServiceIsRenewedWhenStateBecomesUnconfigured() async {
         
         let messagesManager = MessagesManagerStub()
         let messageRepositoryStub = MessageRepositoryStub()
@@ -12,7 +14,7 @@ final class ParleyViewConfigurationTests: XCTestCase {
         
         let messagesStore = MessagesStore()
         let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
-        let messagesInteractor = MessagesInteractor(
+        let messagesInteractor = await MessagesInteractor(
             presenter: messagePresenter,
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
@@ -32,33 +34,41 @@ final class ParleyViewConfigurationTests: XCTestCase {
 
         let pollingServiceStub = PollingServiceStub()
 
-        let sut = ParleyView(
+        let sut = await ParleyView(
             parley: parleyStub,
             pollingService: pollingServiceStub,
             notificationService: NotificationServiceStub()
         )
-
-        XCTAssertTrue(sut.pollingService === pollingServiceStub)
-
-        parleyStub.state = .configured
-
-        let newlyInstantiatedSut = ParleyView(
+        
+        await MainActor.run {
+            #expect(sut.pollingService === pollingServiceStub)
+        }
+        
+        await parleyStub.set(state: .configured)
+        
+        let newlyInstantiatedSut = await ParleyView(
             parley: parleyStub,
             pollingService: nil,
             notificationService: NotificationServiceStub()
         )
-
-        XCTAssertNotNil(newlyInstantiatedSut.pollingService)
-
-        parleyStub.messagesManager = nil
+        
+        await MainActor.run {
+            #expect(newlyInstantiatedSut.pollingService != nil)
+        }
+        
+        await parleyStub.set(messagesManager: nil)
         newlyInstantiatedSut.didChangeState(.unconfigured)
-
-        XCTAssertNil(newlyInstantiatedSut.pollingService)
-
-        parleyStub.messagesManager = MessagesManagerStub()
+        
+        await MainActor.run {
+            #expect(newlyInstantiatedSut.pollingService == nil)
+        }
+        
+        await parleyStub.set(messagesManager: MessagesManagerStub())
         newlyInstantiatedSut.didChangeState(.configured)
-
-        XCTAssertNotNil(newlyInstantiatedSut.pollingService)
-        XCTAssertFalse(newlyInstantiatedSut.pollingService === pollingServiceStub)
+        
+        await MainActor.run {
+            #expect(newlyInstantiatedSut.pollingService != nil)
+            #expect(newlyInstantiatedSut.pollingService !== pollingServiceStub)
+        }
     }
 }

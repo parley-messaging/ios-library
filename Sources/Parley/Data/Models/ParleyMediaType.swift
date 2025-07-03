@@ -3,7 +3,7 @@ import MobileCoreServices
 import UIKit
 import UniformTypeIdentifiers
 
-enum ParleyMediaType: String, CaseIterable, Codable {
+enum ParleyMediaType: String, CaseIterable, Codable, Sendable {
     case imagePng = "image/png"
     case imageGif = "image/gif"
     case imageJPeg = "image/jpeg"
@@ -37,7 +37,7 @@ enum ParleyMediaType: String, CaseIterable, Codable {
     }
 
     @available(iOS 14.0, *)
-    static var documentContentTypes: [UTType] = {
+    static let documentContentTypes: [UTType] = {
         var types: [UTType] = []
         for mediaType in ParleyMediaType.allCases {
             switch mediaType {
@@ -51,7 +51,7 @@ enum ParleyMediaType: String, CaseIterable, Codable {
         return types
     }()
 
-    static var documentTypes: [String] = {
+    static let documentTypes: [String] = {
         var types: [String] = []
         for mediaType in ParleyMediaType.allCases {
             switch mediaType {

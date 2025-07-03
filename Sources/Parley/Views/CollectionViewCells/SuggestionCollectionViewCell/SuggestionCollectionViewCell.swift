@@ -29,6 +29,7 @@ final class SuggestionCollectionViewCell: UICollectionViewCell {
     }
 
     func render(_ suggestion: String) {
+        apply(appearance)
         suggestionLabel.text = suggestion
         setupAccessibilityOptions(suggestion)
     }
@@ -65,13 +66,6 @@ final class SuggestionCollectionViewCell: UICollectionViewCell {
         suggestionLeftLayoutConstraint.constant = appearance.suggestionInsets?.left ?? 0
         suggestionRightLayoutConstraint.constant = appearance.suggestionInsets?.right ?? 0
         suggestionBottomLayoutConstraint.constant = appearance.suggestionInsets?.bottom ?? 0
-    }
-
-    // MARK: View
-    override func awakeFromNib() {
-        super.awakeFromNib()
-
-        apply(appearance)
     }
 
     static func calculateHeight(_ appearance: SuggestionCollectionViewCellAppearance, _ suggestion: String) -> CGFloat {

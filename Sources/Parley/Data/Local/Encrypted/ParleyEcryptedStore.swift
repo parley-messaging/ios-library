@@ -1,10 +1,10 @@
-import Foundation
+@preconcurrency import Foundation
 
-public class ParleyEncryptedStore {
+public final actor ParleyEncryptedStore {
 
     let crypter: ParleyCrypter
     let destination: URL
-    let fileManager: FileManager
+    private let fileManager: FileManager
 
     public init(crypter: ParleyCrypter, directory: String, fileManager: FileManager) throws {
         self.crypter = crypter
@@ -72,6 +72,24 @@ extension ParleyEncryptedStore {
         } catch {
             return false
         }
+    }
+    
+    public func removeItem(at url: URL) throws {
+        try fileManager.removeItem(at: url)
+    }
+    
+    public func filesOfDirectory(at url: URL) throws -> [URL] {
+        try fileManager.contentsOfDirectory(at: destination, includingPropertiesForKeys: [
+            .isRegularFileKey
+        ])
+    }
+    
+    public func createFile(atPath path: String, contents: Data) {
+        fileManager.createFile(atPath: path, contents: contents)
+    }
+    
+    public func contents(atPath path: String) -> Data? {
+        fileManager.contents(atPath: path)
     }
 }
 

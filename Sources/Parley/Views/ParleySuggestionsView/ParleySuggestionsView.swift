@@ -1,7 +1,7 @@
 import UIKit
 
 final class ParleySuggestionsView: UIView {
-
+    
     @IBOutlet weak var contentView: UIView! {
         didSet {
             contentView.backgroundColor = UIColor.clear

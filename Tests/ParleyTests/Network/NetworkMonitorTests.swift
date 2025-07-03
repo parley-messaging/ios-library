@@ -16,10 +16,11 @@ struct NetworkMonitorTests {
     }
 
     @Test
-    func callDelegateOnStart() {
+    func callDelegateOnStart() async throws {
         let sut = NetworkMonitor(networkMonitor: networkMonitorSpy, delegate: delegateSpy)
 
-        sut.start()
+        await sut.start()
+        try await Task.sleep(nanoseconds: 150_000) // 15 milliseconds
 
         #expect(networkMonitorSpy.startQueueCallsCount == 1)
         #expect(networkMonitorSpy.pathUpdateHandler != nil)
@@ -27,10 +28,10 @@ struct NetworkMonitorTests {
     }
 
     @Test
-    func stopMonitorOnStop() {
+    func stopMonitorOnStop() async {
         let sut = NetworkMonitor(networkMonitor: networkMonitorSpy, delegate: delegateSpy)
 
-        sut.stop()
+        await sut.stop()
 
         #expect(networkMonitorSpy.startQueueCalled == false)
         #expect(networkMonitorSpy.cancelCalled == true)

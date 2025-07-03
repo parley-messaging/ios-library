@@ -1,7 +1,7 @@
 import Firebase
 import Parley
 import UIKit
-import UserNotifications
+@preconcurrency import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,13 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UNUserNotificationCenter.current().delegate = self
 
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { pushEnabled, _ in
-                Parley.setPushEnabled(pushEnabled)
-            }
-        )
+        Task {
+            guard let isPushEnabled = try? await UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .badge, .sound]
+            ) else { return }
+            try? await Parley.setPushEnabled(isPushEnabled)
+            
+        }
 
         application.registerForRemoteNotifications()
         // Stop: Configuring Firebase Cloud Messaging
@@ -34,38 +34,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
-            let pushEnabled = notificationSettings.authorizationStatus == .authorized
-
-            Parley.setPushEnabled(pushEnabled)
+        Task {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            let pushEnabled = settings.authorizationStatus == .authorized
+            try? await Parley.setPushEnabled(pushEnabled)
         }
     }
 }
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
-
+extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
+    
     func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-        _ = Parley.handle(userInfo)
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any]
+    ) async -> UIBackgroundFetchResult {
+        await Parley.handle(Parley.RemoteMessageData(userInfo))
+        return .noData
     }
-
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         if UIApplication.shared.applicationState == .active {
-            completionHandler([])
+            return []
         } else {
-            completionHandler([.alert, .sound])
+            return [.alert, .sound]
         }
     }
 }
 
-extension AppDelegate: MessagingDelegate {
+extension AppDelegate: @preconcurrency MessagingDelegate {
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken pushToken: String?) {
         guard let pushToken = pushToken else { return }

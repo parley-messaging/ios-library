@@ -2,7 +2,7 @@ import Foundation
 import Network
 @testable import Parley
 
-public class PathStub: PathProtocol {
+public final class PathStub: @unchecked Sendable, PathProtocol {
     public init(underlyingStatus: NWPath.Status) {
         self.underlyingStatus = underlyingStatus
     }

@@ -1,9 +1,11 @@
 # Changelog
 
-## 4.2.13 - Released 8 June 2025
+## 4.3.0 - Released 3 July 2025
 
-- [Parley] Internally transitioned from completion handlers to Swift Concurrency in most instances to prepare for the Swift 6 migration.  
-- [Neworking] `ParleyNetworkSession` is now required to be `Sendable`, and the completion handler for the  `request` and `upload` methods now also require `Sendable` closures.
+- [Swift] Parley is now set to use the Swift 6 language mode.
+-  **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.
+-  **IMPORTANT**: All static Parley methods with a completion handler also have an async variant which has a typed throw (`ConfigurationError`).
+-  **IMPORTANT**: The `ParleyNetworkSession` now requires being async and should throw `ParleyHTTPErrorResponse`.
 
 ## 4.2.12 - Released 26 Jun 2025
 

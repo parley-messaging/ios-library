@@ -1,7 +1,7 @@
 import Network
 @testable import Parley
 
-public final class NWPathMonitorSpy<Path: PathProtocol>: NWPathMonitorProtocol {
+public final class NWPathMonitorSpy<Path: PathProtocol>: @unchecked Sendable, NWPathMonitorProtocol {
     
     public init() {}
 
