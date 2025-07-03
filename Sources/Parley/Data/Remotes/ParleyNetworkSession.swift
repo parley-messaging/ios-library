@@ -33,34 +33,3 @@ public protocol ParleyNetworkSession: Sendable {
         headers: [String: String],
     ) async throws(ParleyHTTPErrorResponse) -> ParleyHTTPDataResponse
 }
-
-extension ParleyNetworkSession {
-    
-    func requestWithResult(
-        _ url: URL,
-        data: Data?,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-    ) async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        do throws(ParleyHTTPErrorResponse) {
-            let response = try await request(url, data: data, method: method, headers: headers)
-            return .success(response)
-        } catch {
-            return .failure(error)
-        }
-    }
-
-    func uploadWithResult(
-        data: Data,
-        to url: URL,
-        method: ParleyHTTPRequestMethod,
-        headers: [String: String],
-    )  async -> Result<ParleyHTTPDataResponse, ParleyHTTPErrorResponse> {
-        do throws(ParleyHTTPErrorResponse) {
-            let response = try await upload(data: data, to: url, method: method, headers: headers)
-            return .success(response)
-        } catch {
-            return .failure(error)
-        }
-    }
-}

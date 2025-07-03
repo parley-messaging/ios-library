@@ -228,7 +228,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     ) async {
         self.secret = secret
         self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
-        await initializeParleyRemote(
+        initializeParleyRemote(
             networkConfig: networkConfig ?? ParleyNetworkConfig(),
             networkSession: networkSession
         )
@@ -616,13 +616,13 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         )
 
         if agentReallyStartTyping {
-            await UIAccessibility.post(
-                notification: .announcement,
-                argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
-            )
-            Task {
-                await messagesInteractor.handleAgentBeganTyping()
+            await MainActor.run {
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
+                )
             }
+            await messagesInteractor.handleAgentBeganTyping()
         }
     }
 
