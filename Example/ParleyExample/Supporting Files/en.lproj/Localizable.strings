@@ -2,7 +2,31 @@
 "identifier_body" = "Enter your identification code to start a chat session.";
 "identifier_placeholder" = "Identification code";
 "identifier_customer_identification_placeholder" = "Customer identification (optional)";
-"identifier_start" = "Start chat";
+
+// Default flow open
+"identifier_open_then_start" = "Open chat > Start Parley";
+"identifier_start_then_open" = "Start Parley > Open chat";
+
+// Lightweight flow Setup
+"identifier_lightweight_setup" = "Setup";
+"identifier_lightweight_setup_alert_set_secret_title" = "Set a secret first";
+"identifier_lightweight_setup_alert_setup_complete_title" = "Setup complete";
+"identifier_lightweight_setup_alert_setup_complete_body" = "You can now register device or get the unseen count.";
+
+// Lightweight flow open
+"identifier_lightweight_open" = "Open chat";
+
+// Lightweight flow register device
+"identifier_lightweight_register_device" = "Register device";
+"identifier_lightweight_message_device_registered_title" = "Device registered";
+"identifier_lightweight_message_device_registered_body" = "The device has been registered succesfully";
+"identifier_lightweight_message_device_registration_failed_title" = "Failed to register device";
+
+// Lightweight flow unseen messages
+"identifier_lightweight_get_unseen" = "Get unseen count";
+"identifier_lightweight_message_x_unseen_messages" = "%d unseen messages";
+"identifier_lightweight_unseen_failed_title" = "Failed to fetch unseen messages.";
+"identifier_lightweight_unseen_failed_body" = "Make sure parley is set up using the setup button.";
 
 "identifier_error_invalid_title" = "Incorrect identification code";
 "identifier_error_invalid_body" = "You have entered an incorrect identification code. Try again.";

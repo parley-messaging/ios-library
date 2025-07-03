@@ -2,7 +2,31 @@
 "identifier_body" = "Voer je identificatie code in om een chatsessie te starten.";
 "identifier_placeholder" = "Identificatie code";
 "identifier_customer_identification_placeholder" = "Klant identificatie (optioneel)";
-"identifier_start" = "Chat starten";
+
+// Default flow open
+"identifier_open_then_start" = "Open chat > Start Parley";
+"identifier_start_then_open" = "Start Parley > Open chat";
+
+// Lightweight flow Setup
+"identifier_lightweight_setup" = "Instellen";
+"identifier_lightweight_setup_alert_set_secret_title" = "Stel eerst een geheim in";
+"identifier_lightweight_setup_alert_setup_complete_title" = "Instelling voltooid";
+"identifier_lightweight_setup_alert_setup_complete_body" = "U kunt nu het apparaat registreren of het aantal ongelezen berichten ophalen.";
+
+// Lightweight flow open
+"identifier_lightweight_open" = "Open chat";
+
+// Lightweight flow register device
+"identifier_lightweight_register_device" = "Apparaat registreren";
+"identifier_lightweight_message_device_registered_title" = "Apparaat geregistreerd";
+"identifier_lightweight_message_device_registered_body" = "Het apparaat is succesvol geregistreerd";
+"identifier_lightweight_message_device_registration_failed_title" = "Registratie van apparaat mislukt";
+
+// Lightweight flow unseen messages
+"identifier_lightweight_get_unseen" = "Haal ongelezen aantal op";
+"identifier_lightweight_message_x_unseen_messages" = "%d ongeziene berichten";
+"identifier_lightweight_unseen_failed_title" = "Ophalen van ongeziene berichten mislukt";
+"identifier_lightweight_unseen_failed_body" = "Zorg ervoor dat Parley is ingesteld met de instelknop.";
 
 "identifier_error_invalid_title" = "Foutieve identificatie code";
 "identifier_error_invalid_body" = "Je hebt een foutieve identificatie code ingevoerd. Probeer opnieuw.";

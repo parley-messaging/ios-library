@@ -11,6 +11,9 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ChatViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
+		726E6A162E16B2FC00E702CA /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 726E6A152E16B2F900E702CA /* Settings.swift */; };
+		726E6A192E172A2E00E702CA /* HapticFeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 726E6A182E172A2E00E702CA /* HapticFeedbackService.swift */; };
+		726E6A1B2E172F5F00E702CA /* NSLocalizedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 726E6A1A2E172F5F00E702CA /* NSLocalizedStringExtensions.swift */; };
 		72B7BC372DC8178300AC5D8C /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = 72B7BC362DC8178300AC5D8C /* Parley */; };
 		72B7BC392DC8178300AC5D8C /* ParleyNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = 72B7BC382DC8178300AC5D8C /* ParleyNetwork */; };
 		9229A7DF2B6BAAC000864ED2 /* Parley in Frameworks */ = {isa = PBXBuildFile; productRef = 9229A7DE2B6BAAC000864ED2 /* Parley */; };
@@ -47,6 +50,9 @@
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		607FACD71AFB9204008FA782 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		726E6A152E16B2F900E702CA /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		726E6A182E172A2E00E702CA /* HapticFeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackService.swift; sourceTree = "<group>"; };
+		726E6A1A2E172F5F00E702CA /* NSLocalizedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLocalizedStringExtensions.swift; sourceTree = "<group>"; };
 		94C71995F3065F708BFF3A3D /* Pods_ParleyExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ParleyExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F844F57022DCBB3B00E705AE /* IdentifierViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifierViewController.swift; sourceTree = "<group>"; };
 		F844F57A22DCC10D00E705AE /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
@@ -111,6 +117,8 @@
 		607FACD21AFB9204008FA782 /* ParleyExample */ = {
 			isa = PBXGroup;
 			children = (
+				726E6A172E172A2B00E702CA /* Utils */,
+				726E6A152E16B2F900E702CA /* Settings.swift */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				F8FD6D4C23CCACA3002B9741 /* ParleyCustomerAuthorization.swift */,
 				F844F59422DCCF1400E705AE /* Constants.swift */,
@@ -132,6 +140,14 @@
 				94C71995F3065F708BFF3A3D /* Pods_ParleyExample.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		726E6A172E172A2B00E702CA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				726E6A182E172A2E00E702CA /* HapticFeedbackService.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		F832646522D34B730047041D /* Supporting Files */ = {
@@ -205,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				F84985D0233CBE6000BD6B73 /* UIButtonExtension.swift */,
+				726E6A1A2E172F5F00E702CA /* NSLocalizedStringExtensions.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -322,10 +339,13 @@
 				F844F57122DCBB3B00E705AE /* IdentifierViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				F844F59522DCCF1400E705AE /* Constants.swift in Sources */,
+				726E6A162E16B2FC00E702CA /* Settings.swift in Sources */,
+				726E6A1B2E172F5F00E702CA /* NSLocalizedStringExtensions.swift in Sources */,
 				F8FD6D4D23CCACA3002B9741 /* ParleyCustomerAuthorization.swift in Sources */,
 				106038F82725F27C0097A46E /* BaseViewController.swift in Sources */,
 				F84985D1233CBE6000BD6B73 /* UIButtonExtension.swift in Sources */,
 				F84985CE233CB4FC00BD6B73 /* TabBarViewController.swift in Sources */,
+				726E6A192E172A2E00E702CA /* HapticFeedbackService.swift in Sources */,
 				F84985CC233CB34D00BD6B73 /* DocumentationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,6 +486,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_STYLE = Manual;
@@ -491,6 +512,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
@@ -577,6 +599,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_COMPLETION_HANDLER_MISUSE = NO;
 				CODE_SIGN_ENTITLEMENTS = "ParleyExample/Supporting Files/ParleyExample.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";

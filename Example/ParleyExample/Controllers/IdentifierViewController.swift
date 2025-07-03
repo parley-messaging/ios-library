@@ -3,84 +3,68 @@ import Parley
 import ParleyNetwork
 import UIKit
 
-class IdentifierViewController: UIViewController {
-
-    /// Disable offline messaging in the demo app to show error messages as an alert before opening the chat
-    private static let kOfflineMessagingEnabled = false
-
-    @IBOutlet weak var titleLabel: UILabel! {
-        didSet {
-            titleLabel.text = NSLocalizedString("identifier_title", comment: "").uppercased()
-        }
-    }
-
-    @IBOutlet weak var bodyLabel: UILabel! {
-        didSet {
-            bodyLabel.text = NSLocalizedString("identifier_body", comment: "")
-        }
-    }
-
-    @IBOutlet weak var identifierBackgroundView: UIView! {
-        didSet {
-            identifierBackgroundView.layer.cornerRadius = 5
-            identifierBackgroundView.layer.borderWidth = 1
-            identifierBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
-        }
-    }
-
-    @IBOutlet weak var identifierTextView: UITextField! {
-        didSet {
-            identifierTextView.placeholder = NSLocalizedString("identifier_placeholder", comment: "")
-            identifierTextView.text = UserDefaults.standard
-                .string(forKey: kUserDefaultIdentificationCode) ?? kUserDefaultIdentificationCodeDefault
-        }
-    }
-
-    @IBOutlet weak var customerIdentificationBackgroundView: UIView! {
-        didSet {
-            customerIdentificationBackgroundView.layer.cornerRadius = 5
-            customerIdentificationBackgroundView.layer.borderWidth = 1
-            customerIdentificationBackgroundView.layer.borderColor = UIColor(named: "primaryColor")?.cgColor
-        }
-    }
-
-    @IBOutlet weak var customerIdentificationTextView: UITextField! {
-        didSet {
-            customerIdentificationTextView.placeholder = NSLocalizedString(
-                "identifier_customer_identification_placeholder",
-                comment: ""
-            )
-            customerIdentificationTextView.text = UserDefaults.standard
-                .string(forKey: kUserDefaultIdentifierCustomerIdentification)
-        }
-    }
-
-    @IBOutlet weak var startButton: UIButton! {
-        didSet {
-            startButton.layer.cornerRadius = 5
-
-            startButton.setTitle(NSLocalizedString("identifier_start", comment: "").uppercased(), for: .normal)
-        }
-    }
-
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
-    }
-
+final class IdentifierViewController: UIViewController {
+    
+    private let hapticFeedbackService = HapticFeedbackService()
+    
     /// > Note: Parley expects that `Parley.configure()` is only called once. Resetting is only needed when the `secret`
     /// can change, which is the case for this demo app. Single app implementations don't need to reset Parley before
     /// configuring.
     private var alreadyConfiguredParley = false
+    
+    // MARK: IBOutlets
+    @IBOutlet weak var scrollView: UIScrollView!
+    
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var bodyLabel: UILabel!
+    
+    @IBOutlet weak var identifierBackgroundView: UIView!
+    @IBOutlet weak var identifierTextView: UITextField!
+    
+    @IBOutlet weak var customerIdentificationBackgroundView: UIView!
+    @IBOutlet weak var customerIdentificationTextView: UITextField!
+    
+    @IBOutlet weak var actionsStackView: UIStackView!
+    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var lightweightSetupButton: UIButton!
+    @IBOutlet weak var lightweightOpenButton: UIButton!
+    @IBOutlet weak var lightweightRegisterDeviceButton: UIButton!
+    @IBOutlet weak var lightweightGetUnseenButton: UIButton!
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+    
+    private var secretInput: String? {
+        let input = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let input, input.isEmpty == false {
+            return input
+        } else {
+            return nil
+        }
+    }
+    
+    private var customerIdentificationInput: String? {
+        let input = customerIdentificationTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let input, input.isEmpty == false {
+            return input
+        } else {
+            return nil
+        }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setup()
+    }
 
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if Self.kOfflineMessagingEnabled {
+        if Settings.offlineMessagingEnabled {
             setOfflineMessagingEnabled()
         }
-
-        setNeedsStatusBarAppearanceUpdate()
         
         Task {
             let id = UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification)
@@ -90,15 +74,15 @@ class IdentifierViewController: UIViewController {
     }
 
     // MARK: UI
-
-    private func showAlert(title: String, message: String) {
+    @MainActor
+    private func showAlert(title: String, message: String? = nil) {
         let alertController = UIAlertController(
             title: title,
             message: message,
             preferredStyle: .alert
         )
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("general_ok", comment: ""),
+            title: NSLocalizedString("general_ok"),
             style: .cancel,
             handler: nil
         ))
@@ -158,11 +142,11 @@ class IdentifierViewController: UIViewController {
                 mediaDataSource: mediaDataSource
             )
         } catch {
-            print(error)
+            print(String(reflecting: error))
         }
     }
 
-    // MARK: Actions
+    // MARK: - Actions
     @IBAction
     func hideKeyboard(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
@@ -170,52 +154,132 @@ class IdentifierViewController: UIViewController {
 
     @IBAction
     func startChatClicked(_ sender: Any) {
-        if alreadyConfiguredParley {
-            // Only in the demo we'll need to reset Parley when we've already configured it once
-            Task {
+        startButton.setLoading(true)
+        Task {
+            if alreadyConfiguredParley {
+                // Only in the demo we'll need to reset Parley when we've already configured it once
                 do {
                     try await Parley.reset()
-                    startChatDemo()
+                    await startChatDemo()
+                } catch {
+                    print("Failed to reset Parley: \(String(reflecting: error))")
+                    startButton.setLoading(false)
+                }
+            } else {
+                await startChatDemo()
+            }
+        }
+    }
+    
+    @IBAction
+    func lightweightSetupClicked(_ sender: Any) {
+        lightweightSetupButton.setLoading(true)
+        guard let secret = secretInput else {
+            hapticFeedbackService.notification(type: .error)
+            lightweightSetupButton.setLoading(false)
+            return showAlert(title: NSLocalizedString("identifier_lightweight_setup_alert_set_secret_title"))
+        }
+        let feedbackGenerator = hapticFeedbackService.prepareNotification()
+        Task {
+            await Parley.setup(secret: secret)
+            feedbackGenerator.notificationOccurred(.success)
+            showAlert(
+                title: NSLocalizedString("identifier_lightweight_setup_alert_setup_complete_title"),
+                message: NSLocalizedString("identifier_lightweight_setup_alert_setup_complete_body")
+            )
+            lightweightSetupButton.setLoading(false)
+        }
+    }
+    
+    @IBAction
+    func lightweightOpenClicked(_ sender: Any) {
+        lightweightOpenButton.setLoading(true)
+        let feedbackGenerator = hapticFeedbackService.prepareNotification()
+        Task {
+            if alreadyConfiguredParley {
+                // Only in the demo we'll need to reset Parley when we've already configured it once
+                do {
+                    try await Parley.reset()
+                    await startChatDemo()
                 } catch {
                     print("Failed to reset Parley")
+                    feedbackGenerator.notificationOccurred(.error)
                 }
+                lightweightOpenButton.setLoading(false)
+            } else {
+                await startChatDemo()
             }
-        } else {
-            startChatDemo()
+        }
+    }
+    
+    @IBAction
+    func lightweightRegisterDeviceClicked(_ sender: Any) {
+        lightweightRegisterDeviceButton.setLoading(true)
+        let feedbackGenerator = hapticFeedbackService.prepareNotification()
+        Task {
+            do {
+                try await Parley.registerDevice()
+                feedbackGenerator.notificationOccurred(.success)
+                showAlert(
+                    title: NSLocalizedString("identifier_lightweight_message_device_registered_title"),
+                    message: NSLocalizedString("identifier_lightweight_message_device_registered_body")
+                )
+            } catch {
+                print("Failed to register device: \(String(reflecting: error))")
+                feedbackGenerator.notificationOccurred(.error)
+                showAlert(
+                    title: NSLocalizedString("identifier_lightweight_message_device_registration_failed_title"),
+                    message: String(reflecting: error)
+                )
+            }
+            lightweightRegisterDeviceButton.setLoading(false)
+        }
+    }
+    
+    @IBAction
+    func lightweightGetUnseenCountClicked(_ sender: Any) {
+        lightweightGetUnseenButton.setLoading(true)
+        let feedbackGenerator = hapticFeedbackService.prepareNotification()
+        Task {
+            do {
+                let unseenMessages = try await Parley.getUnseenCount()
+                showAlert(title: String(
+                    format: NSLocalizedString("identifier_lightweight_message_x_unseen_messages"),
+                    unseenMessages,
+                ))
+                feedbackGenerator.notificationOccurred(.success)
+            } catch {
+                print("Failed to register device: \(String(reflecting: error))")
+                feedbackGenerator.notificationOccurred(.error)
+                showAlert(
+                    title: NSLocalizedString("identifier_lightweight_unseen_failed_title"),
+                    message: NSLocalizedString("identifier_lightweight_unseen_failed_body")
+                )
+            }
+            lightweightGetUnseenButton.setLoading(false)
         }
     }
 
     // Start a chat based on the input
-    @MainActor
-    private func startChatDemo() {
-        if
-            let customerIdentification = customerIdentificationTextView.text?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-            !customerIdentification.isEmpty
-        {
-            Task {
-                await startChat(customerIdentification: customerIdentification)
-            }
-        } else if
-            let secret = identifierTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-            !secret.isEmpty,
-            secret.count == 20
-        {
-            Task {
-                await startChat(secret: secret)
-            }
+    private func startChatDemo() async {
+        if let customerIdentificationInput {
+            await startChat(customerIdentification: customerIdentificationInput)
+        } else if let secret = secretInput, secret.count == 20 {
+            await startChat(secret: secret)
         } else {
             showAlert(
-                title: NSLocalizedString("identifier_error_invalid_title", comment: ""),
-                message: NSLocalizedString("identifier_error_invalid_body", comment: "")
+                title: NSLocalizedString("identifier_error_invalid_title"),
+                message: NSLocalizedString("identifier_error_invalid_body")
             )
         }
     }
 
     // Start chat with user authorization
     private func startChat(customerIdentification: String) async {
-        startButton.setLoading(true)
-
+        if Settings.flow.openChatDirectly == true {
+            displayChat()
+        }
+        
         let authorization = ParleyCustomerAuthorization.generate(
             identification: customerIdentification,
             secret: kParleyUserAuthorizationSecret,
@@ -226,22 +290,27 @@ class IdentifierViewController: UIViewController {
             try await Parley.configure(kParleySecret, networkConfig: createNetworkConfig())
             alreadyConfiguredParley = true
             startButton.setLoading(false)
+            lightweightOpenButton.setLoading(false)
 
             identifierTextView.text = kParleySecret
 
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.set(customerIdentification, forKey: kUserDefaultIdentifierCustomerIdentification)
-            
-            performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            if Settings.flow.openChatDirectly != true {
+                displayChat()
+            }
         } catch (let configurationError) {
             startButton.setLoading(false)
-            if Self.kOfflineMessagingEnabled {
-                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            lightweightOpenButton.setLoading(false)
+            if Settings.offlineMessagingEnabled {
+                if Settings.flow.openChatDirectly != true {
+                    displayChat()
+                }
             } else {
                 showAlert(
-                    title: NSLocalizedString("identifier_error_start_title", comment: ""),
+                    title: NSLocalizedString("identifier_error_start_title"),
                     message: String(
-                        format: NSLocalizedString("identifier_error_start_body", comment: ""),
+                        format: NSLocalizedString("identifier_error_start_body"),
                         configurationError.message,
                         "\(configurationError.code)"
                     )
@@ -251,11 +320,12 @@ class IdentifierViewController: UIViewController {
     }
 
     // Start anonymous chat
+    @MainActor
     private func startChat(secret: String) async {
-        await MainActor.run {
-            startButton.setLoading(true)
+        if Settings.flow.openChatDirectly == true {
+            displayChat()
         }
-
+        
         if UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification) != nil {
             try? await Parley.clearUserInformation()
         }
@@ -264,25 +334,145 @@ class IdentifierViewController: UIViewController {
             try await Parley.configure(secret, networkConfig: createNetworkConfig())
             alreadyConfiguredParley = true
             startButton.setLoading(false)
+            lightweightOpenButton.setLoading(false)
 
             UserDefaults.standard.set(secret, forKey: kUserDefaultIdentificationCode)
             UserDefaults.standard.removeObject(forKey: kUserDefaultIdentifierCustomerIdentification)
-
-            performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            
+            if Settings.flow.openChatDirectly != true {
+                displayChat()
+            }
         } catch (let configurationError) {
             startButton.setLoading(false)
-            if Self.kOfflineMessagingEnabled {
-                performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+            lightweightOpenButton.setLoading(false)
+            if Settings.offlineMessagingEnabled {
+                if Settings.flow.openChatDirectly != true {
+                    displayChat()
+                }
             } else {
                 showAlert(
-                    title: NSLocalizedString("identifier_error_start_title", comment: ""),
+                    title: NSLocalizedString("identifier_error_start_title"),
                     message: String(
-                        format: NSLocalizedString("identifier_error_start_body", comment: ""),
+                        format: NSLocalizedString("identifier_error_start_body"),
                         configurationError.message,
                         "\(configurationError.code)"
                     )
                 )
             }
         }
+    }
+    
+    private func displayChat() {
+        performSegue(withIdentifier: "showTabBarViewController", sender: nil)
+    }
+}
+
+// MARK: View setup
+private extension IdentifierViewController {
+
+    func setup() {
+        setNeedsStatusBarAppearanceUpdate()
+        setupScrollView()
+        setupTitleLabel()
+        setupBodyLabel()
+        setupIdentifierInput()
+        setupCustomIdentificationInput()
+        setupButtons()
+    }
+    
+    func setupScrollView() {
+        scrollView.contentInsetAdjustmentBehavior = .never
+    }
+    
+    func setupTitleLabel() {
+        titleLabel.text = NSLocalizedString("identifier_title").uppercased()
+    }
+    
+    func setupBodyLabel() {
+        bodyLabel.text = NSLocalizedString("identifier_body")
+    }
+    
+    func setupIdentifierInput() {
+        identifierBackgroundView.layer.cornerRadius = 5
+        identifierBackgroundView.layer.borderWidth = 1
+        identifierBackgroundView.layer.borderColor = UIColor.primary.cgColor
+        
+        identifierTextView.placeholder = NSLocalizedString("identifier_placeholder")
+        identifierTextView.text = UserDefaults.standard
+            .string(forKey: kUserDefaultIdentificationCode) ?? kUserDefaultIdentificationCodeDefault
+    }
+    
+    func setupCustomIdentificationInput() {
+        customerIdentificationBackgroundView.layer.cornerRadius = 5
+        customerIdentificationBackgroundView.layer.borderWidth = 1
+        customerIdentificationBackgroundView.layer.borderColor = UIColor.primary.cgColor
+        
+        customerIdentificationTextView.text = UserDefaults.standard.string(forKey: kUserDefaultIdentifierCustomerIdentification)
+        customerIdentificationTextView.placeholder = NSLocalizedString(
+            "identifier_customer_identification_placeholder"
+        )
+    }
+    
+    func setupButtons() {
+        let allButtons = actionsStackView.subviews.compactMap { $0 as? UIButton }
+        allButtons.forEach { $0.isHidden = true }
+        
+        switch Settings.flow {
+        case .default:
+            setupStartButton()
+        case .specialLightweight:
+            setupLightweightSetupButton()
+            setupLightweightOpenButton()
+            setupLightweightRegisterDeviceButton()
+            setupLightweightGetUnseenButton()
+        }
+        
+        for button in allButtons where !button.isHidden {
+            button.layer.cornerRadius = 5
+        }
+    }
+    
+    func setupStartButton() {
+        startButton.isHidden = false
+        if case let .default(openChatDirectly) = Settings.flow {
+            let title = if openChatDirectly {
+                NSLocalizedString("identifier_open_then_start").uppercased()
+            } else {
+                NSLocalizedString("identifier_start_then_open").uppercased()
+            }
+            startButton.setTitle(title.uppercased(), for: .normal)
+        }
+    }
+    
+    func setupLightweightSetupButton() {
+        lightweightSetupButton.isHidden = false
+        lightweightSetupButton.setTitle(
+            NSLocalizedString("identifier_lightweight_setup").uppercased(),
+            for: .normal
+        )
+    }
+    
+    func setupLightweightOpenButton() {
+        lightweightOpenButton.isHidden = false
+        lightweightOpenButton.setTitle(
+            NSLocalizedString("identifier_lightweight_open").uppercased(),
+            for: .normal
+        )
+    }
+    
+    func setupLightweightRegisterDeviceButton() {
+        lightweightRegisterDeviceButton.isHidden = false
+        lightweightRegisterDeviceButton.setTitle(
+            NSLocalizedString("identifier_lightweight_register_device").uppercased(),
+            for: .normal
+        )
+    }
+    
+    func setupLightweightGetUnseenButton() {
+        lightweightGetUnseenButton.isHidden = false
+        lightweightGetUnseenButton.setTitle(
+            NSLocalizedString("identifier_lightweight_get_unseen").uppercased(),
+            for: .normal
+        )
     }
 }

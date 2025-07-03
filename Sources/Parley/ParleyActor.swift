@@ -17,6 +17,8 @@ protocol ParleyProtocol: Actor, AnyObject {
 
     @MainActor var delegate: ParleyDelegate? { get }
     @MainActor func set(delegate: ParleyDelegate?) async
+    
+    func setDisplayToAttach(_ display: ParleyMessagesDisplay) async
 
     func isCachingEnabled() -> Bool
     func send(_ message: inout Message, isNewMessage: Bool) async
@@ -87,6 +89,12 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private(set) var userAuthorization: String?
     private(set) var userAdditionalInformation: [String: String]?
     private var reachibilityWatcher: AnyCancellable?
+    
+    private weak var displayToAttach: ParleyMessagesDisplay?
+    
+    func setDisplayToAttach(_ display: ParleyMessagesDisplay) async {
+        displayToAttach = display
+    }
 
     @MainActor
     private(set) weak var delegate: ParleyDelegate?
@@ -791,6 +799,11 @@ extension ParleyActor {
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             clearCache: true
         )
+        
+        if let display = displayToAttach.take() {
+            await messagesPresenter.set(display: display)
+            await display.signalAttached()
+        }
     }
 
     public func reset() async throws(ConfigurationError) {

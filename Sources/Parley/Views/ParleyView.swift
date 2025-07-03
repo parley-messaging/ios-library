@@ -2,7 +2,9 @@ import UIKit
 import UniformTypeIdentifiers
 
 @MainActor
-protocol ParleyMessagesDisplay: AnyObject {
+protocol ParleyMessagesDisplay: AnyObject, Sendable {
+    func signalAttached() async
+    
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
     func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
     func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
@@ -116,10 +118,14 @@ public class ParleyView: UIView {
     }
     
     private func setup() async {
-        await parley.messagesPresenter?.set(display: self)
-        await setupDependencies()
         await parley.set(delegate: self)
-        await messagesInteractor?.handleViewDidLoad()
+        if await parley.state == .configured {
+            await parley.messagesPresenter.set(display: self)
+            await setupDependencies()
+            await messagesInteractor?.handleViewDidLoad()
+        } else {
+            await parley.setDisplayToAttach(self)
+        }
     }
     
     private func setupDependencies() async {
@@ -163,6 +169,9 @@ public class ParleyView: UIView {
     @MainActor
     private func setupUI() {
         loadXib()
+        
+        statusLabel.isHidden = true
+        activityIndicatorView.hidesWhenStopped = true
         
         contentView.backgroundColor = UIColor.clear
         pushDisabledNotificationView.text = ParleyLocalizationKey.pushDisabled.localized()
@@ -498,7 +507,6 @@ extension ParleyView: ParleyDelegate {
             statusLabel.text = ParleyLocalizationKey.stateUnconfigured.localized()
             statusLabel.isHidden = false
 
-            activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
 
             stickyView.isHidden = true
@@ -508,7 +516,6 @@ extension ParleyView: ParleyDelegate {
             statusLabel.isHidden = true
             suggestionsView.isHidden = true
 
-            activityIndicatorView.isHidden = false
             activityIndicatorView.startAnimating()
 
             stickyView.isHidden = true
@@ -520,7 +527,6 @@ extension ParleyView: ParleyDelegate {
             statusLabel.text = ParleyLocalizationKey.stateFailed.localized()
             statusLabel.isHidden = false
 
-            activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
 
             stickyView.isHidden = true
@@ -528,7 +534,6 @@ extension ParleyView: ParleyDelegate {
             composeView.isHidden = false
             statusLabel.isHidden = true
 
-            activityIndicatorView.isHidden = true
             activityIndicatorView.stopAnimating()
 
             Task { @MainActor in
@@ -907,6 +912,10 @@ extension ParleyView {
 
 @MainActor
 extension ParleyView: ParleyMessagesDisplay {
+    
+    func signalAttached() async {
+        await setup()
+    }
         
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         messagesTableView.beginUpdates()
