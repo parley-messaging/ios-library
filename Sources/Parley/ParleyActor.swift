@@ -211,13 +211,19 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     }
 
     @objc
-    private func willEnterForeground() async {
-        configureWhenNeeded()
+    @MainActor
+    private func willEnterForeground() {
+        Task {
+            await configureWhenNeeded()
+        }
     }
 
     @objc
-    private func didEnterBackground() async {
-        await reachibilityService?.stopNotifier()
+    @MainActor
+    private func didEnterBackground() {
+        Task {
+            await reachibilityService?.stopNotifier()
+        }
     }
     
     public func setup(
