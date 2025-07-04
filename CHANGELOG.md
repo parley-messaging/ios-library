@@ -3,9 +3,9 @@
 ## 4.3.0 - Released 3 July 2025
 
 - [Swift] Parley is now set to use the Swift 6 language mode.
--  **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.
--  **IMPORTANT**: All static Parley methods with a completion handler also have an async variant which has a typed throw (`ConfigurationError`).
--  **IMPORTANT**: The `ParleyNetworkSession` now requires being async and should throw `ParleyHTTPErrorResponse`.
+- **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.
+- **IMPORTANT**: All static Parley methods with a completion handler also have an async variant which has a typed throw (`ConfigurationError`).
+- **IMPORTANT**: The `ParleyNetworkSession` now requires being async and should throw `ParleyHTTPErrorResponse`.
 - [Source] Added support for clientApi 1.8 and 1.9 (latest).
 - [Chat] Now marking agent messages as read when they are rendered.
 - [Chat] Added `getUnseenCount()` to retrieve the amount of unseen messages when using clientApi 1.9.
