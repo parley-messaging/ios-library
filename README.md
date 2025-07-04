@@ -41,7 +41,7 @@ Once you have your Swift package set up, adding Parley as a dependency is as eas
 
 ```
 dependencies: [
-    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.2.x"))
+    .package(url: "git@github.com:parley-messaging/ios-library.git", .upToNextMajor(from: "4.3.x"))
 ]
 ```
 
