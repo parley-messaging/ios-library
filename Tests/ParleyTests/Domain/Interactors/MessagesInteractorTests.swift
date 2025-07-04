@@ -21,7 +21,8 @@ struct MessagesInteractorTests {
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
-            reachabilityProvider: reachabilityProvider
+            reachabilityProvider: reachabilityProvider,
+            messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
         
         await setDefaults()

@@ -17,6 +17,8 @@ protocol ParleyProtocol: Actor, AnyObject {
 
     @MainActor var delegate: ParleyDelegate? { get }
     @MainActor func set(delegate: ParleyDelegate?) async
+    
+    func setDisplayToAttach(_ display: ParleyMessagesDisplay) async
 
     func isCachingEnabled() -> Bool
     func send(_ message: inout Message, isNewMessage: Bool) async
@@ -87,6 +89,12 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private(set) var userAuthorization: String?
     private(set) var userAdditionalInformation: [String: String]?
     private var reachibilityWatcher: AnyCancellable?
+    
+    private weak var displayToAttach: ParleyMessagesDisplay?
+    
+    func setDisplayToAttach(_ display: ParleyMessagesDisplay) async {
+        displayToAttach = display
+    }
 
     @MainActor
     private(set) weak var delegate: ParleyDelegate?
@@ -120,15 +128,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     }
 
     private func initialize(networkConfig: ParleyNetworkConfig, networkSession: ParleyNetworkSession) async {
-        let remote = ParleyRemote(
-            networkConfig: networkConfig,
-            networkSession: networkSession,
-            createSecret: { [weak self] in await self?.secret },
-            createUniqueDeviceIdentifier: { [weak self] in await self?.uniqueDeviceIdentifier },
-            createUserAuthorizationToken: { [weak self] in await self?.userAuthorization }
-        )
-        self.networkConfig = networkConfig
-        self.remote = remote
+        initializeParleyRemote(networkConfig: networkConfig, networkSession: networkSession)
         deviceRepository = DeviceRepository(remote: remote)
         eventRemoteService = EventRemoteService(remote: remote)
         messagesManager = MessagesManager(
@@ -145,15 +145,30 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         
         messagesStore = await MessagesStore()
         messagesPresenter = await MessagesPresenter(store: messagesStore, display: nil)
+        let messageReadWorker = await MessageReadWorker(messageRepository: messageRepository)
         messagesInteractor = await MessagesInteractor(
             presenter: messagesPresenter!,
             messagesManager: messagesManager!,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
             messagesRepository: messageRepository!,
-            reachabilityProvider: self
+            reachabilityProvider: self,
+            messageReadWorker: messageReadWorker
         )
+        await messageReadWorker.set(delegate: messagesInteractor!)
         reachibilityService = try? ReachabilityService()
         addObservers()
+    }
+    
+    private func initializeParleyRemote(networkConfig: ParleyNetworkConfig, networkSession: ParleyNetworkSession) {
+        let remote = ParleyRemote(
+            networkConfig: networkConfig,
+            networkSession: networkSession,
+            createSecret: { [weak self] in await self?.secret },
+            createUniqueDeviceIdentifier: { [weak self] in await self?.uniqueDeviceIdentifier },
+            createUserAuthorizationToken: { [weak self] in await self?.userAuthorization }
+        )
+        self.networkConfig = networkConfig
+        self.remote = remote
     }
 
     // MARK: Reachability
@@ -204,13 +219,34 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     }
 
     @objc
-    private func willEnterForeground() async {
-        configureWhenNeeded()
+    @MainActor
+    private func willEnterForeground() {
+        Task {
+            await configureWhenNeeded()
+        }
     }
 
     @objc
-    private func didEnterBackground() async {
-        await reachibilityService?.stopNotifier()
+    @MainActor
+    private func didEnterBackground() {
+        Task {
+            await reachibilityService?.stopNotifier()
+        }
+    }
+    
+    public func setup(
+        secret: String,
+        uniqueDeviceIdentifier: String?,
+        networkSession: ParleyNetworkSession,
+        networkConfig: ParleyNetworkConfig? = nil,
+    ) async {
+        self.secret = secret
+        self.uniqueDeviceIdentifier = uniqueDeviceIdentifier
+        initializeParleyRemote(
+            networkConfig: networkConfig ?? ParleyNetworkConfig(),
+            networkSession: networkSession
+        )
+        deviceRepository = DeviceRepository(remote: remote)
     }
 
     // MARK: Configure
@@ -366,13 +402,11 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
 
     // MARK: Devices
 
-    private func registerDevice() async throws(ConfigurationError) {
-        if state == .configuring || state == .configured {
-            do {
-                _ = try await deviceRepository?.register(device: makeDeviceData())
-            } catch {
-                throw ConfigurationError(error: error)
-            }
+    func registerDevice() async throws(ConfigurationError) {
+        do {
+            _ = try await deviceRepository?.register(device: makeDeviceData())
+        } catch {
+            throw ConfigurationError(error: error)
         }
     }
 
@@ -445,7 +479,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         var message = Message.newTextMessage(
             text,
             type: silent ? .systemMessageUser : .user,
-            status: .pending
+            sendStatus: .pending
         )
         
         await send(&message, isNewMessage: true)
@@ -488,11 +522,20 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             await messagesInteractor.handleMessageFailedToSend(&message)
         }
     }
+    
+    func getUneenCount() async throws -> Int {
+        if messageRepository == nil {
+            messageRepository = MessageRemoteService(remote: remote)
+        }
+        return try await messageRepository.getUnseen()
+    }
 
     // MARK: Remote messages
 
     private func handleMessage(_ userInfo: [String: Any]) async {
-        guard let messagesInteractor else { fatalError("Missing messages interactor (Parley wasn't initialized).") }
+        guard let messagesInteractor else {
+            print("Parley: Remote message not handled because Parley wasn't initialized yet.") ; return
+        }
         
         guard
             let id = userInfo["id"] as? Int,
@@ -587,13 +630,13 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         )
 
         if agentReallyStartTyping {
-            await UIAccessibility.post(
-                notification: .announcement,
-                argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
-            )
-            Task {
-                await messagesInteractor.handleAgentBeganTyping()
+            await MainActor.run {
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: ParleyLocalizationKey.voiceOverAnnouncementAgentTyping.localized()
+                )
             }
+            await messagesInteractor.handleAgentBeganTyping()
         }
     }
 
@@ -756,6 +799,11 @@ extension ParleyActor {
             uniqueDeviceIdentifier: uniqueDeviceIdentifier,
             clearCache: true
         )
+        
+        if let display = displayToAttach.take() {
+            await messagesPresenter.set(display: display)
+            await display.signalAttached()
+        }
     }
 
     public func reset() async throws(ConfigurationError) {

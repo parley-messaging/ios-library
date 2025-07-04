@@ -10,7 +10,7 @@ extension Parley {
         onSuccess: (@Sendable () -> Void)? = nil,
         onFailure: (@Sendable (_ code: Int, _ message: String) -> Void)? = nil
     ) {
-        let localNetworkConfig = if let networkConfig { networkConfig } else { ParleyNetworkConfig() }
+        let localNetworkConfig = networkConfig ?? ParleyNetworkConfig()
 
         configure(
             secret,

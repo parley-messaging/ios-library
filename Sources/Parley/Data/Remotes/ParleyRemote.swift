@@ -13,6 +13,10 @@ final class ParleyRemote: Sendable {
     private let createUserAuthorizationToken: @Sendable () async -> String?
     
     private static let successFullHTTPErrorStatusCodes = 200...299
+    
+    var apiVersion: ApiVersion {
+        networkConfig.apiVersion
+    }
 
     init(
         networkConfig: ParleyNetworkConfig,
@@ -48,6 +52,24 @@ extension ParleyRemote {
             headers: headers
         )
         return try handleResponse(response: response, keyPath: keyPath)
+    }
+    
+    func execute(
+        _ method: ParleyHTTPRequestMethod,
+        path: String,
+        body: Encodable? = nil,
+        keyPath: ParleyResponseKeyPath? = .data
+    ) async throws {
+        debugPrint("ParleyRemote.execute:: \(method) \(getUrl(path)) \(body ?? "")")
+        let bodyData = mapBodyToData(body: body)
+        let headers = try await createHeaders()
+        let response = try await networkSession.request(
+            getUrl(path),
+            data: bodyData,
+            method: method,
+            headers: headers
+        )
+        try checkResponse(response: response, keyPath: keyPath)
     }
     
     func execute(_ method: ParleyHTTPRequestMethod, path: String) async throws {
@@ -218,6 +240,21 @@ private extension ParleyRemote {
                 .validate(statusCode: Self.successFullHTTPErrorStatusCodes)
                 .decodeAtKeyPath(of: T.self, keyPath: keyPath)
             return decodedResponse
+        } catch let error as ParleyHTTPErrorResponse {
+            if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
+                throw apiError
+            } else {
+                throw error
+            }
+        }
+    }
+    
+    func checkResponse(
+        response: ParleyHTTPDataResponse,
+        keyPath: ParleyResponseKeyPath?
+    ) throws {
+        do {
+            try response.validate(statusCode: Self.successFullHTTPErrorStatusCodes)
         } catch let error as ParleyHTTPErrorResponse {
             if let data = response.body, let apiError = Self.decodeBackendError(responseData: data) {
                 throw apiError

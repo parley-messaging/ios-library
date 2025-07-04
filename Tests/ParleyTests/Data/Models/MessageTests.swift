@@ -14,6 +14,7 @@ struct MessageTests {
     "status": 1,
     "id": 42,
     "title": "Message title"
+    "status": 2
 }
 """
 
@@ -45,7 +46,7 @@ struct MessageTests {
             title: "Message title",
             message: "Example message",
             type: .agent,
-            status: .pending
+            status: .sent
         )
     }
 }

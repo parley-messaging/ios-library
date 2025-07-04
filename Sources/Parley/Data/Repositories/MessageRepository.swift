@@ -12,4 +12,8 @@ protocol MessageRepository: AnyObject, Sendable {
     func findAfter(_ id: Message.RemoteId) async throws -> MessageCollection
     
     func store(_ message: inout Message) async throws
+    
+    func getUnseen() async throws -> Int
+    
+    func updateStatusRead(messageIds: Set<Int>) async throws
 }

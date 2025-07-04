@@ -7,6 +7,7 @@ final class MessagesInteractor {
     private let messagesManager: MessagesManagerProtocol
     private let messageRepository: MessageRepository
     private let reachabilityProvider: ReachabilityProvider
+    private let messageReadWorker: MessageReadWorker
     
     private(set) var agentTyping = false
     private(set) var isLoadingMessages = false
@@ -31,13 +32,15 @@ final class MessagesInteractor {
         messagesManager: MessagesManagerProtocol,
         messageCollection: ParleyChronologicalMessageCollection,
         messagesRepository: MessageRepository,
-        reachabilityProvider: ReachabilityProvider
+        reachabilityProvider: ReachabilityProvider,
+        messageReadWorker: MessageReadWorker
     ) {
         self.presenter = presenter
         self.messagesManager = messagesManager
         self.messages = messageCollection
         self.messageRepository = messagesRepository
         self.reachabilityProvider = reachabilityProvider
+        self.messageReadWorker = messageReadWorker
     }
     
     func setScrolledToBottom(_ isScrolledToBottom: Bool) {
@@ -133,14 +136,14 @@ extension MessagesInteractor {
     }
     
     func handleMessageSent(_ message: inout Message) async {
-        message.status = .success
+        message.sendStatus = .success
         await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)
     }
     
     func handleMessageFailedToSend(_ message: inout Message) async {
-        message.status = .failed
+        message.sendStatus = .failed
         await messagesManager.update(message)
         messages.update(message: message)
         await presenter.presentUpdate(message: message)
@@ -152,6 +155,17 @@ extension MessagesInteractor {
         presenter.set(sections: messages.sections)
         await presenter.presentMessages()
         await presentQuickRepliesState()
+    }
+    
+    func handleMessageDisplayed(messageId: Int) {
+        Task {
+            guard
+                let message = await messagesManager.findByRemoteId(messageId),
+                let status = message.status,
+                status != .read
+            else { return }
+            await messageReadWorker.queueMessageRead(messageId: messageId)
+        }
     }
 }
 
@@ -180,5 +194,13 @@ private extension MessagesInteractor {
             await presenter.presentHideQuickReplies()
             presentedQuickReplies = nil
         }
+    }
+}
+
+extension MessagesInteractor: MessageReadWorker.Delegate {
+    
+    func didReadMessages(ids: Set<Int>) async {
+        await messagesManager.markAsRead(ids: ids)
+        await messages.set(messages: messagesManager.messages)
     }
 }

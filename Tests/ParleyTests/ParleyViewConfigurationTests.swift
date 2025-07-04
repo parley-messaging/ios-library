@@ -19,7 +19,8 @@ struct ParleyViewConfigurationTests {
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
-            reachabilityProvider: reachabilityProvideStub
+            reachabilityProvider: reachabilityProvideStub,
+            messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
         
         let parleyStub = ParleyStub(
