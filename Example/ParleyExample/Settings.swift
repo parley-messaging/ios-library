@@ -13,7 +13,7 @@ struct Settings {
     }
     
     static let flow: Flow = .default(openChatDirectly: false) // Recomended
-//    static let flow: Flow = .default(openChatDirectly: false) // Chat shows loader while configuring
+//    static let flow: Flow = .default(openChatDirectly: true) // Chat shows loader while configuring
 //    static let flow: Flow = .specialLightweight // Requires special handling
     
     /// Disable offline messaging in the demo app to show error messages as an alert before opening the chat
