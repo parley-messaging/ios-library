@@ -6,6 +6,14 @@
 -  **IMPORTANT**: Most static Parley methods now have an optional completion handler. The completion handlers are also required to be `Sendable`.
 -  **IMPORTANT**: All static Parley methods with a completion handler also have an async variant which has a typed throw (`ConfigurationError`).
 -  **IMPORTANT**: The `ParleyNetworkSession` now requires being async and should throw `ParleyHTTPErrorResponse`.
+- [Source] Added support for clientApi 1.8 and 1.9 (latest).
+- [Chat] Now marking agent messages as read when they are rendered.
+- [Chat] Added `getUnseenCount()` to retrieve the amount of unseen messages when using clientApi 1.9.
+- [Lightweight Configure] Added `setup()` method to setup Parley, but not configure it yet.
+- [Lightweight Configure] Added `registerDevice()` method to setup Parley, so that the current device can be registered even when `configure()` has not been called earlier.
+- [Lightweight Configure] It remains still required to call the `configure()` method when the chat needs to be shown.
+- [Example] The example project has been updated to better reflect which methods Parley exposes.
+- [Example] Added a special flow (lightweight configure).
 
 ## 4.2.12 - Released 26 Jun 2025
 
