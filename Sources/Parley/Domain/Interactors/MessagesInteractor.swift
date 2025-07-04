@@ -67,7 +67,7 @@ extension MessagesInteractor {
         await presentQuickRepliesState()
         
         await presenter.presentMessages()
-        
+        try? await Task.sleep(nanoseconds: 64_000_000) // Wait 64 ms (4 frames at 60fps)
         await presenter.presentScrollToBotom(animated: false)
     }
     
