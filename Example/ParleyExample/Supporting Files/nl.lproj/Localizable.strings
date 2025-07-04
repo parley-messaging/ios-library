@@ -9,9 +9,9 @@
 
 // Lightweight flow Setup
 "identifier_lightweight_setup" = "Instellen";
-"identifier_lightweight_setup_alert_set_secret_title" = "Stel eerst een geheim in";
+"identifier_lightweight_setup_alert_set_secret_title" = "Stel eerst een secret in";
 "identifier_lightweight_setup_alert_setup_complete_title" = "Instelling voltooid";
-"identifier_lightweight_setup_alert_setup_complete_body" = "U kunt nu het apparaat registreren of het aantal ongelezen berichten ophalen.";
+"identifier_lightweight_setup_alert_setup_complete_body" = "Je kunt nu het apparaat registreren of het aantal ongelezen berichten ophalen.";
 
 // Lightweight flow open
 "identifier_lightweight_open" = "Open chat";
