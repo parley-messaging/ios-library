@@ -39,34 +39,49 @@ final class MessagesPresenter {
     private(set) var isLoadingMessages: Bool = false
     private(set) var currentSnapshot: Snapshot
     private var isScrolledToBottom: Bool = false
+    private var usesAdaptiveWelcomePosistioning = false
     
     @MainActor
-    init(store: MessagesStore, display: ParleyMessagesDisplay?) {
+    init(
+        store: MessagesStore,
+        display: ParleyMessagesDisplay?,
+        usesAdaptiveWelcomePosistioning: Bool
+    ) {
         self.store = store
         self.display = display
-        self.currentSnapshot = Snapshot(welcomeMessage: welcomeMessage, calendar: .autoupdatingCurrent)
+        self.usesAdaptiveWelcomePosistioning = usesAdaptiveWelcomePosistioning
+        
+        self.currentSnapshot = Snapshot(
+            welcomeMessage: welcomeMessage,
+            calendar: .autoupdatingCurrent,
+            adaptiveWelcomePositioning: usesAdaptiveWelcomePosistioning
+        )
+    }
+    
+    func set(isScrolledToBottom: Bool) {
+        self.isScrolledToBottom = isScrolledToBottom
     }
     
     @MainActor
     func set(display: ParleyMessagesDisplay) {
         self.display = display
     }
-    
-    func set(isScrolledToBottom: Bool) {
-        self.isScrolledToBottom = isScrolledToBottom
-    }
 }
 
 // MARK: Methods
 extension MessagesPresenter: MessagesPresenterProtocol {
-
+    
     func set(welcomeMessage: String?) {
         self.welcomeMessage = welcomeMessage
         _ = currentSnapshot.set(welcomeMessage: welcomeMessage)
     }
     
     func set(sections: [ParleyChronologicalMessageCollection.Section]) {
-        var snapshot = Snapshot(welcomeMessage: welcomeMessage, calendar: currentSnapshot.calendar)
+        var snapshot = Snapshot(
+            welcomeMessage: welcomeMessage,
+            calendar: currentSnapshot.calendar,
+            adaptiveWelcomePositioning: usesAdaptiveWelcomePosistioning
+        )
         _ = snapshot.set(welcomeMessage: welcomeMessage)
         _ = snapshot.setLoading(isLoadingMessages)
         _ = snapshot.set(agentTyping: isAgentTyping)
@@ -81,7 +96,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         
         currentSnapshot = snapshot
     }
-
+    
     func present(stickyMessage: String?) async {
         self.stickyMessage = stickyMessage
         if let stickyMessage {
@@ -134,9 +149,8 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = currentSnapshot.setLoading(isLoadingMessages)
         _ = currentSnapshot.set(agentTyping: isAgentTyping)
         
-        await store.apply(snapshot: currentSnapshot)
-        
-        await MainActor.run {
+        await MainActor.run { [currentSnapshot] in
+            store.apply(snapshot: currentSnapshot)
             display?.reload()
         }
     }
@@ -194,10 +208,21 @@ extension MessagesPresenter {
         typealias CellKind = MessagesStore.CellKind
         typealias SectionKind = MessagesStore.SectionKind
         
+        
+        // MARK: - Helpers
+        
+        private struct WelcomePosition {
+            let section: Int
+            let row: Int
+            var indexPath: IndexPath { .init(row: row, section: section) }
+        }
+        
+        // MARK: - Public types (unchanged, trimmed for brevity)
+        
         struct Section {
             let date: Date?
             let sectionKind: SectionKind
-            private(set) var cells: [Cell]
+            var cells: [Cell]
             var calendar: Calendar = .autoupdatingCurrent
             
             private init(
@@ -249,7 +274,7 @@ extension MessagesPresenter {
                 }
                 cells.append(cell)
                 return cells.endIndex - 1
-
+                
             }
             
             private mutating func insertTypingIndicator(_ cell: Cell) -> Int {
@@ -349,7 +374,7 @@ extension MessagesPresenter {
                 self.kind = kind
                 self.calander = calender
             }
-                        
+            
             static func info(_ message: String, calendar: Calendar = .autoupdatingCurrent) -> Cell {
                 Cell(date: nil, kind: .info(message), calender: calendar)
             }
@@ -384,6 +409,8 @@ extension MessagesPresenter {
             }
         }
         
+        // MARK: - Stored properties
+        
         private(set) var welcomeMessage: String?
         private(set) var agentTyping = false
         private(set) var isLoading = false
@@ -391,22 +418,62 @@ extension MessagesPresenter {
         private(set) var sections: [Section]
         let calendar: Calendar
         
-        var isEmpty: Bool {
-            sections.isEmpty
-        }
+        private let adaptiveWelcomePositioning: Bool
+        
+        // MARK: - Convenience
         
         var typingIndicatorIndex: Int? {
             sections.firstIndex(where: { $0.sectionKind == .typingIndicator })
         }
         
-        init(welcomeMessage: String?, calendar: Calendar = .autoupdatingCurrent) {
+        var isEmpty: Bool { sections.isEmpty }
+        
+        // MARK: - Initialisation
+        
+        init(
+            welcomeMessage: String?,
+            calendar: Calendar = .autoupdatingCurrent,
+            adaptiveWelcomePositioning: Bool
+        ) {
             self.calendar = calendar
+            self.adaptiveWelcomePositioning = adaptiveWelcomePositioning
             self.welcomeMessage = welcomeMessage
-            sections = [Section]()
+            sections = []
             
-            if let welcomeMessage {
-                let section = Section.info(message: welcomeMessage, calendar: calendar)
-                sections.append(section)
+            if let welcomeMessage, adaptiveWelcomePositioning == false {
+                sections.append(.info(message: welcomeMessage, calendar: calendar))
+            }
+        }
+        
+        // MARK: - Welcome message
+        
+        mutating func set(welcomeMessage: String?) -> SnapshotChange? {
+            guard self.welcomeMessage != welcomeMessage else { return nil }
+            
+            if adaptiveWelcomePositioning {
+                switch (self.welcomeMessage, welcomeMessage) {
+                case (nil, .some(let new)):
+                    self.welcomeMessage = new
+                    return adaptiveAddWelcome(new)
+                case (.some, .some(let new)):
+                    self.welcomeMessage = new
+                    return adaptiveUpdateWelcome(new)
+                case (.some, nil):
+                    self.welcomeMessage = nil
+                    return adaptiveDeleteWelcome()
+                default:
+                    return nil
+                }
+            } else {
+                if let welcomeMessage, self.welcomeMessage == nil {
+                    self.welcomeMessage = welcomeMessage
+                    return defaultAddWelcome(welcomeMessage)
+                } else if let welcomeMessage {
+                    self.welcomeMessage = welcomeMessage
+                    return defaultUpdateWelcome(welcomeMessage)
+                } else {
+                    return defaultDeleteWelcome()
+                }
             }
         }
         
@@ -494,6 +561,126 @@ extension MessagesPresenter {
             }
         }
         
+        private mutating func defaultAddWelcome(_ message: String) -> SnapshotChange {
+            sections.insert(.info(message: message), at: .zero)
+            return .init(indexPaths: [.init(row: 0, section: 0)], kind: .added)
+        }
+        
+        private mutating func defaultUpdateWelcome(_ message: String) -> SnapshotChange {
+            sections[0].set(cell: .info(message), at: 0)
+            return .init(indexPaths: [.init(row: 0, section: 0)], kind: .changed)
+        }
+        
+        private mutating func defaultDeleteWelcome() -> SnapshotChange {
+            sections.remove(at: 0)
+            return .init(indexPaths: [.init(row: 0, section: 0)], kind: .deleted)
+        }
+        
+        // MARK: smart add / update / delete
+        
+        private mutating func adaptiveAddWelcome(_ message: String) -> SnapshotChange {
+            let position = adaptiveWelcomeInsertionPosition()
+            insertWelcomeCell(message, at: position)
+            return .init(indexPaths: [position.indexPath], kind: .added)
+        }
+        
+        private mutating func adaptiveUpdateWelcome(_ message: String) -> SnapshotChange? {
+            guard let current = findWelcomeIndexPath() else {
+                // nothing found, just add it
+                return adaptiveAddWelcome(message)
+            }
+            sections[current.section].set(cell: .info(message), at: current.row)
+            return .init(indexPaths: [current], kind: .changed)
+        }
+        
+        private mutating func adaptiveDeleteWelcome() -> SnapshotChange? {
+            guard let current = findWelcomeIndexPath() else { return nil }
+            var deletedSectionIndex: Int?
+            sections[current.section].cells.remove(at: current.row)
+            if sections[current.section].cells.isEmpty {
+                sections.remove(at: current.section)
+                deletedSectionIndex = current.section
+            }
+            // for diff-util a single row deletion is enough – section deletion handled elsewhere
+            return .init(indexPaths: [current], kind: .deleted)
+        }
+        
+        // MARK: insertion helpers
+        
+        private mutating func insertWelcomeCell(_ message: String, at pos: WelcomePosition) {
+            if sections.indices.contains(pos.section) {
+                // insert in existing section
+                sections[pos.section].cells.insert(.info(message), at: pos.row)
+            } else {
+                // create section
+                sections.insert(.info(message: message), at: pos.section)
+            }
+        }
+        
+        private func adaptiveWelcomeInsertionPosition() -> WelcomePosition {
+            // 1. Empty conversation  -> very top (own section 0)
+            guard !sections.isEmpty else { return .init(section: 0, row: 0) }
+            
+            // 2. Try to place inside the “today” section
+            let today = calendar.startOfDay(for: Date())
+            if let todaySectionIdx = sections.firstIndex(where: {
+                if case .messages(let date) = $0.sectionKind { return date == today }
+                return false
+            }) {
+                return .init(section: todaySectionIdx, row: 0)
+            }
+            
+            // 3. Otherwise bottom, but above typing indicator if it exists
+            if let typingIdx = typingIndicatorIndex {
+                return .init(section: typingIdx, row: 0)
+            } else {
+                return .init(section: sections.endIndex, row: 0)
+            }
+        }
+        
+        private func findWelcomeIndexPath() -> IndexPath? {
+            guard let old = welcomeMessage else { return nil }
+            for (sectionIdx, section) in sections.enumerated() {
+                for (rowIdx, cell) in section.cells.enumerated() {
+                    if case .info(let msg) = cell.kind, msg == old {
+                        return .init(row: rowIdx, section: sectionIdx)
+                    }
+                }
+            }
+            return nil
+        }
+        
+        // MARK: - Loading
+        
+        mutating func setLoading(_ isLoading: Bool) -> SnapshotChange? {
+            guard self.isLoading != isLoading else { return nil }
+            self.isLoading = isLoading
+            return isLoading ? addLoadingCell() : removeLoadingCell()
+        }
+        
+        private mutating func addLoadingCell() -> SnapshotChange {
+            let insertIndex: Int
+            if !adaptiveWelcomePositioning {
+                insertIndex = welcomeMessage == nil ? 0 : 1
+            } else {
+                // Top unless welcome is sitting in its own first section
+                insertIndex = 0
+            }
+            sections.insert(.loading(), at: insertIndex)
+            return .init(indexPaths: [.init(row: 0, section: insertIndex)], kind: .added)
+        }
+        
+        private mutating func removeLoadingCell() -> SnapshotChange {
+            let removeIndex: Int
+            if !adaptiveWelcomePositioning {
+                removeIndex = welcomeMessage == nil ? 0 : 1
+            } else {
+                removeIndex = sections.firstIndex { $0.sectionKind == .loading } ?? 0
+            }
+            sections.remove(at: removeIndex)
+            return .init(indexPaths: [.init(row: 0, section: removeIndex)], kind: .deleted)
+        }
+        
         mutating func set(agentTyping: Bool) -> SnapshotChange? {
             guard self.agentTyping != agentTyping else { return nil }
             self.agentTyping = agentTyping
@@ -510,38 +697,6 @@ extension MessagesPresenter {
             let deletingIndexPath = IndexPath(row: 0, section: sections.endIndex - 1)
             _ = sections.popLast()
             return SnapshotChange(indexPaths: [deletingIndexPath], kind: .deleted)
-        }
-        
-        mutating func setLoading(_ isLoading: Bool) -> SnapshotChange? {
-            guard self.isLoading != isLoading else { return nil }
-            self.isLoading = isLoading
-            return isLoading ? addLoadingCell() : removeLoadingCell()
-        }
-        
-        private mutating func addLoadingCell() -> SnapshotChange {
-            let sectionIndexToInsert = welcomeMessage == nil ? 0 : 1
-            sections.insert(.loading(), at: sectionIndexToInsert)
-            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: sectionIndexToInsert)], kind: .added)
-        }
-        
-        private mutating func removeLoadingCell() -> SnapshotChange {
-            let sectionIndexToRemove = welcomeMessage == nil ? 0 : 1
-            sections.remove(at: sectionIndexToRemove)
-            return SnapshotChange(indexPaths: [IndexPath(row: 0, section: sectionIndexToRemove)], kind: .deleted)
-        }
-        
-        mutating func set(welcomeMessage: String?) -> SnapshotChange? {
-            guard self.welcomeMessage != welcomeMessage else { return nil }
-            
-            if let welcomeMessage, self.welcomeMessage == nil {
-                self.welcomeMessage = welcomeMessage
-                return addWelcomeMessageCell(welcomeMessage)
-            } else if let welcomeMessage, self.welcomeMessage != nil {
-                self.welcomeMessage = welcomeMessage
-                return updateWelcomeMessageCell(welcomeMessage)
-            } else {
-                return deleteWelcomeMessageCell()
-            }
         }
         
         private mutating func addWelcomeMessageCell(_ welcomeMessage: String) -> SnapshotChange {

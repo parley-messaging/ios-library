@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import Parley
 
-@Suite("Messages Presenter Snapshot Tests")
+@Suite("Messages Presenter Snapshot Tests - Regular tests")
 struct MessagesPresentSnapshotTests {
     
     typealias Snapshot = MessagesPresenter.Snapshot
@@ -12,7 +12,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func createSnapshot_ShouldBeEmpty() {
-        let snapshot = Snapshot(welcomeMessage: nil)
+        let snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         #expect(snapshot.sections.isEmpty)
         #expect(snapshot.isEmpty)
     }
@@ -22,7 +22,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func createSnapshotWithWelcomeMessage_ShouldCreateCorrectSectionsAndCells() {
-        let snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        let snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         expectSnapshotContainsOnlyWelcomeMessage(snapshot)
     }
     
@@ -30,7 +30,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func setAgentTypingOnSnapshotWithoutWelcomeMessage_Should() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         let change = snapshot.set(agentTyping: true)!
         #expect(
             change == Snapshot.SnapshotChange(indexPaths: [
@@ -43,7 +43,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func setAgentTypingOnSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let change = snapshot.set(agentTyping: true)!
         #expect(
             change == Snapshot.SnapshotChange(indexPaths: [
@@ -57,7 +57,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func removeAgentTypingOnSnapshotWithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.set(agentTyping: true)
         let change = snapshot.set(agentTyping: false)!
         #expect(
@@ -70,7 +70,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func setAgentTypingToTheSameValue() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let change = snapshot.set(agentTyping: false)
         #expect(change == nil)
         expectSnapshotContainsOnlyWelcomeMessage(snapshot)
@@ -80,7 +80,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func enableLoadingMessages_shouldInsertCell_WithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let change = snapshot.setLoading(true)!
         #expect(change == Snapshot.SnapshotChange(indexPaths: [
             IndexPath(row: 0, section: 1)
@@ -92,7 +92,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func enableLoadingMessages_shouldInsertCell_WithoutWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         let change = snapshot.setLoading(true)!
         #expect(
             change == Snapshot.SnapshotChange(indexPaths: [
@@ -105,7 +105,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChange_WithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let change = snapshot.setLoading(false)
         #expect(change == nil)
         expectSnapshotContainsOnlyWelcomeMessage(snapshot)
@@ -113,7 +113,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func enableLoadingMessages_WhenIsAlreadyLoading_ShouldReturnNoChangeWithoutWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         let change = snapshot.setLoading(false)
         #expect(change == nil)
         #expect(snapshot.isEmpty)
@@ -121,7 +121,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func dissableLoadingMessages_shouldDeleteCell_WithWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.setLoading(true)
         let change = snapshot.setLoading(false)!
         #expect(
@@ -134,7 +134,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func dissableLoadingMessages_shouldDeleteCell_WithoutWelcomeMessage() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         _ = snapshot.setLoading(true)
         let change = snapshot.setLoading(false)!
         #expect(
@@ -149,7 +149,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertMessage_ShoulInsert_WhenSnapshotIsEmpty() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         let message = Message.makeTestData(time: Date())
         
         let change = snapshot.insert(message: message)
@@ -165,7 +165,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertMessage_ShoulInsertAfterWelcomeMessage() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let message = Message.makeTestData(time: Date())
         
         let change = snapshot.insert(message: message)
@@ -183,7 +183,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertMessage_ShoulInsertAfterLoadingIndicator() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.setLoading(true)
         let message = Message.makeTestData(time: Date())
         
@@ -204,7 +204,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertMessage_ShoulInsertBeforeAgentTypingIndicator() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.setLoading(true)
         _ = snapshot.set(agentTyping: true)
         let message = Message.makeTestData(time: Date())
@@ -228,7 +228,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertMessage_ShoulInsert_WhenSnapshotContainsWelcomeMessageAndLoadingIndicator() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.setLoading(true)
         let message = Message.makeTestData(time: Date())
         
@@ -251,7 +251,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsert_WhenSnapshotIsEmpty() {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
         let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         let section = [message1, message2]
@@ -268,7 +268,7 @@ struct MessagesPresentSnapshotTests {
 
     @Test
     func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessage() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
         let message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
         let section = [message1, message2]
@@ -288,7 +288,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsertCorrectly_WhenSnapshotContainsWelcomeMessageAndAgentTyping() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         _ = snapshot.set(agentTyping: true)
         
         let message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
@@ -313,7 +313,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         
         let section2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
         let section2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hello")
@@ -339,7 +339,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotIsOtherwiseEmpty() throws {
-        var snapshot = Snapshot(welcomeMessage: nil)
+        var snapshot = Snapshot(welcomeMessage: nil, adaptiveWelcomePositioning: false)
         
         let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
         let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")
@@ -365,7 +365,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsertBeforeOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         
         let s2message1 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 5), message: "Second day")
         let s2message2 = Message.makeTestData(time: Date(daysSince1970: 1, offsetSeconds: 10), message: "Hello")
@@ -391,7 +391,7 @@ struct MessagesPresentSnapshotTests {
     
     @Test
     func insertSection_ShouldInsertAfterOtherMessageSection_WhenSnapshotHasWelcomeMessage() throws {
-        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage)
+        var snapshot = Snapshot(welcomeMessage: Self.welcomeMessage, adaptiveWelcomePositioning: false)
         
         let s1message1 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 5), message: "First day")
         let s1message2 = Message.makeTestData(time: Date(daysSince1970: 0, offsetSeconds: 10), message: "Hello")

@@ -48,7 +48,7 @@ fileprivate struct TestSections {
     ]
 }
 
-@Suite("Messages Presenter Tests")
+@Suite("Messages Presenter Tests - Default welcome posisition")
 @ParleyDomainActor
 struct MessagesPresenterTests {
     
@@ -63,8 +63,12 @@ struct MessagesPresenterTests {
     
     init() async {
         store = await MessagesStore()
-        display = ParleyMessagesDisplaySpy()
-        presenter = await MessagesPresenter(store: store, display: display)
+        display = await ParleyMessagesDisplaySpy()
+        presenter = await MessagesPresenter(
+            store: store,
+            display: display,
+            usesAdaptiveWelcomePosistioning: false
+        )
         collection = ParleyChronologicalMessageCollection(calendar: .current)
         
         await #expect(display.insertRowsCallCount == 0)
@@ -388,13 +392,13 @@ struct MessagesPresenterTests {
         self.collection.set(collection: collection)
         let messageRepositoryStub = MessageRepositoryStub()
         let interactor = await MessagesInteractor(
-            presenter: presenter,
             messagesManager: MessagesManagerStub(),
             messageCollection: self.collection,
             messagesRepository: messageRepositoryStub,
             reachabilityProvider: ReachabilityProviderStub(),
             messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
+        interactor.set(presenter: presenter)
         // When
         await interactor.handle(collection: collection, .all)
         

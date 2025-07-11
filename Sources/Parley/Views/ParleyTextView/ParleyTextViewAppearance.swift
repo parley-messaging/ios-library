@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 public struct ParleyTextViewAppearance {
     public var paragraphStyle = NSMutableParagraphStyle()
     public var textColor: UIColor = .white

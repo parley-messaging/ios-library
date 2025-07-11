@@ -3,6 +3,8 @@ import UIKit
 
 @MainActor
 final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
+    
+    let appearance = ParleyViewAppearance()
 
     private(set) var insertRowsCallCount = 0
     private(set) var insertRowsIndexPaths: [IndexPath]?

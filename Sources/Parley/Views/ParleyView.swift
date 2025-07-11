@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 @MainActor
 protocol ParleyMessagesDisplay: AnyObject, Sendable {
+    var appearance: ParleyViewAppearance { get }
     func signalAttached() async
     
     func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
@@ -120,7 +121,11 @@ public class ParleyView: UIView {
     private func setup() async {
         await parley.set(delegate: self)
         if await parley.state == .configured {
-            await parley.messagesPresenter.set(display: self)
+            await parley.messagesInteractor.set(presenter: MessagesPresenter(
+                store: parley.messagesStore,
+                display: self,
+                usesAdaptiveWelcomePosistioning: appearance.info.position == .adaptive
+            ))
             await setupDependencies()
             await messagesInteractor?.handleViewDidLoad()
         } else {

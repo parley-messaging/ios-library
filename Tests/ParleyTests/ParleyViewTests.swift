@@ -31,7 +31,7 @@ struct ParleyViewTests {
         let messageRepositoryStub = MessageRepositoryStub()
         let reachabilityProvideStub = ReachabilityProviderStub()
         let messagesStore = MessagesStore()
-        let messagePresenter = MessagesPresenter(store: messagesStore, display: nil)
+        let messagePresenter = MessagesPresenter(store: messagesStore, display: nil, usesAdaptiveWelcomePosistioning: false)
         
         interactor = await MessagesInteractor(
             presenter: messagePresenter,
