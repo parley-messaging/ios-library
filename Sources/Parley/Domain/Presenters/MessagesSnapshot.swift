@@ -494,19 +494,14 @@ struct MessagesSnapshot {
             return (.zero, nil)
         }
         
-        // 2. Try to place with the "today" section
         let today = calendar.startOfDay(for: Date())
         if let todaySectionIndex = findTodayMessageSection() {
-            // Return position to insert info section before messages section
             return (todaySectionIndex, today)
         }
         
-        // 3. Otherwise bottom of chat, but above typing indicator if it exists
         if let typingIndex = typingIndicatorIndex {
-            // Insert new section before typing indicator
             return (typingIndex, nil)
         } else {
-            // Insert new section at the very end
             return (sections.endIndex, nil)
         }
     }
