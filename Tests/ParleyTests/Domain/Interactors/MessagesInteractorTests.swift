@@ -17,13 +17,13 @@ struct MessagesInteractorTests {
         reachabilityProvider = ReachabilityProviderStub()
         messageRepositoryStub = MessageRepositoryStub()
         interactor = await MessagesInteractor(
-            presenter: presenter,
             messagesManager: messagesManager,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .current),
             messagesRepository: messageRepositoryStub,
             reachabilityProvider: reachabilityProvider,
             messageReadWorker: MessageReadWorker(messageRepository: messageRepositoryStub)
         )
+        await interactor.set(presenter: presenter)
         
         await setDefaults()
     }

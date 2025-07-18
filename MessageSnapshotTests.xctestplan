@@ -1,0 +1,84 @@
+{
+  "configurations" : [
+    {
+      "id" : "247F8237-9B74-48C4-BDA1-310F0CE5203C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "ChronologicalMessageCollectionTests"
+          },
+          {
+            "name" : "DataAppendTests"
+          },
+          {
+            "name" : "MessageCollectionTest"
+          },
+          {
+            "name" : "MessagesInteractorTests"
+          },
+          {
+            "name" : "MessagesManagerTests"
+          },
+          {
+            "name" : "MessageTests"
+          },
+          {
+            "name" : "NetworkMonitorTests"
+          },
+          {
+            "name" : "ParleyImageDataSourceTests"
+          },
+          {
+            "name" : "ParleyRemoteTests"
+          },
+          {
+            "name" : "ParleyTests"
+          },
+          {
+            "name" : "ParleyViewConfigurationTests"
+          },
+          {
+            "name" : "ParleyViewTests"
+          }
+        ],
+        "xctestClasses" : [
+          {
+            "name" : "CodableHelperTests"
+          },
+          {
+            "name" : "DateTimeIntlSince1970DateTests"
+          },
+          {
+            "name" : "DeviceTests"
+          },
+          {
+            "name" : "ParleyMessageViewTests"
+          },
+          {
+            "name" : "ParleyTextViewTests"
+          },
+          {
+            "name" : "ResponseValidatorTests"
+          }
+        ]
+      },
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ParleyTests",
+        "name" : "ParleyTests"
+      }
+    }
+  ],
+  "version" : 2
+}

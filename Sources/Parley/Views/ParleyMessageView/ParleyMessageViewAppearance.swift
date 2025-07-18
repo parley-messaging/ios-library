@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 public class ParleyMessageViewAppearance {
 
     // Balloon

@@ -3,7 +3,7 @@ import Foundation
 @ParleyDomainActor
 final class MessagesInteractor {
     
-    private let presenter: MessagesPresenterProtocol
+    private(set) var presenter: MessagesPresenterProtocol?
     private let messagesManager: MessagesManagerProtocol
     private let messageRepository: MessageRepository
     private let reachabilityProvider: ReachabilityProvider
@@ -28,7 +28,7 @@ final class MessagesInteractor {
     }
     
     init(
-        presenter: MessagesPresenterProtocol,
+        presenter: MessagesPresenterProtocol? = nil,
         messagesManager: MessagesManagerProtocol,
         messageCollection: ParleyChronologicalMessageCollection,
         messagesRepository: MessageRepository,
@@ -44,7 +44,11 @@ final class MessagesInteractor {
     }
     
     func setScrolledToBottom(_ isScrolledToBottom: Bool) {
-        presenter.set(isScrolledToBottom: isScrolledToBottom)
+        presenter?.set(isScrolledToBottom: isScrolledToBottom)
+    }
+    
+    func set(presenter: MessagesPresenterProtocol) {
+        self.presenter = presenter
     }
 }
 
@@ -55,32 +59,32 @@ extension MessagesInteractor {
         await messages.set(messages: messagesManager.messages)
         
         if let welcomeMessage = await messagesManager.welcomeMessage, !welcomeMessage.isEmpty {
-            presenter.set(welcomeMessage: welcomeMessage)
+            presenter?.set(welcomeMessage: welcomeMessage)
         }
         
         if let stickyMessage = await messagesManager.stickyMessage, !stickyMessage.isEmpty {
-            await presenter.present(stickyMessage: stickyMessage)
+            await presenter?.present(stickyMessage: stickyMessage)
         }
         
-        presenter.set(sections: messages.sections)
+        presenter?.set(sections: messages.sections)
         
         await presentQuickRepliesState()
         
-        await presenter.presentMessages()
+        await presenter?.presentMessages()
         try? await Task.sleep(nanoseconds: 64_000_000) // Wait 64 ms (4 frames at 60fps)
-        await presenter.presentScrollToBotom(animated: false)
+        await presenter?.presentScrollToBotom(animated: false)
     }
     
     func handleAgentBeganTyping() async {
         guard agentTyping == false else { return }
         agentTyping = true
-        await presenter.presentAgentTyping(agentTyping)
+        await presenter?.presentAgentTyping(agentTyping)
     }
     
     func handleAgentStoppedTyping() async {
         guard agentTyping else { return }
         agentTyping = false
-        await presenter.presentAgentTyping(agentTyping)
+        await presenter?.presentAgentTyping(agentTyping)
     }
     
     func handleLoadMessages() async {
@@ -92,32 +96,32 @@ extension MessagesInteractor {
         else { return }
         
         isLoadingMessages = true
-        await presenter.presentLoadingMessages(isLoadingMessages)
+        await presenter?.presentLoadingMessages(isLoadingMessages)
         
         if let collection = try? await messageRepository.findBefore(oldestMessageId) {
             await handle(collection: collection, .before)
         }
             
         isLoadingMessages = false
-        await presenter.presentLoadingMessages(isLoadingMessages)
+        await presenter?.presentLoadingMessages(isLoadingMessages)
     }
     
     func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) async {
         await messagesManager.handle(collection, handleType)
         
-        presenter.set(welcomeMessage: collection.welcomeMessage)
+        presenter?.set(welcomeMessage: collection.welcomeMessage)
         switch handleType {
         case .all:
             messages.set(collection: collection)
-            presenter.set(sections: messages.sections)
+            presenter?.set(sections: messages.sections)
         case .before, .after:
             await insertNewMessages(messages: collection.messages)
         }
 
-        await presenter.presentMessages()
+        await presenter?.presentMessages()
         await presentQuickRepliesState()
         
-        await presenter.present(stickyMessage: collection.stickyMessage)
+        await presenter?.present(stickyMessage: collection.stickyMessage)
     }
     
     func handleNewMessage(_ message: Message) async {
@@ -131,7 +135,7 @@ extension MessagesInteractor {
         
         await presentQuickRepliesState()
         if message.hasQuickReplies == false {
-            await presenter.presentAdd(message: message)
+            await presenter?.presentAdd(message: message)
         }
     }
     
@@ -139,21 +143,21 @@ extension MessagesInteractor {
         message.sendStatus = .success
         await messagesManager.update(message)
         messages.update(message: message)
-        await presenter.presentUpdate(message: message)
+        await presenter?.presentUpdate(message: message)
     }
     
     func handleMessageFailedToSend(_ message: inout Message) async {
         message.sendStatus = .failed
         await messagesManager.update(message)
         messages.update(message: message)
-        await presenter.presentUpdate(message: message)
+        await presenter?.presentUpdate(message: message)
     }
     
     func clear() async {
         messages.clear()
         await messagesManager.clear()
-        presenter.set(sections: messages.sections)
-        await presenter.presentMessages()
+        presenter?.set(sections: messages.sections)
+        await presenter?.presentMessages()
         await presentQuickRepliesState()
     }
     
@@ -181,17 +185,17 @@ private extension MessagesInteractor {
             }
         }
         
-        presenter.set(sections: self.messages.sections)
+        presenter?.set(sections: self.messages.sections)
     }
     
     func presentQuickRepliesState() async {
         if let quickReplies {
             guard presentedQuickReplies != quickReplies else { return }
-            await presenter.present(quickReplies: quickReplies)
+            await presenter?.present(quickReplies: quickReplies)
             presentedQuickReplies = quickReplies
         } else {
             guard presentedQuickReplies != nil else { return }
-            await presenter.presentHideQuickReplies()
+            await presenter?.presentHideQuickReplies()
             presentedQuickReplies = nil
         }
     }

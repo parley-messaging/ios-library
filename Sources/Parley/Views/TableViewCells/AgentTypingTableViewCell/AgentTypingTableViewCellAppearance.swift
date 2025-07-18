@@ -1,8 +1,8 @@
 import UIKit
 
-public struct AgentTypingTableViewCellAppearance {
+public struct AgentTypingTableViewCellAppearance: Sendable {
     
-    public struct DotsAppearance {
+    public struct DotsAppearance: Sendable {
         
         public var color: UIColor
         public var spacing: CGFloat

@@ -1,7 +1,7 @@
 import UIKit
 
 @propertyWrapper
-public struct ParleyScaledFont {
+public struct ParleyScaledFont: Sendable {
     private let textStyle: UIFont.TextStyle
     private var scaledFont: UIFont
 

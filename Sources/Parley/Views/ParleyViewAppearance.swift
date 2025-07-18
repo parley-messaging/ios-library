@@ -1,6 +1,6 @@
 import UIKit
 
-public struct ParleyViewAppearance {
+public struct ParleyViewAppearance: Sendable {
 
     public var backgroundColor: UIColor? = UIColor(white: 0.92, alpha: 1.0)
 
@@ -10,19 +10,20 @@ public struct ParleyViewAppearance {
     public var notificationsPosition: ParleyPositionVertical = .top
     public var offlineNotification: ParleyNotificationViewAppearance
     public var pushDisabledNotification: ParleyNotificationViewAppearance
-    public var sticky = ParleyStickyViewAppearance()
+    @MainActor public var sticky = ParleyStickyViewAppearance()
     public var compose = ParleyComposeViewAppearance()
 
-    public var agentMessage = MessageTableViewCellAppearance.agent()
-    public var userMessage = MessageTableViewCellAppearance.user()
+    @MainActor public var agentMessage = MessageTableViewCellAppearance.agent()
+    @MainActor public var userMessage = MessageTableViewCellAppearance.user()
 
     public var suggestions = ParleySuggestionsViewAppearance()
 
     public var typingBalloon = AgentTypingTableViewCellAppearance()
     public var loading = LoadingTableViewCellAppearance()
     public var date = DateHeaderAppearance()
-    public var info = InfoTableViewCellAppearance()
+    @MainActor public var info = InfoTableViewCellAppearance()
 
+    @MainActor
     public init(fontRegularName: String? = nil, fontItalicName: String? = nil, fontBoldName: String? = nil) {
         let offlineIcon = UIImage(named: "ic_error_no_connection", in: .module, compatibleWith: nil)!
         offlineNotification = ParleyNotificationViewAppearance(icon: offlineIcon)

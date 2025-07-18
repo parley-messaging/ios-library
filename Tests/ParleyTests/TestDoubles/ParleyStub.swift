@@ -58,6 +58,10 @@ final actor ParleyStub: ParleyProtocol {
     func send(_ message: inout Message, isNewMessage: Bool) async {
         
     }
+    
+    func setDisplayToAttach(_ display: any ParleyMessagesDisplay) async {
+        
+    }
 }
 
 // MARK: Setters

@@ -281,4 +281,8 @@ extension [Message] {
         
         return messagesByDate
     }
+    
+    var earliestMessage: Message? {
+        sorted(by: <).first
+    }
 }

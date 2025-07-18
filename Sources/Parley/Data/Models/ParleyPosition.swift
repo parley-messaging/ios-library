@@ -5,7 +5,7 @@ public enum ParleyPosition {
     case right
 }
 
-public enum ParleyPositionVertical {
+public enum ParleyPositionVertical: Sendable {
     case top
     case bottom
 }

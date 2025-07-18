@@ -1,6 +1,6 @@
 import UIKit
 
-public struct SuggestionCollectionViewCellAppearance {
+public struct SuggestionCollectionViewCellAppearance: Sendable {
 
     // Balloon
     public var balloonImage: UIImage?
