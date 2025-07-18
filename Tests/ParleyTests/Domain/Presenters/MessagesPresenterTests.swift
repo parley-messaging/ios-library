@@ -71,14 +71,7 @@ struct MessagesPresenterTests {
         )
         collection = ParleyChronologicalMessageCollection(calendar: .current)
         
-        await #expect(display.insertRowsCallCount == 0)
-        await #expect(display.insertRowsIndexPaths == nil)
-        
-        await #expect(display.deleteRowsCallCount == 0)
-        await #expect(display.deleteRowsIndexPaths == nil)
-        
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.reloadRowsIndexPaths == nil)
+        await #expect(display.performBatchUpdatesCallCount == 0)
         
         await #expect(display.reloadCallCount == 0)
         
@@ -168,12 +161,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfSections == 1)
         await #expect(store.numberOfRows(inSection: 0) == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 0)
-        ])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -198,12 +186,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfSections == 2)
         await #expect(store.numberOfRows(inSection: 0) == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1)
-        ])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -229,10 +212,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfSections == 1)
         await #expect(store.numberOfRows(inSection: 0) == 2)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 0)])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -262,10 +242,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfRows(inSection: 0) == 1)
         await #expect(store.numberOfRows(inSection: 1) == 2)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [IndexPath(row: 1, section: 1)])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -294,12 +271,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfRows(inSection: 0) == 1)
         await #expect(store.numberOfRows(inSection: 1) == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 1)
-        ])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -332,12 +304,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfRows(inSection: 1) == 1)
         await #expect(store.numberOfRows(inSection: 2) == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 2)
-        ])
-        
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
     }
     
@@ -365,13 +332,7 @@ struct MessagesPresenterTests {
         await #expect(store.numberOfRows(inSection: 0) == 1)
         await #expect(store.numberOfRows(inSection: 1) == 1)
         
-        await #expect(display.reloadRowsCallCount == 1)
-        await #expect(display.reloadRowsIndexPaths == [
-            IndexPath(row: 0, section: 1)
-        ])
-        
-        await #expect(display.insertRowsCallCount == 0)
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
         
         await #expect(store.getMessage(at: IndexPath(row: 0, section: 1))!.sendStatus == .success)
@@ -432,14 +393,8 @@ struct MessagesPresenterTests {
         #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells[0].kind == .typingIndicator)
         #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells.count == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: lastSectionIndex)
-        ])
-        
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 0)
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.deleteRowsCallCount == 0)
     }
     
     @Test(arguments: TestSections.testSections)
@@ -461,14 +416,8 @@ struct MessagesPresenterTests {
         #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells[0].kind == .typingIndicator)
         #expect(presenter.currentSnapshot.sections[lastSectionIndex].cells.count == 1)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: lastSectionIndex)
-        ])
-        
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 0)
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.deleteRowsCallCount == 0)
     }
     
     @Test(arguments: TestSections.testSections)
@@ -480,8 +429,10 @@ struct MessagesPresenterTests {
         await #expect(display.reloadCallCount == 1, "Should be 1 because we called presentMessages")
         
         await presenter.presentAgentTyping(true)
-        await #expect(display.insertRowsCallCount == 1, "Presenting agent typing should insert a row")
-        let agentTypingIndexPath = await display.insertRowsIndexPaths!.first!
+        await #expect(
+            display.performBatchUpdatesCallCount == 1,
+            "Presenting agent typing should trigger a betch update to insert the a section & row"
+        )
         
         // When
         await presenter.presentAgentTyping(false)
@@ -490,12 +441,8 @@ struct MessagesPresenterTests {
         #expect(presenter.isAgentTyping == false)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count)
        
-        await #expect(display.deleteRowsCallCount == 1)
-        await #expect(display.deleteRowsIndexPaths == [agentTypingIndexPath])
-        
+        await #expect(display.performBatchUpdatesCallCount == 2)
         await #expect(display.reloadCallCount == 1, "Should be unchanged")
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.insertRowsCallCount == 1, "Should be unchanged")
     }
     
     @Test(arguments: TestSections.testSections)
@@ -530,16 +477,9 @@ struct MessagesPresenterTests {
         #expect(presenter.currentSnapshot.sections[0].sectionKind == .loading)
         #expect(presenter.currentSnapshot.sections[0].cells[0].kind == .loading)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 0)
-        ])
-        
-        await #expect(store[section: 0, row: 0] == .loading)
-        
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 0)
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(store[section: 0, row: 0] == .loading)
     }
     
     @Test(arguments: TestSections.testSections)
@@ -558,16 +498,9 @@ struct MessagesPresenterTests {
         #expect(presenter.currentSnapshot.sections[0].sectionKind == .loading)
         #expect(presenter.currentSnapshot.sections[0].cells[0].kind == .loading)
         
-        await #expect(display.insertRowsCallCount == 1)
-        await #expect(display.insertRowsIndexPaths == [
-            IndexPath(row: 0, section: 0)
-        ])
-        
-        await #expect(store[section: 0, row: 0] == .loading)
-        
+        await #expect(display.performBatchUpdatesCallCount == 1)
         await #expect(display.reloadCallCount == 0)
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.deleteRowsCallCount == 0)
+        await #expect(store[section: 0, row: 0] == .loading)
     }
     
     @Test(arguments: TestSections.testSections)
@@ -577,7 +510,10 @@ struct MessagesPresenterTests {
         presenter.set(sections: collection.sections)
         
         await presenter.presentLoadingMessages(true)
-        await #expect(display.insertRowsCallCount == 1, "Presenting agent typing should insert a row")
+        await #expect(
+            display.performBatchUpdatesCallCount == 1,
+            "Should perform batch update due to a row insertion"
+        )
         let loadingIndexPath = IndexPath(row: 0, section: 0)
         
         // When
@@ -587,14 +523,12 @@ struct MessagesPresenterTests {
         #expect(presenter.isLoadingMessages == false)
         #expect(presenter.currentSnapshot.sections.count == collection.sections.count)
        
-        await #expect(display.deleteRowsCallCount == 1)
-        await #expect(display.deleteRowsIndexPaths == [loadingIndexPath])
-        
-        await #expect(store.numberOfSections == collection.sections.count)
-        
+        await #expect(
+            display.performBatchUpdatesCallCount == 2,
+            "Should perform batch update due to section deletion"
+        )
         await #expect(display.reloadCallCount == 0)
-        await #expect(display.reloadRowsCallCount == 0)
-        await #expect(display.insertRowsCallCount == 1)
+        await #expect(store.numberOfSections == collection.sections.count)
     }
     
     @Test(arguments: TestSections.testSections)

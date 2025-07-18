@@ -20,6 +20,9 @@
          <TestPlanReference
             reference = "container:UnitTests.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:MessageSnapshotTests.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

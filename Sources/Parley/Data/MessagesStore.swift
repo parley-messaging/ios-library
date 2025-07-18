@@ -4,9 +4,12 @@ import Foundation
 final class MessagesStore {
     
     enum SectionKind: Equatable {
-        case info
+        /// Date is provided in case the welcome message posistion is set to `adaptive`
+        case info(Date?)
         case loading
-        case messages(Date)
+        
+        /// Date is provided in case the welcome message posistion is set to `default`
+        case messages(Date?)
         case typingIndicator
     }
     
@@ -26,7 +29,7 @@ final class MessagesStore {
         sections = [SectionKind]()
     }
     
-    func apply(snapshot: MessagesPresenter.Snapshot) {
+    func apply(snapshot: MessagesSnapshot) {
         sections.removeAll(keepingCapacity: true)
         cells.removeAll(keepingCapacity: true)
         self.sections.reserveCapacity(snapshot.sections.endIndex - 1)
