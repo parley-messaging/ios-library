@@ -12,7 +12,6 @@ protocol ParleyProtocol: Actor, AnyObject {
     var mediaLoader: MediaLoaderProtocol! { get }
     
     var messagesInteractor: MessagesInteractor! { get }
-    var messagesPresenter: MessagesPresenterProtocol! { get }
     var messagesStore: MessagesStore! { get }
 
     @MainActor var delegate: ParleyDelegate? { get }
@@ -75,7 +74,6 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private(set) var localizationManager: LocalizationManager = ParleyLocalizationManager()
     
     private(set) var messagesInteractor: MessagesInteractor!
-    private(set) var messagesPresenter: MessagesPresenterProtocol!
     private(set) var messagesStore: MessagesStore!
     private(set) var reachibilityService: ReachabilityService?
 
@@ -144,10 +142,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         mediaLoader = MediaLoader(mediaRepository: mediaRepository)
         
         messagesStore = await MessagesStore()
-        messagesPresenter = await MessagesPresenter(store: messagesStore, display: nil)
         let messageReadWorker = await MessageReadWorker(messageRepository: messageRepository)
         messagesInteractor = await MessagesInteractor(
-            presenter: messagesPresenter!,
             messagesManager: messagesManager!,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
             messagesRepository: messageRepository!,
@@ -801,7 +797,12 @@ extension ParleyActor {
         )
         
         if let display = displayToAttach.take() {
-            await messagesPresenter.set(display: display)
+            let presenter = await MessagesPresenter(
+                store: messagesStore,
+                display: display,
+                usesAdaptiveWelcomePosistioning: display.appearance.info.position == .adaptive
+            )
+            await messagesInteractor.set(presenter: presenter)
             await display.signalAttached()
         }
     }

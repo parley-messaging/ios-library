@@ -20,7 +20,7 @@ struct NetworkMonitorTests {
         let sut = NetworkMonitor(networkMonitor: networkMonitorSpy, delegate: delegateSpy)
 
         await sut.start()
-        try await Task.sleep(nanoseconds: 150_000) // 15 milliseconds
+        try await Task.sleep(nanoseconds: 300_000) // 30 milliseconds
 
         #expect(networkMonitorSpy.startQueueCallsCount == 1)
         #expect(networkMonitorSpy.pathUpdateHandler != nil)

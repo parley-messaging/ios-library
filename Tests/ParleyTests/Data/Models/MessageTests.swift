@@ -11,10 +11,9 @@ struct MessageTests {
     "typeId":2,
     "message": "Example message",
     "time": 81919,
-    "status": 1,
+    "status": 2,
     "id": 42,
-    "title": "Message title"
-    "status": 2
+    "title": "Message title",
 }
 """
 
