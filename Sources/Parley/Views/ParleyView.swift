@@ -3,12 +3,16 @@ import UniformTypeIdentifiers
 
 @MainActor
 protocol ParleyMessagesDisplay: AnyObject, Sendable {
+    var appearance: ParleyViewAppearance { get }
     func signalAttached() async
     
-    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation)
-    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool)
+    @MainActor
+    func performBatchUpdates(
+        _ changes: SnapshotChange,
+        preUpdate: (@MainActor () -> Void)?,
+        postUpdate: (@MainActor () -> Void)?
+    )
+    
     func displayScrollToBottom(animated: Bool)
     func reload()
     
@@ -120,7 +124,11 @@ public class ParleyView: UIView {
     private func setup() async {
         await parley.set(delegate: self)
         if await parley.state == .configured {
-            await parley.messagesPresenter.set(display: self)
+            await parley.messagesInteractor.set(presenter: MessagesPresenter(
+                store: parley.messagesStore,
+                display: self,
+                usesAdaptiveWelcomePosistioning: appearance.info.position == .adaptive
+            ))
             await setupDependencies()
             await messagesInteractor?.handleViewDidLoad()
         } else {
@@ -639,21 +647,23 @@ extension ParleyView: UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard
-            let sectionKind = messagesStore[section: section],
-            case let MessagesStore.SectionKind.messages(date) = sectionKind
-        else { return nil }
-        
-        return DateHeaderView(appearance: appearance.date, date: date)
+        switch messagesStore[section: section] {
+        case .info(let date), .messages(let date):
+            guard let date else { return nil }
+            return DateHeaderView(appearance: appearance.date, date: date)
+        default:
+            return nil
+        }
     }
     
     public func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-        guard
-            let sectionKind = messagesStore[section: section],
-            case MessagesStore.SectionKind.messages = sectionKind
-        else { return .zero }
-        
-        return DateHeaderView.estimatedHeight
+        switch messagesStore[section: section] {
+        case .info(let date), .messages(let date):
+            guard let date else { return .zero }
+            return DateHeaderView.estimatedHeight
+        default:
+            return .zero
+        }
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -916,38 +926,82 @@ extension ParleyView: ParleyMessagesDisplay {
     func signalAttached() async {
         await setup()
     }
+    
+    @MainActor
+    func performBatchUpdates(
+        _ changes: SnapshotChange,
+        preUpdate: (@MainActor () -> Void)?,
+        postUpdate: (@MainActor () -> Void)?
+    ) {
+        messagesTableView.performBatchUpdates {
+            preUpdate?()
+            applySectionChanges(changes.sectionChanges)
+            applyRowChanges(changes.rowChanges)
+        } completion: { _ in
+            postUpdate?()
+        }
+    }
+
+    private func applySectionChanges(_ changes: [SnapshotChange.SectionChange]) {
+        let deletions = changes.deletions
+        let insertions = changes.insertions
+        let moves = changes.moves
+        let reloads = changes.reloads
         
-    func insertRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
-        messagesTableView.beginUpdates()
-        for newSection in convertToIndexSet(indexPaths) {
-            messagesTableView.insertSections(newSection, with: animation)
+        if deletions.isEmpty == false {
+            let sections = IndexSet(deletions.map(\.section))
+            messagesTableView.deleteSections(sections, with: .none)
         }
-        messagesTableView.insertRows(at: indexPaths, with: animation)
-        messagesTableView.endUpdates()
-    }
-    
-    func deleteRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
-        messagesTableView.beginUpdates()
-        for oldSection in convertToIndexSet(indexPaths) {
-            messagesTableView.deleteSections(oldSection, with: animation)
+        
+        if insertions.isEmpty == false {
+            var insertionIndexSet = IndexSet()
+            for insertion in insertions {
+                insertionIndexSet.insert(insertion.section)
+            }
+            
+            messagesTableView.insertSections(insertionIndexSet, with: .none)
         }
-        messagesTableView.deleteRows(at: indexPaths, with: animation)
-        messagesTableView.endUpdates()
+        
+        for move in moves {
+            if case .move(let fromSection) = move.kind {
+                messagesTableView.moveSection(fromSection, toSection: move.section)
+            }
+        }
+        
+        if reloads.isEmpty == false {
+            let sections = IndexSet(reloads.map(\.section))
+            messagesTableView.reloadSections(sections, with: .none)
+        }
     }
-    
-    private func convertToIndexSet(_ indexPaths: [IndexPath]) -> [IndexSet] {
-        indexPaths
-            .filter({ $0.row == .zero })
-            .map(\.section)
-            .map(IndexSet.init(integer:))
+
+    private func applyRowChanges(_ changes: [SnapshotChange.RowChange]) {
+        let deletions = changes.deletions
+        let insertions = changes.insertions
+        let moves = changes.moves
+        let reloads = changes.reloads
+        
+        if deletions.isEmpty == false {
+            messagesTableView.deleteRows(at: deletions.map(\.indexPath), with: .none)
+        }
+        
+        if insertions.isEmpty == false {
+            messagesTableView.insertRows(at: insertions.map(\.indexPath), with: .none)
+        }
+
+        
+        for move in moves {
+            if case let .move(fromIndexPath) = move.kind {
+                messagesTableView.moveRow(at: fromIndexPath, to: move.indexPath)
+            }
+        }
+        
+        if reloads.isEmpty == false {
+            messagesTableView.reloadRows(at: reloads.map(\.indexPath), with: .none)
+        }
     }
     
     func reloadRows(at indexPaths: [IndexPath], with animation: UITableView.RowAnimation) {
         messagesTableView.reloadRows(at: indexPaths, with: animation)
-    }
-    
-    func scrollTo(indexPaths: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
-        messagesTableView.scrollToRow(at: indexPaths, at: position, animated: true)
     }
     
     func displayScrollToBottom(animated: Bool) {

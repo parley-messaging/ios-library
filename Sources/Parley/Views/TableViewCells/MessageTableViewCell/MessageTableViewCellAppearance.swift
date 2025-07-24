@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 public final class MessageTableViewCellAppearance: ParleyMessageViewAppearance {
 
     public enum Align {
