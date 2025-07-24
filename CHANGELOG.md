@@ -2,7 +2,7 @@
 
 ## 4.4.0 - Released 24 Jul 2025
 
-- **IMPORTANT**: The position of the welcome message is now adjustable. By default, it operates in `adaptive` mode: the message appears at the bottom of the chat (without a date header), but if there is a chat section for today, it will be shown under the date header. You can switch back to use the old mode where it always appears at the top of the chat by setting `InfoTableViewCellAppearance.position` to `.legacy`.
+- The position of the welcome message is now adjustable. By default, it operates in `adaptive` mode: the message appears at the bottom of the chat (without a date header), but if there is a chat section for today, it will be shown under the date header. You can switch back to use the old mode where it always appears at the top of the chat by setting `InfoTableViewCellAppearance.position` to `.legacy`.
 - All Appearance classes/structs are now `Sendable`, with some properties being `MainActor` isolated
 
 ## 4.3.0 - Released 4 Jul 2025
