@@ -143,6 +143,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         
         messagesStore = await MessagesStore()
         let messageReadWorker = await MessageReadWorker(messageRepository: messageRepository)
+        
+        let currentPresenter = await messagesInteractor?.presenter
         messagesInteractor = await MessagesInteractor(
             messagesManager: messagesManager!,
             messageCollection: ParleyChronologicalMessageCollection(calendar: .autoupdatingCurrent),
@@ -150,6 +152,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             reachabilityProvider: self,
             messageReadWorker: messageReadWorker
         )
+        if let currentPresenter {
+            await messagesInteractor.set(presenter: currentPresenter)
+        }
         await messageReadWorker.set(delegate: messagesInteractor!)
         reachibilityService = try? ReachabilityService()
         addObservers()
@@ -804,6 +809,9 @@ extension ParleyActor {
             )
             await messagesInteractor.set(presenter: presenter)
             await display.signalAttached()
+        } else {
+            // Already attached, refreshing display
+            await messagesInteractor.handleViewDidLoad()
         }
     }
 
