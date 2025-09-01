@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.2 - Released 1 Sep 2025
+
+- Fixed a bug where the chat would scroll to the bottom unexpectedly.
+
 ## 4.4.1 - Released 14 Aug 2025
 
 - Fixed a bug where the chat would disappear when opening the chat for a second time before the library is initialized.

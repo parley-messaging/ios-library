@@ -1,4 +1,4 @@
-let kParleyVersion = "4.4.1"
+let kParleyVersion = "4.4.2"
 
 let kParleyMessageMaxCount = 5000
 
