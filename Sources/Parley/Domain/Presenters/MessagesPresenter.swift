@@ -112,6 +112,7 @@ extension MessagesPresenter: MessagesPresenterProtocol {
     }
     
     func presentAgentTyping(_ isTyping: Bool) async {
+        let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.set(agentTyping: isTyping) else { return }
         self.isAgentTyping = isTyping
         
@@ -119,45 +120,56 @@ extension MessagesPresenter: MessagesPresenterProtocol {
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
             }) {
-                display?.displayScrollToBottom(animated: false)
+                if wasScrolledToBottom {
+                    display?.displayScrollToBottom(animated: false)
+                }
             }
         }
     }
     
     func presentUpdate(message: Message) async {
+        let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.set(message: message) else { return }
         await store.apply(snapshot: currentSnapshot)
+        
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
             }) {
-                display?.displayScrollToBottom(animated: false)
+                if wasScrolledToBottom {
+                    display?.displayScrollToBottom(animated: false)
+                }
             }
         }
     }
     
     func presentLoadingMessages(_ isLoading: Bool) async {
+        let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.setLoading(isLoading) else { return }
         self.isLoadingMessages = isLoading
         await store.apply(snapshot: currentSnapshot)
+        
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
             }) {
-                display?.displayScrollToBottom(animated: false)
+                if wasScrolledToBottom {
+                    display?.displayScrollToBottom(animated: false)
+                }
             }
         }
     }
     
     func presentAdd(message: Message) async {
+        let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.insert(message: message) else { return }
         guard change.isEmpty == false else { return }
         await store.apply(snapshot: currentSnapshot)
-        await MainActor.run { [currentSnapshot, store, display, isScrolledToBottom] in
+        await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
             }) {
-                if isScrolledToBottom {
+                if wasScrolledToBottom {
                     display?.displayScrollToBottom(animated: false)
                 }
             }
