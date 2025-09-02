@@ -73,6 +73,10 @@ extension MessagesInteractor {
         await presenter?.presentMessages()
         try? await Task.sleep(nanoseconds: 64_000_000) // Wait 64 ms (4 frames at 60fps)
         await presenter?.presentScrollToBotom(animated: false)
+        
+        // Sometimes the estimations made while not near the bottom are not accurate; therefore, we need to scroll down a second time when we are very close to the bottom.
+        try? await Task.sleep(nanoseconds: 64_000_000) // Wait 64 ms (4 frames at 60fps)
+        await presenter?.presentScrollToBotom(animated: false)
     }
     
     func handleAgentBeganTyping() async {
