@@ -10,7 +10,8 @@ protocol ParleyMessagesDisplay: AnyObject, Sendable {
     func performBatchUpdates(
         _ changes: SnapshotChange,
         preUpdate: (@MainActor () -> Void)?,
-        postUpdate: (@MainActor () -> Void)?
+        postUpdate: (@MainActor () -> Void)?,
+        completion: (@MainActor () -> Void)?
     )
     
     func displayScrollToBottom(animated: Bool)
@@ -57,6 +58,7 @@ public class ParleyView: UIView {
     private var mediaLoader: MediaLoaderProtocol!
     
     // MARK: Properties
+    private var didFinishCorrectingPosistion = true
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     public weak var delegate: ParleyViewDelegate?
@@ -706,15 +708,31 @@ extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         messagesTableView.scrollViewDidScroll()
+        let indexPahts = messagesTableView.indexPathsForVisibleRows
+        
+        guard let message = messagesTableView.indexPathsForVisibleRows?.compactMap { indexPath in
+            return messagesStore.unsafeGetMessage(at: indexPath)
+        }.first else { return }
 
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
 
         if scrollY < height / 2 {
-            guard !isAlreadyAtTop else { return }
+            guard !isAlreadyAtTop, didFinishCorrectingPosistion else { return }
             isAlreadyAtTop = true
+            
+            let previousContentOffset = messagesTableView.contentOffset
+            let previousContentSize = messagesTableView.contentSize
+            didFinishCorrectingPosistion = false
             Task {
-                await messagesInteractor?.handleLoadMessages()
+                let didLoadMoreMessage = await messagesInteractor?.handleLoadMessages() ?? false
+                if didLoadMoreMessage {
+                    await MainActor.run {
+                        guard let indexPath = messagesStore.indexPath(for: message) else { return }
+                        messagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                        didFinishCorrectingPosistion = true
+                    }
+                }
             }
         } else {
             isAlreadyAtTop = false
@@ -931,14 +949,16 @@ extension ParleyView: ParleyMessagesDisplay {
     func performBatchUpdates(
         _ changes: SnapshotChange,
         preUpdate: (@MainActor () -> Void)?,
-        postUpdate: (@MainActor () -> Void)?
+        postUpdate: (@MainActor () -> Void)?,
+        completion: (@MainActor () -> Void)?
     ) {
-        messagesTableView.performBatchUpdates {
+        messagesTableView.performBatchUpdates { @MainActor [weak self] in
             preUpdate?()
-            applySectionChanges(changes.sectionChanges)
-            applyRowChanges(changes.rowChanges)
-        } completion: { _ in
+            self?.applySectionChanges(changes.sectionChanges)
+            self?.applyRowChanges(changes.rowChanges)
             postUpdate?()
+        } completion: { @MainActor _ in
+            completion?()
         }
     }
 

@@ -119,27 +119,26 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
-            }) {
+            }, completion: {
                 if wasScrolledToBottom {
                     display?.displayScrollToBottom(animated: false)
                 }
-            }
+            })
         }
     }
     
     func presentUpdate(message: Message) async {
         let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.set(message: message) else { return }
-        await store.apply(snapshot: currentSnapshot)
         
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
-            }) {
+            }, completion: {
                 if wasScrolledToBottom {
                     display?.displayScrollToBottom(animated: false)
                 }
-            }
+            })
         }
     }
     
@@ -147,16 +146,15 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.setLoading(isLoading) else { return }
         self.isLoadingMessages = isLoading
-        await store.apply(snapshot: currentSnapshot)
         
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
-            }) {
+            }, completion: {
                 if wasScrolledToBottom {
                     display?.displayScrollToBottom(animated: false)
                 }
-            }
+            })
         }
     }
     
@@ -164,15 +162,15 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         let wasScrolledToBottom = isScrolledToBottom
         guard let change = currentSnapshot.insert(message: message) else { return }
         guard change.isEmpty == false else { return }
-        await store.apply(snapshot: currentSnapshot)
+        
         await MainActor.run { [currentSnapshot, store, display] in
             presentSnapshotChange(change, preUpdate: {
                 store.apply(snapshot: currentSnapshot)
-            }) {
+            }, completion: {
                 if wasScrolledToBottom {
                     display?.displayScrollToBottom(animated: false)
                 }
-            }
+            })
         }
     }
     
@@ -182,7 +180,9 @@ extension MessagesPresenter: MessagesPresenterProtocol {
         _ = currentSnapshot.set(agentTyping: isAgentTyping)
         
         await MainActor.run { [currentSnapshot] in
+            store.prepareForWrite()
             store.apply(snapshot: currentSnapshot)
+            store.finishWrite()
             display?.reload()
         }
     }
@@ -213,15 +213,20 @@ private extension MessagesPresenter {
     func presentSnapshotChange(
         _ change: SnapshotChange,
         preUpdate: (@MainActor () -> Void)?,
-        postUpdate: (@MainActor () -> Void)?
+        completion: (@MainActor () -> Void)?
     ) {
         guard change.isEmpty == false else { return }
         
-        display?.performBatchUpdates(change, preUpdate: preUpdate, postUpdate: postUpdate)
+        display?.performBatchUpdates(
+            change,
+            preUpdate: { [weak self] in
+                self?.store.prepareForWrite()
+                preUpdate?()
+            },
+            postUpdate: { [weak self] in
+                self?.store.finishWrite()
+            },
+            completion: completion
+        )
     }
-}
-
-extension MessagesPresenter {
-    
-
 }

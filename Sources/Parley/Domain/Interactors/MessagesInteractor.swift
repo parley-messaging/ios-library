@@ -15,6 +15,7 @@ final class MessagesInteractor {
     private(set) var isScrolledAtBottom = false
     
     private(set) var presentedQuickReplies: [String]?
+    private var loadMoreTask: Task<Bool, Never>?
     
     private var quickReplies: [String]? {
         guard let lastMessagePosistion = messages.lastPosistion() else { return nil }
@@ -91,23 +92,31 @@ extension MessagesInteractor {
         await presenter?.presentAgentTyping(agentTyping)
     }
     
-    func handleLoadMessages() async {
+    func handleLoadMessages() async -> Bool {
         guard
             await reachabilityProvider.reachable,
-            !isLoadingMessages,
             await messagesManager.canLoadMore(),
             let oldestMessageId = await messagesManager.getOldestMessage()?.remoteId
-        else { return }
+        else { return false }
         
-        isLoadingMessages = true
-        await presenter?.presentLoadingMessages(isLoadingMessages)
+        loadMoreTask.take()?.cancel()
         
-        if let collection = try? await messageRepository.findBefore(oldestMessageId) {
-            await handle(collection: collection, .before)
-        }
+        self.loadMoreTask = Task { @ParleyDomainActor in
+            isLoadingMessages = true
+            await presenter?.presentLoadingMessages(isLoadingMessages)
             
-        isLoadingMessages = false
-        await presenter?.presentLoadingMessages(isLoadingMessages)
+            var didFindEarlierMessages = false
+            if let collection = try? await messageRepository.findBefore(oldestMessageId), Task.isCancelled == false {
+                await handle(collection: collection, .before)
+                didFindEarlierMessages = true
+            }
+            
+            isLoadingMessages = false
+            await presenter?.presentLoadingMessages(isLoadingMessages)
+            return didFindEarlierMessages
+        }
+        
+        return (try? await loadMoreTask?.value) ?? false
     }
     
     func handle(collection: MessageCollection, _ handleType: MessagesManager.HandleType) async {
