@@ -1,8 +1,9 @@
 # Changelog
 
-## 4.4.2 - Released 2 Sep 2025
+## 4.4.2 - Released 8 Sep 2025
 
 - Fixed a bug where the chat would scroll to the bottom unexpectedly.
+- Improved handling when loading more messages.
 
 ## 4.4.1 - Released 14 Aug 2025
 
