@@ -4,7 +4,6 @@ import UIKit
 @MainActor
 final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
     
-    
     let appearance = ParleyViewAppearance()
     
     private(set) var performBatchUpdatesCallCount = 0
@@ -30,7 +29,12 @@ final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
         displayHideStickyMessageCallCount > 0
     }
     
-    func performBatchUpdates(_ changes: SnapshotChange, preUpdate: (@MainActor @Sendable () -> Void)?, postUpdate: (@MainActor @Sendable () -> Void)?) {
+    func performBatchUpdates(
+        _ changes: SnapshotChange,
+        preUpdate: (@MainActor @Sendable () -> Void)?,
+        postUpdate: (@MainActor @Sendable () -> Void)?,
+        completion: (@MainActor @Sendable () -> Void)?
+    ) {
         performBatchUpdatesCallCount += 1
     }
     

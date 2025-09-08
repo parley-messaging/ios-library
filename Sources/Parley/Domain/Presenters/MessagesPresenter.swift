@@ -217,10 +217,12 @@ private extension MessagesPresenter {
     ) {
         guard change.isEmpty == false else { return }
         
-        store.prepareForWrite()
         display?.performBatchUpdates(
             change,
-            preUpdate: preUpdate,
+            preUpdate: { [weak self] in
+                self?.store.prepareForWrite()
+                preUpdate?()
+            },
             postUpdate: { [weak self] in
                 self?.store.finishWrite()
             },

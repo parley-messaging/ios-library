@@ -3,6 +3,8 @@ import Foundation
 @MainActor
 final class MessagesStore {
     
+    private static let maxLockDuraton: TimeInterval = 0.2
+    
     enum SectionKind: Equatable {
         /// Date is provided in case the welcome message posistion is set to `adaptive`
         case info(Date?)
@@ -57,19 +59,19 @@ final class MessagesStore {
 extension MessagesStore {
     
     var numberOfSections: Int {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             sections.count
         }
     }
     
     func numberOfRows(inSection section: Int) -> Int {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             cells[section].count
         }
     }
     
     func getMessage(at indexPath: IndexPath) -> Message? {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             if case let .message(message) = self[indexPath: indexPath] {
                 return message
             }
@@ -78,28 +80,49 @@ extension MessagesStore {
         }
     }
     
+    func unsafeGetMessage(at indexPath: IndexPath) -> Message? {
+        if case let .message(message) = self[indexPath: indexPath] {
+            return message
+        }
+        
+        return nil
+    }
+    
     func getCells(inSection section: Int) -> [CellKind] {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             cells[section]
         }
     }
     
     subscript(section sectionIndex: Int) -> SectionKind? {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             sections[safe: sectionIndex]
         }
     }
     
     subscript(section sectionIndex: Int, row rowIndex: Int) -> CellKind? {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             cells[sectionIndex][rowIndex]
         }
     }
     
     subscript(indexPath ip: IndexPath) -> CellKind? {
-        readLock.withLock {
+        readLock.withLock(deadline: Self.maxLockDuraton) {
             return cell(at: ip)
         }
+    }
+    
+    func indexPath(for message: Message) -> IndexPath? {
+        for section in self.sections.indices {
+            for row in cells[section].indices {
+                let cell = cells[section][row]
+                if case .message(let other) = cell, other == message {
+                    return IndexPath(row: row, section: section)
+                }
+            }
+        }
+        
+        return nil
     }
 }
 

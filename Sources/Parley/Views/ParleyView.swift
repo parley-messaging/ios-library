@@ -58,6 +58,7 @@ public class ParleyView: UIView {
     private var mediaLoader: MediaLoaderProtocol!
     
     // MARK: Properties
+    private var didFinishCorrectingPosistion = true
     private var observeNotificationsBounds: NSKeyValueObservation?
     private var observeSuggestionsBounds: NSKeyValueObservation?
     public weak var delegate: ParleyViewDelegate?
@@ -707,31 +708,29 @@ extension ParleyView: UITableViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         messagesTableView.scrollViewDidScroll()
+        let indexPahts = messagesTableView.indexPathsForVisibleRows
+        
+        guard let message = messagesTableView.indexPathsForVisibleRows?.compactMap { indexPath in
+            return messagesStore.unsafeGetMessage(at: indexPath)
+        }.first else { return }
 
         let height = scrollView.frame.height
         let scrollY = scrollView.contentOffset.y
 
         if scrollY < height / 2 {
-            guard !isAlreadyAtTop else { return }
+            guard !isAlreadyAtTop, didFinishCorrectingPosistion else { return }
             isAlreadyAtTop = true
             
             let previousContentOffset = messagesTableView.contentOffset
             let previousContentSize = messagesTableView.contentSize
+            didFinishCorrectingPosistion = false
             Task {
                 let didLoadMoreMessage = await messagesInteractor?.handleLoadMessages() ?? false
                 if didLoadMoreMessage {
                     await MainActor.run {
-                        CATransaction.begin()
-                        CATransaction.setCompletionBlock {
-                            let newContentSize = self.messagesTableView.contentSize
-                            let heightDifference = newContentSize.height - previousContentSize.height
-                            
-                            self.messagesTableView.setContentOffset(CGPoint(
-                                x: previousContentOffset.x,
-                                y: max(0, previousContentOffset.y + heightDifference)
-                            ), animated: false)
-                        }
-                        CATransaction.commit()
+                        guard let indexPath = messagesStore.indexPath(for: message) else { return }
+                        messagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                        didFinishCorrectingPosistion = true
                     }
                 }
             }
