@@ -23,6 +23,7 @@ final class MessagesStore {
     
     private var sections: [SectionKind]
     private var cells: [[CellKind]]
+    private var readLock = NSLock()
     
     init() {
         cells = [[CellKind]]()
@@ -30,6 +31,8 @@ final class MessagesStore {
     }
     
     func apply(snapshot: MessagesSnapshot) {
+        assert(readLock.try() == false, "Lock should be locked when applying!")
+        
         sections.removeAll(keepingCapacity: true)
         cells.removeAll(keepingCapacity: true)
         self.sections.reserveCapacity(snapshot.sections.endIndex - 1)
@@ -40,40 +43,70 @@ final class MessagesStore {
             cells.append(cellKinds)
         }
     }
+    
+    func prepareForWrite() {
+        readLock.lock()
+    }
+    
+    func finishWrite() {
+        readLock.unlock()
+    }
 }
 
 // MARK: UITableView / UICollectionView methods
 extension MessagesStore {
     
     var numberOfSections: Int {
-        sections.count
+        readLock.withLock {
+            sections.count
+        }
     }
     
     func numberOfRows(inSection section: Int) -> Int {
-        cells[section].count
+        readLock.withLock {
+            cells[section].count
+        }
     }
     
     func getMessage(at indexPath: IndexPath) -> Message? {
-        if case let .message(message) = self[indexPath: indexPath] {
-            return message
+        readLock.withLock {
+            if case let .message(message) = self[indexPath: indexPath] {
+                return message
+            }
+            
+            return nil
         }
-        
-        return nil
     }
     
     func getCells(inSection section: Int) -> [CellKind] {
-        cells[section]
+        readLock.withLock {
+            cells[section]
+        }
     }
     
     subscript(section sectionIndex: Int) -> SectionKind? {
-        return sections[safe: sectionIndex]
+        readLock.withLock {
+            sections[safe: sectionIndex]
+        }
     }
     
     subscript(section sectionIndex: Int, row rowIndex: Int) -> CellKind? {
-        cells[sectionIndex][rowIndex]
+        readLock.withLock {
+            cells[sectionIndex][rowIndex]
+        }
     }
     
     subscript(indexPath ip: IndexPath) -> CellKind? {
+        readLock.withLock {
+            return cell(at: ip)
+        }
+    }
+}
+
+// MARK: Privates
+private extension MessagesStore {
+    
+    func cell(at ip: IndexPath) -> CellKind? {
         cells[safe: ip.section]?[safe: ip.row]
     }
 }

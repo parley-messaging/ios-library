@@ -10,7 +10,8 @@ protocol ParleyMessagesDisplay: AnyObject, Sendable {
     func performBatchUpdates(
         _ changes: SnapshotChange,
         preUpdate: (@MainActor () -> Void)?,
-        postUpdate: (@MainActor () -> Void)?
+        postUpdate: (@MainActor () -> Void)?,
+        completion: (@MainActor () -> Void)?
     )
     
     func displayScrollToBottom(animated: Bool)
@@ -713,8 +714,26 @@ extension ParleyView: UITableViewDelegate {
         if scrollY < height / 2 {
             guard !isAlreadyAtTop else { return }
             isAlreadyAtTop = true
+            
+            let previousContentOffset = messagesTableView.contentOffset
+            let previousContentSize = messagesTableView.contentSize
             Task {
-                await messagesInteractor?.handleLoadMessages()
+                let didLoadMoreMessage = await messagesInteractor?.handleLoadMessages() ?? false
+                if didLoadMoreMessage {
+                    await MainActor.run {
+                        CATransaction.begin()
+                        CATransaction.setCompletionBlock {
+                            let newContentSize = self.messagesTableView.contentSize
+                            let heightDifference = newContentSize.height - previousContentSize.height
+                            
+                            self.messagesTableView.setContentOffset(CGPoint(
+                                x: previousContentOffset.x,
+                                y: max(0, previousContentOffset.y + heightDifference)
+                            ), animated: false)
+                        }
+                        CATransaction.commit()
+                    }
+                }
             }
         } else {
             isAlreadyAtTop = false
@@ -931,14 +950,16 @@ extension ParleyView: ParleyMessagesDisplay {
     func performBatchUpdates(
         _ changes: SnapshotChange,
         preUpdate: (@MainActor () -> Void)?,
-        postUpdate: (@MainActor () -> Void)?
+        postUpdate: (@MainActor () -> Void)?,
+        completion: (@MainActor () -> Void)?
     ) {
-        messagesTableView.performBatchUpdates {
+        messagesTableView.performBatchUpdates { @MainActor [weak self] in
             preUpdate?()
-            applySectionChanges(changes.sectionChanges)
-            applyRowChanges(changes.rowChanges)
-        } completion: { _ in
+            self?.applySectionChanges(changes.sectionChanges)
+            self?.applyRowChanges(changes.rowChanges)
             postUpdate?()
+        } completion: { @MainActor _ in
+            completion?()
         }
     }
 
