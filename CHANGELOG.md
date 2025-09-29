@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.3 - Released 29 Sep 2025
+
+- [Chat] Fixed an issue where new messages wouldn't appear when entering foreground.
+
 ## 4.4.2 - Released 8 Sep 2025
 
 - Fixed a bug where the chat would scroll to the bottom unexpectedly.
