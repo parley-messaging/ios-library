@@ -56,6 +56,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private(set) var state: State = .unconfigured
 
     private var isLoading = false
+    private var foregroundConfigurationTask: Task<Void, Never>?
 
     private(set) var secret: String?
     private(set) var uniqueDeviceIdentifier: String?
@@ -223,6 +224,12 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     @MainActor
     private func willEnterForeground() {
         Task {
+            await handleWillEnterForeground()
+        }
+    }
+    
+    private func handleWillEnterForeground() {
+        foregroundConfigurationTask = Task {
             await configureWhenNeeded()
         }
     }
@@ -271,11 +278,9 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         try await configure()
     }
 
-    private func configureWhenNeeded() {
+    private func configureWhenNeeded() async {
         guard state == .failed || state == .configured else { return }
-        Task {
-            try await configure()
-        }
+        try? await configure()
     }
 
     private func configure() async throws(ConfigurationError) {
@@ -547,6 +552,8 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         let body = userInfo["body"] as? String
 
         let message = Message.push(remoteId: id, message: body, type: type )
+        
+        await foregroundConfigurationTask?.value
         
         if isLoading { return } // Ignore remote messages when configuring chat.
 
