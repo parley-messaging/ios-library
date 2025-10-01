@@ -36,6 +36,9 @@ final class ParleyMessagesDisplaySpy: ParleyMessagesDisplay {
         completion: (@MainActor @Sendable () -> Void)?
     ) {
         performBatchUpdatesCallCount += 1
+        preUpdate?()
+        postUpdate?()
+        completion?()
     }
     
     func reload() {
