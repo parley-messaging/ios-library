@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.4 - Released 3 Oct 2025
+
+- [Chat] Fixed a cases where a message is duplicated due to iOS calling the `didReceiveRemoteNotification` method twice when receiving push in the background.
+- [Chat] Attempt to resolve an issue where reconfiguring Parley could duplicate new messages in the `specialLightweight` flow. 
+
 ## 4.4.3 - Released 29 Sep 2025
 
 - [Chat] Fixed an issue where new messages wouldn't appear when entering foreground.
