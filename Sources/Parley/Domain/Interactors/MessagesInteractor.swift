@@ -196,7 +196,8 @@ private extension MessagesInteractor {
         posisitionsAdded.reserveCapacity(messages.count)
         
         for message in messages {
-            if let addedMessagePosisition = self.messages.add(message: message) {
+            if self.messages.find(message: message) == nil,
+                let addedMessagePosisition = self.messages.add(message: message) {
                 posisitionsAdded.append(addedMessagePosisition)
             }
         }
