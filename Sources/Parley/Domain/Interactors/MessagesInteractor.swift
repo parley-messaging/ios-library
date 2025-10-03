@@ -138,6 +138,9 @@ extension MessagesInteractor {
     }
     
     func handleNewMessage(_ message: Message) async {
+        if messages.find(message: message) != nil {
+            return
+        }
         let addedMessagePosistion = messages.add(message: message)
         guard await messagesManager.add(message) else {
             if let addedMessagePosistion {
