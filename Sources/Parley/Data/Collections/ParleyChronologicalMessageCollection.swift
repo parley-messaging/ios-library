@@ -5,7 +5,7 @@ protocol ParleyMessageSection {
     var messages: [Message] { get }
 }
 
-public struct ParleyChronologicalMessageCollection {
+public struct ParleyChronologicalMessageCollection: Sendable {
     
     private var indexMap = [Date: [Section].Index]()
     private(set) var sections = [Section]()

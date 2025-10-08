@@ -306,4 +306,21 @@ struct MessagesInteractorTests {
         #expect(await presenter.presentQuickRepliesCallCount == 1)
         #expect(await presenter.presentHideQuickRepliesCallCount == 1)
     }
+    
+    @ParleyDomainActor
+    @Test mutating func handleNewMessage_shouldNotAllowDuplicateMessage() async {
+        // Setup
+        let id = UUID()
+        let remoteId = 1
+        let firstMessage = Message.makeTestData(id: id, remoteId: remoteId, message: "Hey")
+        let sameMessage = Message.makeTestData(id: id, remoteId: remoteId, message: "Hey")
+        
+        // When
+        await interactor.handleNewMessage(firstMessage)
+        await interactor.handleNewMessage(sameMessage)
+        
+        // Then
+        #expect(interactor.messages.sections.count == 1)
+        #expect(interactor.messages.sections.first?.messages.count == 1)
+    }
 }
