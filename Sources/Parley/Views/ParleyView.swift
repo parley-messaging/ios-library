@@ -1029,7 +1029,11 @@ extension ParleyView: ParleyMessagesDisplay {
     }
     
     func reload() {
+        let atBottom = messagesTableView.isAtBottom
         messagesTableView.reloadData()
+        if atBottom {
+            messagesTableView.scroll(to: .bottom, animated: false)
+        }
     }
     
     func display(quickReplies: [String]) {

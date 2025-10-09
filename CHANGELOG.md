@@ -3,6 +3,7 @@
 ## 4.4.5 - Released 9 Oct 2025
 
 - [Chat] Fixed cases where reopening the chat does not show newly received messages. 
+- [Chat] Fixed sometimes not scrolling to bottom when new messages arrived while we were at the bottom. 
 
 ## 4.4.4 - Released 3 Oct 2025
 
