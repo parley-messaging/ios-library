@@ -306,7 +306,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             }
         } else {
             if state == .unconfigured || state == .failed {
-                await messagesManager.clear()
+                await messagesInteractor.clear()
 
                 await set(state: .configuring)
             }
@@ -317,10 +317,10 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
             
             if let lastMessage = await messagesManager.lastSentMessage, let remoteId = lastMessage.remoteId {
                 let messageCollection = try await messageRepository.findAfter(remoteId)
-                await messagesManager.handle(messageCollection, .after)
+                await messagesInteractor.handle(collection: messageCollection, .after)
             } else {
                 let messageCollection = try await messageRepository.findAll()
-                await messagesManager.handle(messageCollection, .all)
+                await messagesInteractor.handle(collection: messageCollection, .all)
             }
             
             await send(messagesManager.pendingMessages)
@@ -458,6 +458,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     private func upload(storedImage: ParleyStoredMedia, message: inout Message) async throws {
         let remoteId = try await mediaRepository.upload(media: storedImage)
         message.media = MediaObject(id: remoteId, mimeType: storedImage.type.rawValue)
+        
         await messagesManager?.update(message)
     }
 

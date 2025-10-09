@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.5 - Released 9 Oct 2025
+
+- [Chat] Fixed cases where reopening the chat does not show newly received messages. 
+
 ## 4.4.4 - Released 3 Oct 2025
 
 - [Chat] Fixed a cases where a message is duplicated due to iOS calling the `didReceiveRemoteNotification` method twice when receiving push in the background.
