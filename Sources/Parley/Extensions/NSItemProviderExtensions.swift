@@ -1,7 +1,7 @@
 import UIKit
 import UniformTypeIdentifiers
 
-extension NSItemProvider {
+extension NSItemProvider: @unchecked @retroactive Sendable {
 
     enum NSItemProviderLoadImageError: Error {
         case unexpectedImageType
@@ -10,7 +10,7 @@ extension NSItemProvider {
     }
 
     @available(iOS 14.0, *)
-    struct LoadedImage {
+    struct LoadedImage: Sendable {
         let image: UIImage
         let data: Data
         let type: UTType

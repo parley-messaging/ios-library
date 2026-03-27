@@ -70,7 +70,11 @@ extension MediaRepository {
     }
 
     private func getRemoteFetchPath(url: URL) -> String {
-        url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
+        guard url.pathComponents.count > 1 else {
+            return url.absoluteString
+        }
+
+        return url.pathComponents.dropFirst().dropFirst().joined(separator: "/")
     }
 
     private func move(_ local: ParleyStoredMedia, to remoteId: String) async {
