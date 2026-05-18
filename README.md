@@ -165,7 +165,7 @@ By default, Parley applies Public Key Pinning on every request executed to the c
 
 You can use the certificates in this repository when using the default base url:
 - `/Example/ParleyExample/Supported Files/_.parley.nu_09-Jun-2025.cer` (Expires at: 10 Jun 2026)
-- `/Example/ParleyExample/Supported Files/_.parley.nu_15-May-2026.cer` (Expires at: 1 Dec 2026)
+- `/Example/ParleyExample/Supported Files/_.parley.nu_15-May-2026.cer` (Expires at: 30 Nov 2026)
 
 When a certificate is going to expire you can safely transition by adding the new `.cer` to the project. It is important to leave the old `.cer` in the app until after the new one is valid. In the next release the old certificate can be removed.
 

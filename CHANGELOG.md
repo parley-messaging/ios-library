@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.4.7 - Released 18 May 2025
+
+- [Example] Updated SSL pinning certificates.
+- [Image] Downloading images after uploading them works again.
+- [Source] Support for Swift 6.3.
+
 ## 4.4.6 - Released 29 Oct 2025
 
 - [Chat] iPad app now correctly shows the share sheet with a popover pointing to the cell the open button was clicked on.
