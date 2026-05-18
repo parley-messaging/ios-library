@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.4.7 - Released 18 May 2025
+## 4.4.7 - Released 18 May 2026
 
 - [Example] Updated SSL pinning certificates.
 - [Image] Downloading images after uploading them works again.
