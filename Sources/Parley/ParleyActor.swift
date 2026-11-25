@@ -101,8 +101,10 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
     @MainActor
     func set(delegate: ParleyDelegate?) async {
         self.delegate = delegate
+        chatOpenedSent = false
         
         await delegate?.didChangeState(state)
+        await sendChatOpenedIfNeeded()
         
         if let reachibilityService = await self.reachibilityService {
             if await reachibilityService.reachable {
@@ -111,6 +113,16 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
                 await delegate?.unreachable(isCachingEnabled: isCachingEnabled())
             }
         }
+    }
+
+    private var chatOpenedSent = false
+
+    /// Tells the service(s) that the chat is opened. Only sent once per displayed chat, and only after
+    /// the device is registered (state is configured), otherwise the API will reject it.
+    private func sendChatOpenedIfNeeded() async {
+        guard delegate != nil, state == .configured, !chatOpenedSent else { return }
+        chatOpenedSent = true
+        try? await eventRemoteService.chatOpened()
     }
 
     private(set) var agentIsTyping = false
@@ -342,6 +354,7 @@ public actor ParleyActor: ParleyProtocol, ReachabilityProvider {
         await MainActor.run {
             delegate?.didChangeState(state)
         }
+        await sendChatOpenedIfNeeded()
     }
 
     private func updateSecretInDataSource() async {

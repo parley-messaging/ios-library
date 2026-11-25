@@ -11,4 +11,8 @@ final class EventRemoteService: Sendable {
     func fire(_ name: UserTypingEvent) async throws {
         try await remote.execute(.post, path: "services/event/\(name.rawValue)")
     }
+
+    func chatOpened() async throws {
+        try await remote.execute(.post, path: "services/event/chatOpened")
+    }
 }
