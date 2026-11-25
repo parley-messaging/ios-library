@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- [Event] Sends the `chatOpened` event to the service(s) when the chat is displayed.
+
 ## 4.4.7 - Released 18 May 2026
 
 - [Example] Updated SSL pinning certificates.
